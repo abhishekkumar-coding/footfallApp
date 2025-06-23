@@ -12,6 +12,8 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomButton from '../../components/CustomButton';
+import { wp, hp } from '../../utils/dimensions'; 
+
 
 const { width } = Dimensions.get('window');
 
@@ -86,22 +88,22 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    gap: 50
+    gap: hp(5)
   },
-  scrollContent: {
-    width: "100%",
-    alignItems: 'center',
-    paddingVertical: 30,
-    paddingBottom: 60,
-    flex: 1,
-    borderWidth: 2,
-    borderColor: "red",
-    alignItems: "center",
-    justifyContent: "space-between",
-  },
+  // scrollContent: {
+  //   width: "100%",
+  //   alignItems: 'center',
+  //   paddingVertical: 30,
+  //   paddingBottom: 60,
+  //   flex: 1,
+  //   borderWidth: 2,
+  //   borderColor: "red",
+  //   alignItems: "center",
+  //   justifyContent: "space-between",
+  // },
   slidesContainer: {
     width: '100%',
-    marginTop: 30,
+    marginTop: hp(5),
   },
   slideContainer: {
     flexDirection: 'row',
@@ -109,44 +111,44 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderWidth: 0.5,
     borderColor: "gray",
-    borderRadius: 20,
+    borderRadius: wp(6),
     paddingHorizontal: 0,
-    paddingVertical: 10,
-    marginHorizontal: 20,
-    marginVertical: 12,
+    paddingVertical: hp(1),
+    marginHorizontal: wp(5),
+    marginVertical: hp(1.5),
     alignItems: 'center',
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.15,
-    shadowRadius: 20,
+    shadowRadius: wp(2),
     elevation: 8,
   },
   slideContainerReverse: {
     flexDirection: 'row-reverse',
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    paddingVertical: 20,
-    paddingHorizontal: 10,
+    paddingVertical: hp(1),
+    paddingHorizontal: wp(2),
   },
   image: {
     width: width * 0.28,
     height: width * 0.28,
     resizeMode: 'contain',
-    borderRadius: 12,
-    marginRight: 15,
-    marginLeft: 15,
+    borderRadius: wp(4),
+    marginRight: wp(4),
+    marginLeft: wp(4),
   },
   textContainer: {
     flex: 1,
   },
   title: {
-    fontSize: 20,
+    fontSize: wp(4),
     // fontWeight: 'bold',
     color: '#fff',
-    marginBottom: 6,
+    marginBottom: hp(0.8),
     fontFamily:"Poppins-SemiBold"
   },
   desc: {
-    fontSize: 15,
+    fontSize: wp(3),
     color: '#d3d3d3',
     fontFamily:"Poppins-Regular"
   },
@@ -156,7 +158,7 @@ const styles = StyleSheet.create({
     marginBottom: 0,
   },
   slogan: {
-    fontSize: 35,
+    fontSize:wp(5),
     // fontWeight: 'bold',
     fontFamily:"Poppins-SemiBold",
     textAlign: 'center',
@@ -165,17 +167,17 @@ const styles = StyleSheet.create({
     marginBottom: 0,
   },
   description: {
-    fontSize: 20,
+    fontSize: wp(4),
     fontFamily:"Poppins-Regular",
     textAlign: 'center',
     color: '#d3d3d3',
-    paddingHorizontal: 30,
-    paddingVertical:20
+    paddingHorizontal: wp(6),
+    paddingVertical:hp(1.5)
   },
   buttonContainer2:{
     flexDirection:"row",
     paddingHorizontal:120,
-    gap:20,
+    gap:wp(5),
 
   },
 });

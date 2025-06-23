@@ -5,6 +5,7 @@ import CustomInput from '../../components/CustomInput'
 import LockIcon from '../../utils/icons/LockIcon'
 import BackButton from '../../components/BackButton'
 import CustomButton from '../../components/CustomButton'
+import { hp, wp } from '../../utils/dimensions'
 
 const NewPasswordScreen = ({ navigation }) => {
 
@@ -32,18 +33,18 @@ export default NewPasswordScreen
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingHorizontal: 24,
-        paddingTop: 60,
-        marginTop: 50,
+        paddingHorizontal: wp(6),
+        paddingTop: hp(4),
+        marginTop: hp(5),
         gap: 0,
     },
     title: {
-        fontSize: 35,
+        fontSize: wp(6),
         fontWeight: 'bold',
         color: '#fff',
     },
     inputContainer: {
-        gap: 20,
-        marginVertical: 50,
+        gap: hp(1),
+        marginVertical: hp(2),
     },
 })

@@ -1,5 +1,6 @@
 import { Image, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React from 'react'
+import { hp, wp } from '../utils/dimensions';
 
 const SocialLoginOptions = ({ onGooglePress, onApplePress }) => {
     return (
@@ -28,7 +29,7 @@ const styles = StyleSheet.create({
         width: '100%',
         flexDirection: 'row',
         alignItems: 'center',
-        marginBottom: 20,
+        // marginBottom: hp(1),
     },
     line: {
         width: '40%',
@@ -38,16 +39,16 @@ const styles = StyleSheet.create({
     },
     orText: {
         color: '#fff',
-        fontSize: 20,
+        fontSize: wp(5),
         // fontWeight: 'bold',
         fontFamily: 'Poppins-Regular',
-        marginHorizontal: 10,
+        marginHorizontal: wp(2),
     },
     buttonGroup: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        paddingVertical:20,
-        marginBottom: 20,
+        paddingVertical:hp(1),
+        marginBottom: hp(2),
     },
     socialButton: {
         borderWidth:1,
@@ -58,26 +59,26 @@ const styles = StyleSheet.create({
         backgroundColor: 'rgba(52, 52, 52, 0.3)',
         // backgroundColor: '#4068F6',
         borderRadius: 15,
-        paddingVertical: 14,
+        paddingVertical: hp(1),
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
         shadowOpacity: 0.12,
         shadowRadius: 6,
         elevation: 5,
-        gap:20,
+        gap:wp(4),
         width: "100%",
     },
     googleIcon: {
-        width: 30,
-        height: 30,
+        width: wp(7),
+        height: hp(3.5),
     },
-    socialIcon: {
-        width: 36,
-        height: 36,
-        resizeMode: 'contain',
-    },
+    // socialIcon: {
+    //     width: 36,
+    //     height: 36,
+    //     resizeMode: 'contain',
+    // },
     socialText: {
-        fontSize: 20,
+        fontSize: wp(4),
         // fontWeight: '500',
         fontFamily: 'Poppins-Regular',
         color: '#FFF',

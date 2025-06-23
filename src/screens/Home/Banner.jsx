@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
+import { hp, wp } from '../../utils/dimensions';
 
 const Banner = () => {
     return (
@@ -22,9 +23,9 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         backgroundColor: '#F8C200', // light yellow/orange
-        padding: 20,
+        padding: wp(4),
         borderRadius: 16,
-        marginVertical: 10,
+        marginVertical: hp(1),
         alignItems: 'center',
         justifyContent: 'space-between',
         shadowColor: '#000',
@@ -37,16 +38,16 @@ const styles = StyleSheet.create({
     },
     
     footfallId: {
-        fontSize: 30,
+        fontSize: wp(6),
         fontFamily: 'Poppins-SemiBold',
         color: '#000',
-        marginTop: 2,
+        marginTop: hp(0.2),
     },
     status: {
-        fontSize: 18,
+        fontSize: wp(4),
         fontFamily: 'Poppins-Regular',
         color: '#444',
-        marginTop: 2,
+        marginTop: hp(0.2),
     },
     date: {
         fontSize: 12,
@@ -54,9 +55,9 @@ const styles = StyleSheet.create({
         fontFamily: 'Poppins-Light',
         marginTop: 4,
     },
-    image: {
-        width: 60,
-        height: 60,
-        resizeMode: 'contain',
-    },
+    // image: {
+    //     width: 60,
+    //     height: 60,
+    //     resizeMode: 'contain',
+    // },
 })

@@ -18,6 +18,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import UserIcon from '../../utils/icons/UserIcon';
 import EmailIcon from '../../utils/icons/EmailIcon';
 import LockIcon from "../../utils/icons/LockIcon"
+import { hp, wp } from '../../utils/dimensions';
 
 const SignupScreen = () => {
   const navigation = useNavigation();
@@ -76,27 +77,27 @@ const styles = StyleSheet.create({
   },
   heading: {
     width:"100%",
-    paddingHorizontal:20,
-    fontSize: 35,
+    paddingHorizontal:wp(5),
+    fontSize: wp(6),
     // fontWeight: '500',
     fontFamily:"Poppins-SemiBold",
-    marginTop:50,
+    marginTop:hp(5),
     color: '#fff',
     textAlign:"left",
   },
   subText: {
     width:"100%",
-    paddingHorizontal:20,
-    fontSize: 20,
+    paddingHorizontal:wp(5),
+    fontSize: wp(4),
     color: '#d3d3d3',
-    marginBottom: 20,
+    marginBottom: hp(2),
     textAlign:"left",
     fontFamily:"Poppins-Regular",
   },
   formGradient: {
     width: '100%',
-    paddingHorizontal: 20,
-    paddingVertical: 30,
+    paddingHorizontal: wp(5),
+    paddingVertical: hp(3),
     borderTopWidth: 0.2,
     borderColor: "gray",
     gap:5
@@ -106,12 +107,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#f7f9fc',
     borderRadius: 12,
-    paddingHorizontal: 15,
-    marginVertical: 10,
-    height: 55,
+    paddingHorizontal: wp(1.5),
+    marginVertical: hp(1),
+    // height: 55,
   },
   icon: {
-    marginRight: 10,
+    // marginRight: 10,
   },
   input: {
     flex: 1,
@@ -119,7 +120,7 @@ const styles = StyleSheet.create({
     color: '#333',
   },
   button: {
-    backgroundColor: '#007bff',
+    // backgroundColor: '#007bff',
     marginTop: 20,
     borderRadius: 12,
     paddingVertical: 15,
@@ -132,7 +133,7 @@ const styles = StyleSheet.create({
   },
   loginText: {
     marginTop: 0,
-    fontSize: 18,
+    fontSize: wp(3),
     color: '#d3d3d3',
     fontFamily:"Poppins-Regular",
     textAlign: 'center',

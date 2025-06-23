@@ -5,6 +5,7 @@ import HeaderHome from './Home/HeaderHome'
 import SearchBar from './Home/SearchBar'
 import Banner from './Home/Banner'
 import ShopList from './Home/ShopList'
+import { hp, wp } from '../utils/dimensions'
 
 const HomeScreen = ({navigation}) => {
     console.log(navigation.getState())
@@ -28,7 +29,7 @@ export default HomeScreen
 
 const style = StyleSheet.create({
     container: {
-        paddingTop: 60,
-        paddingHorizontal: 15,
+        paddingTop: hp(3),
+        paddingHorizontal: wp(3.6),
     }
 })

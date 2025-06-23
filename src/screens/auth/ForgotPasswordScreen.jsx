@@ -12,6 +12,7 @@ import CustomButton from '../../components/CustomButton';
 import BackButton from '../../components/BackButton';
 import LinearGradient from 'react-native-linear-gradient';
 import EmailIcon from '../../utils/icons/EmailIcon';
+import { hp, wp } from '../../utils/dimensions';
 
 const ForgotPasswordScreen = () => {
   const navigation = useNavigation();
@@ -66,19 +67,19 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'flex-start', // corrected 'start' to 'flex-start'
     paddingHorizontal: 0,
-    marginTop: 100
+    marginTop: hp(10)
   },
   heading: {
-    fontSize: 35,
+    fontSize: wp(6),
     // fontWeight: 'bold',
     fontFamily: 'Poppins-SemiBold',
     color: '#fff',
-    paddingHorizontal: 20,
+    paddingHorizontal: wp(5),
     // fontFamily: 'Poppins-Bold',
   },
   subText: {
-    fontSize: 18,
-    paddingHorizontal: 20,
+    fontSize: wp(4),
+    paddingHorizontal: wp(5),
     color: '#d3d3d3',
     marginBottom: 15,
     textAlign: 'center',

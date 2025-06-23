@@ -1,5 +1,6 @@
 import React from 'react';
 import { Pressable, Text, StyleSheet } from 'react-native';
+import { hp, wp } from '../utils/dimensions';
 
 const CustomButton = ({ title, onPress, backgroundColor = '#FF4D00', borderWidth = 0 }) => {
   return (
@@ -13,10 +14,10 @@ export default CustomButton;
 
 const styles = StyleSheet.create({
   button: {
-    borderRadius: 15,
-    paddingVertical: 15,
+    borderRadius: wp(2),
+    paddingVertical: hp(1),
     alignItems: 'center',
-    marginBottom: 25,
+    marginBottom: hp(2),
     marginTop:10,
     width:'100%',
     alignSelf:"center",
@@ -24,7 +25,7 @@ const styles = StyleSheet.create({
   },
   text: {
     color: '#fff',
-    fontSize: 20,
+    fontSize: wp(4),
     // fontWeight: '400',
     fontFamily:'Poppins-Regular'
   },

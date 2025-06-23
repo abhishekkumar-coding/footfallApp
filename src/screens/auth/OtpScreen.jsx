@@ -4,6 +4,7 @@ import LinearGradient from 'react-native-linear-gradient'
 import BackButton from '../../components/BackButton'
 import PencilIcon from '../../utils/icons/PencilIcon'
 import CustomButton from '../../components/CustomButton'
+import { hp, wp } from '../../utils/dimensions'
 
 const OtpScreen = ({ navigation }) => {
   const [otp, setOtp] = useState('')
@@ -54,45 +55,46 @@ export default OtpScreen
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingHorizontal: 24,
-    paddingTop: 60,
-    marginTop: 50,
-    gap: 30,
+    paddingHorizontal: wp(6),
+    paddingTop: hp(2),
+    marginTop: hp(5),
+    gap: wp(7),
   },
   textContainer: {
-    alignItems: "center",
-    gap: 6,
+    alignItems: "flex-start",
+    gap: wp(1),
   },
   textContainerText1: {
     color: '#fff',
     fontFamily: 'Poppins-SemiBold',
-    fontSize: 27,
+    fontSize: wp(6),
   },
   textContainerText2: {
     color: '#fff',
     fontFamily: 'Poppins-Regular',
-    fontSize: 18,
+    fontSize: wp(4),
   },
   textContainerText3: {
     flexDirection: 'row',
-    gap: 10,
+    gap: wp(4),
     alignItems: 'center',
+    justifyContent:"center"
   },
   userEmail: {
     color: '#fff',
     fontFamily: 'Poppins-Regular',
-    fontSize: 18,
+    fontSize: wp(4),
   },
   inputContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    gap: 12,
-    marginTop: 20,
-    paddingHorizontal: 25,
+    gap: wp(3),
+    marginTop: hp(1),
+    paddingHorizontal: wp(5),
   },
   input: {
-    width: 60,
-    height: 60,
+    width: wp(14),
+    height: hp(7),
     borderRadius: 12,
     borderWidth: 1.2,
     borderColor: '#FF4D00',
@@ -103,29 +105,29 @@ const styles = StyleSheet.create({
     fontFamily: "Poppins-SemiBold",
   },
   buttonContainer: {
-    marginTop: 30,
+    marginTop: hp(1),
     alignItems: 'center',
     gap: 12, // ✅ minor update: added spacing
   },
   buttonContainerText: {
     color: '#fff',
     fontFamily: 'Poppins-Regular',
-    fontSize: 18,
+    fontSize: wp(4),
   },
   // ✅ FIX 2: new container style for resend row
   resendContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 10,
+    gap: wp(3),
   },
   resend: {
     color: '#4068F6',
     fontFamily: 'Poppins-SemiBold',
-    fontSize: 18,
+    fontSize: wp(4),
   },
   timer: {
     color: '#fff',
     fontFamily: 'Poppins-Regular',
-    fontSize: 18,
+    fontSize: wp(4),
   },
 });

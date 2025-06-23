@@ -3,6 +3,7 @@ import React from 'react'
 import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 import LeftArrowIcon from '../utils/icons/LeftArrowIcon';
+import { hp, wp } from '../utils/dimensions';
 
 
 const BackButton = () => {
@@ -25,8 +26,8 @@ export default BackButton
 const styles = StyleSheet.create({
     backContainer: {
         position: 'absolute',
-        top: 60,
-        left: 20,
+        top: hp(3),
+        left: wp(4),
         zIndex: 10,
     },
 })

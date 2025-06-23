@@ -1,6 +1,7 @@
 import { SafeAreaView, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import NotificationIcon from '../../utils/icons/NotificationIcon'
+import { wp } from '../../utils/dimensions'
 
 const HeaderHome = () => {
   return (
@@ -24,7 +25,7 @@ const styles = StyleSheet.create({
     logoText:{
         color:"white",
         fontFamily:"Poppins-SemiBold",
-        fontSize:30,
+        fontSize:wp(6),
 
     }
 

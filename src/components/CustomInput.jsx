@@ -4,6 +4,7 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import EmailIcon from '../utils/icons/EmailIcon';
 import CloseEyeIcon from '../utils/icons/CloseEyeIcon';
 import EyeIcon from '../utils/icons/EyeIcon';
+import { hp, wp } from '../utils/dimensions';
 // import OpenEyeIcon from '../utils/icons/openEyeIcon';
 // import OpenEyeIcon from '../utils/icons/openEyeIcon';
 // import OpenEyeIcon from '../utils/icons/openEyeIcon';
@@ -48,37 +49,36 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 10,
-    paddingHorizontal: 20,
-    paddingVertical: 15,
-    marginBottom: 15,
+    borderRadius: wp(3),
+    paddingHorizontal: wp(3),
+    paddingVertical: hp(1),
+    marginBottom: hp(2),
     borderWidth: 1.2,
     borderColor: 'gray',
   },
-  inputContainer:{
+  inputContainer: {
     width: '100%',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  lable:{
+  lable: {
     color: '#d3d3d3',
-    fontSize: 18,
-    // fontWeight: '500',
+    fontSize: wp(3.5),
     fontFamily: 'Poppins-SemiBold',
-    marginBottom: 10,
+    marginBottom: hp(1.2),
   },
   icon: {
-    marginRight: 12,
-    color: '#EAEAEA', // darker, more premium
+    marginRight: wp(3),
+    color: '#EAEAEA',
   },
   input: {
     flex: 1,
-    fontSize: 17,
-    // fontWeight: '500',
+    fontSize: wp(3.4),
     fontFamily: 'Poppins-Regular',
-    color: '#fff', // input text color
+    color: '#fff',
     paddingVertical: 0,
   },
 });
+
 

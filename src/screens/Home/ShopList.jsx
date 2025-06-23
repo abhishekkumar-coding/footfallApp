@@ -1,5 +1,6 @@
 import { FlatList, View, Text, StyleSheet, Image, ScrollView, Touchable, TouchableOpacity } from 'react-native';
 import PhoneIcon from '../../utils/icons/PhoneIcon';
+import { hp, wp } from '../../utils/dimensions';
 // import { Image } from 'react-native-svg';
 
 const shopData = [
@@ -148,7 +149,7 @@ const ShopList = ({ navigation }) => {
             renderItem={renderItem}
             keyExtractor={item => item.id} a
             showsVerticalScrollIndicator={false}
-            ListHeaderComponent={<View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}><Text style={styles.heading}>Nearby Shops</Text><TouchableOpacity onPress={handleViewAll}><Text style={[styles.heading, { fontSize: 18 }]}>View All</Text></TouchableOpacity></View>}
+            ListHeaderComponent={<View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}><Text style={styles.heading}>Nearby Shops</Text><TouchableOpacity onPress={handleViewAll}><Text style={[styles.heading, { fontSize: wp(3) }]}>View All</Text></TouchableOpacity></View>}
             contentContainerStyle={{ gap: 15 }}
             numColumns={2}
         />
@@ -159,21 +160,21 @@ export default ShopList;
 const styles = StyleSheet.create({
     listWrapper: {
         // paddingHorizontal: 20,
-        paddingTop: 10,
+        paddingTop: hp(1),
     },
     heading: {
-        fontSize: 22,
+        fontSize: wp(5),
         fontFamily: 'Poppins-SemiBold',
         color: '#fff',
-        marginBottom: 10,
+        marginBottom: hp,
     },
     card: {
         width: '47%',
         backgroundColor: '#1f1f1f',
         borderRadius: 12,
         // padding: 12,
-        marginBottom: 15,
-        marginHorizontal: '1.5%',
+        marginBottom: hp(2),
+        marginHorizontal: wp(1),
         shadowColor: '#000',
         shadowOpacity: 0.1,
         shadowRadius: 8,
@@ -182,35 +183,35 @@ const styles = StyleSheet.create({
     },
     cardImage: {
         width: '100%',
-        height: 120,
+        height: hp(14),
         borderTopLeftRadius: 10,
         borderTopRightRadius: 10,
-        marginBottom: 10,
+        marginBottom: hp(0),
     },
     name: {
-        fontSize: 16,
+        fontSize: wp(3),
         color: '#fff',
         fontFamily: 'Poppins-SemiBold',
     },
     location: {
         color: '#d3d3d3',
-        fontSize: 14,
+        fontSize: wp(3),
         marginBottom: 4,
         fontFamily: 'Poppins-Regular',
     },
     category: {
         color: '#A9CEFF',
-        fontSize: 14,
+        fontSize: wp(2.5),
         fontFamily: 'Poppins-Regular',
     },
     details: {
-        fontSize: 14,
+        fontSize: wp(1.9),
         color: '#FFD700',
         marginBottom: 2,
         fontFamily: 'Poppins-Medium',
     },
     timings: {
-        fontSize: 13,
+        fontSize: wp(3),
         color: '#bbb',
         fontFamily: 'Poppins-Regular',
     },
@@ -223,7 +224,7 @@ const styles = StyleSheet.create({
     location: {
         color: "#d3d3d3",
         fontFamily: "Poppins-Regular",
-        fontSize: 18,
+        fontSize: wp(3.5),
     },
     contactButton: {
         backgroundColor: "#3B63EF",
