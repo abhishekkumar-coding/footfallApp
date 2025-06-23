@@ -117,3 +117,14 @@ dependencies {
         implementation jscFlavor
     }
 }
+
+afterEvaluate {
+    if (tasks.findByName("generateDebugLintReportModel") && tasks.findByName("copyReactNativeVectorIconFonts")) {
+        tasks.named("generateDebugLintReportModel").configure {
+            dependsOn("copyReactNativeVectorIconFonts")
+        }
+    }
+}
+
+
+apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
