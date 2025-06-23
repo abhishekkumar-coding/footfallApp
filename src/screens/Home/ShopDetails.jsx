@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import BackButton from '../../components/BackButton';
+import { hp, wp } from '../../utils/dimensions';
 
 const ShopDetails = ({ route }) => {
     const { shop } = route.params;
@@ -108,102 +109,101 @@ export default ShopDetails;
 
 const styles = StyleSheet.create({
     container: {
-        marginTop: 0,
+        // marginTop: 0,
         // flex: 1,
     },
     image: {
-        height: 330,
+        height: hp(35),
         marginBottom: 20,
     },
     shopDetails: {
         backgroundColor: "#fff",
         flex: 1,
-        gap: 10,
-        paddingVertical: 30,
-        paddingHorizontal: 20,
+        gap: wp(2),
+        paddingVertical: hp(3),
+        paddingHorizontal: wp(5),
         position: "relative",
-        bottom: 60,
+        bottom: hp(7),
         borderTopLeftRadius: 50,
         borderTopRightRadius: 50
     },
     title: {
-        fontSize: 30,
+        fontSize: wp(7),
         color: '#000',
         // fontWeight: 'bold',
         fontFamily: "Poppins-Bold"
     },
     rating: {
-        fontSize: 20,
+        fontSize: wp(4),
         color: '#000',
         marginVertical: 4,
         fontFamily: "Poppins-SemiBold"
     },
     category: {
         color: '#3B63EF',
-        fontSize: 20,
-        marginBottom: 4,
+        fontSize: wp(4),
+        marginBottom: hp(0),
         fontFamily: "Poppins-SemiBold"
     },
     location: {
         color: '#000',
-        fontSize: 20,
+        fontSize: wp(4),
         fontFamily: "Poppins-Regular"
     },
     address: {
         color: '#000',
-        fontSize: 20,
+        fontSize: wp(4),
         fontFamily: "Poppins-Regular"
     },
     timings: {
         color: '#000',
-        fontSize: 20,
+        fontSize: wp(4),
         fontFamily: "Poppins-Regular"
     },
     contact: {
         color: '#3B63EF',
-        fontSize: 22,
-        marginTop: 10,
+        fontSize: wp(4),
         fontFamily: "Poppins-SemiBold"
     },
     reviewConatiner: {
-        marginTop: 20
+        marginTop: hp(2)
     },
     header: {
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center"
     },
-    headerText1: {
-        color: "#000",
-        fontSize: 25,
-        fontFamily: "Poppins-SemiBold"
-    },
-    headerText2: {
-        color: "#000",
-        fontSize: 20,
-        fontFamily: "Poppins-Regular"
-    },
+    // headerText1: {
+    //     color: "#fff",
+    //     fontSize: wp(7),
+    //     fontFamily: "Poppins-SemiBold"
+    // },
+    // headerText2: {
+    //     color: "#000",
+    //     fontSize: 20,
+    //     fontFamily: "Poppins-Regular"
+    // },
     offerSection: {
-        marginTop: 30,
+        marginTop: hp(3),
     },
     offerHeader: {
-        fontSize: 24,
+        fontSize: wp(6),
         fontFamily: "Poppins-SemiBold",
         color: "#000"
     },
     offerSubtext: {
-        fontSize: 16,
+        fontSize: wp(4),
         color: "#555",
-        marginBottom: 10,
+        marginBottom: hp(1),
         fontFamily: "Poppins-Regular"
     },
     sortContainer: {
         flexDirection: "row",
-        gap: 15,
-        marginBottom: 15
+        gap: wp(4),
+        marginBottom: hp(1.5)
     },
     sortOption: {
-        fontSize: 16,
+        fontSize: wp(3.5),
         color: "#3B63EF",
         fontFamily: "Poppins-Regular"
     },
@@ -214,16 +214,16 @@ const styles = StyleSheet.create({
     offerCard: {
         backgroundColor: "#F2F3F5",
         borderRadius: 10,
-        padding: 15,
-        marginTop: 10
+        padding: wp(4),
+        marginTop: hp(1)
     },
     offerTitle: {
-        fontSize: 18,
+        fontSize: wp(4),
         color: "#000",
         fontFamily: "Poppins-SemiBold"
     },
     offerDetails: {
-        fontSize: 14,
+        fontSize: wp(3.5),
         color: "#555",
         fontFamily: "Poppins-Regular"
     }

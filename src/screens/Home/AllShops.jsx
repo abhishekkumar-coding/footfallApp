@@ -2,6 +2,7 @@ import { StyleSheet, Text, View, FlatList, TouchableOpacity, Image } from 'react
 import React, { useState } from 'react'
 import LinearGradient from 'react-native-linear-gradient'
 import { useNavigation } from '@react-navigation/native';
+import { hp, wp } from '../../utils/dimensions';
 
 const AllShops = ({ route }) => {
     const { shopsData } = route.params;
@@ -56,11 +57,12 @@ export default AllShops;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 60,
-        paddingHorizontal: 15,
+        paddingTop: hp(3),
+        paddingBottom: hp(12),
+        paddingHorizontal: wp(4),
     },
     title: {
-        fontSize: 26,
+        fontSize: wp(5),
         color: '#3B63EF',
         fontFamily: 'Poppins-SemiBold',
         alignSelf: "center",
@@ -68,8 +70,8 @@ const styles = StyleSheet.create({
         borderColor: "#fff",
         alignItems: "center",
         borderRadius: 30,
-        paddingHorizontal: 25,
-        paddingVertical: 5
+        paddingHorizontal: wp(6),
+        paddingVertical: hp(0.5)
     },
     titleContainer: {
         justifyContent: "center",
@@ -77,70 +79,61 @@ const styles = StyleSheet.create({
         marginBottom: 30
     },
     card: {
-        width: '47%',
-        backgroundColor: '#1f1f1f',
-        borderRadius: 12,
-        // padding: 12,
-        marginBottom: 15,
-        marginHorizontal: '1.5%',
-        shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowRadius: 8,
-        elevation: 3,
-        position: "relative",
-    },
-    cardImage: {
-        width: '100%',
-        height: 120,
-        borderTopLeftRadius: 10,
-        borderTopRightRadius: 10,
-        marginBottom: 10,
-    },
-    name: {
-        fontSize: 16,
-        color: '#fff',
-        fontFamily: 'Poppins-SemiBold',
-    },
-    location: {
-        color: '#d3d3d3',
-        fontSize: 14,
-        marginBottom: 4,
-        fontFamily: 'Poppins-Regular',
-    },
-    category: {
-        color: '#A9CEFF',
-        fontSize: 14,
-        fontFamily: 'Poppins-Regular',
-    },
-    details: {
-        fontSize: 14,
-        color: '#FFD700',
-        marginBottom: 2,
-        fontFamily: 'Poppins-Medium',
-    },
-    timings: {
-        fontSize: 13,
-        color: '#bbb',
-        fontFamily: 'Poppins-Regular',
-    },
-    contact: {
-        fontSize: 16,
-        color: '#fff',
-        fontFamily: 'Poppins-SemiBold',
-        alignSelf: "center"
-    },
-    location: {
-        color: "#d3d3d3",
-        fontFamily: "Poppins-Regular",
-        fontSize: 18,
-    },
-    contactButton: {
-        backgroundColor: "#3B63EF",
-        alignItems: "center",
-        justifyContent: "center",
-        paddingVertical: 10,
-        paddingHorizontal: 10,
-        borderRadius: 10,
-        alignSelf: "center"
-    }
+            width: '47%',
+            backgroundColor: '#1f1f1f',
+            borderRadius: 12,
+            // padding: 12,
+            marginBottom: hp(0),
+            marginHorizontal: wp(1),
+            shadowColor: '#000',
+            shadowOpacity: 0.1,
+            shadowRadius: 8,
+            elevation: 3,
+            position: "relative"
+        },
+        cardImage: {
+            width: '100%',
+            height: hp(14),
+            borderTopLeftRadius: 10,
+            borderTopRightRadius: 10,
+            marginBottom: hp(0),
+        },
+        name: {
+            fontSize: wp(3),
+            color: '#fff',
+            fontFamily: 'Poppins-SemiBold',
+        },
+        location: {
+            color: '#d3d3d3',
+            fontSize: wp(3),
+            marginBottom: 4,
+            fontFamily: 'Poppins-Regular',
+        },
+        category: {
+            color: '#A9CEFF',
+            fontSize: wp(2.5),
+            fontFamily: 'Poppins-Regular',
+        },
+        details: {
+            fontSize: wp(1.9),
+            color: '#FFD700',
+            marginBottom: 2,
+            fontFamily: 'Poppins-Medium',
+        },
+        timings: {
+            fontSize: wp(3),
+            color: '#bbb',
+            fontFamily: 'Poppins-Regular',
+        },
+        contact: {
+            fontSize: 16,
+            color: '#fff',
+            fontFamily: 'Poppins-SemiBold',
+            alignSelf: "center"
+        },
+        location: {
+            color: "#d3d3d3",
+            fontFamily: "Poppins-Regular",
+            fontSize: wp(3.5),
+        },
 });

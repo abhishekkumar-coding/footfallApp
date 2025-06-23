@@ -1,11 +1,12 @@
 import * as React from "react";
 import Svg, { Path, Rect } from "react-native-svg";
+import { hp, wp } from "../dimensions";
 /* SVGR has dropped some elements not supported by react-native-svg: title */
 const ProfileEditIcon = (props) => (
   <Svg
     fill="#fff"
-    width="30px"
-    height="30px"
+    width={wp(6)}
+    height={hp(3)}
     viewBox="0 0 36 36"
     preserveAspectRatio="xMidYMid meet"
     xmlns="http://www.w3.org/2000/svg"

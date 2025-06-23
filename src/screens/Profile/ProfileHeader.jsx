@@ -2,6 +2,7 @@ import { Image, StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import PencilIcon from '../../utils/icons/PencilIcon'
 import ProfileEditIcon from '../../utils/icons/ProfileEditIcon'
+import { hp, wp } from '../../utils/dimensions'
 
 const ProfileHeader = ({navigation}) => {
     return (
@@ -27,39 +28,39 @@ const styles = StyleSheet.create({
         flexDirection:"row",
         justifyContent:"space-between",
         alignItems:"center",
-        marginTop:40
+        marginTop:hp(2)
     },
     profileDetails:{
         flexDirection:"row",
         alignItems:"center",
         justifyContent:"center",
-        gap:20
+        gap:wp(6)
     },
 
     profileIcon:{
         backgroundColor:"#FF6F00",
         justifyContent:"center",
         alignItems:"center",
-        width:60,
-        height:60,
+        width:wp(15),
+        height:hp(7),
         borderRadius:50,
         overflow:"hidden"
     },
     profileImage:{
-        width:50,
-        height:50,
+        width:wp(15),
+        height:hp(7),
         resizeMode:"cover",
-        marginTop:10
+        marginTop:hp(1)
     },
     details:{},
     userName:{
         fontFamily:"Poppins-SemiBold",
-        fontSize:20,
+        fontSize:wp(4),
         color:"#fff"
     },
     userGmail:{
         fontFamily:"Poppins-Regular",
-        fontSize:16,
+        fontSize:wp(3),
         color:"#d3d3d3"
     }
 

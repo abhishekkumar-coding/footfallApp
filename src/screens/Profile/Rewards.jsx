@@ -2,6 +2,7 @@
 import React from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';    
+import { hp, wp } from '../../utils/dimensions';
 const Rewards = ({ points = 10 }) => {
   return (
     <LinearGradient
@@ -32,12 +33,12 @@ const styles = StyleSheet.create({
     justifyContent:"center",
     alignItems:"center",
     width: '100%',
-    height: 120,
+    height: hp(13),
     borderRadius: 20,
-    padding: 20,
+    padding: wp(5),
     justifyContent: 'space-between',
-    marginTop:30,
-    marginBottom:10
+    marginTop:hp(3),
+    marginBottom:hp(1)
   },
   row: {
     flexDirection: 'row',
@@ -51,13 +52,13 @@ const styles = StyleSheet.create({
   },
   label: {
     fontFamily: 'Poppins-SemiBold',
-    fontSize: 20,
+    fontSize: wp(5),
     color: '#fff',
     marginLeft: 6,
   },
   points: {
     fontFamily: 'Poppins-Bold',
-    fontSize: 36,
+    fontSize: wp(7),
     color: '#fff',
   },
 });

@@ -161,6 +161,7 @@ const styles = StyleSheet.create({
     listWrapper: {
         // paddingHorizontal: 20,
         paddingTop: hp(1),
+        paddingBottom:hp(10)
     },
     heading: {
         fontSize: wp(5),

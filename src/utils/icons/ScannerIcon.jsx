@@ -1,10 +1,11 @@
 import * as React from "react";
 import Svg, { Path } from "react-native-svg";
+import { hp, wp } from "../dimensions";
 const ScannerIcon = (props) => (
   <Svg
     fill="#fff"
-    width="30px"
-    height="30px"
+    width={wp(6)}
+        height={hp(3)}
     viewBox="0 0 24 24"
     id="qr-code-scan-2"
     data-name="Flat Line"

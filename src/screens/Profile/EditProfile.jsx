@@ -4,6 +4,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import BackButton from '../../components/BackButton';
 import CustomButton from '../../components/CustomButton';
 import CustomInput from '../../components/CustomInput';
+import { hp, wp } from '../../utils/dimensions';
 
 const EditProfile = () => {
     const [name, setName] = useState('Abhishek Kumar');
@@ -20,6 +21,7 @@ const EditProfile = () => {
             <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
                 <BackButton />
                 <Text style={styles.heading}>Edit Profile</Text>
+                <View style={{paddingHorizontal:wp(5)}}>
                 <View style={styles.profileImageContainer}>
                     <Image
                         source={{ uri: 'https://i.pravatar.cc/150?img=12' }}
@@ -44,6 +46,7 @@ const EditProfile = () => {
                 <CustomInput lable={"Pincode"} placeholder={pincode} />
 
                 <CustomButton title="Save Changes" />
+                </View>
             </ScrollView>
         </LinearGradient>
     );
@@ -54,23 +57,23 @@ export default EditProfile;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 10,
-        paddingHorizontal: 20,
+        paddingTop: hp(1),
+        paddingHorizontal: wp(0),
     },
     heading: {
         fontFamily: "Poppins-Bold",
-        fontSize: 24,
+        fontSize: wp(5),
         color: "#fff",
         textAlign: "center",
         marginTop: 20
     },
     scrollContainer: {
-        paddingBottom: 80,
-        paddingTop: 40
+        paddingBottom: hp(10),
+        paddingTop: hp(0)
     },
     profileImageContainer: {
         alignItems: 'center',
-        marginBottom: 30,
+        marginBottom: hp(3),
     },
     profileImage: {
         width: 110,
@@ -78,12 +81,12 @@ const styles = StyleSheet.create({
         borderRadius: 55,
         borderWidth: 2,
         borderColor: '#fff',
-        marginTop: 20
+        marginTop: hp(3)
     },
     changePhoto: {
         color: '#3B63EF',
-        marginTop: 10,
-        fontSize: 16,
+        marginTop: hp(1),
+        fontSize: wp(4),
         fontFamily: 'Poppins-Medium',
     },
     // input: {

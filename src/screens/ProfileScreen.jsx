@@ -11,6 +11,7 @@ import WalletIcon from '../utils/icons/WalletIcon'
 import ScannerIcon from '../utils/icons/ScannerIcon'
 import ProfileEditIcon from '../utils/icons/ProfileEditIcon'
 import LogOutIcon from '../utils/icons/LogOutIcon'
+import { hp, wp } from '../utils/dimensions'
 
 const ProfileScreen = ({ navigation }) => {
     const [activeTab, setActiveTab] = useState("")
@@ -61,12 +62,12 @@ export default ProfileScreen
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: 50,
-        paddingHorizontal: 15,
+        paddingTop: hp(1.7),
+        paddingHorizontal: wp(4),
     },
     heading: {
         fontFamily: "Poppins-Bold",
-        fontSize: 24,
+        fontSize: wp(6),
         color: "#fff",
         textAlign: "center",
     },
@@ -75,16 +76,16 @@ const styles = StyleSheet.create({
         alignItems: 'center',
         justifyContent: "space-between",
         backgroundColor: 'rgba(255,255,255, 0.13)',
-        padding: 20,
-        marginTop: 30,
+        padding: wp(4),
+        marginTop: hp(3),
         borderRadius: 20,
-        gap: 20,
+        gap: wp(4),
         borderWidth: 0.5,
         borderColor: "#FF0400"
     },
     heading2: {
         fontFamily: 'Poppins-SemiBold',
-        fontSize: 22,
+        fontSize: wp(3.5),
         color: '#FF0400',
     },
 

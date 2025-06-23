@@ -1,10 +1,11 @@
 import * as React from "react";
 import Svg, { Polyline, Line, Path } from "react-native-svg";
+import { hp, wp } from "../dimensions";
 const LogOutIcon = (props) => (
   <Svg
     fill="#fff"
-    width="30px"
-    height="30px"
+    width={wp(6)}
+        height={hp(3)}
     viewBox="0 0 24 24"
     id="sign-out-left-2"
     data-name="Line Color"

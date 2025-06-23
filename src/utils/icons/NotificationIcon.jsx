@@ -1,9 +1,10 @@
 import * as React from "react";
 import Svg, { Path } from "react-native-svg";
+import { hp, wp } from "../dimensions";
 const NotificationIcon = (props) => (
   <Svg
-    width="30px"
-    height="30px"
+    width={wp(6)}
+        height={hp(3)}
     viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
