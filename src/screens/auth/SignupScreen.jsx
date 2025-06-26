@@ -7,8 +7,8 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
+  SafeAreaView,
 } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
 import { useNavigation } from '@react-navigation/native';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
@@ -17,51 +17,94 @@ import SocialLoginOptions from '../../components/SocialLoginOptions';
 import LinearGradient from 'react-native-linear-gradient';
 import UserIcon from '../../utils/icons/UserIcon';
 import EmailIcon from '../../utils/icons/EmailIcon';
-import LockIcon from "../../utils/icons/LockIcon"
+import LockIcon from "../../utils/icons/LockIcon";
 import { hp, wp } from '../../utils/dimensions';
+import { RFValue } from 'react-native-responsive-fontsize';
+import PhoneIcon from '../../utils/icons/PhoneIcon';
+import { useSignupMutation } from '../../features/auth/authApi';
 
 const SignupScreen = () => {
   const navigation = useNavigation();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('');
 
-  const handleSignup = () => {
-    // Signup logic
-    Alert.alert(`Name: ${name}, Email: ${email}, Password: ${password}`);
+  const [signup, { isLoading }] = useSignupMutation();
+
+  const handleSignup = async () => {
+    if (!name || !email || !phone || !password) {
+      return Alert.alert('All fields are required!');
+    }
+    try {
+      const userData = { name, email, password, phone };
+      const response = await signup(userData).unwrap();
+
+      Alert.alert('Signup Successful', 'You can now log in.', [
+        { text: 'OK', onPress: () => navigation.navigate('Login') }
+      ]);
+        console.log(response)
+
+    } catch (error) {
+      console.log("Signup error", error);
+      Alert.alert('Signup Failed', error?.data?.message || 'Something went wrong');
+    }
   };
 
   return (
-    <LinearGradient
-      colors={['#000337', '#000000']}
-      style={{ flex: 1 }}
-    >
-      <View style={styles.container}>
-        <BackButton />
-        <Text style={styles.heading}>Create an account ✨</Text>
+    <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1 }}>
+        <View style={styles.container}>
+          <BackButton />
+          <Text style={styles.heading}>Create an account ✨</Text>
           <Text style={styles.subText}>Join us today! It only takes a moment</Text>
 
-        <LinearGradient
-          colors={['rgba(255, 255, 255, 0.1)', '#000']} 
-          style={styles.formGradient}
-        >
+          <LinearGradient
+            colors={['rgba(255, 255, 255, 0.1)', '#000']}
+            style={styles.formGradient}
+          >
+            <CustomInput
+              placeholder={'Enter Name'}
+              lable={"Name"}
+              iconComponent={<UserIcon />}
+              value={name}
+              onChangeText={setName}
+            />
+            <CustomInput
+              placeholder={'Enter Email'}
+              lable={"Email"}
+              iconComponent={<EmailIcon />}
+              value={email}
+              onChangeText={setEmail}
+            />
+            <CustomInput
+              placeholder={'Enter Phone'}
+              lable={"Phone"}
+              iconComponent={<PhoneIcon />}
+              value={phone}
+              onChangeText={setPhone}
+            />
+            <CustomInput
+              placeholder={'Enter Password'}
+              lable={"Password"}
+              iconComponent={<LockIcon />}
+              value={password}
+              onChangeText={setPassword}
+              isPassword={true}
+            />
 
-
-          <CustomInput placeholder={'Enter Name'} lable={"Name"} iconComponent={<UserIcon/>} value={name} onChangeText={setName} />
-          <CustomInput placeholder={'Enter Email'} lable={"Email"} iconComponent={<EmailIcon/>} value={email} onChangeText={setEmail} />
-          <CustomInput placeholder={'Enter Password'} lable={"Password"} iconComponent={<LockIcon/>} value={password} onChangeText={setPassword} isPassword={true} />
-
-          <CustomButton title={'Sign Up'} onPress={handleSignup} />
-          <SocialLoginOptions />
-          <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-            <Text style={styles.loginText}>
-              Already have an account?{' '}
-              <Text style={{ color: '#4068F6', fontWeight: 'bold' }}>Login</Text>
-            </Text>
-          </TouchableOpacity>
-        </LinearGradient>
-      </View >
-    </LinearGradient >
+            <CustomButton title={'Sign Up'} onPress={handleSignup} />
+            <SocialLoginOptions />
+            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
+              <Text style={styles.loginText}>
+                Already have an account?{' '}
+                <Text style={{ color: '#4068F6', fontWeight: 'bold' }}>Login</Text>
+              </Text>
+            </TouchableOpacity>
+          </LinearGradient>
+        </View>
+      </SafeAreaView>
+    </LinearGradient>
   );
 };
 
@@ -69,38 +112,37 @@ export default SignupScreen;
 
 const styles = StyleSheet.create({
   container: {
-    width:"100%",
+    width: "100%",
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 0,
   },
   heading: {
-    width:"100%",
-    paddingHorizontal:wp(5),
-    fontSize: wp(6),
-    // fontWeight: '500',
-    fontFamily:"Poppins-SemiBold",
-    marginTop:hp(5),
+    width: "100%",
+    paddingHorizontal: wp(5),
+    fontSize: RFValue(17),
+    fontFamily: "Poppins-SemiBold",
+    marginTop: hp(7),
     color: '#fff',
-    textAlign:"left",
+    textAlign: "left",
   },
   subText: {
-    width:"100%",
-    paddingHorizontal:wp(5),
-    fontSize: wp(4),
+    width: "100%",
+    paddingHorizontal: wp(5),
+    fontSize: RFValue(11),
     color: '#d3d3d3',
-    marginBottom: hp(2),
-    textAlign:"left",
-    fontFamily:"Poppins-Regular",
+    marginBottom: hp(1),
+    textAlign: "left",
+    fontFamily: "Poppins-Regular",
   },
   formGradient: {
     width: '100%',
     paddingHorizontal: wp(5),
-    paddingVertical: hp(3),
+    paddingVertical: hp(2),
     borderTopWidth: 0.2,
     borderColor: "gray",
-    gap:5
+    gap: 5,
   },
   inputContainer: {
     flexDirection: 'row',
@@ -108,34 +150,24 @@ const styles = StyleSheet.create({
     backgroundColor: '#f7f9fc',
     borderRadius: 12,
     paddingHorizontal: wp(1.5),
-    marginVertical: hp(1),
-    // height: 55,
-  },
-  icon: {
-    // marginRight: 10,
+    marginVertical: hp(0),
   },
   input: {
     flex: 1,
-    fontSize: 16,
+    fontSize: RFValue(14),
     color: '#333',
   },
   button: {
-    // backgroundColor: '#007bff',
-    marginTop: 20,
+    marginTop: hp(2),
     borderRadius: 12,
-    paddingVertical: 15,
+    paddingVertical: 0,
     alignItems: 'center',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
   },
   loginText: {
     marginTop: 0,
-    fontSize: wp(3),
+    fontSize: RFValue(10),
     color: '#d3d3d3',
-    fontFamily:"Poppins-Regular",
+    fontFamily: "Poppins-Regular",
     textAlign: 'center',
   },
 });

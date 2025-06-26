@@ -26,7 +26,7 @@ export default BackButton
 const styles = StyleSheet.create({
     backContainer: {
         position: 'absolute',
-        top: hp(3),
+        top: hp(5),
         left: wp(4),
         zIndex: 10,
     },

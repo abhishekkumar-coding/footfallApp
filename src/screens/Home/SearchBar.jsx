@@ -23,7 +23,7 @@ const SearchBar = () => {
 export default SearchBar
 
 const styles = StyleSheet.create({
-    container: {
+   container: {
         flexDirection: "row",
         justifyContent: "space-between",
         alignItems: "center",
@@ -43,5 +43,5 @@ const styles = StyleSheet.create({
     searchInput:{
         fontFamily:"Poppins-Regular",
         fontSize:wp(4),
-    },
+    }
 })

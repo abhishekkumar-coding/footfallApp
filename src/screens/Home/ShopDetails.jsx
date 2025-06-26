@@ -40,19 +40,19 @@ const ShopDetails = ({ route }) => {
         },
     ];
 
-   const getSortedOffers = () => {
-    const sortedOffers = [...sampleOffers];
+    const getSortedOffers = () => {
+        const sortedOffers = [...sampleOffers];
 
-    if (sortBy === "Ending Soon") {
-        return sortedOffers.sort((a, b) =>
-            new Date(a.expiryDate || 0) - new Date(b.expiryDate || 0)
-        );
-    } else if (sortBy === "Distance") {
-        return sortedOffers.sort((a, b) => a.distance - b.distance);
-    } else {
-        return [...sortedOffers].reverse(); // safe reverse
-    }
-};
+        if (sortBy === "Ending Soon") {
+            return sortedOffers.sort((a, b) =>
+                new Date(a.expiryDate || 0) - new Date(b.expiryDate || 0)
+            );
+        } else if (sortBy === "Distance") {
+            return sortedOffers.sort((a, b) => a.distance - b.distance);
+        } else {
+            return [...sortedOffers].reverse(); // safe reverse
+        }
+    };
 
 
 
@@ -61,7 +61,7 @@ const ShopDetails = ({ route }) => {
             colors={['#000337', '#000000']}
             style={{ flex: 1 }}
         >
-            {/* <BackButton /> */}
+            <BackButton />
             <ScrollView style={styles.container}>
 
                 <Image source={{ uri: shop.image }} style={styles.image} />
@@ -81,7 +81,7 @@ const ShopDetails = ({ route }) => {
 
                         <View style={styles.sortContainer}>
                             {['Latest', 'Ending Soon', 'Distance'].map((option) => (
-                                <TouchableOpacity onPress={()=>setSortBy(option)}>
+                                <TouchableOpacity onPress={() => setSortBy(option)}>
                                     <Text style={[styles.sortOption, sortBy === option && styles.activeSortOption]}>{option}</Text>
                                 </TouchableOpacity>
                             ))}

@@ -3,6 +3,7 @@ import React from 'react';
 import { StyleSheet, View, Text } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';    
 import { hp, wp } from '../../utils/dimensions';
+import { RFValue } from 'react-native-responsive-fontsize';
 const Rewards = ({ points = 10 }) => {
   return (
     <LinearGradient
@@ -52,13 +53,13 @@ const styles = StyleSheet.create({
   },
   label: {
     fontFamily: 'Poppins-SemiBold',
-    fontSize: wp(5),
+    fontSize: RFValue(18),
     color: '#fff',
     marginLeft: 6,
   },
   points: {
     fontFamily: 'Poppins-Bold',
-    fontSize: wp(7),
+    fontSize: RFValue(20),
     color: '#fff',
   },
 });

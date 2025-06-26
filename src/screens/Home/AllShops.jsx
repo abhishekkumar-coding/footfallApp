@@ -3,6 +3,7 @@ import React, { useState } from 'react'
 import LinearGradient from 'react-native-linear-gradient'
 import { useNavigation } from '@react-navigation/native';
 import { hp, wp } from '../../utils/dimensions';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 const AllShops = ({ route }) => {
     const { shopsData } = route.params;
@@ -55,85 +56,79 @@ const AllShops = ({ route }) => {
 export default AllShops;
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        paddingTop: hp(3),
-        paddingBottom: hp(12),
-        paddingHorizontal: wp(4),
-    },
-    title: {
-        fontSize: wp(5),
-        color: '#3B63EF',
-        fontFamily: 'Poppins-SemiBold',
-        alignSelf: "center",
-        borderWidth: 1,
-        borderColor: "#fff",
-        alignItems: "center",
-        borderRadius: 30,
-        paddingHorizontal: wp(6),
-        paddingVertical: hp(0.5)
-    },
-    titleContainer: {
-        justifyContent: "center",
-        marginTop: 10,
-        marginBottom: 30
-    },
-    card: {
-            width: '47%',
-            backgroundColor: '#1f1f1f',
-            borderRadius: 12,
-            // padding: 12,
-            marginBottom: hp(0),
-            marginHorizontal: wp(1),
-            shadowColor: '#000',
-            shadowOpacity: 0.1,
-            shadowRadius: 8,
-            elevation: 3,
-            position: "relative"
-        },
-        cardImage: {
-            width: '100%',
-            height: hp(14),
-            borderTopLeftRadius: 10,
-            borderTopRightRadius: 10,
-            marginBottom: hp(0),
-        },
-        name: {
-            fontSize: wp(3),
-            color: '#fff',
-            fontFamily: 'Poppins-SemiBold',
-        },
-        location: {
-            color: '#d3d3d3',
-            fontSize: wp(3),
-            marginBottom: 4,
-            fontFamily: 'Poppins-Regular',
-        },
-        category: {
-            color: '#A9CEFF',
-            fontSize: wp(2.5),
-            fontFamily: 'Poppins-Regular',
-        },
-        details: {
-            fontSize: wp(1.9),
-            color: '#FFD700',
-            marginBottom: 2,
-            fontFamily: 'Poppins-Medium',
-        },
-        timings: {
-            fontSize: wp(3),
-            color: '#bbb',
-            fontFamily: 'Poppins-Regular',
-        },
-        contact: {
-            fontSize: 16,
-            color: '#fff',
-            fontFamily: 'Poppins-SemiBold',
-            alignSelf: "center"
-        },
-        location: {
-            color: "#d3d3d3",
-            fontFamily: "Poppins-Regular",
-            fontSize: wp(3.5),
-        },
+  container: {
+    flex: 1,
+    paddingTop: hp(6),
+    paddingBottom: hp(12),
+    paddingHorizontal: wp(4),
+  },
+  title: {
+    fontSize: RFValue(14),
+    color: '#3B63EF',
+    fontFamily: 'Poppins-SemiBold',
+    alignSelf: 'center',
+    borderWidth: 1,
+    borderColor: '#fff',
+    alignItems: 'center',
+    borderRadius: 30,
+    paddingHorizontal: wp(6),
+    paddingVertical: hp(0.5),
+  },
+  titleContainer: {
+    justifyContent: 'center',
+    marginTop: 10,
+    marginBottom: 30,
+  },
+  card: {
+    width: '47%',
+    backgroundColor: '#1f1f1f',
+    borderRadius: 12,
+    marginBottom: hp(0),
+    marginHorizontal: wp(1),
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 8,
+    elevation: 3,
+    position: 'relative',
+  },
+  cardImage: {
+    width: '100%',
+    height: hp(14),
+    borderTopLeftRadius: 10,
+    borderTopRightRadius: 10,
+    marginBottom: hp(0),
+  },
+  name: {
+    fontSize: RFValue(11),
+    color: '#fff',
+    fontFamily: 'Poppins-SemiBold',
+  },
+  location: {
+    color: '#d3d3d3',
+    fontSize: RFValue(11.5),
+    fontFamily: 'Poppins-Regular',
+  },
+  category: {
+    color: '#A9CEFF',
+    fontSize: RFValue(10),
+    fontFamily: 'Poppins-Regular',
+  },
+  details: {
+    fontSize: RFValue(9),
+    color: '#FFD700',
+    marginBottom: 2,
+    fontFamily: 'Poppins-Medium',
+  },
+  timings: {
+    fontSize: RFValue(11),
+    color: '#bbb',
+    fontFamily: 'Poppins-Regular',
+  },
+  contact: {
+    fontSize: RFValue(13),
+    color: '#fff',
+    fontFamily: 'Poppins-SemiBold',
+    alignSelf: 'center',
+  },
 });
+

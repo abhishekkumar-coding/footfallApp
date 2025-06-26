@@ -1,6 +1,14 @@
 import { FlatList, View, Text, StyleSheet, Image, ScrollView, Touchable, TouchableOpacity } from 'react-native';
 import PhoneIcon from '../../utils/icons/PhoneIcon';
 import { hp, wp } from '../../utils/dimensions';
+import SearchBar from './SearchBar';
+import Banner from './Banner';
+import AutoSlider from './AutoSlider';
+import EmptyHeart from '../../utils/icons/EmptyHeart';
+import FavIcon from '../../utils/icons/FavIcon';
+import FilledFavIcon from '../../utils/icons/FilledFavIcon';
+import { useAddFavShopMutation, useRemoveFavShopMutation } from '../../features/shops/shopApi';
+import { useState } from 'react';
 // import { Image } from 'react-native-svg';
 
 const shopData = [
@@ -113,32 +121,68 @@ const shopData = [
         address: 'Shop 202, Ajmal Khan Road, Karol Bagh, New Delhi, Delhi',
         timings: '11:00 AM - 9:00 PM',
         contact: '+91 9876543289'
+    }, {
+        id: '11',
+        name: 'Plant House',
+        category: 'Home Decor',
+        rating: 4.8,
+        location: 'Banjara Hills, Hyderabad',
+        image: 'https://images.unsplash.com/photo-1608136887611-4c2cc9e22ec0?auto=format&fit=crop&w=800&q=60',
+        address: 'Lane 5, Road No. 12, Banjara Hills, Hyderabad, Telangana',
+        timings: '10:00 AM - 8:00 PM',
+        contact: '+91 9123401230'
+    },
+    {
+        id: '12',
+        name: 'Urban Wear',
+        category: 'Clothing',
+        rating: 4.0,
+        location: 'Karol Bagh, Delhi',
+        image: 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=800&q=60',
+        address: 'Shop 202, Ajmal Khan Road, Karol Bagh, New Delhi, Delhi',
+        timings: '11:00 AM - 9:00 PM',
+        contact: '+91 9876543289'
     }
 ];
 
-
-
 const ShopList = ({ navigation }) => {
+    const [favoriteShops, setFavoriteShops] = useState([]);
 
-    const handleViewAll = () => navigation.navigate("AllShops", { shopsData: shopData })
+    const isFavorite = (shopId) => {
+        console.log(shopId);
+        return favoriteShops.includes(shopId);
+    };
 
-    console.log(`shoplist = ${navigation.getState()}`)
+    const toggleFavorite = (shopId) => {
+        if (isFavorite(shopId)) {
+            setFavoriteShops((prev) => prev.filter((id) => id !== shopId));
+        } else {
+            setFavoriteShops((prev) => [...prev, shopId]);
+        }
+    };
+
+    const handleViewAll = () =>
+        navigation.navigate('AllShops', { shopsData: shopData });
 
     const renderItem = ({ item }) => (
-        <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('ShopDetails', { shop: item })}>
-            <Image
-                style={styles.cardImage}
-                source={{ uri: item.image }}
-            />
-            <View style={{ padding: 10, alignItems: "flex-start", flex: 1, justifyContent: "space-between" }}>
+        <TouchableOpacity
+            style={styles.card}
+            onPress={() => navigation.navigate('ShopDetails', { shop: item })}
+        >
+            <Image style={styles.cardImage} source={{ uri: item.image }} />
+            <View style={{ padding: 10, alignItems: 'flex-start', flex: 1, justifyContent: 'space-between' }}>
                 <Text style={styles.category}>{item.category}</Text>
-                <View style={{ flexDirection: "row", alignItems: "center", width: "100%", justifyContent: "space-between" }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
                     <Text style={styles.name}>{item.name}</Text>
                     <Text style={styles.details}>⭐ {item.rating}</Text>
                 </View>
                 <Text style={styles.location}>{item.location}</Text>
-                <Text style={styles.timings}>{item.timings}</Text>
-                {/* <TouchableOpacity style={styles.contactButton} ><View style={{flexDirection:"row", justifyContent:"center", alignItems:"center"}}><PhoneIcon/> <Text style={styles.contact}> {item.contact}</Text></View></TouchableOpacity> */}
+                <View style={styles.favTimeContainer}>
+                    <Text style={styles.timings}>{item.timings}</Text>
+                    <TouchableOpacity onPress={() => toggleFavorite(item.id)}>
+                        {isFavorite(item.id) ? <FilledFavIcon /> : <FavIcon />}
+                    </TouchableOpacity>
+                </View>
             </View>
         </TouchableOpacity>
     );
@@ -147,27 +191,54 @@ const ShopList = ({ navigation }) => {
         <FlatList
             data={shopData}
             renderItem={renderItem}
-            keyExtractor={item => item.id} a
+            keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={false}
-            ListHeaderComponent={<View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}><Text style={styles.heading}>Nearby Shops</Text><TouchableOpacity onPress={handleViewAll}><Text style={[styles.heading, { fontSize: wp(3) }]}>View All</Text></TouchableOpacity></View>}
-            contentContainerStyle={{ gap: 15 }}
+            ListHeaderComponent={
+                <View style={styles.container}>
+                    <SearchBar />
+                    <AutoSlider />
+                    <View style={styles.header}>
+                        <Text style={styles.heading}>Nearby Shops</Text>
+                        <TouchableOpacity onPress={handleViewAll}>
+                            <Text style={styles.viewAll}>View All</Text>
+                        </TouchableOpacity>
+                    </View>
+                </View>
+            }
+            contentContainerStyle={styles.listContent}
             numColumns={2}
         />
     );
 };
 
+
 export default ShopList;
 const styles = StyleSheet.create({
-    listWrapper: {
-        // paddingHorizontal: 20,
-        paddingTop: hp(1),
-        paddingBottom:hp(10)
+    // listWrapper: {
+    //     // paddingHorizontal: 20,
+    //     paddingTop: hp(1),
+    //     paddingBottom: hp(10),
+    //     // marginTop:hp(20)
+    // },
+    container: {
+
+    },
+    header: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingHorizontal: wp(3),
+        marginBottom: hp(1)
     },
     heading: {
         fontSize: wp(5),
         fontFamily: 'Poppins-SemiBold',
         color: '#fff',
         marginBottom: hp,
+    },
+    viewAll: {
+        fontFamily: 'Poppins-SemiBold',
+        color: '#fff',
     },
     card: {
         width: '47%',
@@ -196,7 +267,7 @@ const styles = StyleSheet.create({
     },
     location: {
         color: '#d3d3d3',
-        fontSize: wp(3),
+        fontSize: wp(2),
         marginBottom: 4,
         fontFamily: 'Poppins-Regular',
     },
@@ -211,29 +282,39 @@ const styles = StyleSheet.create({
         marginBottom: 2,
         fontFamily: 'Poppins-Medium',
     },
+    favTimeContainer: {
+        width: "100%",
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignContent: "center"
+    },
     timings: {
-        fontSize: wp(3),
+        fontSize: wp(2.2),
         color: '#bbb',
         fontFamily: 'Poppins-Regular',
     },
-    contact: {
-        fontSize: 16,
-        color: '#fff',
-        fontFamily: 'Poppins-SemiBold',
-        alignSelf: "center"
-    },
+    // contact: {
+    //     fontSize: 16,
+    //     color: '#fff',
+    //     fontFamily: 'Poppins-SemiBold',
+    //     alignSelf: "center"
+    // },
     location: {
         color: "#d3d3d3",
         fontFamily: "Poppins-Regular",
-        fontSize: wp(3.5),
+        fontSize: wp(3),
     },
-    contactButton: {
-        backgroundColor: "#3B63EF",
-        alignItems: "center",
-        justifyContent: "center",
-        paddingVertical: 10,
-        paddingHorizontal: 10,
-        borderRadius: 10,
-        alignSelf: "center"
-    }
+    // contactButton: {
+    //     backgroundColor: "#3B63EF",
+    //     alignItems: "center",
+    //     justifyContent: "center",
+    //     paddingVertical: 10,
+    //     paddingHorizontal: 10,
+    //     borderRadius: 10,
+    //     alignSelf: "center"
+    // }
+    listContent: {
+        paddingBottom: hp(10.5),
+        paddingHorizontal: wp(3),
+    },
 });

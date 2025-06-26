@@ -51,18 +51,18 @@ const MainTabNavigator = () => {
                 elevation: 0,
                 borderTopWidth: 0,
                 overflow: 'hidden',
-                height: 90,
+                height: 70,
             },
             tabBarIconStyle: {
                 marginTop: 10,
             },
             tabBarLabelStyle: {
-                marginBottom: 10,
+                // marginBottom: 10,
             },
             tabBarLabelStyle: {
                 fontFamily: 'Poppins-SemiBold',
-                fontSize: 12,
-                marginTop: 5
+                fontSize: 9,
+                // marginTop: 5
             },
             tabBarActiveTintColor: "#fff",
             tabBarInactiveTintColor: "#d3d3d3"
