@@ -1,16 +1,21 @@
 import React, { useState } from 'react';
 import { View, TextInput, StyleSheet, Text } from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import { RFValue } from 'react-native-responsive-fontsize';
 import EmailIcon from '../utils/icons/EmailIcon';
 import CloseEyeIcon from '../utils/icons/CloseEyeIcon';
 import EyeIcon from '../utils/icons/EyeIcon';
 import { hp, wp } from '../utils/dimensions';
-// import OpenEyeIcon from '../utils/icons/openEyeIcon';
-// import OpenEyeIcon from '../utils/icons/openEyeIcon';
-// import OpenEyeIcon from '../utils/icons/openEyeIcon';
 
-const CustomInput = ({ iconComponent, placeholder, lable, value, onChangeText, secureTextEntry = false, keyboardType = 'default' , isPassword=false}) => {
-  
+const CustomInput = ({
+  iconComponent,
+  placeholder,
+  lable,
+  value,
+  onChangeText,
+  secureTextEntry = false,
+  keyboardType = 'default',
+  isPassword = false,
+}) => {
   const [isPassVisible, setIsPassVisible] = useState(true);
 
   const togglePasswordVisibility = () => {
@@ -19,25 +24,26 @@ const CustomInput = ({ iconComponent, placeholder, lable, value, onChangeText, s
 
   return (
     <View>
-      <Text style={styles.lable}>{lable}</Text>
-    <View style={styles.container}>
-      <View style={styles.inputContainer}>
-        {iconComponent && <View style={styles.icon}>{iconComponent}</View>}
-        <TextInput
-          style={styles.input}
-          placeholder={placeholder}
-          placeholderTextColor="#e0e0e0"
-          value={value}
-          onChangeText={onChangeText}
-          secureTextEntry={isPassword ? isPassVisible : false}
-          keyboardType={keyboardType}
-        />
-        {isPassword && <View onTouchEnd={togglePasswordVisibility}>
-          {isPassVisible ? <CloseEyeIcon /> : <EyeIcon />}
-          
-          </View>}
+      <Text style={styles.label}>{lable} <Text style={{color:"red", paddingHorizontal:20, fontSize:RFValue(10)}}>*</Text></Text>
+      <View style={styles.container}>
+        <View style={styles.inputContainer}>
+          {iconComponent && <View style={styles.icon}>{iconComponent}</View>}
+          <TextInput
+            style={styles.input}
+            placeholder={placeholder}
+            placeholderTextColor="#e0e0e0"
+            value={value}
+            onChangeText={onChangeText}
+            secureTextEntry={isPassword ? isPassVisible : false}
+            keyboardType={keyboardType}
+          />
+          {isPassword && (
+            <View onTouchEnd={togglePasswordVisibility}>
+              {isPassVisible ? <CloseEyeIcon /> : <EyeIcon />}
+            </View>
+          )}
         </View>
-    </View>
+      </View>
     </View>
   );
 };
@@ -49,10 +55,10 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: wp(3),
+    borderRadius: wp(1.5),
     paddingHorizontal: wp(3),
     paddingVertical: hp(1),
-    marginBottom: hp(2),
+    marginBottom: hp(1),
     borderWidth: 1.2,
     borderColor: 'gray',
   },
@@ -62,11 +68,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'space-between',
   },
-  lable: {
+  label: {
     color: '#d3d3d3',
-    fontSize: wp(3.5),
+    fontSize: RFValue(11), // approx wp(3.5)
     fontFamily: 'Poppins-SemiBold',
-    marginBottom: hp(1.2),
+    marginBottom: hp(0),
   },
   icon: {
     marginRight: wp(3),
@@ -74,11 +80,9 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontSize: wp(3.4),
+    fontSize: RFValue(10), // approx wp(3.4)
     fontFamily: 'Poppins-Regular',
     color: '#fff',
     paddingVertical: 0,
   },
 });
-
-

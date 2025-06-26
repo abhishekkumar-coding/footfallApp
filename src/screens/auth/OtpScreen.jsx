@@ -1,18 +1,53 @@
-import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useState } from 'react' // ✅ FIX 1: useState imported properly
-import LinearGradient from 'react-native-linear-gradient'
-import BackButton from '../../components/BackButton'
-import PencilIcon from '../../utils/icons/PencilIcon'
-import CustomButton from '../../components/CustomButton'
-import { hp, wp } from '../../utils/dimensions'
+import { Alert, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import React, { useState } from 'react';
+import LinearGradient from 'react-native-linear-gradient';
+import BackButton from '../../components/BackButton';
+import PencilIcon from '../../utils/icons/PencilIcon';
+import CustomButton from '../../components/CustomButton';
+import { hp, wp } from '../../utils/dimensions';
+import { RFValue } from 'react-native-responsive-fontsize';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import { useVerifyOtpMutation } from '../../features/auth/authApi';
 
-const OtpScreen = ({ navigation }) => {
-  const [otp, setOtp] = useState('')
 
-  const verifyOtp = () => {
-    // verify otp
-    navigation.navigate('NewPassword')
-  }
+const OtpScreen = () => {
+  const [otp, setOtp] = useState(['', '', '', '']);
+  const navigation = useNavigation();
+  const route = useRoute();
+  const { email } = route.params;
+
+  const [verifyOtp] = useVerifyOtpMutation()
+
+  const handleChange = (value, index) => {
+    const updatedOtp = [...otp];
+    updatedOtp[index] = value;
+    setOtp(updatedOtp);
+  };
+
+
+  const handleOtp = async () => {
+    const fullOtp = otp.join('');
+    if (fullOtp.length < 4) {
+      return Alert.alert('Error', 'Please enter the complete 4-digit OTP');
+    }
+
+    // console.log(`FormData : ${formData}`)
+
+    try {
+      const data = { email, otp: fullOtp };
+      console.log(data)
+      const res = await verifyOtp(data).unwrap();
+
+      console.log('Verified:', res);
+      navigation.navigate('NewPassword', { email, otp: fullOtp });
+    } catch (error) {
+      const message = error?.data?.message || 'Failed to verify OTP';
+      console.log('OTP Verification Error:', error);
+      Alert.alert('Verification Failed', message);
+    }
+  };
+
+
 
   return (
     <LinearGradient colors={['#000337', '#000']} style={{ flex: 1 }}>
@@ -21,25 +56,29 @@ const OtpScreen = ({ navigation }) => {
       <View style={styles.container}>
         <View style={styles.textContainer}>
           <Text style={styles.textContainerText1}>We just sent an SMS</Text>
-          <Text style={styles.textContainerText2}>Enter The One Time Password we sent to </Text>
+          <Text style={styles.textContainerText2}>Enter The One Time Password we sent to</Text>
           <View style={styles.textContainerText3}>
-            <Text style={styles.userEmail}>s******5@gmail.com</Text>
+            <Text style={styles.userEmail}>{email}</Text>
             <PencilIcon />
           </View>
         </View>
 
         <View style={styles.inputContainer}>
-          <TextInput style={styles.input} keyboardType="numeric" maxLength={1} />
-          <TextInput style={styles.input} keyboardType="numeric" maxLength={1} />
-          <TextInput style={styles.input} keyboardType="numeric" maxLength={1} />
-          <TextInput style={styles.input} keyboardType="numeric" maxLength={1} />
+          {otp.map((digit, index) => (
+            <TextInput
+              key={index}
+              style={styles.input}
+              keyboardType="numeric"
+              maxLength={1}
+              value={digit}
+              onChangeText={(value) => handleChange(value, index)}
+            />
+          ))}
         </View>
 
         <View style={styles.buttonContainer}>
-          <CustomButton title={"Verify"} onPress={verifyOtp} />
+          <CustomButton title="Verify" onPress={handleOtp} />
           <Text style={styles.buttonContainerText}>Didn't receive code?</Text>
-
-          {/* ✅ FIX 2: Used separate container style for TouchableOpacity */}
           <TouchableOpacity style={styles.resendContainer}>
             <Text style={styles.resend}>Resend</Text>
             <Text style={styles.timer}>- 00 : 30</Text>
@@ -47,16 +86,17 @@ const OtpScreen = ({ navigation }) => {
         </View>
       </View>
     </LinearGradient>
-  )
-}
+  );
+};
 
-export default OtpScreen
+
+export default OtpScreen;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingHorizontal: wp(6),
-    paddingTop: hp(2),
+    paddingTop: hp(6),
     marginTop: hp(5),
     gap: wp(7),
   },
@@ -67,23 +107,23 @@ const styles = StyleSheet.create({
   textContainerText1: {
     color: '#fff',
     fontFamily: 'Poppins-SemiBold',
-    fontSize: wp(6),
+    fontSize: RFValue(20),
   },
   textContainerText2: {
     color: '#fff',
     fontFamily: 'Poppins-Regular',
-    fontSize: wp(4),
+    fontSize: RFValue(12), // ~ wp(4)
   },
   textContainerText3: {
     flexDirection: 'row',
     gap: wp(4),
     alignItems: 'center',
-    justifyContent:"center"
+    justifyContent: "center",
   },
   userEmail: {
     color: '#fff',
     fontFamily: 'Poppins-Regular',
-    fontSize: wp(4),
+    fontSize: RFValue(12),
   },
   inputContainer: {
     flexDirection: 'row',
@@ -100,21 +140,20 @@ const styles = StyleSheet.create({
     borderColor: '#FF4D00',
     backgroundColor: 'transparent',
     textAlign: 'center',
-    fontSize: 22,
+    fontSize: RFValue(22),
     color: '#fff',
     fontFamily: "Poppins-SemiBold",
   },
   buttonContainer: {
     marginTop: hp(1),
     alignItems: 'center',
-    gap: 12, // ✅ minor update: added spacing
+    gap: 12,
   },
   buttonContainerText: {
     color: '#fff',
     fontFamily: 'Poppins-Regular',
-    fontSize: wp(4),
+    fontSize: RFValue(14),
   },
-  // ✅ FIX 2: new container style for resend row
   resendContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -123,11 +162,11 @@ const styles = StyleSheet.create({
   resend: {
     color: '#4068F6',
     fontFamily: 'Poppins-SemiBold',
-    fontSize: wp(4),
+    fontSize: RFValue(14),
   },
   timer: {
     color: '#fff',
     fontFamily: 'Poppins-Regular',
-    fontSize: wp(4),
+    fontSize: RFValue(14),
   },
 });

@@ -3,6 +3,7 @@ import React from 'react'
 import PencilIcon from '../../utils/icons/PencilIcon'
 import ProfileEditIcon from '../../utils/icons/ProfileEditIcon'
 import { hp, wp } from '../../utils/dimensions'
+import { RFValue } from 'react-native-responsive-fontsize'
 
 const ProfileHeader = ({navigation}) => {
     return (
@@ -28,7 +29,8 @@ const styles = StyleSheet.create({
         flexDirection:"row",
         justifyContent:"space-between",
         alignItems:"center",
-        marginTop:hp(2)
+        marginTop:hp(2),
+        width:"100%"
     },
     profileDetails:{
         flexDirection:"row",
@@ -55,14 +57,12 @@ const styles = StyleSheet.create({
     details:{},
     userName:{
         fontFamily:"Poppins-SemiBold",
-        fontSize:wp(4),
+        fontSize:RFValue(14),
         color:"#fff"
     },
     userGmail:{
         fontFamily:"Poppins-Regular",
-        fontSize:wp(3),
+        fontSize:RFValue(10),
         color:"#d3d3d3"
     }
-
-    
 })
