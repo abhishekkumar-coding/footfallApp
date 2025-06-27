@@ -4,9 +4,12 @@ import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from 'rea
 import LinearGradient from 'react-native-linear-gradient';
 import BackButton from '../../components/BackButton';
 import { hp, wp } from '../../utils/dimensions';
+import ShopQRCode from './ShopQRCode';
+import { email } from 'zod/v4';
 
 const ShopDetails = ({ route }) => {
-    const { shop } = route.params;
+    const { shop, image } = route.params;
+    console.log(image)
     const [sortBy, setSortBy] = useState('Latest');
 
     const sampleOffers = [
@@ -54,6 +57,23 @@ const ShopDetails = ({ route }) => {
         }
     };
 
+     const {
+            contact,
+            shop_id,
+            category,
+            name,
+            startTime,
+            endTime,
+            logo,
+            cover,
+            address,
+            city,
+            state,
+            country,
+            pinCode
+        } = shop;
+
+        console.log(logo)
 
 
     return (
@@ -63,18 +83,21 @@ const ShopDetails = ({ route }) => {
         >
             <BackButton />
             <ScrollView style={styles.container}>
-
-                <Image source={{ uri: shop.image }} style={styles.image} />
-                <View style={styles.shopDetails}>
-                    <Text style={styles.category}>{shop.category}</Text>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                        <Text style={styles.title}>{shop.name}</Text>
-                        <Text style={styles.rating}>⭐ {shop.rating}</Text>
+                    <View style={styles.qrContainer}>
+                        {/* <ShopQRCode  shopId={shop_id} email={email} logo={logo}/> */}
+                        <ShopQRCode shopId={shop_id} email={contact.email} logo={logo}/>
                     </View>
-                    <Text style={styles.location}>📍 {shop.location}</Text>
-                    <Text style={styles.address}>🏠 {shop.address}</Text>
-                    <Text style={styles.timings}>🕒 {shop.timings}</Text>
-                    <Text style={styles.contact}>📞 {shop.contact}</Text>
+                {/* <Image source={{ uri: image }} style={styles.image} /> */}
+                <View style={styles.shopDetails}>
+                    <Text style={styles.category}>{category}</Text>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                        <Text style={styles.title}>{name}</Text>
+                        {/* <Text style={styles.rating}>⭐ {shop.rating}</Text> */}
+                    </View>
+                    <Text style={styles.location}>📍 {address}</Text>
+                    <Text style={styles.address}>🏠 {city}, {state}, {pinCode}</Text>
+                    <Text style={styles.timings}>🕒 {startTime} - {endTime}</Text>
+                    <Text style={styles.contact}>📞 {contact.phone}</Text>
                     <View style={styles.offerSection}>
                         <Text style={styles.offerHeader}>🎁 Offers & Deals</Text>
                         <Text style={styles.offerSubtext}>View all active offers of a shop</Text>
@@ -112,9 +135,9 @@ const styles = StyleSheet.create({
         // marginTop: 0,
         // flex: 1,
     },
-    image: {
+    qrContainer: {
         height: hp(35),
-        marginBottom: 20,
+        marginTop:hp(3)
     },
     shopDetails: {
         backgroundColor: "#fff",

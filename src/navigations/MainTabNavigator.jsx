@@ -77,11 +77,11 @@ const MainTabNavigator = () => {
                     return (focused ? <FilledHeart /> : <EmptyHeart />)
                 }
             }} />
-            <Tab.Screen name='Games' component={GamesScreen} options={{
+            {/* <Tab.Screen name='Games' component={GamesScreen} options={{
                 headerShown: false, tabBarIcon: ({ focused }) => {
                     return (focused ? <FilledGame /> : <EmptyGame />)
                 }
-            }} />
+            }} /> */}
             <Tab.Screen
                 name='Profile'
                 component={ProfileStack}

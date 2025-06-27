@@ -22,6 +22,9 @@ import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import PhoneIcon from '../../utils/icons/PhoneIcon';
 import { useSignupMutation } from '../../features/auth/authApi';
+import { z } from 'zod';
+import Toast from 'react-native-toast-message';
+
 
 const SignupScreen = () => {
   const navigation = useNavigation();
@@ -32,22 +35,47 @@ const SignupScreen = () => {
 
   const [signup, { isLoading }] = useSignupMutation();
 
+  const signupSchema = z.object({
+    name: z.string().min(3, { message: "Name must be at least 3 characters" }),
+    email: z.string().email({ message: "Invalid email address" }),
+    phone: z.string()
+      .min(10, { message: "Phone number must be at least 10 digits" })
+      .max(15, { message: "Phone number too long" }),
+    password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+  });
+
   const handleSignup = async () => {
-    if (!name || !email || !phone || !password) {
-      return Alert.alert('All fields are required!');
+    const formData = { name, email, phone, password };
+
+    const result = signupSchema.safeParse(formData);
+
+    if (!result.success) {
+      const firstError = result.error.errors[0]?.message || "Invalid input";
+      Toast.show({
+        type: 'error',
+        text1: 'Validation Error',
+        text2: firstError,
+      }); return;
     }
+
     try {
-      const userData = { name, email, password, phone };
-      const response = await signup(userData).unwrap();
-
-      Alert.alert('Signup Successful', 'You can now log in.', [
-        { text: 'OK', onPress: () => navigation.navigate('Login') }
-      ]);
-        console.log(response)
-
+      const response = await signup(formData).unwrap();
+      Toast.show({
+        type: 'success',
+        text1: 'Signup Successful',
+        text2: 'You can now log in.',
+      });
+      setTimeout(() => {
+        navigation.navigate('Login');
+      }, 1500);
+      console.log(response);
+      console.log(response);
     } catch (error) {
-      console.log("Signup error", error);
-      Alert.alert('Signup Failed', error?.data?.message || 'Something went wrong');
+      Toast.show({
+        type: 'error',
+        text1: 'Signup Failed',
+        text2: error?.data?.message || 'Something went wrong',
+      });
     }
   };
 

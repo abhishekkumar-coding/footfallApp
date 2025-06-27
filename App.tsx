@@ -10,11 +10,8 @@ const App = () => {
   return (
     <Provider store={store}>
       <NavigationContainer>
-        {/* <View style={styles.container}> */}
-        <Toast />
         <AppNavigator />
-        {/* <Toast type="error" message="Invalid email or password!" /> */}
-        {/* </View> */}
+        <Toast />
       </NavigationContainer>
     </Provider>
   );

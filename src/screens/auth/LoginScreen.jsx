@@ -21,6 +21,12 @@ import LockIcon from "../../utils/icons/LockIcon";
 import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useLoginMutation } from '../../features/auth/authApi';
+import { z } from 'zod';
+import Toast from 'react-native-toast-message';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { json } from 'zod/v4';
+
+
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -30,24 +36,61 @@ const LoginScreen = () => {
 
   const [login, { isLoading }] = useLoginMutation()
 
+  const loginSchema = z.object({
+    email: z.string().email({ message: 'Invalid email address' }),
+    password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
+  });
+
   const handleLogin = async () => {
+    const formData = { email, password };
 
-    if (!email || !password) {
-      return Alert.alert('All fields are required!');
+    const result = loginSchema.safeParse(formData);
+
+    if (!result.success) {
+      const errorMessage = result.error.errors[0]?.message || 'Validation failed';
+      Toast.show({
+        type: 'error',
+        text1: 'Validation Error',
+        text2: errorMessage,
+      });
+      return;
     }
-
-    const userLoginData = { email, password };
 
     try {
-      const res = await login(userLoginData).unwrap();
-      console.log(res)
-      Alert.alert('Login Successful', `Welcome back,`);
-      navigation.navigate('Main');
+      const res = await login(formData).unwrap();
+      await AsyncStorage.setItem('token', res.data.token)
+      Toast.show({
+        type: 'success',
+        text1: 'Login Successful',
+        text2: 'Welcome back!',
+      });
+      setTimeout(() => {
+        navigation.navigate('Main');
+      }, 1500);
+      console.log(` Response : ${JSON.stringify(res.data.token)}`);
+      checkToken()
     } catch (error) {
+      Toast.show({
+        type: 'error',
+        text1: 'Login Failed',
+        text2: error?.data?.message || 'Invalid credentials',
+      });
       console.log(error)
-      Alert.alert('Login Failed', error?.data?.message || 'Invalid credentials');
     }
   };
+
+  const checkToken = async () => {
+    const token = await AsyncStorage.getItem('token')
+    if (token) {
+      console.log("Token Found : ", token)
+    }
+    else {
+      console.log("token not found",)
+    }
+
+  }
+
+  // checkToken()
 
   // const handleLogin = ()=>{
   //   navigation.navigate("Main")

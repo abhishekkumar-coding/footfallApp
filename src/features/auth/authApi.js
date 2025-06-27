@@ -1,10 +1,28 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+
+const rawBaseQuery = fetchBaseQuery({
+    baseUrl: 'https://footfall.onrender.com/api/',
+});
+
+const baseQueryWithAuth = async (args, api, extraOptions) => {
+    const token = await AsyncStorage.getItem('token');
+    console.log('[Auth Debug] Retrieved token:', token);
+
+
+    return rawBaseQuery(args, api, {
+        ...extraOptions,
+        prepareHeaders: (headers) => {
+            if (token) headers.set('Authorization', `Bearer ${token}`);
+            return headers;
+        },
+    });
+};
 
 export const authApi = createApi({
     reducerPath: "authApi",
-    baseQuery: fetchBaseQuery({
-        baseUrl: 'https://footfall.onrender.com/api/',
-    }),
+    baseQuery: baseQueryWithAuth,
     endpoints: (builder) => ({
         signup: builder.mutation({
             query: (userData) => ({
@@ -32,14 +50,14 @@ export const authApi = createApi({
             query: (data) => ({
                 url: "user/verifyOtp",
                 method: "POST",
-                body:  data ,
+                body: data,
             })
         }),
         resetPassword: builder.mutation({
             query: (data) => ({
                 url: "user/resetPasswordByOtp",
                 method: "POST",
-                body: data 
+                body: data
             })
         })
     }),
