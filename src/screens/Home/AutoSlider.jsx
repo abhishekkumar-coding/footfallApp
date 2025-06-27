@@ -1,6 +1,7 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { View, FlatList, Image, StyleSheet, Dimensions } from 'react-native';
+import { View, FlatList, Image, StyleSheet, Dimensions, Text } from 'react-native';
 import { hp, wp } from '../../utils/dimensions';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 const { width } = Dimensions.get('window');
 
@@ -20,29 +21,30 @@ const AutoSlider = () => {
     }))
   );
 
- useEffect(() => {
-  const interval = setInterval(() => {
-    scrollPosition.current += width;
+  useEffect(() => {
+    const interval = setInterval(() => {
+      scrollPosition.current += width;
 
-    flatListRef.current?.scrollToOffset({
-      offset: scrollPosition.current,
-      animated: true,
-    });
+      flatListRef.current?.scrollToOffset({
+        offset: scrollPosition.current,
+        animated: true,
+      });
 
-    if (scrollPosition.current >= (images.length - 3) * width) {
-      const nextBatch = initialImages.map((img, i) => ({
-        ...img,
-        id: `${images.length + i}`,
-      }));
+      if (scrollPosition.current >= (images.length - 3) * width) {
+        const nextBatch = initialImages.map((img, i) => ({
+          ...img,
+          id: `${images.length + i}`,
+        }));
 
-      setImages(prev => [...prev, ...nextBatch]);
-    }
-  }, 2000);
+        setImages(prev => [...prev, ...nextBatch]);
+      }
+    }, 2000);
 
-  return () => clearInterval(interval);
-}, [images]);
+    return () => clearInterval(interval);
+  }, [images]);
   return (
-    <View style={{width:"100%", paddingVertical:hp(2), gap:10}}>
+    <View style={{ width: "100%", paddingVertical: hp(2), gap: 10 }}>
+      <Text style={styles.headText}>Greate Offers</Text>
       <FlatList
         ref={flatListRef}
         data={images}
@@ -51,7 +53,9 @@ const AutoSlider = () => {
         pagingEnabled
         showsHorizontalScrollIndicator={false}
         renderItem={({ item }) => (
-          <Image source={{ uri: item.uri }} style={styles.image} />
+          <View style={styles.imageContainer}>
+            <Image source={{ uri: item.uri }} style={styles.image} />
+          </View>
         )}
       />
     </View>
@@ -61,12 +65,29 @@ const AutoSlider = () => {
 export default AutoSlider;
 
 const styles = StyleSheet.create({
+  container: {
+    width: '100%',
+    paddingVertical: hp(0),
+    // gap: 10,
+    borderWidth:1,
+    borderColor:"#fff"
+  },
+  headText: {
+    fontSize: RFValue(20),
+    fontFamily: 'Poppins-Bold',
+    color: '#fff',
+    marginTop:hp(0)
+  },
+  imageContainer: {
+    width,
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'flex-start',
+  },
   image: {
-    width: width,
-    height: 180,
-    resizeMode: "stretch",
-    borderRadius:0,
-    paddingHorizontal:wp(6),
-    
+    width: width * 0.94,
+    height: 200,
+    resizeMode: 'cover',
+    borderRadius: 20,
   },
 });

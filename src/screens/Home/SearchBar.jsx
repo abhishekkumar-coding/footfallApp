@@ -15,7 +15,7 @@ const SearchBar = () => {
                     placeholderTextColor="#d3d3d3"
                 />
             </View>
-            {/* <ScannerIcon /> */}
+            <ScannerIcon />
         </View>
     )
 }
