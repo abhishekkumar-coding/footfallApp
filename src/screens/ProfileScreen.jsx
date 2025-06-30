@@ -67,6 +67,11 @@ const ProfileScreen = ({ navigation }) => {
                 onPress={() => navigation.navigate("EditProfile")}
             />
             <TabButton
+                Icon={ScannerIcon}
+                label="Referral & Earn"
+                onPress={() => navigation.navigate('Referral')}
+            />
+            <TabButton
                 Icon={NotificationIcon}
                 label="Notifications"
                 onPress={() => setActiveTab('Notifications')}
