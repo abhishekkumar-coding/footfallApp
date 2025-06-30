@@ -4,9 +4,12 @@ import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from 'rea
 import LinearGradient from 'react-native-linear-gradient';
 import BackButton from '../../components/BackButton';
 import { hp, wp } from '../../utils/dimensions';
+import ShopQRCode from './ShopQRCode';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 const ShopDetails = ({ route }) => {
-    const { shop } = route.params;
+    const { shop, image } = route.params;
+    console.log(image)
     const [sortBy, setSortBy] = useState('Latest');
 
     const sampleOffers = [
@@ -40,20 +43,47 @@ const ShopDetails = ({ route }) => {
         },
     ];
 
-   const getSortedOffers = () => {
-    const sortedOffers = [...sampleOffers];
+    const getSortedOffers = () => {
+        const sortedOffers = [...sampleOffers];
 
-    if (sortBy === "Ending Soon") {
-        return sortedOffers.sort((a, b) =>
-            new Date(a.expiryDate || 0) - new Date(b.expiryDate || 0)
+        if (sortBy === "Ending Soon") {
+            return sortedOffers.sort((a, b) =>
+                new Date(a.expiryDate || 0) - new Date(b.expiryDate || 0)
+            );
+        } else if (sortBy === "Distance") {
+            return sortedOffers.sort((a, b) => a.distance - b.distance);
+        } else {
+            return [...sortedOffers].reverse(); // safe reverse
+        }
+    };
+
+    
+
+    const {
+        contact,
+        _id,
+        category,
+        name,
+        startTime,
+        endTime,
+        logo,
+        cover,
+        address,
+        city,
+        state,
+        country,
+        pinCode
+    } = shop;
+
+    console.log(_id)
+
+    if (!shop) {
+        return (
+            <View style={styles.container}>
+                <Text style={{ color: '#fff' }}>Shop data not available. Please try scanning again.</Text>
+            </View>
         );
-    } else if (sortBy === "Distance") {
-        return sortedOffers.sort((a, b) => a.distance - b.distance);
-    } else {
-        return [...sortedOffers].reverse(); // safe reverse
     }
-};
-
 
 
     return (
@@ -61,27 +91,34 @@ const ShopDetails = ({ route }) => {
             colors={['#000337', '#000000']}
             style={{ flex: 1 }}
         >
-            {/* <BackButton /> */}
+            <BackButton />
             <ScrollView style={styles.container}>
-
-                <Image source={{ uri: shop.image }} style={styles.image} />
-                <View style={styles.shopDetails}>
-                    <Text style={styles.category}>{shop.category}</Text>
-                    <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
-                        <Text style={styles.title}>{shop.name}</Text>
-                        <Text style={styles.rating}>⭐ {shop.rating}</Text>
+                <View style={styles.qrContainer}>
+                    <View style={{ justifyContent: "center", alignItems: "center" }}>
+                        <ShopQRCode shopId={_id} email={contact?.email ?? 'no-email'} logo={logo} />
+                        <Text style={styles.scanMe}>Scan me</Text>
                     </View>
-                    <Text style={styles.location}>📍 {shop.location}</Text>
-                    <Text style={styles.address}>🏠 {shop.address}</Text>
-                    <Text style={styles.timings}>🕒 {shop.timings}</Text>
-                    <Text style={styles.contact}>📞 {shop.contact}</Text>
+                    <View style={styles.verticleLine}></View>
+                    <Text style={styles.qrContainerText}>Scan more, earn more points, and unlock more opportunities</Text>
+                </View>
+                {/* <Image source={{ uri: image }} style={styles.image} /> */}
+                <View style={styles.shopDetails}>
+                    <Text style={styles.category}>{category}</Text>
+                    <View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}>
+                        <Text style={styles.title}>{name}</Text>
+                        {/* <Text style={styles.rating}>⭐ {shop.rating}</Text> */}
+                    </View>
+                    <Text style={styles.location}>📍 {address}</Text>
+                    <Text style={styles.address}>🏠 {city}, {state}, {pinCode}</Text>
+                    <Text style={styles.timings}>🕒 {startTime} - {endTime}</Text>
+                    <Text style={styles.contact}>📞 {contact?.phone}</Text>
                     <View style={styles.offerSection}>
                         <Text style={styles.offerHeader}>🎁 Offers & Deals</Text>
                         <Text style={styles.offerSubtext}>View all active offers of a shop</Text>
 
                         <View style={styles.sortContainer}>
                             {['Latest', 'Ending Soon', 'Distance'].map((option) => (
-                                <TouchableOpacity onPress={()=>setSortBy(option)}>
+                                <TouchableOpacity onPress={() => setSortBy(option)}>
                                     <Text style={[styles.sortOption, sortBy === option && styles.activeSortOption]}>{option}</Text>
                                 </TouchableOpacity>
                             ))}
@@ -112,9 +149,43 @@ const styles = StyleSheet.create({
         // marginTop: 0,
         // flex: 1,
     },
-    image: {
+    scanMe: {
+        backgroundColor: '#4A00E0',
+        color: '#ffffff',
+        width: wp(40),
+        marginTop: hp(2),
+        textAlign: 'center',
+        paddingVertical: hp(1.2),
+        fontSize: RFValue(16),
+        fontWeight: '600',
+        borderRadius: 30,
+        overflow: 'hidden',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+
+    qrContainer: {
         height: hp(35),
-        marginBottom: 20,
+        marginTop: hp(3),
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingHorizontal: wp(2),
+        marginBottom: hp(4)
+    },
+    verticleLine: {
+        height: hp(22),
+        width: 1,
+        backgroundColor: "#fff"
+    },
+    qrContainerText: {
+        fontFamily: "Poppins-Regular",
+        fontSize: RFValue(10),
+        color: "#fff",
+        width: wp(47)
     },
     shopDetails: {
         backgroundColor: "#fff",

@@ -19,6 +19,7 @@ import AllShops from '../screens/Home/AllShops'
 import FilterShops from '../screens/Home/FilterShops'
 import EditProfile from '../screens/Profile/EditProfile'
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
+import ScannerScreen from '../screens/ScannerScreen'
 
 
 const Tab = createBottomTabNavigator()
@@ -31,6 +32,7 @@ const HomeStack = () => (
         <Stack.Screen name='AllShops' component={AllShops} options={{ headerShown: false }} />
         <Stack.Screen name='FilterShops' component={FilterShops} options={{ headerShown: false }} />
         <Stack.Screen name='EditProfile' component={EditProfile} options={{ headerShown: false }} />
+        <Stack.Screen name='Scanner' component={ScannerScreen} options={{headerShown:false}}/>
     </Stack.Navigator>
 );
 
@@ -51,18 +53,18 @@ const MainTabNavigator = () => {
                 elevation: 0,
                 borderTopWidth: 0,
                 overflow: 'hidden',
-                height: 90,
+                height: 70,
             },
             tabBarIconStyle: {
                 marginTop: 10,
             },
             tabBarLabelStyle: {
-                marginBottom: 10,
+                // marginBottom: 10,
             },
             tabBarLabelStyle: {
                 fontFamily: 'Poppins-SemiBold',
-                fontSize: 12,
-                marginTop: 5
+                fontSize: 9,
+                // marginTop: 5
             },
             tabBarActiveTintColor: "#fff",
             tabBarInactiveTintColor: "#d3d3d3"
@@ -77,11 +79,11 @@ const MainTabNavigator = () => {
                     return (focused ? <FilledHeart /> : <EmptyHeart />)
                 }
             }} />
-            <Tab.Screen name='Games' component={GamesScreen} options={{
+            {/* <Tab.Screen name='Games' component={GamesScreen} options={{
                 headerShown: false, tabBarIcon: ({ focused }) => {
                     return (focused ? <FilledGame /> : <EmptyGame />)
                 }
-            }} />
+            }} /> */}
             <Tab.Screen
                 name='Profile'
                 component={ProfileStack}

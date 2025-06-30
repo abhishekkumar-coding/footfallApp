@@ -1,9 +1,10 @@
 import * as React from "react";
 import Svg, { Path } from "react-native-svg";
+import { wp } from "../dimensions";
 const FilledGame = (props) => (
   <Svg
-    width="25px"
-    height="25px"
+    width={wp(5)}
+    height={wp(5)}
     viewBox="0 0 15 15"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"

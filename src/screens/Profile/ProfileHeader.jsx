@@ -3,8 +3,12 @@ import React from 'react'
 import PencilIcon from '../../utils/icons/PencilIcon'
 import ProfileEditIcon from '../../utils/icons/ProfileEditIcon'
 import { hp, wp } from '../../utils/dimensions'
+import { RFValue } from 'react-native-responsive-fontsize'
 
-const ProfileHeader = ({navigation}) => {
+const ProfileHeader = ({navigation, user}) => {
+
+    const {email,name } = user
+
     return (
         <View style={styles.container}>
             <View style={styles.profileDetails}>
@@ -12,8 +16,8 @@ const ProfileHeader = ({navigation}) => {
                     <Image style={styles.profileImage} source={require("../../../assets/profile_image.png")}/>
                 </View>
                 <View style={styles.details}>
-                    <Text style={styles.userName}>Abhishek Kumar</Text>
-                    <Text style={styles.userGmail}>abhiwebdev2.0@gmail.com</Text>
+                    <Text style={styles.userName}>{name}</Text>
+                    <Text style={styles.userGmail}>{email}</Text>
                 </View>
             </View>
             <ProfileEditIcon onPress={() => navigation.navigate('EditProfile')}/>
@@ -28,7 +32,8 @@ const styles = StyleSheet.create({
         flexDirection:"row",
         justifyContent:"space-between",
         alignItems:"center",
-        marginTop:hp(2)
+        marginTop:hp(2),
+        width:"100%"
     },
     profileDetails:{
         flexDirection:"row",
@@ -55,14 +60,12 @@ const styles = StyleSheet.create({
     details:{},
     userName:{
         fontFamily:"Poppins-SemiBold",
-        fontSize:wp(4),
+        fontSize:RFValue(14),
         color:"#fff"
     },
     userGmail:{
         fontFamily:"Poppins-Regular",
-        fontSize:wp(3),
+        fontSize:RFValue(10),
         color:"#d3d3d3"
     }
-
-    
 })
