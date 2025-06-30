@@ -1,0 +1,59 @@
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
+
+const baseQueryWithAuth = async (args, api, extraOptions) => {
+    const token = await AsyncStorage.getItem('token');
+
+    const authenticatedBaseQuery = fetchBaseQuery({
+        baseUrl: 'https://footfall.onrender.com/api/',
+        prepareHeaders: (headers) => {
+            if (token) headers.set('token', token);
+            return headers;
+        },
+    });
+
+    return authenticatedBaseQuery(args, api, extraOptions);
+};
+
+export const shopApi = createApi({
+    reducerPath: 'shopApi',
+    baseQuery: baseQueryWithAuth,
+    tagTypes: ['Favorite'],
+    endpoints: (builder) => ({
+        getAllShops: builder.query({
+            query: () => ({
+                url: 'shop/getAll?page=1&limit=10&status=approved',
+                method: "GET",
+            }),
+        }),
+        getShopById: builder.query({
+            query: (id) => ({
+                url: `shop/scan/${id}`,
+                method: "GET",
+            }),
+        }),
+        addFavShop: builder.mutation({
+            query: (shopId) => ({
+                url: "shop/addFavShop",
+                method: "POST",
+                body: { shopId },
+            }),
+            invalidatesTags: ['Favorite'],
+        }),
+        removeFavShop: builder.mutation({
+            query: (shopId) => ({
+                url: "shop/removeFavShop",
+                method: "POST",
+                body: { shopId },
+            }),
+            invalidatesTags: ['Favorite'],
+        }),
+    }),
+});
+
+export const {
+    useGetAllShopsQuery,
+    useAddFavShopMutation,
+    useRemoveFavShopMutation,
+    useLazyGetShopByIdQuery
+} = shopApi;

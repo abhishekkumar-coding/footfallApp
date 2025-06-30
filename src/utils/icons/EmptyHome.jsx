@@ -1,9 +1,10 @@
 import * as React from "react";
 import Svg, { Path } from "react-native-svg";
+import { wp } from "../dimensions";
 const EmptyHome = (props) => (
   <Svg
-    width="28px"
-    height="28px"
+    width={wp(6)}
+    height={wp(6)}
     viewBox="0 0 16 16"
     xmlns="http://www.w3.org/2000/svg"
     fill="#fff"

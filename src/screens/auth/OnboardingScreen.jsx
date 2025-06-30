@@ -13,6 +13,7 @@ import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomButton from '../../components/CustomButton';
 import { wp, hp } from '../../utils/dimensions'; 
+import { RFValue } from 'react-native-responsive-fontsize';
 
 
 const { width } = Dimensions.get('window');
@@ -104,6 +105,7 @@ const styles = StyleSheet.create({
   slidesContainer: {
     width: '100%',
     marginTop: hp(5),
+    paddingHorizontal:wp(2)
   },
   slideContainer: {
     flexDirection: 'row',
@@ -112,9 +114,8 @@ const styles = StyleSheet.create({
     borderWidth: 0.5,
     borderColor: "gray",
     borderRadius: wp(6),
-    paddingHorizontal: 0,
     paddingVertical: hp(1),
-    marginHorizontal: wp(5),
+    paddingHorizontal: wp(2),
     marginVertical: hp(1.5),
     alignItems: 'center',
     shadowColor: '#000',
@@ -127,7 +128,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row-reverse',
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     paddingVertical: hp(1),
-    paddingHorizontal: wp(2),
+    paddingHorizontal: wp(4),
+    textAlign:"right"
   },
   image: {
     width: width * 0.28,
@@ -141,7 +143,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   title: {
-    fontSize: wp(4),
+    fontSize: RFValue(11),
     // fontWeight: 'bold',
     color: '#fff',
     marginBottom: hp(0.8),
@@ -158,7 +160,7 @@ const styles = StyleSheet.create({
     marginBottom: 0,
   },
   slogan: {
-    fontSize:wp(5),
+    fontSize:RFValue(15),
     // fontWeight: 'bold',
     fontFamily:"Poppins-SemiBold",
     textAlign: 'center',
@@ -167,7 +169,7 @@ const styles = StyleSheet.create({
     marginBottom: 0,
   },
   description: {
-    fontSize: wp(4),
+    fontSize: RFValue(12),
     fontFamily:"Poppins-Regular",
     textAlign: 'center',
     color: '#d3d3d3',
@@ -176,7 +178,7 @@ const styles = StyleSheet.create({
   },
   buttonContainer2:{
     flexDirection:"row",
-    paddingHorizontal:120,
+    paddingHorizontal:wp(28.2),
     gap:wp(5),
 
   },

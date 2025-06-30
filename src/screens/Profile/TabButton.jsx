@@ -2,10 +2,11 @@ import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import React from 'react';
 import NotificationIcon from '../../utils/icons/NotificationIcon';
 import { hp, wp } from '../../utils/dimensions';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 const TabButton = ({ Icon, label = 'Notification', onPress }) => {
     return (
-        <TouchableOpacity onPress={onPress}>
+        <TouchableOpacity style={{ width:"100%"}} onPress={onPress}>
             <View style={styles.container}>
                 {Icon && <Icon />}
                 <Text style={styles.heading}>{label}</Text>
@@ -25,10 +26,11 @@ const styles = StyleSheet.create({
         marginTop: hp(2),
         borderRadius: 20,
         gap: wp(5),
+        width:"100%"
     },
     heading: {
         fontFamily: 'Poppins-SemiBold',
-        fontSize: wp(3.5),
+        fontSize: RFValue(12),
         color: '#fff',
     },
 });

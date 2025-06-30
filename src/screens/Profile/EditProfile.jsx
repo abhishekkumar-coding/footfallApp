@@ -1,53 +1,75 @@
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, Image } from 'react-native';
+import {
+    StyleSheet,
+    Text,
+    View,
+    ScrollView,
+    Image,
+} from 'react-native';
 import React, { useState } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import BackButton from '../../components/BackButton';
 import CustomButton from '../../components/CustomButton';
 import CustomInput from '../../components/CustomInput';
 import { hp, wp } from '../../utils/dimensions';
+import { RFValue } from 'react-native-responsive-fontsize';
+import { useUpdateUserMutation } from '../../features/auth/authApi';
+import { useSelector } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
 
 const EditProfile = () => {
-    const [name, setName] = useState('Abhishek Kumar');
-    const [email, setEmail] = useState('abhishek@email.com');
-    const [phone, setPhone] = useState('+91 9876543210');
-    const [address, setAddress] = useState('Hathras, Uttar Pradesh');
-    const [country, setCountry] = useState('India');
-    const [state, setState] = useState('Uttar Pradesh');
-    const [pincode, setPincode] = useState('204101');
+  const user = useSelector((state) => state.user.user);
+  const { _id: userId, name: userName, email: userEmail, phone: userPhone } = user;
+  console.log('Current user data:', user);
+
+
+  const [name, setName] = useState(userName || '');
+  const [email, setEmail] = useState(userEmail || '');
+  const [phone, setPhone] = useState(userPhone || '');
+  const [password, setPassword] = useState('');
+  const navigation = useNavigation()
+
+  const [updateUser] = useUpdateUserMutation();
+
+  const handleSave = async () => {
+    try {
+      const body = { name, email, phone, password };
+      console.log('Updating user with:', body);
+      const res = await updateUser({ id: userId, body }).unwrap();
+      console.log('Update success:', res);
+      navigation.goBack()
+    } catch (error) {
+      console.log('Update failed:', error);
+    }
+  };
 
     return (
-        <LinearGradient colors={['#000337', '#000000']} style={styles.container}>
-
+        <LinearGradient colors={['#000337', '#000000']} style={{flex:1}}>
+            <View style={styles.container}>
+            <BackButton />
             <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-                <BackButton />
                 <Text style={styles.heading}>Edit Profile</Text>
-                <View style={{paddingHorizontal:wp(5)}}>
-                <View style={styles.profileImageContainer}>
-                    <Image
-                        source={{ uri: 'https://i.pravatar.cc/150?img=12' }}
-                        style={styles.profileImage}
-                    />
-                    <Text style={styles.changePhoto}>Change Photo</Text>
-                </View>
-                {/* 
-                <CustomInput label="Name" value={name} onChangeText={setName} />
-                <CustomInput label="Email" value={email} onChangeText={setEmail} />
-                <CustomInput label="Phone" value={phone} onChangeText={setPhone} />
-                <CustomInput label="Address" value={address} onChangeText={setAddress} />
-                <CustomInput label="Country" value={country} onChangeText={setCountry} />
-                <CustomInput label="State" value={state} onChangeText={setState} />
-                <CustomInput label="Pincode" value={pincode} onChangeText={setPincode} /> */}
-                <CustomInput lable={"Name"} placeholder={name} />
-                <CustomInput lable={"Email"} placeholder={email} />
-                <CustomInput lable={"Phone"} placeholder={phone} />
-                <CustomInput lable={"Address"} placeholder={address} />
-                <CustomInput lable={"Country"} placeholder={country} />
-                <CustomInput lable={"State"} placeholder={state} />
-                <CustomInput lable={"Pincode"} placeholder={pincode} />
+                <View style={{ paddingHorizontal: wp(5) }}>
+                    <View style={styles.profileImageContainer}>
+                        <Image
+                            source={{ uri: 'https://i.pravatar.cc/150?img=12' }}
+                            style={styles.profileImage}
+                        />
+                        <Text style={styles.changePhoto}>Change Photo</Text>
+                    </View>
 
-                <CustomButton title="Save Changes" />
+                    <CustomInput lable="Name" placeholder={name} onChangeText={setName}  value={name}/>
+                    <CustomInput lable="Email" placeholder={email} onChangeText={setEmail} value={email}/>
+                    <CustomInput lable="Phone" placeholder={phone} onChangeText={setPhone} value={phone}/>
+                    <CustomInput lable="Password" placeholder={"Enter New Password"} onChangeText={setPassword} value={password}/>
+                    {/* <CustomInput lable="Address" placeholder={address} />
+                    <CustomInput lable="Country" placeholder={country} />
+                    <CustomInput lable="State" placeholder={state} />
+                    <CustomInput lable="Pincode" placeholder={pincode} /> */}
+
+                    <CustomButton title="Save Changes"  onPress={handleSave}/>
                 </View>
             </ScrollView>
+            </View>
         </LinearGradient>
     );
 };
@@ -57,19 +79,19 @@ export default EditProfile;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: hp(1),
+        paddingTop: hp(4),
         paddingHorizontal: wp(0),
     },
     heading: {
-        fontFamily: "Poppins-Bold",
-        fontSize: wp(5),
-        color: "#fff",
-        textAlign: "center",
-        marginTop: 20
+        fontFamily: 'Poppins-Bold',
+        fontSize: RFValue(18),
+        color: '#fff',
+        textAlign: 'center',
+        
     },
     scrollContainer: {
         paddingBottom: hp(10),
-        paddingTop: hp(0)
+        // paddingTop: hp(6),
     },
     profileImageContainer: {
         alignItems: 'center',
@@ -81,24 +103,14 @@ const styles = StyleSheet.create({
         borderRadius: 55,
         borderWidth: 2,
         borderColor: '#fff',
-        marginTop: hp(3)
+        marginTop: hp(3),
     },
     changePhoto: {
         color: '#3B63EF',
         marginTop: hp(1),
-        fontSize: wp(4),
+        fontSize: RFValue(14),
         fontFamily: 'Poppins-Medium',
     },
-    // input: {
-    //     backgroundColor: '#1e1e2f',
-    //     color: '#fff',
-    //     borderRadius: 12,
-    //     paddingHorizontal: 15,
-    //     paddingVertical: 14,
-    //     fontSize: 16,
-    //     // marginBottom: 18,
-    //     fontFamily: 'Poppins-Regular',
-    // },
     saveButton: {
         backgroundColor: '#3B63EF',
         paddingVertical: 15,
@@ -108,7 +120,7 @@ const styles = StyleSheet.create({
     },
     saveText: {
         color: '#fff',
-        fontSize: 18,
+        fontSize: RFValue(16),
         fontFamily: 'Poppins-SemiBold',
     },
 });

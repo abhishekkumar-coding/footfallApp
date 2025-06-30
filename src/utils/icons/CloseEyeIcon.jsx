@@ -1,9 +1,10 @@
 import * as React from "react";
 import Svg, { Path } from "react-native-svg";
+import { wp } from "../dimensions";
 const CloseEyeIcon = (props) => (
   <Svg
-    width="25px"
-    height="25px"
+    width={wp(5.5)}
+    height={wp(5.5)}
     viewBox="0 0 16 16"
     xmlns="http://www.w3.org/2000/svg"
     fill="#d3d3d3"
