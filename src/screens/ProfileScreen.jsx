@@ -1,4 +1,4 @@
-import { StyleSheet, Text, TouchableOpacity, View } from 'react-native'
+import { SafeAreaView, StyleSheet, Text, TouchableOpacity, View } from 'react-native'
 import React, { useState } from 'react'
 import LinearGradient from 'react-native-linear-gradient'
 import BackButton from '../components/BackButton'
@@ -22,7 +22,6 @@ import { clearUser } from '../features/auth/userSlice'
 const ProfileScreen = ({ navigation }) => {
 
     const [activeTab, setActiveTab] = useState("")
-    // console.log(`profileScreen = ${JSON.stringify(navigation.getState())}`)
 
     const user = useSelector((state) => state.user.user)
     const rewardPoints = user.rewards.points
@@ -31,12 +30,12 @@ const ProfileScreen = ({ navigation }) => {
 
     const hanldeLogout = async () => {
         try {
-            await AsyncStorage.multiRemove(['token', 'user']); // clear both token & user if you saved them
-            dispatch(clearUser()); // reset Redux state
+            await AsyncStorage.multiRemove(['token', 'user']);
+            dispatch(clearUser());
             navigation.reset({
                 index: 0,
                 routes: [{ name: 'Login' }],
-            }); // reset navigation stack so user can't go back
+            });
         } catch (e) {
             console.error('Logout failed:', e);
         }
@@ -45,54 +44,48 @@ const ProfileScreen = ({ navigation }) => {
     return (
         <LinearGradient
             colors={['#000337', '#000000']}
-            style={styles.container}
+            style={{flex:1}}
         >
-            <View style={styles.topBar}>
-                <View style={styles.backContainer}>
-                    <TouchableOpacity onPress={() => navigation.goBack()}>
-                        <LeftArrowIcon />
-                    </TouchableOpacity>
-                </View>
-                <Text style={styles.heading}>More</Text>
-                <TouchableOpacity style={styles.logOut} onPress={hanldeLogout}>
-                    <LogOutIcon />
-                </TouchableOpacity>
+            <BackButton lable={"More"} logout={true}/>
+            <SafeAreaView
+            style={styles.container}
+            >
+                <ProfileHeader navigation={navigation} user={user} />
+                <Rewards rewardPoints={rewardPoints} />
+                <TabButton
+                    Icon={ProfileEditIcon}
+                    label="Update Profile"
+                    onPress={() => navigation.navigate("EditProfile")}
+                />
+                <TabButton
+                    Icon={ScannerIcon}
+                    label="Referral & Earn"
+                    onPress={() => navigation.navigate('Referral')}
+                />
+                <TabButton
+                    Icon={NotificationIcon}
+                    label="Notifications"
+                    onPress={() => setActiveTab('Notifications')}
+                />
 
-            </View>
-            <ProfileHeader navigation={navigation} user={user} />
-            <Rewards rewardPoints={rewardPoints} />
-            <TabButton
-                Icon={ProfileEditIcon}
-                label="Update Profile"
-                onPress={() => navigation.navigate("EditProfile")}
-            />
-            <TabButton
-                Icon={ScannerIcon}
-                label="Referral & Earn"
-                onPress={() => navigation.navigate('Referral')}
-            />
-            <TabButton
-                Icon={NotificationIcon}
-                label="Notifications"
-                onPress={() => setActiveTab('Notifications')}
-            />
-
-            <TabButton
-                Icon={WalletIcon}
-                label="Wallet"
-                onPress={() => setActiveTab('Notifications')}
-            />
-            <TabButton
-                Icon={ScannerIcon}
-                label="Scan & Earn"
-                onPress={() => setActiveTab('Notifications')}
-            />
-            {/* <TouchableOpacity >
+                <TabButton
+                    Icon={WalletIcon}
+                    label="Wallet"
+                    onPress={() => setActiveTab('Notifications')}
+                />
+                <TabButton
+                    Icon={ScannerIcon}
+                    label="Scan & Earn"
+                    onPress={() => setActiveTab('Notifications')}
+                />
+                {/* <TouchableOpacity >
                 <View style={styles.container2}>
                     <Text style={styles.heading2}>Log out</Text>
                     <LogOutIcon />
                 </View>
             </TouchableOpacity> */}
+
+            </SafeAreaView>
         </LinearGradient>
 
     )
@@ -103,7 +96,7 @@ export default ProfileScreen
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: hp(6),
+        paddingTop: hp(10),
         alignItems: "flex-start",
         justifyContent: "",
         paddingHorizontal: wp(4),
