@@ -20,6 +20,7 @@ import FilterShops from '../screens/Home/FilterShops'
 import EditProfile from '../screens/Profile/EditProfile'
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import ScannerScreen from '../screens/ScannerScreen'
+import ReferralScreen from '../screens/ReferralScreen'
 
 
 const Tab = createBottomTabNavigator()
@@ -40,6 +41,7 @@ const ProfileStack = () => (
     <Stack.Navigator>
         <Stack.Screen name="ProfileMain" component={ProfileScreen} options={{ headerShown: false }} />
         <Stack.Screen name="EditProfile" component={EditProfile} options={{ headerShown: false }} />
+        <Stack.Screen name="Referral" component={ReferralScreen} options={{ headerShown: false }} />
     </Stack.Navigator>
 );
 
@@ -89,7 +91,7 @@ const MainTabNavigator = () => {
                 component={ProfileStack}
                 options={({ route }) => {
                     const routeName = getFocusedRouteNameFromRoute(route) ?? 'ProfileMain';
-                    const hideOnScreens = ['EditProfile'];
+                    const hideOnScreens = ['EditProfile','Referral'];
                     return {
                         headerShown: false,
                         tabBarStyle: hideOnScreens.includes(routeName) ? { display: 'none' } : {
@@ -98,7 +100,7 @@ const MainTabNavigator = () => {
                             elevation: 0,
                             borderTopWidth: 0,
                             overflow: 'hidden',
-                            height: 90,
+                            height: 70,
                         },
                         tabBarIcon: ({ focused }) => (focused ? <FilledProfile /> : <EmptyProfile />)
                     }

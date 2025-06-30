@@ -15,7 +15,7 @@ const HomeScreen = ({ navigation }) => {
     const user = useSelector((state => state.user.user))
 
 
-
+console.log(user)
     return (
         <LinearGradient
             colors={['#000337', '#000000']}
