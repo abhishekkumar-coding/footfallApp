@@ -8,6 +8,9 @@ import {
   useCodeScanner,
 } from 'react-native-vision-camera';
 import { useLazyGetShopByIdQuery } from '../features/shops/shopApi';
+import { useDispatch } from 'react-redux';
+import { triggerWalletRefresh } from '../features/wallet/walletSlice'; // ✅ use correct path
+
 
 const ScannerScreen = ({ navigation }) => {
   const { hasPermission, requestPermission } = useCameraPermission();
@@ -16,6 +19,8 @@ const ScannerScreen = ({ navigation }) => {
   const [hasScanned, setHasScanned] = useState(false)
   const [showScanSuccess, setShowScanSuccess] = useState(false);
   const [showScanError, setShowScanError] = useState(false);
+  
+const dispatch = useDispatch();
 
 
   const handleScanSuccess = (scannedData) => {
@@ -52,6 +57,7 @@ const ScannerScreen = ({ navigation }) => {
       const result = await fetchShopById(id).unwrap();
       console.log("Fetched shop data directly from unwrap:", result.data.shop);
       navigation.navigate('ShopDetails', { shop: result.data.shop });
+      dispatch(triggerWalletRefresh());
     } catch (err) {
       console.log("Error fetching shop by ID:", err);
     }
