@@ -6,11 +6,22 @@ import BackButton from '../../components/BackButton';
 import { hp, wp } from '../../utils/dimensions';
 import ShopQRCode from './ShopQRCode';
 import { RFValue } from 'react-native-responsive-fontsize';
+import { useLazyGetShopByIdQuery } from '../../features/shops/shopApi';
+import { useDispatch } from 'react-redux';
+import { triggerWalletRefresh } from "../../features/auth/walletSlice"
 
 const ShopDetails = ({ route }) => {
     const { shop, image } = route.params;
     console.log(image)
     const [sortBy, setSortBy] = useState('Latest');
+    const dispatch = useDispatch();
+    const [isLoadingShop, setIsLoadingShop] = useState(false);
+    const [showScanSuccess, setShowScanSuccess] = useState(false);
+    const [showScanError, setShowScanError] = useState(false);
+    const [errorMessage, setErrorMessage] = useState('');
+
+    const [fetchShopById] = useLazyGetShopByIdQuery();
+
 
     const sampleOffers = [
         {
@@ -57,7 +68,28 @@ const ShopDetails = ({ route }) => {
         }
     };
 
-    
+
+    const handleManualScan = async () => {
+        try {
+            setIsLoadingShop(true);
+            const result = await fetchShopById(_id).unwrap();
+            console.log("Fetched shop data directly from unwrap:", result.data.shop);
+
+            setShowScanSuccess(true);
+            dispatch(triggerWalletRefresh());
+            setTimeout(() => setShowScanSuccess(false), 2000);
+        } catch (fetchError) {
+            console.log("Error fetching shop by ID:", fetchError);
+            const message = fetchError?.data?.message || 'Something went wrong';
+            setErrorMessage(message);
+            setShowScanError(true);
+            setTimeout(() => setShowScanError(false), 2000);
+        } finally {
+            setIsLoadingShop(false);
+        }
+    };
+
+
 
     const {
         contact,
@@ -91,12 +123,30 @@ const ShopDetails = ({ route }) => {
             colors={['#000337', '#000000']}
             style={{ flex: 1 }}
         >
+            {isLoadingShop && (
+                <View style={styles.loaderContainer}>
+                    <Text style={styles.loaderText}>Loading shop details...</Text>
+                </View>
+            )}
+            {showScanSuccess && (
+                <View style={[styles.resultContainer, { backgroundColor: '#28A745' }]}>
+                    <Text style={styles.resultTitle}>✅ Shop scanned successfully!</Text>
+                </View>
+            )}
+            {showScanError && (
+                <View style={[styles.resultContainer, { backgroundColor: '#B00020' }]}>
+                    <Text style={styles.resultTitle}>❌ {errorMessage}</Text>
+                </View>
+            )}
+
             <BackButton />
             <ScrollView style={styles.container}>
                 <View style={styles.qrContainer}>
                     <View style={{ justifyContent: "center", alignItems: "center" }}>
                         <ShopQRCode shopId={_id} email={contact?.email ?? 'no-email'} logo={logo} />
-                        <Text style={styles.scanMe}>Scan me</Text>
+                        <Text style={styles.scanMe} onPress={handleManualScan}>
+                            Scan me
+                        </Text>
                     </View>
                     <View style={styles.verticleLine}></View>
                     <Text style={styles.qrContainerText}>Scan more, earn more points, and unlock more opportunities</Text>
@@ -145,6 +195,40 @@ const ShopDetails = ({ route }) => {
 export default ShopDetails;
 
 const styles = StyleSheet.create({
+
+    loaderContainer: {
+  position: 'absolute',
+  top: 0,
+  bottom: 0,
+  left: 0,
+  right: 0,
+  backgroundColor: 'rgba(0, 0, 0, 0.7)',
+  justifyContent: 'center',
+  alignItems: 'center',
+  zIndex: 999,
+},
+loaderText: {
+  color: '#fff',
+  fontSize: 18,
+  fontWeight: 'bold',
+},
+resultContainer: {
+  position: 'absolute',
+  top: '40%',
+  left: '10%',
+  right: '10%',
+  padding: 20,
+  borderRadius: 10,
+  alignItems: 'center',
+  zIndex: 999,
+  elevation: 10,
+},
+resultTitle: {
+  color: '#fff',
+  fontSize: 16,
+  fontWeight: 'bold',
+},
+
     container: {
         // marginTop: 0,
         // flex: 1,
