@@ -19,8 +19,11 @@ const ScannerScreen = ({ navigation }) => {
   const [hasScanned, setHasScanned] = useState(false)
   const [showScanSuccess, setShowScanSuccess] = useState(false);
   const [showScanError, setShowScanError] = useState(false);
-  
-const dispatch = useDispatch();
+  const [isLoadingShop, setIsLoadingShop] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
+
+
+  const dispatch = useDispatch();
 
 
   const handleScanSuccess = (scannedData) => {
@@ -51,15 +54,26 @@ const dispatch = useDispatch();
       //   navigation.navigate('ShopDetails', { shop: shopData });
     }
   }, [shopData]);
+  let err = ''
 
   const handleShopFetch = async (id) => {
     try {
+      setIsLoadingShop(true);
       const result = await fetchShopById(id).unwrap();
       console.log("Fetched shop data directly from unwrap:", result.data.shop);
       navigation.navigate('ShopDetails', { shop: result.data.shop });
       dispatch(triggerWalletRefresh());
-    } catch (err) {
+      setTimeout(() => {
+        navigation.navigate('ShopDetails', { shop: result.data.shop });
+        setIsLoadingShop(false);
+      }, 1000);
+    } catch (fetchError) {
       console.log("Error fetching shop by ID:", err);
+      setIsLoadingShop(false);
+      const message = fetchError?.data?.message || 'Something went wrong';
+      setErrorMessage(message);
+      setShowScanError(true);
+      setTimeout(() => setShowScanError(false), 2000);
     }
   };
 
@@ -77,10 +91,10 @@ const dispatch = useDispatch();
         console.log("Extracted shop_id:", shop_id);
         setHasScanned(true);
         handleShopFetch(shop_id);
-        handleScanSuccess(shop_id); 
+        handleScanSuccess(shop_id);
       } else {
         console.log("shop_id not found in QR code");
-        handleScanError(); 
+        handleScanError();
       }
 
     },
@@ -111,16 +125,22 @@ const dispatch = useDispatch();
         codeScanner={codeScanner}
       />
 
-      {showScanSuccess && (
+      {/* {showScanSuccess && (
         <View style={styles.resultContainer}>
           <Text style={styles.resultTitle}>✅ Scanned Data Successfully!</Text>
         </View>
-      )}
+      )} */}
       {showScanError && (
         <View style={[styles.resultContainer, { backgroundColor: '#B00020' }]}>
-          <Text style={styles.resultTitle}>❌ Invalid QR Code or Shop Not Found</Text>
+          <Text style={styles.resultTitle}>❌ {errorMessage}</Text>
         </View>
       )}
+      {isLoadingShop && (
+        <View style={styles.loaderContainer}>
+          <Text style={styles.loaderText}>Loading shop details...</Text>
+        </View>
+      )}
+
 
     </View>
   );
@@ -156,4 +176,21 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: 'white',
   },
+  loaderContainer: {
+    position: 'absolute',
+    top: 0,
+    bottom: 0,
+    left: 0,
+    right: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
+  },
+  loaderText: {
+    color: '#fff',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
+
 });
