@@ -5,7 +5,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import BackButton from '../../components/BackButton';
 import { hp, wp } from '../../utils/dimensions';
 import ShopQRCode from './ShopQRCode';
-import { email } from 'zod/v4';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 const ShopDetails = ({ route }) => {
     const { shop, image } = route.params;
@@ -57,23 +57,33 @@ const ShopDetails = ({ route }) => {
         }
     };
 
-     const {
-            contact,
-            shop_id,
-            category,
-            name,
-            startTime,
-            endTime,
-            logo,
-            cover,
-            address,
-            city,
-            state,
-            country,
-            pinCode
-        } = shop;
+    
 
-        console.log(logo)
+    const {
+        contact,
+        _id,
+        category,
+        name,
+        startTime,
+        endTime,
+        logo,
+        cover,
+        address,
+        city,
+        state,
+        country,
+        pinCode
+    } = shop;
+
+    console.log(_id)
+
+    if (!shop) {
+        return (
+            <View style={styles.container}>
+                <Text style={{ color: '#fff' }}>Shop data not available. Please try scanning again.</Text>
+            </View>
+        );
+    }
 
 
     return (
@@ -83,10 +93,14 @@ const ShopDetails = ({ route }) => {
         >
             <BackButton />
             <ScrollView style={styles.container}>
-                    <View style={styles.qrContainer}>
-                        {/* <ShopQRCode  shopId={shop_id} email={email} logo={logo}/> */}
-                        <ShopQRCode shopId={shop_id} email={contact.email} logo={logo}/>
+                <View style={styles.qrContainer}>
+                    <View style={{ justifyContent: "center", alignItems: "center" }}>
+                        <ShopQRCode shopId={_id} email={contact?.email ?? 'no-email'} logo={logo} />
+                        <Text style={styles.scanMe}>Scan me</Text>
                     </View>
+                    <View style={styles.verticleLine}></View>
+                    <Text style={styles.qrContainerText}>Scan more, earn more points, and unlock more opportunities</Text>
+                </View>
                 {/* <Image source={{ uri: image }} style={styles.image} /> */}
                 <View style={styles.shopDetails}>
                     <Text style={styles.category}>{category}</Text>
@@ -97,7 +111,7 @@ const ShopDetails = ({ route }) => {
                     <Text style={styles.location}>📍 {address}</Text>
                     <Text style={styles.address}>🏠 {city}, {state}, {pinCode}</Text>
                     <Text style={styles.timings}>🕒 {startTime} - {endTime}</Text>
-                    <Text style={styles.contact}>📞 {contact.phone}</Text>
+                    <Text style={styles.contact}>📞 {contact?.phone}</Text>
                     <View style={styles.offerSection}>
                         <Text style={styles.offerHeader}>🎁 Offers & Deals</Text>
                         <Text style={styles.offerSubtext}>View all active offers of a shop</Text>
@@ -135,9 +149,43 @@ const styles = StyleSheet.create({
         // marginTop: 0,
         // flex: 1,
     },
+    scanMe: {
+        backgroundColor: '#4A00E0',
+        color: '#ffffff',
+        width: wp(40),
+        marginTop: hp(2),
+        textAlign: 'center',
+        paddingVertical: hp(1.2),
+        fontSize: RFValue(16),
+        fontWeight: '600',
+        borderRadius: 30,
+        overflow: 'hidden',
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        elevation: 2,
+    },
+
     qrContainer: {
         height: hp(35),
-        marginTop:hp(3)
+        marginTop: hp(3),
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+        paddingHorizontal: wp(2),
+        marginBottom: hp(4)
+    },
+    verticleLine: {
+        height: hp(22),
+        width: 1,
+        backgroundColor: "#fff"
+    },
+    qrContainerText: {
+        fontFamily: "Poppins-Regular",
+        fontSize: RFValue(10),
+        color: "#fff",
+        width: wp(47)
     },
     shopDetails: {
         backgroundColor: "#fff",

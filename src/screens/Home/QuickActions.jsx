@@ -2,12 +2,16 @@ import { StyleSheet, Text, TouchableOpacity, View, Image } from 'react-native';
 import React from 'react';
 import { hp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
+import { useNavigation } from '@react-navigation/native';
 // import ScannerIcon from '../../utils/icons/ScannerIcon';
 
 const QuickActions = () => {
+
+    const navigation = useNavigation()
+
     return (
         <View style={styles.container}>
-            <TouchableOpacity style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.buttonContainer} onPress={()=>navigation.navigate('Scanner')}>
                 <View style={[styles.iconContainerBase, styles.iconContainer1]}>
                     <Image source={require('../../../assets/scanner.png')} style={styles.icon} />
                 </View>

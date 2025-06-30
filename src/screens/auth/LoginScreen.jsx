@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Alert,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import CustomInput from '../../components/CustomInput';
@@ -24,8 +25,8 @@ import { useLoginMutation } from '../../features/auth/authApi';
 import { z } from 'zod';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { json } from 'zod/v4';
-
+import { useDispatch } from 'react-redux';
+import { setUser } from '../../features/auth/userSlice';
 
 
 const LoginScreen = () => {
@@ -33,6 +34,11 @@ const LoginScreen = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
+  const [showError, setShowError] = useState(false);
+
+
+  const dispatch = useDispatch();
+
 
   const [login, { isLoading }] = useLoginMutation()
 
@@ -43,6 +49,12 @@ const LoginScreen = () => {
 
   const handleLogin = async () => {
     const formData = { email, password };
+
+    if (!email.trim() || !password.trim()) {
+      setShowError(true)
+      return;
+    }
+
 
     const result = loginSchema.safeParse(formData);
 
@@ -59,6 +71,9 @@ const LoginScreen = () => {
     try {
       const res = await login(formData).unwrap();
       await AsyncStorage.setItem('token', res.data.token)
+      await AsyncStorage.setItem('user', JSON.stringify(res.data.user));
+      console.log("user info", res.data.user)
+      dispatch(setUser(res.data.user))
       Toast.show({
         type: 'success',
         text1: 'Login Successful',
@@ -66,9 +81,9 @@ const LoginScreen = () => {
       });
       setTimeout(() => {
         navigation.navigate('Main');
-      }, 1500);
-      console.log(` Response : ${JSON.stringify(res.data.token)}`);
-      checkToken()
+      }, 500);
+      // console.log(` Response : ${JSON.stringify(res.data.user)}`);
+      // checkToken()
     } catch (error) {
       Toast.show({
         type: 'error',
@@ -90,13 +105,16 @@ const LoginScreen = () => {
 
   }
 
-  // checkToken()
 
-  // const handleLogin = ()=>{
-  //   navigation.navigate("Main")
-  // }
+
   return (
     <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
+      {isLoading && (
+        <View style={styles.loaderContainer}>
+          <ActivityIndicator size="large" color="#fff" />
+        </View>
+      )}
+
       <BackButton />
       <View style={styles.container}>
         <Text style={styles.heading}>Log in 🔐</Text>
@@ -112,6 +130,7 @@ const LoginScreen = () => {
             iconComponent={<EmailIcon />}
             value={email}
             onChangeText={setEmail}
+            showError={showError}
           />
           <CustomInput
             placeholder="Enter Password"
@@ -121,6 +140,7 @@ const LoginScreen = () => {
             value={password}
             onChangeText={setPassword}
             secureTextEntry={true}
+            showError={showError}
           />
 
           <View style={styles.optionsContainer}>
@@ -157,6 +177,18 @@ const LoginScreen = () => {
 export default LoginScreen;
 
 const styles = StyleSheet.create({
+  loaderContainer: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    zIndex: 999,
+  },
+
   container: {
     flex: 1,
     alignItems: 'center',

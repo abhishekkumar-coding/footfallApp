@@ -248,7 +248,7 @@ const ShopList = ({ navigation }) => {
             ListHeaderComponent={
                 <View style={styles.container}>
                     {/* <SearchBar /> */}
-                    <Coins />
+                    <Coins/>
                     <QuickActions />
                     <AutoSlider />
                     <View style={styles.header}>
