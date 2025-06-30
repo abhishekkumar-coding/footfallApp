@@ -26,6 +26,12 @@ export const shopApi = createApi({
                 method: "GET",
             }),
         }),
+        getShopById: builder.query({
+            query: (id) => ({
+                url: `shop/scan/${id}`,
+                method: "GET",
+            }),
+        }),
         addFavShop: builder.mutation({
             query: (shopId) => ({
                 url: "shop/addFavShop",
@@ -49,4 +55,5 @@ export const {
     useGetAllShopsQuery,
     useAddFavShopMutation,
     useRemoveFavShopMutation,
+    useLazyGetShopByIdQuery
 } = shopApi;

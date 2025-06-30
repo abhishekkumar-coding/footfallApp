@@ -1,5 +1,5 @@
 import { View, Text, StyleSheet, ScrollView, StatusBar } from 'react-native';
-import React from 'react';
+import React, { use } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import HeaderHome from './Home/HeaderHome';
 import SearchBar from './Home/SearchBar';
@@ -7,9 +7,14 @@ import Banner from './Home/Banner';
 import ShopList from './Home/ShopList';
 import { hp, wp } from '../utils/dimensions';
 import AutoSlider from './Home/AutoSlider';
+import { useSelector } from 'react-redux';
 
 const HomeScreen = ({ navigation }) => {
-    console.log(navigation.getState());
+    // console.log(navigation.getState());
+
+    const user = useSelector((state => state.user.user))
+
+
 
     return (
         <LinearGradient
@@ -38,7 +43,7 @@ export default HomeScreen;
 const style = StyleSheet.create({
     scrollContainer: {
         flex: 1,
-        marginTop: hp(14),               
+        marginTop: hp(14),
         paddingHorizontal: wp(0),
     }
 });

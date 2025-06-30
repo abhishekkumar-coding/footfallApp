@@ -2,22 +2,20 @@ import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
-const rawBaseQuery = fetchBaseQuery({
-    baseUrl: 'https://footfall.onrender.com/api/',
-});
 
 const baseQueryWithAuth = async (args, api, extraOptions) => {
     const token = await AsyncStorage.getItem('token');
-    console.log('[Auth Debug] Retrieved token:', token);
 
-
-    return rawBaseQuery(args, api, {
-        ...extraOptions,
+    const authenticatedBaseQuery = fetchBaseQuery({
+        baseUrl: 'https://footfall.onrender.com/api/',
         prepareHeaders: (headers) => {
-            if (token) headers.set('Authorization', `Bearer ${token}`);
+            if (token) headers.set('token', token);
             return headers;
         },
     });
+
+    console.log(`AuthApi : ${token}`)
+    return authenticatedBaseQuery(args, api, extraOptions);
 };
 
 export const authApi = createApi({
@@ -39,6 +37,17 @@ export const authApi = createApi({
                 body: credentials,
             }),
         }),
+        updateUser: builder.mutation({
+            query: (data) => {
+                const { id, body } = data;
+                return {
+                    url: `user/update/${id}`,
+                    method: "PUT",
+                    body,
+                };
+            },
+        }),
+
         requestOtp: builder.mutation({
             query: ({ email }) => ({
                 url: "user/sendRestOtp",
@@ -59,8 +68,20 @@ export const authApi = createApi({
                 method: "POST",
                 body: data
             })
+        }),
+        getWalletSummary: builder.query({
+            query: () => ({
+                url: "user/getWalletSummary",
+                method: "GET"
+            })
         })
     }),
 });
 
-export const { useSignupMutation, useLoginMutation, useRequestOtpMutation, useVerifyOtpMutation, useResetPasswordMutation } = authApi;
+export const { useSignupMutation,
+    useLoginMutation,
+    useRequestOtpMutation,
+    useVerifyOtpMutation,
+    useResetPasswordMutation,
+    useGetWalletSummaryQuery,
+    useUpdateUserMutation } = authApi;

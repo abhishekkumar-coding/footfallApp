@@ -5,7 +5,10 @@ import ProfileEditIcon from '../../utils/icons/ProfileEditIcon'
 import { hp, wp } from '../../utils/dimensions'
 import { RFValue } from 'react-native-responsive-fontsize'
 
-const ProfileHeader = ({navigation}) => {
+const ProfileHeader = ({navigation, user}) => {
+
+    const {email,name } = user
+
     return (
         <View style={styles.container}>
             <View style={styles.profileDetails}>
@@ -13,8 +16,8 @@ const ProfileHeader = ({navigation}) => {
                     <Image style={styles.profileImage} source={require("../../../assets/profile_image.png")}/>
                 </View>
                 <View style={styles.details}>
-                    <Text style={styles.userName}>Abhishek Kumar</Text>
-                    <Text style={styles.userGmail}>abhiwebdev2.0@gmail.com</Text>
+                    <Text style={styles.userName}>{name}</Text>
+                    <Text style={styles.userGmail}>{email}</Text>
                 </View>
             </View>
             <ProfileEditIcon onPress={() => navigation.navigate('EditProfile')}/>

@@ -12,16 +12,35 @@ import CustomButton from '../../components/CustomButton';
 import CustomInput from '../../components/CustomInput';
 import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
-
+import { useUpdateUserMutation } from '../../features/auth/authApi';
+import { useSelector } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
 
 const EditProfile = () => {
-    const [name, setName] = useState('Abhishek Kumar');
-    const [email, setEmail] = useState('abhishek@email.com');
-    const [phone, setPhone] = useState('+91 9876543210');
-    const [address, setAddress] = useState('Hathras, Uttar Pradesh');
-    const [country, setCountry] = useState('India');
-    const [state, setState] = useState('Uttar Pradesh');
-    const [pincode, setPincode] = useState('204101');
+  const user = useSelector((state) => state.user.user);
+  const { _id: userId, name: userName, email: userEmail, phone: userPhone } = user;
+  console.log('Current user data:', user);
+
+
+  const [name, setName] = useState(userName || '');
+  const [email, setEmail] = useState(userEmail || '');
+  const [phone, setPhone] = useState(userPhone || '');
+  const [password, setPassword] = useState('');
+  const navigation = useNavigation()
+
+  const [updateUser] = useUpdateUserMutation();
+
+  const handleSave = async () => {
+    try {
+      const body = { name, email, phone, password };
+      console.log('Updating user with:', body);
+      const res = await updateUser({ id: userId, body }).unwrap();
+      console.log('Update success:', res);
+      navigation.goBack()
+    } catch (error) {
+      console.log('Update failed:', error);
+    }
+  };
 
     return (
         <LinearGradient colors={['#000337', '#000000']} style={{flex:1}}>
@@ -38,15 +57,16 @@ const EditProfile = () => {
                         <Text style={styles.changePhoto}>Change Photo</Text>
                     </View>
 
-                    <CustomInput lable="Name" placeholder={name} />
-                    <CustomInput lable="Email" placeholder={email} />
-                    <CustomInput lable="Phone" placeholder={phone} />
-                    <CustomInput lable="Address" placeholder={address} />
+                    <CustomInput lable="Name" placeholder={name} onChangeText={setName}  value={name}/>
+                    <CustomInput lable="Email" placeholder={email} onChangeText={setEmail} value={email}/>
+                    <CustomInput lable="Phone" placeholder={phone} onChangeText={setPhone} value={phone}/>
+                    <CustomInput lable="Password" placeholder={"Enter New Password"} onChangeText={setPassword} value={password}/>
+                    {/* <CustomInput lable="Address" placeholder={address} />
                     <CustomInput lable="Country" placeholder={country} />
                     <CustomInput lable="State" placeholder={state} />
-                    <CustomInput lable="Pincode" placeholder={pincode} />
+                    <CustomInput lable="Pincode" placeholder={pincode} /> */}
 
-                    <CustomButton title="Save Changes" />
+                    <CustomButton title="Save Changes"  onPress={handleSave}/>
                 </View>
             </ScrollView>
             </View>

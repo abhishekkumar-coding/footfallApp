@@ -5,14 +5,17 @@ import AppNavigator from './src/AppNavigator';
 import { Provider } from 'react-redux';
 import { store } from './src/store';
 import Toast from 'react-native-toast-message';
+import AppInitializer from './src/AppInitializer'; // ✅ import AppInitializer
 
 const App = () => {
   return (
     <Provider store={store}>
-      <NavigationContainer>
-        <AppNavigator />
-        <Toast />
-      </NavigationContainer>
+      <AppInitializer>  {/* ✅ wrap everything inside AppInitializer */}
+        <NavigationContainer>
+          <AppNavigator />
+          <Toast />
+        </NavigationContainer>
+      </AppInitializer>
     </Provider>
   );
 };

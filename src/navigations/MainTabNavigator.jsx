@@ -19,6 +19,7 @@ import AllShops from '../screens/Home/AllShops'
 import FilterShops from '../screens/Home/FilterShops'
 import EditProfile from '../screens/Profile/EditProfile'
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
+import ScannerScreen from '../screens/ScannerScreen'
 
 
 const Tab = createBottomTabNavigator()
@@ -31,6 +32,7 @@ const HomeStack = () => (
         <Stack.Screen name='AllShops' component={AllShops} options={{ headerShown: false }} />
         <Stack.Screen name='FilterShops' component={FilterShops} options={{ headerShown: false }} />
         <Stack.Screen name='EditProfile' component={EditProfile} options={{ headerShown: false }} />
+        <Stack.Screen name='Scanner' component={ScannerScreen} options={{headerShown:false}}/>
     </Stack.Navigator>
 );
 

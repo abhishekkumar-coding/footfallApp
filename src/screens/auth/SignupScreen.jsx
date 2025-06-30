@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   Alert,
   SafeAreaView,
+  ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import CustomInput from '../../components/CustomInput';
@@ -32,6 +34,9 @@ const SignupScreen = () => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('');
+  const [referralCode, setReferralCode] = useState('')
+  const [showError, setShowError] = useState(false);
+
 
   const [signup, { isLoading }] = useSignupMutation();
 
@@ -46,8 +51,13 @@ const SignupScreen = () => {
 
   const handleSignup = async () => {
     const formData = { name, email, phone, password };
+    if (!email.trim() || !password.trim() || !phone.trim() || !password.trim()) {
+      setShowError(true)
+      return;
+    }
 
     const result = signupSchema.safeParse(formData);
+
 
     if (!result.success) {
       const firstError = result.error.errors[0]?.message || "Invalid input";
@@ -81,7 +91,12 @@ const SignupScreen = () => {
 
   return (
     <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
-      <SafeAreaView style={{ flex: 1 }}>
+       {isLoading && (
+      <View style={styles.loaderContainer}>
+        <ActivityIndicator size="large" color="#fff" />
+      </View>
+    )}
+      <ScrollView style={{ flex: 1 }}>
         <View style={styles.container}>
           <BackButton />
           <Text style={styles.heading}>Create an account ✨</Text>
@@ -96,6 +111,7 @@ const SignupScreen = () => {
               lable={"Name"}
               iconComponent={<UserIcon />}
               value={name}
+              showError={showError}
               onChangeText={setName}
             />
             <CustomInput
@@ -103,6 +119,7 @@ const SignupScreen = () => {
               lable={"Email"}
               iconComponent={<EmailIcon />}
               value={email}
+              showError={showError}
               onChangeText={setEmail}
             />
             <CustomInput
@@ -110,6 +127,7 @@ const SignupScreen = () => {
               lable={"Phone"}
               iconComponent={<PhoneIcon />}
               value={phone}
+              showError={showError}
               onChangeText={setPhone}
             />
             <CustomInput
@@ -118,7 +136,15 @@ const SignupScreen = () => {
               iconComponent={<LockIcon />}
               value={password}
               onChangeText={setPassword}
+              showError={showError}
               isPassword={true}
+            />
+            <CustomInput
+              lable="Referral code"
+              placeholder="Enter Referral code"
+              required={false}
+              value={referralCode}
+              onChangeText={setReferralCode}
             />
 
             <CustomButton title={'Sign Up'} onPress={handleSignup} />
@@ -131,7 +157,7 @@ const SignupScreen = () => {
             </TouchableOpacity>
           </LinearGradient>
         </View>
-      </SafeAreaView>
+      </ScrollView>
     </LinearGradient>
   );
 };
@@ -139,6 +165,18 @@ const SignupScreen = () => {
 export default SignupScreen;
 
 const styles = StyleSheet.create({
+  loaderContainer: {
+  position: 'absolute',
+  top: 0,
+  left: 0,
+  right: 0,
+  bottom: 0,
+  justifyContent: 'center',
+  alignItems: 'center',
+  backgroundColor: 'rgba(0,0,0,0.5)', 
+  zIndex: 999, 
+},
+
   container: {
     width: "100%",
     flex: 1,
@@ -151,7 +189,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(5),
     fontSize: RFValue(17),
     fontFamily: "Poppins-SemiBold",
-    marginTop: hp(7),
+    marginTop: hp(9),
     color: '#fff',
     textAlign: "left",
   },
@@ -167,7 +205,7 @@ const styles = StyleSheet.create({
   formGradient: {
     width: '100%',
     paddingHorizontal: wp(5),
-    paddingVertical: hp(2),
+    paddingVertical: hp(1),
     borderTopWidth: 0.2,
     borderColor: "gray",
     gap: 5,

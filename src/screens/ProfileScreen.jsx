@@ -14,10 +14,34 @@ import LogOutIcon from '../utils/icons/LogOutIcon'
 import { hp, wp } from '../utils/dimensions'
 import { RFValue } from 'react-native-responsive-fontsize'
 import LeftArrowIcon from '../utils/icons/LeftArrowIcon'
+import { useDispatch, useSelector } from 'react-redux'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useNavigation } from '@react-navigation/native'
+import { clearUser } from '../features/auth/userSlice'
 
 const ProfileScreen = ({ navigation }) => {
+
     const [activeTab, setActiveTab] = useState("")
-    console.log(`profileScreen = ${JSON.stringify(navigation.getState())}`)
+    // console.log(`profileScreen = ${JSON.stringify(navigation.getState())}`)
+
+    const user = useSelector((state) => state.user.user)
+    const rewardPoints = user.rewards.points
+
+    const dispatch = useDispatch()
+
+    const hanldeLogout = async () => {
+        try {
+            await AsyncStorage.multiRemove(['token', 'user']); // clear both token & user if you saved them
+            dispatch(clearUser()); // reset Redux state
+            navigation.reset({
+                index: 0,
+                routes: [{ name: 'Login' }],
+            }); // reset navigation stack so user can't go back
+        } catch (e) {
+            console.error('Logout failed:', e);
+        }
+    };
+
     return (
         <LinearGradient
             colors={['#000337', '#000000']}
@@ -30,11 +54,13 @@ const ProfileScreen = ({ navigation }) => {
                     </TouchableOpacity>
                 </View>
                 <Text style={styles.heading}>More</Text>
-                <View style={styles.logOut}><LogOutIcon />
-                </View>
+                <TouchableOpacity style={styles.logOut} onPress={hanldeLogout}>
+                    <LogOutIcon />
+                </TouchableOpacity>
+
             </View>
-            <ProfileHeader navigation={navigation} />
-            <Rewards />
+            <ProfileHeader navigation={navigation} user={user} />
+            <Rewards rewardPoints={rewardPoints} />
             <TabButton
                 Icon={ProfileEditIcon}
                 label="Update Profile"
