@@ -6,12 +6,13 @@ import { Provider } from 'react-redux';
 import { store } from './src/store';
 import Toast from 'react-native-toast-message';
 import AppInitializer from './src/AppInitializer'; // ✅ import AppInitializer
+import linking from './linking';
 
 const App = () => {
   return (
     <Provider store={store}>
       <AppInitializer>  {/* ✅ wrap everything inside AppInitializer */}
-        <NavigationContainer>
+        <NavigationContainer linking={linking}>
           <AppNavigator />
           <Toast />
         </NavigationContainer>

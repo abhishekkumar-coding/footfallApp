@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -10,6 +10,8 @@ import {
   SafeAreaView,
   ScrollView,
   ActivityIndicator,
+  Platform,
+  Linking,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import CustomInput from '../../components/CustomInput';
@@ -26,7 +28,7 @@ import PhoneIcon from '../../utils/icons/PhoneIcon';
 import { useSignupMutation } from '../../features/auth/authApi';
 import { z } from 'zod';
 import Toast from 'react-native-toast-message';
-
+import SendIntentAndroid from 'react-native-send-intent';
 
 const SignupScreen = () => {
   const navigation = useNavigation();
@@ -88,7 +90,44 @@ const SignupScreen = () => {
       });
     }
   };
+ useEffect(() => {
+    const handleDeepLink = (url) => {
+      if (!url) return;
+      
+      // Parse the URL to get query parameters
+      const query = url.split('?')[1];
+      if (!query) return;
+      
+      const params = new URLSearchParams(query);
+      const referral = params.get('referralCode');
+      
+      if (referral) {
+        setReferralCode(referral);
+      }
+    };
 
+    // Handle Android intents
+    if (Platform.OS === 'android') {
+      SendIntentAndroid.getIntent().then(intent => {
+        if (intent?.data) {
+          handleDeepLink(intent.data);
+        }
+      });
+    }
+    
+    // Handle iOS deep links
+    Linking.getInitialURL().then(url => {
+      if (url) handleDeepLink(url);
+    });
+
+    const subscription = Linking.addEventListener('url', ({ url }) => {
+      handleDeepLink(url);
+    });
+
+    return () => {
+      subscription?.remove();
+    };
+  }, []);
   return (
     <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
        {isLoading && (
