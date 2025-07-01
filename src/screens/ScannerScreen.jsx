@@ -10,9 +10,9 @@ import {
   useCameraPermission,
   useCodeScanner,
 } from 'react-native-vision-camera';
-import { useGetWalletSummaryQuery, useLazygetShopByScanQuery } from '../features/shops/shopApi';
+import { useGetWalletSummaryQuery, useLazyGetShopByScanQuery, useLazygetShopByScanQuery } from '../features/shops/shopApi';
 import { useDispatch } from 'react-redux';
-import { triggerWalletRefresh } from '../features/wallet/walletSlice'; // ✅ use correct path
+import { triggerWalletRefresh } from '../features/wallet/walletSlice'; 
 import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
 import History from '../utils/icons/History';
@@ -83,7 +83,7 @@ const ScannerScreen = ({ navigation }) => {
 
 
 
-  const [fetchShopById, { data: shopData, isLoading, isError, error }] = useLazygetShopByScanQuery();
+  const [fetchShopByScan, { data: shopData, isLoading, isError, error }] = useLazyGetShopByScanQuery();
 
   useEffect(() => {
     requestPermission();
@@ -101,7 +101,7 @@ const ScannerScreen = ({ navigation }) => {
   const handleShopFetch = async (id) => {
     try {
       setIsLoadingShop(true);
-      const result = await fetchShopById(id).unwrap();
+      const result = await fetchShopByScan(id).unwrap();
       console.log("Fetched shop data directly from unwrap:", result.data.shop);
       // const walletSummary = await useGetWalletSummaryQuery();
       navigation.navigate('ShopDetails', { shop: result.data.shop });
