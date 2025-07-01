@@ -6,7 +6,7 @@ import BackButton from '../../components/BackButton';
 import { hp, wp } from '../../utils/dimensions';
 import ShopQRCode from './ShopQRCode';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { useLazyGetShopByIdQuery } from '../../features/shops/shopApi';
+import { useGetShopByIdQuery, useGetShopByScanMutation} from '../../features/shops/shopApi';
 import { useDispatch } from 'react-redux';
 import { triggerWalletRefresh } from "../../features/auth/walletSlice"
 import { useNavigation } from '@react-navigation/native';
@@ -21,10 +21,11 @@ const ShopDetails = ({ route }) => {
     const [showScanError, setShowScanError] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
 
-    const [fetchShopById] = useLazyGetShopByIdQuery();
+    const {fetchShopById} = useGetShopByIdQuery();
     const navigation = useNavigation()
+  const [scanShop] = useGetShopByScanMutation();
 
-
+console.log(scanShop)
     const sampleOffers = [
         {
             id: '1',
@@ -74,7 +75,7 @@ const ShopDetails = ({ route }) => {
     const handleManualScan = async () => {
         try {
             setIsLoadingShop(true);
-            const result = await fetchShopById(_id).unwrap();
+            const result = await scanShop(_id).unwrap();
             console.log("Fetched shop data directly from unwrap:", result.data.shop);
 
             setShowScanSuccess(true);

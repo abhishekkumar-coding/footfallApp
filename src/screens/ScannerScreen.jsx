@@ -10,36 +10,31 @@ import {
   useCameraPermission,
   useCodeScanner,
 } from 'react-native-vision-camera';
-import { useGetWalletSummaryQuery, useLazygetShopByScanQuery } from '../features/shops/shopApi';
+
 import { useDispatch } from 'react-redux';
-import { triggerWalletRefresh } from '../features/wallet/walletSlice'; // ✅ use correct path
+
 import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
 import History from '../utils/icons/History';
 import Scan from '../utils/icons/scan';
-
+import { useGetShopByScanMutation } from '../features/shops/shopApi';
 
 const ScannerScreen = ({ navigation }) => {
-
-
   const { hasPermission, requestPermission } = useCameraPermission();
   const device = useCameraDevice('back');
   const [latestScannedData, setLatestScannedData] = useState(null);
-  const [hasScanned, setHasScanned] = useState(false)
+  const [hasScanned, setHasScanned] = useState(false);
   const [showScanSuccess, setShowScanSuccess] = useState(false);
   const [showScanError, setShowScanError] = useState(false);
   const [isLoadingShop, setIsLoadingShop] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [activeTab, setActiveTab] = useState("scan")
+  const [activeTab, setActiveTab] = useState('scan');
 
-  const history = useSelector(state => state.user.user.scanHistory)
+  const history = useSelector(state => state.user.user.scanHistory);
 
-  console.log("Scan History : ", history)
+  console.log('Scan History : ', history);
 
-  const scanHistory = () => {
-
-  }
-
+  const scanHistory = () => {};
 
   const dispatch = useDispatch();
 
@@ -60,15 +55,14 @@ const ScannerScreen = ({ navigation }) => {
           easing: Easing.linear,
           useNativeDriver: true,
         }),
-      ])
+      ]),
     );
     animation.start();
 
     return () => animation.stop(); // cleanup on unmount
   }, []);
 
-
-  const handleScanSuccess = (scannedData) => {
+  const handleScanSuccess = scannedData => {
     setLatestScannedData(scannedData);
     setShowScanSuccess(true);
 
@@ -81,28 +75,17 @@ const ScannerScreen = ({ navigation }) => {
     setTimeout(() => setShowScanError(false), 2000);
   };
 
-
-
-  const [fetchShopById, { data: shopData, isLoading, isError, error }] = useLazygetShopByScanQuery();
+  const [scanShop] = useGetShopByScanMutation();
 
   useEffect(() => {
     requestPermission();
   }, []);
-  //   console.log("useLazyGetById", useLazygetShopByScanQuery())
 
-  useEffect(() => {
-    console.log("This is shop data", shopData)
-    if (shopData) {
-      //   navigation.navigate('ShopDetails', { shop: shopData });
-    }
-  }, [shopData]);
-  let err = ''
-
-  const handleShopFetch = async (id) => {
+  const handleShopFetch = async id => {
     try {
       setIsLoadingShop(true);
-      const result = await fetchShopById(id).unwrap();
-      console.log("Fetched shop data directly from unwrap:", result.data.shop);
+      const result = await scanShop(id).unwrap();
+      console.log('Fetched shop data directly from unwrap:', result.data.shop);
       // const walletSummary = await useGetWalletSummaryQuery();
       navigation.navigate('ShopDetails', { shop: result.data.shop });
       // dispatch(triggerWalletRefresh());
@@ -111,35 +94,35 @@ const ScannerScreen = ({ navigation }) => {
         setIsLoadingShop(false);
       }, 1000);
     } catch (fetchError) {
-      console.log("Error fetching shop by ID:", err);
-      setIsLoadingShop(false);
+      console.log('Error fetching shop by ID:', fetchError);
       const message = fetchError?.data?.message || 'Something went wrong';
       setErrorMessage(message);
       setShowScanError(true);
       setTimeout(() => setShowScanError(false), 2000);
+    } finally {
+      setIsLoadingShop(false);
     }
   };
 
   const codeScanner = useCodeScanner({
     codeTypes: ['qr', 'ean-13'],
-    onCodeScanned: (codes) => {
+    onCodeScanned: codes => {
       if (hasScanned) return;
-      const scannedValue = codes[0].value
-      console.log("Raw scanned data:", scannedValue);
+      const scannedValue = codes[0].value;
+      console.log('Raw scanned data:', scannedValue);
 
-      const params = new URLSearchParams(scannedValue)
-      const shop_id = params.get('shop_id')
+      const params = new URLSearchParams(scannedValue);
+      const shop_id = params.get('shop_id');
 
       if (shop_id) {
-        console.log("Extracted shop_id:", shop_id);
+        console.log('Extracted shop_id:', shop_id);
         setHasScanned(true);
         handleShopFetch(shop_id);
         handleScanSuccess(shop_id);
       } else {
-        console.log("shop_id not found in QR code");
+        console.log('shop_id not found in QR code');
         handleScanError();
       }
-
     },
   });
 
@@ -150,7 +133,6 @@ const ScannerScreen = ({ navigation }) => {
       </View>
     );
   }
-
 
   if (!hasPermission) {
     return (
@@ -202,7 +184,9 @@ const ScannerScreen = ({ navigation }) => {
           </View>
 
           {showScanError && (
-            <View style={[styles.resultContainer, { backgroundColor: '#B00020' }]}>
+            <View
+              style={[styles.resultContainer, { backgroundColor: '#B00020' }]}
+            >
               <Text style={styles.resultTitle}>❌ {errorMessage}</Text>
             </View>
           )}
@@ -217,7 +201,7 @@ const ScannerScreen = ({ navigation }) => {
       {activeTab === 'history' && (
         <View style={styles.historyContainer}>
           <Text style={styles.historyTitle}>Scan History</Text>
-          {(!history || history.length === 0) ? (
+          {!history || history.length === 0 ? (
             <Text style={styles.historyEmpty}>No scans yet.</Text>
           ) : (
             history.map((item, index) => (
@@ -231,7 +215,6 @@ const ScannerScreen = ({ navigation }) => {
           )}
         </View>
       )}
-
 
       {/* <View style={styles.tabBar}>
         <View style={styles.tabButtonsContainer}>
@@ -261,7 +244,6 @@ const ScannerScreen = ({ navigation }) => {
       </View> */}
     </View>
   );
-
 };
 
 export default ScannerScreen;
@@ -276,12 +258,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   centerView: {
-    width: "60%",
-    height: "60%",
-    backgroundColor: "white",
+    width: '60%',
+    height: '60%',
+    backgroundColor: 'white',
   },
   frame: {
-    position: "absolute",
+    position: 'absolute',
     width: 240,
     height: 240,
     borderColor: '#FF4D00',
@@ -317,7 +299,7 @@ const styles = StyleSheet.create({
     width: 70,
     height: 70,
     borderColor: '#FF4D00',
-    borderRadius: 5
+    borderRadius: 5,
   },
   topLeft: {
     top: 0,
@@ -413,8 +395,8 @@ const styles = StyleSheet.create({
 
   activeTabButton: {
     backgroundColor: '#FF4D00',
-    alignItems:"center",
-    justifyContent:"center"
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 
   tabText: {
@@ -425,40 +407,40 @@ const styles = StyleSheet.create({
 
   activeTabText: {
     color: '#fff',
-    alignItems: "center",
-    justifyContent:"center"
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   historyContainer: {
-  flex: 1,
-  width: '100%',
-  alignItems: 'center',
-  paddingTop: 80,
-  paddingHorizontal: 20,
-},
-historyTitle: {
-  fontSize: 24,
-  color: '#FF4D00',
-  marginBottom: 10,
-  fontWeight: 'bold',
-},
-historyEmpty: {
-  color: '#999',
-  fontSize: 16,
-},
-historyItem: {
-  width: '100%',
-  backgroundColor: 'rgba(255,255,255,0.1)',
-  padding: 15,
-  marginVertical: 5,
-  borderRadius: 8,
-},
-historyText: {
-  color: '#fff',
-  fontSize: 14,
-},
-historyDate: {
-  color: '#ccc',
-  fontSize: 12,
-  marginTop: 4,
-},
-})
+    flex: 1,
+    width: '100%',
+    alignItems: 'center',
+    paddingTop: 80,
+    paddingHorizontal: 20,
+  },
+  historyTitle: {
+    fontSize: 24,
+    color: '#FF4D00',
+    marginBottom: 10,
+    fontWeight: 'bold',
+  },
+  historyEmpty: {
+    color: '#999',
+    fontSize: 16,
+  },
+  historyItem: {
+    width: '100%',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    padding: 15,
+    marginVertical: 5,
+    borderRadius: 8,
+  },
+  historyText: {
+    color: '#fff',
+    fontSize: 14,
+  },
+  historyDate: {
+    color: '#ccc',
+    fontSize: 12,
+    marginTop: 4,
+  },
+});
