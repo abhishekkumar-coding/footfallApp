@@ -4,7 +4,7 @@ import { useSelector } from 'react-redux';
 
 const HistoryScreen = () => {
   const history = useSelector(state => state.user?.user?.scanHistory);
-  console.log("History data : ", history[0].shopId)
+//   console.log("History data : ", history[0].shopId)
 
   return (
     <ScrollView contentContainerStyle={styles.container}>

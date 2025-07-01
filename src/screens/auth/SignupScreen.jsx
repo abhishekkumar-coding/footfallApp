@@ -29,6 +29,7 @@ import { useSignupMutation } from '../../features/auth/authApi';
 import { z } from 'zod';
 import Toast from 'react-native-toast-message';
 import SendIntentAndroid from 'react-native-send-intent';
+// import { useApplyReferralMutation } from '../../features/shops/shopApi';
 
 const SignupScreen = () => {
   const navigation = useNavigation();
@@ -36,12 +37,14 @@ const SignupScreen = () => {
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('')
   const [password, setPassword] = useState('');
-  const [referralCode, setReferralCode] = useState('')
+  const [referredBy, setReferredBy] = useState('')
   const [showError, setShowError] = useState(false);
 
-  console.log("Getintent", SendIntentAndroid)
+  // console.log("Getintent", SendIntentAndroid)
 
   const [signup, { isLoading }] = useSignupMutation();
+  // const [applyReferral] = useApplyReferralMutation()
+  // console.log("applyReferral : ", applyReferral())
 
   const signupSchema = z.object({
     name: z.string().min(3, { message: "Name must be at least 3 characters" }),
@@ -53,8 +56,8 @@ const SignupScreen = () => {
   });
 
   const handleSignup = async () => {
-    const formData = { name, email, phone, password };
-    if (!email.trim() || !password.trim() || !phone.trim() || !password.trim()) {
+    const formData = { name, email, phone, password , referredBy};
+    if (!name.trim() || !email.trim() || !phone.trim() || !password.trim()) {
       setShowError(true)
       return;
     }
@@ -183,8 +186,8 @@ const SignupScreen = () => {
               lable="Referral code"
               placeholder="Enter Referral code"
               required={false}
-              value={referralCode}
-              onChangeText={setReferralCode}
+              value={referredBy}
+              onChangeText={setReferredBy}
             />
 
             <CustomButton title={'Sign Up'} onPress={handleSignup} />

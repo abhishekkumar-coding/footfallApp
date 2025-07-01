@@ -75,6 +75,7 @@ export const authApi = createApi({
         //         method: "GET"
         //     })
         // })
+        
     }),
 });
 
@@ -84,4 +85,4 @@ export const { useSignupMutation,
     useVerifyOtpMutation,
     useResetPasswordMutation,
     // useGetWalletSummaryQuery,
-    useUpdateUserMutation } = authApi;
+    useUpdateUserMutation, } = authApi;
