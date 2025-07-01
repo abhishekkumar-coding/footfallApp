@@ -26,39 +26,13 @@ export const shopApi = createApi({
                 method: "GET",
             }),
         }),
-       getShopByScan: builder.mutation({
-  query: (id) => {
-    console.log('[API] Starting shop scan for ID:', id);
-    return {
-      url: `shop/scan/${id}`,
-      method: "POST",
-    };
-  },
-  invalidatesTags: ['Wallet'],
-  
-  // Response logging
-  transformResponse: (response, meta, id) => {
-    console.log('[API] Shop scan success for ID:', id, 'Response:', response);
-    return response;
-  },
-  
-  // Error logging
-  transformErrorResponse: (response, meta, id) => {
-    console.error('[API] Shop scan failed for ID:', id, 'Error:', response);
-    return response;
-  },
-  
-  // Lifecycle logging
-  async onQueryStarted(id, { dispatch, getState, queryFulfilled }) {
-    console.log('[API] Mutation initiated for ID:', id);
-    try {
-      const { data } = await queryFulfilled;
-      console.log('[API] Mutation completed successfully for ID:', id, 'Data:', data);
-    } catch (error) {
-      console.error('[API] Mutation failed for ID:', id, 'Error:', error);
-    }
-  }
-}),
+        getShopByScan: builder.mutation({
+            query: (id) => ({
+                url: `shop/scan/${id}`,
+                method: "POST",
+            }),
+            invalidatesTags: ['Wallet'],
+        }),
         getWalletSummary: builder.query({
             query: () => ({
                 url: "user/getWalletSummary",
@@ -73,7 +47,12 @@ export const shopApi = createApi({
             }),
             providesTags: ['Wallet'],
         }),
-
+  getShopOffersById:builder.query({
+            query:(shopId)=>({
+                url:`offer/getById/${shopId}`,
+                method:"GET"
+            })
+        }),
         // applyReferral: builder.mutation({
         //     query: (code) => ({
         //         url: "user/applyReferral",
@@ -98,12 +77,6 @@ export const shopApi = createApi({
             }),
             invalidatesTags: ['Favorite'],
         }),
-        getShopOffersById:builder.query({
-            query:(shopId)=>({
-                url:`offer/getById/${shopId}`,
-                method:"GET"
-            })
-        })
     }),
 });
 
@@ -113,7 +86,7 @@ export const {
     useRemoveFavShopMutation,
     useGetShopByScanMutation,
     useGetWalletSummaryQuery,
-    useGetShopByIdQuery
+    useGetShopByIdQuery,
     useGetShopOffersByIdQuery
     // useApplyReferralMutation
 } = shopApi;
