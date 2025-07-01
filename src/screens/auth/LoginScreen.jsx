@@ -233,23 +233,24 @@ const styles = StyleSheet.create({
   rememberText: {
     color: '#d3d3d3',
     marginLeft: wp(2),
-    fontSize: RFValue(12),
+    fontSize: RFValue(10),
     fontFamily: 'Poppins-Regular',
   },
   forgotText: {
     color: '#4068F6',
     marginLeft: wp(2),
-    fontSize: RFValue(12),
+    fontSize: RFValue(10),
     fontFamily: 'Poppins-Regular',
   },
   signupText: {
     textAlign: 'center',
-    fontSize: RFValue(12),
+    fontSize: RFValue(10),
     color: '#fff',
     fontFamily: 'Poppins-Regular',
   },
   signupLink: {
     color: '#4068F6',
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: 'Poppins-Regular',
+    fontSize:RFValue(10)
   },
 });

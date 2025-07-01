@@ -39,6 +39,7 @@ const SignupScreen = () => {
   const [referralCode, setReferralCode] = useState('')
   const [showError, setShowError] = useState(false);
 
+  console.log("Getintent", SendIntentAndroid)
 
   const [signup, { isLoading }] = useSignupMutation();
 
@@ -90,31 +91,31 @@ const SignupScreen = () => {
       });
     }
   };
- useEffect(() => {
+  useEffect(() => {
     const handleDeepLink = (url) => {
       if (!url) return;
-      
+
       // Parse the URL to get query parameters
       const query = url.split('?')[1];
       if (!query) return;
-      
+
       const params = new URLSearchParams(query);
       const referral = params.get('referralCode');
-      
+
       if (referral) {
         setReferralCode(referral);
       }
     };
 
-    // Handle Android intents
-    if (Platform.OS === 'android') {
-      SendIntentAndroid.getIntent().then(intent => {
-        if (intent?.data) {
-          handleDeepLink(intent.data);
-        }
-      });
-    }
-    
+    //     // Handle Android intents
+    //     if (Platform.OS === 'android') {
+    //       SendIntentAndroid.getIntent().then(intent => {
+    //         if (intent?.data) {
+    //           handleDeepLink(intent.data);
+    //         }
+    //       });
+    //     }
+
     // Handle iOS deep links
     Linking.getInitialURL().then(url => {
       if (url) handleDeepLink(url);
@@ -130,11 +131,11 @@ const SignupScreen = () => {
   }, []);
   return (
     <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
-       {isLoading && (
-      <View style={styles.loaderContainer}>
-        <ActivityIndicator size="large" color="#fff" />
-      </View>
-    )}
+      {isLoading && (
+        <View style={styles.loaderContainer}>
+          <ActivityIndicator size="large" color="#fff" />
+        </View>
+      )}
       <ScrollView style={{ flex: 1 }}>
         <View style={styles.container}>
           <BackButton />
@@ -205,16 +206,16 @@ export default SignupScreen;
 
 const styles = StyleSheet.create({
   loaderContainer: {
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  justifyContent: 'center',
-  alignItems: 'center',
-  backgroundColor: 'rgba(0,0,0,0.5)', 
-  zIndex: 999, 
-},
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    zIndex: 999,
+  },
 
   container: {
     width: "100%",

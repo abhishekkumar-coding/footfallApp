@@ -21,6 +21,9 @@ import EditProfile from '../screens/Profile/EditProfile'
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import ScannerScreen from '../screens/ScannerScreen'
 import ReferralScreen from '../screens/ReferralScreen'
+import HistoryScreen from '../screens/HistoryScreen'
+import FilledHistoryIcon from '../utils/icons/FilledHistoryIcon'
+import History from '../utils/icons/History'
 
 
 const Tab = createBottomTabNavigator()
@@ -81,11 +84,11 @@ const MainTabNavigator = () => {
                     return (focused ? <FilledHeart /> : <EmptyHeart />)
                 }
             }} />
-            {/* <Tab.Screen name='Games' component={GamesScreen} options={{
+            <Tab.Screen name='History' component={HistoryScreen} options={{
                 headerShown: false, tabBarIcon: ({ focused }) => {
-                    return (focused ? <FilledGame /> : <EmptyGame />)
+                    return (focused ? <FilledHistoryIcon /> : <History />)
                 }
-            }} /> */}
+            }} />
             <Tab.Screen
                 name='Profile'
                 component={ProfileStack}

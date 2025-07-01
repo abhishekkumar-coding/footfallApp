@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Animated, Easing } from 'react-native';
 import { useRef } from 'react';
 
@@ -10,9 +10,13 @@ import {
   useCameraPermission,
   useCodeScanner,
 } from 'react-native-vision-camera';
-import { useLazyGetShopByIdQuery } from '../features/shops/shopApi';
+import { useGetWalletSummaryQuery, useLazyGetShopByIdQuery } from '../features/shops/shopApi';
 import { useDispatch } from 'react-redux';
 import { triggerWalletRefresh } from '../features/wallet/walletSlice'; // ✅ use correct path
+import LinearGradient from 'react-native-linear-gradient';
+import { useSelector } from 'react-redux';
+import History from '../utils/icons/History';
+import Scan from '../utils/icons/scan';
 
 
 const ScannerScreen = ({ navigation }) => {
@@ -26,33 +30,42 @@ const ScannerScreen = ({ navigation }) => {
   const [showScanError, setShowScanError] = useState(false);
   const [isLoadingShop, setIsLoadingShop] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [activeTab, setActiveTab] = useState("scan")
+
+  const history = useSelector(state => state.user.user.scanHistory)
+
+  console.log("Scan History : ", history)
+
+  const scanHistory = () => {
+
+  }
 
 
   const dispatch = useDispatch();
 
   const scanLineAnim = useRef(new Animated.Value(0)).current;
 
-useEffect(() => {
-  const animation = Animated.loop(
-    Animated.sequence([
-      Animated.timing(scanLineAnim, {
-        toValue: 1,
-        duration: 2000,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      }),
-      Animated.timing(scanLineAnim, {
-        toValue: 0,
-        duration: 2000,
-        easing: Easing.linear,
-        useNativeDriver: true,
-      }),
-    ])
-  );
-  animation.start();
+  useEffect(() => {
+    const animation = Animated.loop(
+      Animated.sequence([
+        Animated.timing(scanLineAnim, {
+          toValue: 1,
+          duration: 2000,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        }),
+        Animated.timing(scanLineAnim, {
+          toValue: 0,
+          duration: 2000,
+          easing: Easing.linear,
+          useNativeDriver: true,
+        }),
+      ])
+    );
+    animation.start();
 
-  return () => animation.stop(); // cleanup on unmount
-}, []);
+    return () => animation.stop(); // cleanup on unmount
+  }, []);
 
 
   const handleScanSuccess = (scannedData) => {
@@ -90,8 +103,9 @@ useEffect(() => {
       setIsLoadingShop(true);
       const result = await fetchShopById(id).unwrap();
       console.log("Fetched shop data directly from unwrap:", result.data.shop);
+      // const walletSummary = await useGetWalletSummaryQuery();
       navigation.navigate('ShopDetails', { shop: result.data.shop });
-      dispatch(triggerWalletRefresh());
+      // dispatch(triggerWalletRefresh());
       setTimeout(() => {
         navigation.navigate('ShopDetails', { shop: result.data.shop });
         setIsLoadingShop(false);
@@ -137,6 +151,7 @@ useEffect(() => {
     );
   }
 
+
   if (!hasPermission) {
     return (
       <View style={styles.container}>
@@ -147,53 +162,106 @@ useEffect(() => {
 
   return (
     <View style={styles.container}>
-      <Camera
-        style={StyleSheet.absoluteFill}
-        device={device}
-        isActive={true}
-        codeScanner={codeScanner}
-      />
+      {activeTab === 'scan' && (
+        <>
+          <Camera
+            style={StyleSheet.absoluteFill}
+            device={device}
+            isActive={true}
+            codeScanner={codeScanner}
+          />
 
-      <View style={styles.frame}>
-        {/* <View style={styles.centerView}></View> */}
-        <View style={styles.frame}>
-  <Animated.View
-    style={[
-      styles.scanLine,
-      {
-        transform: [
-          {
-            translateY: scanLineAnim.interpolate({
-              inputRange: [0, 1],
-              outputRange: [0, 200], // adjust frameHeight as needed
-            }),
-          },
-        ],
-      },
-    ]}
-  />
+          <View style={styles.frame}>
+            <Animated.View
+              style={[
+                styles.scanLineContainer,
+                {
+                  transform: [
+                    {
+                      translateY: scanLineAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0, 240],
+                      }),
+                    },
+                  ],
+                },
+              ]}
+            >
+              <LinearGradient
+                colors={['#00f6ff', '#00ffe0']}
+                start={{ x: 0, y: 0 }}
+                end={{ x: 1, y: 0 }}
+                style={styles.scanLine}
+              />
+            </Animated.View>
 
-        <View style={[styles.corner, styles.topLeft]} />
-        <View style={[styles.corner, styles.topRight]} />
-        <View style={[styles.corner, styles.bottomLeft]} />
-        <View style={[styles.corner, styles.bottomRight]} />
-      </View>
-      </View>
+            <View style={[styles.corner, styles.topLeft]} />
+            <View style={[styles.corner, styles.topRight]} />
+            <View style={[styles.corner, styles.bottomLeft]} />
+            <View style={[styles.corner, styles.bottomRight]} />
+          </View>
 
-      {showScanError && (
-        <View style={[styles.resultContainer, { backgroundColor: '#B00020' }]}>
-          <Text style={styles.resultTitle}>❌ {errorMessage}</Text>
+          {showScanError && (
+            <View style={[styles.resultContainer, { backgroundColor: '#B00020' }]}>
+              <Text style={styles.resultTitle}>❌ {errorMessage}</Text>
+            </View>
+          )}
+          {isLoadingShop && (
+            <View style={styles.loaderContainer}>
+              <Text style={styles.loaderText}>Scanning....</Text>
+            </View>
+          )}
+        </>
+      )}
+
+      {activeTab === 'history' && (
+        <View style={styles.historyContainer}>
+          <Text style={styles.historyTitle}>Scan History</Text>
+          {(!history || history.length === 0) ? (
+            <Text style={styles.historyEmpty}>No scans yet.</Text>
+          ) : (
+            history.map((item, index) => (
+              <View key={index} style={styles.historyItem}>
+                <Text style={styles.historyText}>{item.value}</Text>
+                <Text style={styles.historyDate}>
+                  {new Date(item.date).toLocaleString()}
+                </Text>
+              </View>
+            ))
+          )}
         </View>
       )}
-      {isLoadingShop && (
-        <View style={styles.loaderContainer}>
-          <Text style={styles.loaderText}>Loading shop details...</Text>
+
+
+      {/* <View style={styles.tabBar}>
+        <View style={styles.tabButtonsContainer}>
+          <Pressable
+            style={[
+              styles.tabButton,
+              activeTab === 'scan' && styles.activeTabButton,
+            ]}
+            onPress={() => setActiveTab('scan')}
+          >
+            <Text style={[styles.tabText, activeTab === 'scan' && styles.activeTabText]}>
+              <Scan />
+            </Text>
+          </Pressable>
+          <Pressable
+            style={[
+              styles.tabButton,
+              activeTab === 'history' && styles.activeTabButton,
+            ]}
+            onPress={() => setActiveTab('history')}
+          >
+            <Text style={[styles.tabText, activeTab === 'history' && styles.activeTabText]}>
+              <View style={{alignSelf:"center"}}><History /></View>
+            </Text>
+          </Pressable>
         </View>
-      )}
-
-
+      </View> */}
     </View>
   );
+
 };
 
 export default ScannerScreen;
@@ -203,34 +271,53 @@ export default ScannerScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: '#000',
     justifyContent: 'center',
     alignItems: 'center',
   },
-  centerView:{
-    width:"60%",
-    height:"60%",
-    backgroundColor:"white"
+  centerView: {
+    width: "60%",
+    height: "60%",
+    backgroundColor: "white",
   },
- frame: {
-    width: 200,
-    height: 200,
-    borderColor: 'orange',
+  frame: {
+    position: "absolute",
+    width: 240,
+    height: 240,
+    borderColor: '#FF4D00',
+    // borderWidth:10,
+    justifyContent: 'center',
+    alignItems: 'center',
+    overflow: 'hidden',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backdropFilter: 'blur(10px)',
+  },
+  scanLineContainer: {
     position: 'absolute',
-    alignSelf: 'center',
+    top: 0,
+    left: 0,
+    width: '100%',
+    height: 3,
   },
+
   scanLine: {
     position: 'absolute',
-    width: '85%',
-    height: 2,
-    alignSelf:"center",
-    backgroundColor: 'orange',
+    width: '100%',
+    height: 3,
+    leftL: 0,
+    backgroundColor: 'linear-gradient(90deg, #00f6ff, #00ffe0)',
+    shadowColor: '#00ffe0',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9,
+    shadowRadius: 10,
+    elevation: 20,
   },
   corner: {
     position: 'absolute',
     width: 70,
     height: 70,
-    borderColor: 'orange',
-    borderRadius:5
+    borderColor: '#FF4D00',
+    borderRadius: 5
   },
   topLeft: {
     top: 0,
@@ -295,4 +382,83 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
 
-});
+  tabBar: {
+    position: 'absolute',
+    bottom: 100,
+    left: 0,
+    right: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  tabButtonsContainer: {
+    flexDirection: 'row',
+    width: 250,
+    justifyContent: 'space-around',
+    backgroundColor: '#111',
+    borderWidth: 0.5,
+    borderColor: '#fff',
+    paddingVertical: 5,
+    borderRadius: 35,
+    alignItems: 'center',
+  },
+
+  tabButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  activeTabButton: {
+    backgroundColor: '#FF4D00',
+    alignItems:"center",
+    justifyContent:"center"
+  },
+
+  tabText: {
+    color: '#ccc',
+    fontSize: 20,
+    textAlign: 'center',
+  },
+
+  activeTabText: {
+    color: '#fff',
+    alignItems: "center",
+    justifyContent:"center"
+  },
+  historyContainer: {
+  flex: 1,
+  width: '100%',
+  alignItems: 'center',
+  paddingTop: 80,
+  paddingHorizontal: 20,
+},
+historyTitle: {
+  fontSize: 24,
+  color: '#FF4D00',
+  marginBottom: 10,
+  fontWeight: 'bold',
+},
+historyEmpty: {
+  color: '#999',
+  fontSize: 16,
+},
+historyItem: {
+  width: '100%',
+  backgroundColor: 'rgba(255,255,255,0.1)',
+  padding: 15,
+  marginVertical: 5,
+  borderRadius: 8,
+},
+historyText: {
+  color: '#fff',
+  fontSize: 14,
+},
+historyDate: {
+  color: '#ccc',
+  fontSize: 12,
+  marginTop: 4,
+},
+})

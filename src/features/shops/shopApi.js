@@ -18,7 +18,7 @@ const baseQueryWithAuth = async (args, api, extraOptions) => {
 export const shopApi = createApi({
     reducerPath: 'shopApi',
     baseQuery: baseQueryWithAuth,
-    tagTypes: ['Favorite'],
+    tagTypes: ['Favorite', 'Wallet'],
     endpoints: (builder) => ({
         getAllShops: builder.query({
             query: () => ({
@@ -26,11 +26,20 @@ export const shopApi = createApi({
                 method: "GET",
             }),
         }),
-        getShopById: builder.query({
+       getShopById: builder.query({
             query: (id) => ({
                 url: `shop/scan/${id}`,
                 method: "GET",
             }),
+            providesTags: ['Wallet'],
+        }),
+
+        getWalletSummary: builder.query({
+            query: () => ({
+                url: "user/getWalletSummary",
+                method: "GET",
+            }),
+            invalidatesTags: ['Wallet'], 
         }),
         addFavShop: builder.mutation({
             query: (shopId) => ({
@@ -55,5 +64,6 @@ export const {
     useGetAllShopsQuery,
     useAddFavShopMutation,
     useRemoveFavShopMutation,
-    useLazyGetShopByIdQuery
+    useLazyGetShopByIdQuery,
+    useGetWalletSummaryQuery
 } = shopApi;
