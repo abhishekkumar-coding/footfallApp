@@ -26,21 +26,54 @@ export const shopApi = createApi({
                 method: "GET",
             }),
         }),
-       getShopByScan: builder.query({
-            query: (id) => ({
-                url: `shop/scan/${id}`,
-                method: "GET",
-            }),
-            providesTags: ['Wallet'],
-        }),
-
+       getShopByScan: builder.mutation({
+  query: (id) => {
+    console.log('[API] Starting shop scan for ID:', id);
+    return {
+      url: `shop/scan/${id}`,
+      method: "POST",
+    };
+  },
+  invalidatesTags: ['Wallet'],
+  
+  // Response logging
+  transformResponse: (response, meta, id) => {
+    console.log('[API] Shop scan success for ID:', id, 'Response:', response);
+    return response;
+  },
+  
+  // Error logging
+  transformErrorResponse: (response, meta, id) => {
+    console.error('[API] Shop scan failed for ID:', id, 'Error:', response);
+    return response;
+  },
+  
+  // Lifecycle logging
+  async onQueryStarted(id, { dispatch, getState, queryFulfilled }) {
+    console.log('[API] Mutation initiated for ID:', id);
+    try {
+      const { data } = await queryFulfilled;
+      console.log('[API] Mutation completed successfully for ID:', id, 'Data:', data);
+    } catch (error) {
+      console.error('[API] Mutation failed for ID:', id, 'Error:', error);
+    }
+  }
+}),
         getWalletSummary: builder.query({
             query: () => ({
                 url: "user/getWalletSummary",
                 method: "GET",
             }),
-            invalidatesTags: ['Wallet'], 
+            providesTags: ['Wallet'],
         }),
+        getShopById: builder.query({
+            query: (id) => ({
+                url: `shop/getById/${id}`,
+                method: "GET",
+            }),
+            providesTags: ['Wallet'],
+        }),
+
         // applyReferral: builder.mutation({
         //     query: (code) => ({
         //         url: "user/applyReferral",
@@ -72,7 +105,8 @@ export const {
     useGetAllShopsQuery,
     useAddFavShopMutation,
     useRemoveFavShopMutation,
-    useLazyGetShopByScanQuery,
+    useGetShopByScanMutation,
     useGetWalletSummaryQuery,
+    useGetShopByIdQuery
     // useApplyReferralMutation
 } = shopApi;
