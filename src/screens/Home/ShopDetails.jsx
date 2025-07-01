@@ -6,8 +6,8 @@ import BackButton from '../../components/BackButton';
 import { hp, wp } from '../../utils/dimensions';
 import ShopQRCode from './ShopQRCode';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { useGetShopByIdQuery, useGetShopByScanMutation} from '../../features/shops/shopApi';
-import { useGetShopOffersByIdQuery, useLazyGetShopByIdQuery, useLazyGetShopByScanQuery } from '../../features/shops/shopApi';
+import { useGetShopByIdQuery, useGetShopByScanMutation, useGetShopOffersByIdQuery} from '../../features/shops/shopApi';
+
 import { useDispatch } from 'react-redux';
 import { triggerWalletRefresh } from "../../features/auth/walletSlice"
 import { useNavigation } from '@react-navigation/native';
@@ -41,7 +41,7 @@ const ShopDetails = ({ route }) => {
 
     console.log(_id)
 
-    const [fetchShopByScan] = useLazyGetShopByScanQuery();
+   
     const navigation = useNavigation()
   const [scanShop] = useGetShopByScanMutation();
 
