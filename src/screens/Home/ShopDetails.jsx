@@ -6,7 +6,7 @@ import BackButton from '../../components/BackButton';
 import { hp, wp } from '../../utils/dimensions';
 import ShopQRCode from './ShopQRCode';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { useLazyGetShopByIdQuery } from '../../features/shops/shopApi';
+import { useGetShopOffersByIdQuery, useLazyGetShopByIdQuery, useLazyGetShopByScanQuery } from '../../features/shops/shopApi';
 import { useDispatch } from 'react-redux';
 import { triggerWalletRefresh } from "../../features/auth/walletSlice"
 import { useNavigation } from '@react-navigation/native';
@@ -21,8 +21,29 @@ const ShopDetails = ({ route }) => {
     const [showScanError, setShowScanError] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
 
-    const [fetchShopById] = useLazyGetShopByIdQuery();
+     const {
+        contact,
+        _id,
+        category,
+        name,
+        startTime,
+        endTime,
+        logo,
+        cover,
+        address,
+        city,
+        state,
+        country,
+        pinCode
+    } = shop;
+
+    console.log(_id)
+
+    const [fetchShopByScan] = useLazyGetShopByScanQuery();
     const navigation = useNavigation()
+
+    const {data} = useGetShopOffersByIdQuery(_id)
+    console.log(data)
 
 
     const sampleOffers = [
@@ -74,7 +95,7 @@ const ShopDetails = ({ route }) => {
     const handleManualScan = async () => {
         try {
             setIsLoadingShop(true);
-            const result = await fetchShopById(_id).unwrap();
+            const result = await fetchShopByScan(_id).unwrap();
             console.log("Fetched shop data directly from unwrap:", result.data.shop);
 
             setShowScanSuccess(true);
@@ -94,23 +115,7 @@ const ShopDetails = ({ route }) => {
 
 
 
-    const {
-        contact,
-        _id,
-        category,
-        name,
-        startTime,
-        endTime,
-        logo,
-        cover,
-        address,
-        city,
-        state,
-        country,
-        pinCode
-    } = shop;
-
-    console.log(_id)
+   
 
     if (!shop) {
         return (
