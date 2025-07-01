@@ -44,10 +44,10 @@ const EditProfile = () => {
 
     return (
         <LinearGradient colors={['#000337', '#000000']} style={{flex:1}}>
+            <BackButton lable={"Edit Profile"}/>
             <View style={styles.container}>
-            <BackButton />
             <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-                <Text style={styles.heading}>Edit Profile</Text>
+                {/* <Text style={styles.heading}>Edit Profile</Text> */}
                 <View style={{ paddingHorizontal: wp(5) }}>
                     <View style={styles.profileImageContainer}>
                         <Image
@@ -79,7 +79,7 @@ export default EditProfile;
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        paddingTop: hp(4),
+        paddingTop: hp(10),
         paddingHorizontal: wp(0),
     },
     heading: {

@@ -19,8 +19,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useNavigation } from '@react-navigation/native'
 import { clearUser } from '../features/auth/userSlice'
 
-const ProfileScreen = ({ navigation }) => {
-
+const ProfileScreen = () => {
+    const navigation = useNavigation();
     const [activeTab, setActiveTab] = useState("")
 
     const user = useSelector((state) => state.user.user)
@@ -28,8 +28,9 @@ const ProfileScreen = ({ navigation }) => {
 
     const dispatch = useDispatch()
 
-    const hanldeLogout = async () => {
+    const handleLogout = async () => {
         try {
+            console.log("Logout is working")
             await AsyncStorage.multiRemove(['token', 'user']);
             dispatch(clearUser());
             navigation.reset({
@@ -44,11 +45,14 @@ const ProfileScreen = ({ navigation }) => {
     return (
         <LinearGradient
             colors={['#000337', '#000000']}
-            style={{flex:1}}
+            style={{ flex: 1 }}
         >
-            <BackButton lable={"More"} logout={true}/>
+            <BackButton lable={"More"} />
+            <TouchableOpacity style={styles.logOut} onPress={handleLogout}>
+                <LogOutIcon />
+            </TouchableOpacity>
             <SafeAreaView
-            style={styles.container}
+                style={styles.container}
             >
                 <ProfileHeader navigation={navigation} user={user} />
                 <Rewards rewardPoints={rewardPoints} />
@@ -116,9 +120,10 @@ const styles = StyleSheet.create({
         textAlign: "center",
     },
     logOut: {
-        // position: "absolute",
-        // right: wp(5),
-        // top: hp(5)
+        position: "absolute",
+        right: wp(5),
+        top: hp(5.2),
+        zIndex:20
     },
     container2: {
         flexDirection: 'row',

@@ -9,6 +9,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { useLazyGetShopByIdQuery } from '../../features/shops/shopApi';
 import { useDispatch } from 'react-redux';
 import { triggerWalletRefresh } from "../../features/auth/walletSlice"
+import { useNavigation } from '@react-navigation/native';
 
 const ShopDetails = ({ route }) => {
     const { shop, image } = route.params;
@@ -21,6 +22,7 @@ const ShopDetails = ({ route }) => {
     const [errorMessage, setErrorMessage] = useState('');
 
     const [fetchShopById] = useLazyGetShopByIdQuery();
+    const navigation = useNavigation()
 
 
     const sampleOffers = [
@@ -76,8 +78,9 @@ const ShopDetails = ({ route }) => {
             console.log("Fetched shop data directly from unwrap:", result.data.shop);
 
             setShowScanSuccess(true);
+            navigation.goBack()
             dispatch(triggerWalletRefresh());
-            setTimeout(() => setShowScanSuccess(false), 2000);
+            setTimeout(() => setShowScanSuccess(false), 1000);
         } catch (fetchError) {
             console.log("Error fetching shop by ID:", fetchError);
             const message = fetchError?.data?.message || 'Something went wrong';
@@ -125,7 +128,7 @@ const ShopDetails = ({ route }) => {
         >
             {isLoadingShop && (
                 <View style={styles.loaderContainer}>
-                    <Text style={styles.loaderText}>Loading shop details...</Text>
+                    <Text style={styles.loaderText}>Scanning...</Text>
                 </View>
             )}
             {showScanSuccess && (
@@ -197,37 +200,37 @@ export default ShopDetails;
 const styles = StyleSheet.create({
 
     loaderContainer: {
-  position: 'absolute',
-  top: 0,
-  bottom: 0,
-  left: 0,
-  right: 0,
-  backgroundColor: 'rgba(0, 0, 0, 0.7)',
-  justifyContent: 'center',
-  alignItems: 'center',
-  zIndex: 999,
-},
-loaderText: {
-  color: '#fff',
-  fontSize: 18,
-  fontWeight: 'bold',
-},
-resultContainer: {
-  position: 'absolute',
-  top: '40%',
-  left: '10%',
-  right: '10%',
-  padding: 20,
-  borderRadius: 10,
-  alignItems: 'center',
-  zIndex: 999,
-  elevation: 10,
-},
-resultTitle: {
-  color: '#fff',
-  fontSize: 16,
-  fontWeight: 'bold',
-},
+        position: 'absolute',
+        top: 0,
+        bottom: 0,
+        left: 0,
+        right: 0,
+        backgroundColor: 'rgba(0, 0, 0, 0.7)',
+        justifyContent: 'center',
+        alignItems: 'center',
+        zIndex: 999,
+    },
+    loaderText: {
+        color: '#fff',
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    resultContainer: {
+        position: 'absolute',
+        top: '40%',
+        left: '10%',
+        right: '10%',
+        padding: 20,
+        borderRadius: 10,
+        alignItems: 'center',
+        zIndex: 999,
+        elevation: 10,
+    },
+    resultTitle: {
+        color: '#fff',
+        fontSize: 16,
+        fontWeight: 'bold',
+    },
 
     container: {
         // marginTop: 0,

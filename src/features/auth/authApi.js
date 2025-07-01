@@ -69,12 +69,12 @@ export const authApi = createApi({
                 body: data
             })
         }),
-        getWalletSummary: builder.query({
-            query: () => ({
-                url: "user/getWalletSummary",
-                method: "GET"
-            })
-        })
+        // getWalletSummary: builder.query({
+        //     query: () => ({
+        //         url: "user/getWalletSummary",
+        //         method: "GET"
+        //     })
+        // })
     }),
 });
 
@@ -83,5 +83,5 @@ export const { useSignupMutation,
     useRequestOtpMutation,
     useVerifyOtpMutation,
     useResetPasswordMutation,
-    useGetWalletSummaryQuery,
+    // useGetWalletSummaryQuery,
     useUpdateUserMutation } = authApi;

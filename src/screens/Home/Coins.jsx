@@ -2,20 +2,18 @@ import React, { useEffect } from 'react';
 import { ImageBackground, StyleSheet, View, Text } from 'react-native';
 import { hp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { useGetWalletSummaryQuery } from '../../features/auth/authApi';
-import { useSelector } from 'react-redux';
+import { useGetWalletSummaryQuery } from '../../features/shops/shopApi';
+// import { useGetWalletSummaryQuery } from '../../features/auth/authApi';
+// import { useSelector } from 'react-redux';
 
 
 const Coins = ({ }) => {
-    const refreshTrigger = useSelector((state) => state.wallet.refreshTrigger);
-    const { data, isLoading, error, refetch } = useGetWalletSummaryQuery();
+    // const refreshTrigger = useSelector((state) => state.wallet.refreshTrigger);
+    // const { data, isLoading, error, refetch } = useGetWalletSummaryQuery();
 
 
-    useEffect(() => {
-        if (refreshTrigger) {
-            refetch();
-        }
-    }, [refreshTrigger]);
+    // 
+    const {data} = useGetWalletSummaryQuery()
 
 
     let totalPoints = 0
