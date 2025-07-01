@@ -26,7 +26,7 @@ export const shopApi = createApi({
                 method: "GET",
             }),
         }),
-       getShopById: builder.query({
+       getShopByScan: builder.query({
             query: (id) => ({
                 url: `shop/scan/${id}`,
                 method: "GET",
@@ -41,6 +41,14 @@ export const shopApi = createApi({
             }),
             invalidatesTags: ['Wallet'], 
         }),
+        // applyReferral: builder.mutation({
+        //     query: (code) => ({
+        //         url: "user/applyReferral",
+        //         method: "POST",
+        //         body: { referralCode: code },
+        //     }),
+        //     invalidatesTags: ['Wallet'],
+        // }),
         addFavShop: builder.mutation({
             query: (shopId) => ({
                 url: "shop/addFavShop",
@@ -64,6 +72,7 @@ export const {
     useGetAllShopsQuery,
     useAddFavShopMutation,
     useRemoveFavShopMutation,
-    useLazyGetShopByIdQuery,
-    useGetWalletSummaryQuery
+    useLazyGetShopByScanQuery,
+    useGetWalletSummaryQuery,
+    // useApplyReferralMutation
 } = shopApi;

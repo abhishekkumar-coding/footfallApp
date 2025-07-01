@@ -10,7 +10,7 @@ import {
   useCameraPermission,
   useCodeScanner,
 } from 'react-native-vision-camera';
-import { useGetWalletSummaryQuery, useLazyGetShopByIdQuery } from '../features/shops/shopApi';
+import { useGetWalletSummaryQuery, useLazygetShopByScanQuery } from '../features/shops/shopApi';
 import { useDispatch } from 'react-redux';
 import { triggerWalletRefresh } from '../features/wallet/walletSlice'; // ✅ use correct path
 import LinearGradient from 'react-native-linear-gradient';
@@ -83,12 +83,12 @@ const ScannerScreen = ({ navigation }) => {
 
 
 
-  const [fetchShopById, { data: shopData, isLoading, isError, error }] = useLazyGetShopByIdQuery();
+  const [fetchShopById, { data: shopData, isLoading, isError, error }] = useLazygetShopByScanQuery();
 
   useEffect(() => {
     requestPermission();
   }, []);
-  //   console.log("useLazyGetById", useLazyGetShopByIdQuery())
+  //   console.log("useLazyGetById", useLazygetShopByScanQuery())
 
   useEffect(() => {
     console.log("This is shop data", shopData)
