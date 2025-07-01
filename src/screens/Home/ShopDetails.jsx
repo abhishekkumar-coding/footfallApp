@@ -7,6 +7,7 @@ import { hp, wp } from '../../utils/dimensions';
 import ShopQRCode from './ShopQRCode';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useGetShopByIdQuery, useGetShopByScanMutation} from '../../features/shops/shopApi';
+import { useGetShopOffersByIdQuery, useLazyGetShopByIdQuery, useLazyGetShopByScanQuery } from '../../features/shops/shopApi';
 import { useDispatch } from 'react-redux';
 import { triggerWalletRefresh } from "../../features/auth/walletSlice"
 import { useNavigation } from '@react-navigation/native';
@@ -22,10 +23,33 @@ const ShopDetails = ({ route }) => {
     const [errorMessage, setErrorMessage] = useState('');
 
     const {fetchShopById} = useGetShopByIdQuery();
+     const {
+        contact,
+        _id,
+        category,
+        name,
+        startTime,
+        endTime,
+        logo,
+        cover,
+        address,
+        city,
+        state,
+        country,
+        pinCode
+    } = shop;
+
+    console.log(_id)
+
+    const [fetchShopByScan] = useLazyGetShopByScanQuery();
     const navigation = useNavigation()
   const [scanShop] = useGetShopByScanMutation();
 
 console.log(scanShop)
+    const {data} = useGetShopOffersByIdQuery(_id)
+    console.log(data)
+
+
     const sampleOffers = [
         {
             id: '1',
@@ -95,23 +119,7 @@ console.log(scanShop)
 
 
 
-    const {
-        contact,
-        _id,
-        category,
-        name,
-        startTime,
-        endTime,
-        logo,
-        cover,
-        address,
-        city,
-        state,
-        country,
-        pinCode
-    } = shop;
-
-    console.log(_id)
+   
 
     if (!shop) {
         return (

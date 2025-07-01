@@ -98,6 +98,12 @@ export const shopApi = createApi({
             }),
             invalidatesTags: ['Favorite'],
         }),
+        getShopOffersById:builder.query({
+            query:(shopId)=>({
+                url:`offer/getById/${shopId}`,
+                method:"GET"
+            })
+        })
     }),
 });
 
@@ -108,5 +114,6 @@ export const {
     useGetShopByScanMutation,
     useGetWalletSummaryQuery,
     useGetShopByIdQuery
+    useGetShopOffersByIdQuery
     // useApplyReferralMutation
 } = shopApi;
