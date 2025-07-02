@@ -12,6 +12,7 @@ import { useState } from 'react';
 import Coins from './Coins';
 import QuickActions from './QuickActions';
 import { useGetAllShopsQuery } from '../../features/shops/shopApi';
+import { useSelector } from 'react-redux';
 // import { Image } from 'react-native-svg';
 
 // const shopData = [
@@ -149,22 +150,30 @@ import { useGetAllShopsQuery } from '../../features/shops/shopApi';
 // ];
 
 const ShopList = ({ navigation }) => {
-    const [favoriteShops, setFavoriteShops] = useState([]);
+    const user = useSelector(state => state.user.user);
+    const initialFavorites = user?.favorites || [];
+    const [favoriteShops, setFavoriteShops] = useState(initialFavorites);
+
+    const [addFavShop] = useAddFavShopMutation();
+    const [removeFavShop] = useRemoveFavShopMutation();
 
     const { data } = useGetAllShopsQuery();
-    const shopData = data?.data?.shops
-    console.log("Data : ", shopData)
+    const shopData = data?.data?.shops || [];
 
-    const isFavorite = (shopId) => {
-        // console.log(shopId);
-        return favoriteShops.includes(shopId);
-    };
-
-    const toggleFavorite = (shopId) => {
-        if (isFavorite(shopId)) {
-            setFavoriteShops((prev) => prev.filter((id) => id !== shopId));
-        } else {
-            setFavoriteShops((prev) => [...prev, shopId]);
+    const toggleFavShop = async (shopId) => {
+        const isFav = favoriteShops.includes(shopId);
+        try {
+            if (isFav) {
+                await removeFavShop({ shopId }).unwrap();
+                setFavoriteShops(fav => fav.filter(id => id !== shopId));
+                console.log("Removed from favorites:", shopId);
+            } else {
+                await addFavShop({ shopId }).unwrap();
+                setFavoriteShops(fav => [...fav, shopId]);
+                console.log("Added to favorites:", shopId);
+            }
+        } catch (error) {
+            console.error("Error toggling favorite:", error);
         }
     };
 
@@ -172,71 +181,36 @@ const ShopList = ({ navigation }) => {
         navigation.navigate('AllShops', { shopsData: shopData });
 
     const renderItem = ({ item }) => {
-
-       let galleryImages = [];
-    try {
-        // item.gallery[0] is like: "[\"url1\",\"url2\"]"
-        galleryImages = JSON.parse(item.gallery?.[0] || '[]');
-        // console.log(galleryImages)
-    } catch (error) {
-        console.warn("Failed to parse gallery JSON:", error);
-    }
+        let galleryImages = [];
+        try {
+            galleryImages = JSON.parse(item.gallery?.[0] || '[]');
+        } catch (error) {
+            console.warn("Failed to parse gallery JSON:", error);
+        }
         const mainImage = galleryImages[0] || item.cover || item.logo;
+        const isFavorite = favoriteShops.includes(item._id);
 
-        const {
-            contact,
-            shop_id,
-            category,
-            name,
-            startTime,
-            endTime,
-            logo,
-            cover,
-            address,
-            city,
-            state,
-            country,
-            pinCode
-        } = item;
-
-        // console.log("Destructured fields:", {
-        //     contact,
-        //     shop_id,
-        //     mainImage,
-        //     category,
-        //     name,
-        //     startTime,
-        //     endTime,
-        //     logo,
-        //     cover,
-        //     address,
-        //     city,
-        //     state,
-        //     country,
-        //     pinCode,
-        // });
         return (
             <TouchableOpacity
                 style={styles.card}
-                onPress={() => navigation.navigate('ShopDetails', { shop: item, image:mainImage })}
+                onPress={() => navigation.navigate('ShopDetails', { shop: item, image: mainImage })}
             >
                 <Image style={styles.cardImage} source={{ uri: mainImage }} />
                 <View style={{ padding: 10, alignItems: 'flex-start', flex: 1, justifyContent: 'space-between' }}>
-                    <Text style={styles.category}>{category}</Text>
+                    <Text style={styles.category}>{item.category}</Text>
                     <View style={{ flexDirection: 'row', alignItems: 'center', width: '100%', justifyContent: 'space-between' }}>
-                        <Text style={styles.name}>{name}</Text>
-                        {/* <Text style={styles.details}>⭐ {item.rating}</Text> */}
+                        <Text style={styles.name}>{item.name}</Text>
                     </View>
-                    <Text style={styles.location}>{city}</Text>
+                    <Text style={styles.location}>{item.city}</Text>
                     <View style={styles.favTimeContainer}>
-                        <Text style={styles.timings}>{startTime} - {endTime}</Text>
-                        <TouchableOpacity onPress={() => toggleFavorite(shop_id)}>
-                            {isFavorite(item._id) ? <FilledFavIcon /> : <FavIcon />}
+                        <Text style={styles.timings}>{item.startTime} - {item.endTime}</Text>
+                        <TouchableOpacity onPress={() => toggleFavShop(item._id)}>
+                            {isFavorite ? <FilledFavIcon /> : <EmptyHeart />}
                         </TouchableOpacity>
                     </View>
                 </View>
             </TouchableOpacity>
-        )
+        );
     };
 
     return (
@@ -247,8 +221,7 @@ const ShopList = ({ navigation }) => {
             showsVerticalScrollIndicator={false}
             ListHeaderComponent={
                 <View style={styles.container}>
-                    {/* <SearchBar /> */}
-                    <Coins/>
+                    <Coins />
                     <QuickActions />
                     <AutoSlider />
                     <View style={styles.header}>
@@ -264,6 +237,7 @@ const ShopList = ({ navigation }) => {
         />
     );
 };
+
 
 
 export default ShopList;

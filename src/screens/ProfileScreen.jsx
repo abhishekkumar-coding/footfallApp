@@ -18,6 +18,7 @@ import { useDispatch, useSelector } from 'react-redux'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useNavigation } from '@react-navigation/native'
 import { clearUser } from '../features/auth/userSlice'
+import { shopApi } from '../features/shops/shopApi'
 
 const ProfileScreen = () => {
     const navigation = useNavigation();
@@ -33,6 +34,8 @@ const ProfileScreen = () => {
             console.log("Logout is working")
             await AsyncStorage.multiRemove(['token', 'user']);
             dispatch(clearUser());
+            dispatch(shopApi.util.resetApiState());
+
             navigation.reset({
                 index: 0,
                 routes: [{ name: 'Login' }],
@@ -123,7 +126,7 @@ const styles = StyleSheet.create({
         position: "absolute",
         right: wp(5),
         top: hp(5.2),
-        zIndex:20
+        zIndex: 20
     },
     container2: {
         flexDirection: 'row',
