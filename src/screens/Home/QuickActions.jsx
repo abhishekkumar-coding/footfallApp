@@ -11,7 +11,7 @@ const QuickActions = () => {
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity style={styles.buttonContainer} onPress={()=>navigation.navigate('Scanner')}>
+            <TouchableOpacity style={styles.buttonContainer} onPress={()=>navigation.navigate('ScanOptions')}>
                 <View style={[styles.iconContainerBase, styles.iconContainer1]}>
                     <Image source={require('../../../assets/scanner.png')} style={styles.icon} />
                 </View>

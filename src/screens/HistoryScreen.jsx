@@ -1,63 +1,136 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { useSelector } from 'react-redux';
+import { View, Text, StyleSheet, FlatList, ActivityIndicator } from 'react-native';
+import { useGetScanHistoryQuery } from '../features/auth/authApi';
+import { RFValue } from 'react-native-responsive-fontsize';
+import LinearGradient from 'react-native-linear-gradient';
+import { hp } from '../utils/dimensions';
 
 const HistoryScreen = () => {
-  const history = useSelector(state => state.user?.user?.scanHistory);
-//   console.log("History data : ", history[0].shopId)
+  const { data, isLoading, isError } = useGetScanHistoryQuery();
+  const history = data?.data || [];
+  console.log("Scan History:", history);
+
+  if (isLoading) {
+    return (
+      <View style={styles.centered}>
+        <ActivityIndicator size="large" color="orange" />
+      </View>
+    );
+  }
+
+  if (isError) {
+    return (
+      <View style={styles.centered}>
+        <Text style={styles.empty}>Failed to load history. Please try again.</Text>
+      </View>
+    );
+  }
+
+  if (history.length === 0) {
+    return (
+      <View style={styles.centered}>
+        <Text style={styles.empty}>No scans yet.</Text>
+      </View>
+    );
+  }
+
+  const renderItem = ({ item }) => {
+    const formattedDate = item?.scannedAt
+      ? new Date(item.scannedAt).toLocaleString('en-IN', {
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        })
+      : 'N/A';
+
+    return (
+      <View style={styles.item}>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.shopName}>{item?.shopId?.name || 'N/A'}</Text>
+          <Text style={styles.date}>Date: {formattedDate}</Text>
+        </View>
+        <Text style={styles.points}>+ {item?.points ?? '0'}</Text>
+      </View>
+    );
+  };
 
   return (
-    <ScrollView contentContainerStyle={styles.container}>
-      <Text style={styles.title}>Scan History</Text>
-
-      {(!history || history.length === 0) ? (
-        <Text style={styles.empty}>No scans yet.</Text>
-      ) : (
-        history.map((item, index) => (
-          <View key={index} style={styles.item}>
-            <Text style={styles.text}>{item.value}</Text>
-            <Text style={styles.date}>{new Date(item.date).toLocaleString()}</Text>
+    <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
+      <FlatList
+        contentContainerStyle={styles.container}
+        data={history}
+        keyExtractor={(item, index) => item._id || index.toString()}
+        renderItem={renderItem}
+        showsVerticalScrollIndicator={false}
+        ListHeaderComponent={
+          <View style={styles.headerContainer}>
+            <Text style={styles.headerTitle}>Scan History</Text>
           </View>
-        ))
-      )}
-    </ScrollView>
+        }
+      />
+    </LinearGradient>
   );
 };
 
 export default HistoryScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flexGrow: 1,
-    backgroundColor: '#000',
-    paddingHorizontal: 20,
-    paddingTop: 80,
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 24,
-    color: 'orange',
+  headerContainer: {
+    paddingBottom: hp(2),
+    borderBottomWidth: 1,
+    borderBottomColor: '#555',
     marginBottom: 10,
-    fontWeight: 'bold',
+  },
+  headerTitle: {
+    color: 'orange',
+    fontSize: RFValue(24),
+    fontFamily: 'Poppins-Bold',
+    textAlign: 'center',
+  },
+  container: {
+    paddingHorizontal: 20,
+    paddingTop: hp(8),
+    paddingBottom: hp(15),
+  },
+  centered: {
+    flex: 1,
+    backgroundColor: '#000',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   empty: {
     color: '#999',
-    fontSize: 16,
+    fontSize: RFValue(16),
+    fontFamily: 'Poppins-Regular',
+    textAlign: 'center',
+    marginHorizontal: 20,
   },
   item: {
-    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'flex-start',
     backgroundColor: 'rgba(255,255,255,0.1)',
     padding: 15,
-    marginVertical: 5,
-    borderRadius: 8,
+    marginVertical: 6,
+    borderRadius: 10,
   },
-  text: {
+  shopName: {
     color: '#fff',
-    fontSize: 14,
+    fontSize: RFValue(16),
+    fontFamily: 'Poppins-SemiBold',
   },
   date: {
     color: '#ccc',
-    fontSize: 12,
+    fontSize: RFValue(12),
     marginTop: 4,
+    fontFamily: 'Poppins-Regular',
+  },
+  points: {
+    color: '#00e676',
+    fontSize: RFValue(16),
+    fontFamily: 'Poppins-Bold',
+    textAlign: 'right',
   },
 });

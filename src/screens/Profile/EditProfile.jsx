@@ -60,7 +60,7 @@ const EditProfile = () => {
                     <CustomInput lable="Name" placeholder={name} onChangeText={setName}  value={name}/>
                     <CustomInput lable="Email" placeholder={email} onChangeText={setEmail} value={email}/>
                     <CustomInput lable="Phone" placeholder={phone} onChangeText={setPhone} value={phone}/>
-                    <CustomInput lable="Password" placeholder={"Enter New Password"} onChangeText={setPassword} value={password}/>
+                    {/* <CustomInput lable="Password" placeholder={"Enter New Password"} onChangeText={setPassword} value={password}/> */}
                     {/* <CustomInput lable="Address" placeholder={address} />
                     <CustomInput lable="Country" placeholder={country} />
                     <CustomInput lable="State" placeholder={state} />

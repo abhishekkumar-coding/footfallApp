@@ -24,6 +24,10 @@ import ReferralScreen from '../screens/ReferralScreen'
 import HistoryScreen from '../screens/HistoryScreen'
 import FilledHistoryIcon from '../utils/icons/FilledHistoryIcon'
 import History from '../utils/icons/History'
+import RedeemScanner from '../screens/RedeemScanner'
+import ScanOptionScreen from '../screens/ScanOptionScreen'
+import RedeemSummaryScreen from '../screens/RedeemSummaryScreen'
+import RedeemHistoryScreen from '../screens/RedeemHistoryScreen'
 
 
 const Tab = createBottomTabNavigator()
@@ -36,7 +40,11 @@ const HomeStack = () => (
         <Stack.Screen name='AllShops' component={AllShops} options={{ headerShown: false }} />
         <Stack.Screen name='FilterShops' component={FilterShops} options={{ headerShown: false }} />
         <Stack.Screen name='EditProfile' component={EditProfile} options={{ headerShown: false }} />
-        <Stack.Screen name='Scanner' component={ScannerScreen} options={{headerShown:false}}/>
+        <Stack.Screen name='RewardScanner' component={ScannerScreen} options={{headerShown:false}}/>
+        <Stack.Screen name='RedeemScanner' component={RedeemScanner} options={{headerShown:false}}/>
+        <Stack.Screen name='ScanOptions' component={ScanOptionScreen} options={{headerShown:false}}/>
+        <Stack.Screen name='RedeemSummaryScreen' component={RedeemSummaryScreen} options={{headerShown:false}}/>
+        <Stack.Screen name='RedeemHistoryScreen' component={RedeemHistoryScreen} options={{headerShown:false}}/>
     </Stack.Navigator>
 );
 

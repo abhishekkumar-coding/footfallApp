@@ -18,7 +18,7 @@ const baseQueryWithAuth = async (args, api, extraOptions) => {
 export const shopApi = createApi({
     reducerPath: 'shopApi',
     baseQuery: baseQueryWithAuth,
-    tagTypes: ['Favorite', 'Wallet'],
+    tagTypes: ['Favorite', 'Wallet', "VendorPoints", "RedeemHistory"],
     endpoints: (builder) => ({
         getAllShops: builder.query({
             query: () => ({
@@ -26,12 +26,12 @@ export const shopApi = createApi({
                 method: "GET",
             }),
         }),
-       getShopByScan: builder.query({
+        getShopByScan: builder.mutation({
             query: (id) => ({
                 url: `shop/scan/${id}`,
-                method: "GET",
+                method: "POST",
             }),
-            providesTags: ['Wallet'],
+            invalidatesTags: ['Wallet'],
         }),
 
         getWalletSummary: builder.query({
@@ -39,7 +39,7 @@ export const shopApi = createApi({
                 url: "user/getWalletSummary",
                 method: "GET",
             }),
-            invalidatesTags: ['Wallet'], 
+            providesTags: ['Wallet'],
         }),
         // applyReferral: builder.mutation({
         //     query: (code) => ({
@@ -65,12 +65,46 @@ export const shopApi = createApi({
             }),
             invalidatesTags: ['Favorite'],
         }),
-        getShopOffersById:builder.query({
-            query:(shopId)=>({
-                url:`offer/getById/${shopId}`,
+        getShopOffersById: builder.query({
+            query: (shopId) => ({
+                url: `offer/getByShop/${shopId}`,
+                method: "GET"
+            })
+        }),
+        getSortedOffers :builder.query({
+            query:(sort)=>({
+                url:`offer/getSorted?sort=${sort}&lat=77.1025&lng=28.7041`,
+                method :"GET"
+            })
+        }),
+        getTotalPointsByVendor:builder.query({
+            query:({vendorId})=>({
+                url:`user/getTotalPointsByVendor/${vendorId}`,
+                method:"GET"
+            }),
+            providesTags: ['VendorPoints'],
+        }),
+        getRedeemHistoryByVendor:builder.query({
+            query:(id)=>({
+                url:`user/getRedeemHistoryByVendor/${id}`,
+                method:"GET"
+            }),
+            providesTags: ['RedeemHistory'],
+        }),
+        getRedeemHistory:builder.query({
+            query:()=>({
+                url:"user/getRedeemHistory",
                 method:"GET"
             })
-        })
+        }),
+        redeemVendorPoints: builder.mutation({
+            query: ({ id, pointsToRedeem }) => ({
+                url: `user/redeemVendorPoints/${id}`,
+                method: "POST",
+                body: { pointsToRedeem },
+            }),
+            invalidatesTags: ['VendorPoints', 'RedeemHistory', "Wallet"],
+        }),
     }),
 });
 
@@ -78,8 +112,13 @@ export const {
     useGetAllShopsQuery,
     useAddFavShopMutation,
     useRemoveFavShopMutation,
-    useLazyGetShopByScanQuery,
+    useGetShopByScanMutation,
     useGetWalletSummaryQuery,
-    useGetShopOffersByIdQuery
+    useGetShopOffersByIdQuery,
+    useGetSortedOffersQuery,
+    useGetTotalPointsByVendorQuery,
+    useGetRedeemHistoryByVendorQuery,
+    useRedeemVendorPointsMutation,
+    useGetRedeemHistoryQuery
     // useApplyReferralMutation
 } = shopApi;

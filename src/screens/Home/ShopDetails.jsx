@@ -1,50 +1,74 @@
-// src/screens/Home/ShopDetails.jsx
-import React, { useState } from 'react';
-import { View, Text, Image, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import BackButton from '../../components/BackButton';
 import { hp, wp } from '../../utils/dimensions';
 import ShopQRCode from './ShopQRCode';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { useGetShopOffersByIdQuery, useLazyGetShopByIdQuery, useLazyGetShopByScanQuery } from '../../features/shops/shopApi';
+import { useGetShopOffersByIdQuery, useGetShopByScanMutation, useGetTotalPointsByVendorQuery } from '../../features/shops/shopApi';
 import { useDispatch } from 'react-redux';
-import { triggerWalletRefresh } from "../../features/auth/walletSlice"
+import { triggerWalletRefresh } from "../../features/auth/walletSlice";
 import { useNavigation } from '@react-navigation/native';
 
 const ShopDetails = ({ route }) => {
-    const { shop, image } = route.params;
-    console.log(image)
+    const navigation = useNavigation();
+    const { shop } = route.params;
+
     const [sortBy, setSortBy] = useState('Latest');
     const dispatch = useDispatch();
     const [isLoadingShop, setIsLoadingShop] = useState(false);
     const [showScanSuccess, setShowScanSuccess] = useState(false);
     const [showScanError, setShowScanError] = useState(false);
     const [errorMessage, setErrorMessage] = useState('');
+    const [vendorId, setVendorId] = useState(null);
+    const [redeemTrigger, setRedeemTrigger] = useState(0)
 
-     const {
-        contact,
-        _id,
-        category,
-        name,
-        startTime,
-        endTime,
-        logo,
-        cover,
-        address,
-        city,
-        state,
-        country,
-        pinCode
-    } = shop;
+    const { data, isLoading: isLoadingVendor, error } = useGetTotalPointsByVendorQuery(
+        { vendorId, redeemTrigger },
+        { skip: !vendorId }
+    ); 
+    const [scanShop] = useGetShopByScanMutation();
+    const { data: offersData, isLoading: isLoadingOffers, error: offersError } = useGetShopOffersByIdQuery(shop?._id);
 
-    console.log(_id)
+    const { contact, _id, category, name, startTime, endTime, logo, address, city, state, pinCode, owner } = shop || {};
 
-    const [fetchShopByScan] = useLazyGetShopByScanQuery();
-    const navigation = useNavigation()
+    useEffect(() => {
+        if (data) {
+            console.log("Fetched vendor points:", data);
+            setShowScanSuccess(true);
 
-    const {data} = useGetShopOffersByIdQuery(_id)
-    console.log(data)
+            setTimeout(() => {
+                setShowScanSuccess(false);
+                navigation.navigate("RedeemSummaryScreen", { vendorDetails: data.data });
+            }, 1000);
+        } else if (error) {
+            console.log("Error fetching vendor points:", error);
+            setErrorMessage(error?.data?.message || 'Something went wrong');
+            setShowScanError(true);
+            setTimeout(() => {
+                setShowScanError(false);
+                navigation.goBack();
+            }, 1000);
+        }
+    }, [data, error, navigation]);
 
+    useEffect(() => {
+        if (offersData) {
+            console.log("Shop offers:", offersData);
+        }
+    }, [offersData]);
+
+    const handleRedeem = (ownerId) => {
+        console.log("Setting vendor ID for redeem:", ownerId);
+        setVendorId(ownerId);
+        setRedeemTrigger((prev) => prev + 1)
+    };
+
+    useEffect(() => {
+        if (offersData) {
+            console.log("Shop offers:", offersData);
+        }
+    }, [offersData]);
 
     const sampleOffers = [
         {
@@ -78,24 +102,28 @@ const ShopDetails = ({ route }) => {
     ];
 
     const getSortedOffers = () => {
-        const sortedOffers = [...sampleOffers];
+        if (!offersData || !Array.isArray(offersData)) return [];
+
+        const sortedOffers = [...offersData];
 
         if (sortBy === "Ending Soon") {
-            return sortedOffers.sort((a, b) =>
-                new Date(a.expiryDate || 0) - new Date(b.expiryDate || 0)
+            return sortedOffers.sort(
+                (a, b) => new Date(a.endTime) - new Date(b.endTime)
             );
-        } else if (sortBy === "Distance") {
-            return sortedOffers.sort((a, b) => a.distance - b.distance);
         } else {
-            return [...sortedOffers].reverse(); // safe reverse
+            // Latest: reverse order by startTime
+            return sortedOffers.sort(
+                (a, b) => new Date(b.startTime) - new Date(a.startTime)
+            );
         }
     };
+
 
 
     const handleManualScan = async () => {
         try {
             setIsLoadingShop(true);
-            const result = await fetchShopByScan(_id).unwrap();
+            const result = await scanShop(_id).unwrap();
             console.log("Fetched shop data directly from unwrap:", result.data.shop);
 
             setShowScanSuccess(true);
@@ -112,11 +140,6 @@ const ShopDetails = ({ route }) => {
             setIsLoadingShop(false);
         }
     };
-
-
-
-   
-
     if (!shop) {
         return (
             <View style={styles.container}>
@@ -126,16 +149,20 @@ const ShopDetails = ({ route }) => {
     }
 
 
+
     return (
         <LinearGradient
             colors={['#000337', '#000000']}
             style={{ flex: 1 }}
         >
-            {isLoadingShop && (
+            {(isLoadingShop || isLoadingVendor) && (
                 <View style={styles.loaderContainer}>
-                    <Text style={styles.loaderText}>Scanning...</Text>
+                    <Text style={styles.loaderText}>
+                        {isLoadingShop ? "Scanning..." : "Fetching vendor points..."}
+                    </Text>
                 </View>
             )}
+
             {showScanSuccess && (
                 <View style={[styles.resultContainer, { backgroundColor: '#28A745' }]}>
                     <Text style={styles.resultTitle}>✅ Shop scanned successfully!</Text>
@@ -150,14 +177,20 @@ const ShopDetails = ({ route }) => {
             <BackButton />
             <ScrollView style={styles.container}>
                 <View style={styles.qrContainer}>
-                    <View style={{ justifyContent: "center", alignItems: "center" }}>
-                        <ShopQRCode shopId={_id} email={contact?.email ?? 'no-email'} logo={logo} />
-                        <Text style={styles.scanMe} onPress={handleManualScan}>
-                            Scan me
-                        </Text>
+                    <ShopQRCode shopId={_id} email={contact?.email ?? 'no-email'} ownerId={owner} logo={logo} />
+
+                    <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center" }}>
+                        <TouchableOpacity style={[styles.scanMe, { marginRight: 20 }]} onPress={handleManualScan}>
+                            <Text style={styles.buttonText}>Scan me</Text>
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.redeem} onPress={() => handleRedeem(owner)}>
+                            <Text style={styles.buttonText}>Redeem</Text>
+                        </TouchableOpacity>
                     </View>
-                    <View style={styles.verticleLine}></View>
-                    <Text style={styles.qrContainerText}>Scan more, earn more points, and unlock more opportunities</Text>
+
+                    {/* <View style={styles.verticleLine}></View> */}
+                    {/* <Text style={styles.qrContainerText}>Scan more, earn more points, and unlock more opportunities</Text> */}
                 </View>
                 {/* <Image source={{ uri: image }} style={styles.image} /> */}
                 <View style={styles.shopDetails}>
@@ -182,19 +215,17 @@ const ShopDetails = ({ route }) => {
                             ))}
                         </View>
 
-                        {/* Placeholder for actual offers list */}
                         {getSortedOffers().map((offer) => (
-                            <View key={offer.id} style={styles.offerCard}>
+                            <View key={offer._id || offer.shopId} style={styles.offerCard}>
                                 <Text style={styles.offerTitle}>{offer.title}</Text>
-                                <Text style={styles.offerDetails}>{offer.details}</Text>
+                                <Text style={styles.offerDetails}>{offer.description}</Text>
+                                <Text style={styles.offerDetails}>
+                                    🗓️ Valid: {new Date(offer.startTime).toLocaleDateString()} - {new Date(offer.endTime).toLocaleDateString()}
+                                </Text>
                             </View>
                         ))}
-
                     </View>
                 </View>
-
-
-
             </ScrollView>
         </LinearGradient>
     );
@@ -238,32 +269,70 @@ const styles = StyleSheet.create({
     },
 
     container: {
-        // marginTop: 0,
-        // flex: 1,
+        marginVertical: 5
     },
+    // scanMe: {
+    //     backgroundColor: 'rgba(255,255,255,0.12)',
+    //     paddingVertical: hp(1.8),
+    //     paddingHorizontal: 40,
+    //     borderRadius: 10,
+    //     marginVertical: 10,
+    //     // width: '80%',
+    //     alignItems: 'center',
+    //     color: '#fff',
+    //     fontSize: RFValue(14),
+    //     fontWeight: '600',
+    // },
+
+    // redeem: {
+    //     backgroundColor: 'rgba(255,255,255,0.12)',
+    //     paddingVertical: hp(1.8),
+    //     paddingHorizontal: 40,
+    //     borderRadius: 10,
+    //     marginVertical: 10,
+    //     // width: '80%',
+    //     alignItems: 'center',
+    //     color: '#fff',
+    //     fontSize: RFValue(14),
+    //     fontWeight: '600',
+    // },
+
     scanMe: {
-        backgroundColor: '#4A00E0',
-        color: '#ffffff',
-        width: wp(40),
-        marginTop: hp(2),
-        textAlign: 'center',
-        paddingVertical: hp(1.2),
-        fontSize: RFValue(16),
+        backgroundColor: '#1E88E5',
+        paddingVertical: hp(1.4),
+        paddingHorizontal: 40,
+        borderRadius: 50,
+        marginVertical: 10,
+        color: '#fff',
+        fontSize: RFValue(14),
         fontWeight: '600',
-        borderRadius: 30,
-        overflow: 'hidden',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-        elevation: 2,
+        textAlign: 'center',
     },
+
+    redeem: {
+        backgroundColor: '#FF7043',
+        paddingVertical: hp(1.4),
+        paddingHorizontal: 40,
+        borderRadius: 50,
+        marginVertical: 10,
+        color: '#000',
+        fontSize: RFValue(14),
+        fontWeight: '600',
+        textAlign: 'center',
+    },
+
+    buttonText: {
+        color: '#fff',
+        fontSize: RFValue(14),
+        fontWeight: '600',
+        textAlign: 'center',
+    },
+
 
     qrContainer: {
         height: hp(35),
         marginTop: hp(3),
-        flexDirection: "row",
-        justifyContent: "space-between",
+        justifyContent: "center",
         alignItems: "center",
         paddingHorizontal: wp(2),
         marginBottom: hp(4)
@@ -282,8 +351,10 @@ const styles = StyleSheet.create({
     shopDetails: {
         backgroundColor: "#fff",
         flex: 1,
+        marginTop: hp(2),
         gap: wp(2),
-        paddingVertical: hp(3),
+        paddingTop: hp(3),
+        paddingBottom: hp(15),
         paddingHorizontal: wp(5),
         position: "relative",
         bottom: hp(7),
