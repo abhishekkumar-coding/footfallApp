@@ -9,6 +9,7 @@ import {
   Linking,
   Share,
   Platform,
+  Clipboard,
 } from 'react-native';
 import { useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -17,85 +18,88 @@ import LinearGradient from 'react-native-linear-gradient';
 import { RFValue } from 'react-native-responsive-fontsize';
 import BackButton from '../components/BackButton';
 import { hp, wp } from '../utils/dimensions';
-import SendIntentAndroid from 'react-native-send-intent';
 
 const ReferralScreen = () => {
   const user = useSelector((state) => state.user.user);
   const referralCode = user?.referralCode || 'N/A';
 
+  // Your app's deep link configuration
+  const APP_SCHEME = 'footfall';
+  const DEEP_LINK_PATH = 'signup';
+  
   const handleCopyCode = () => {
-    // Clipboard.setString(referralCode);
+    Clipboard.setString(referralCode);
     Alert.alert('Copied', 'Referral code copied to clipboard');
   };
 
   const generateDeepLink = () => {
-    return `footfall://signup?referralCode=${encodeURIComponent(referralCode)}`;
+    return `${APP_SCHEME}://${DEEP_LINK_PATH}?referral=${encodeURIComponent(referralCode)}`;
+  };
+
+  const generateLinkTwUrl = () => {
+    // This should be the LinkTw.in URL you've configured to redirect to your deep link
+    // Example: https://linktw.in/ref_ABC123 (configured in LinkTw.in dashboard to redirect to footfall://signup?referral=ABC123)
+    return `https://linktw.in/ref_${referralCode}`;
+  };
+
+  const handleOpenLink = async () => {
+    try {
+      const deepLink = generateDeepLink();
+      
+      // First try to open the app directly
+      const canOpen = await Linking.canOpenURL(deepLink);
+      
+      if (canOpen) {
+        await Linking.openURL(deepLink);
+      } else {
+        // Fallback to opening the LinkTw.in URL
+        // LinkTw.in should be configured to redirect to your deep link
+        await Linking.openURL(generateLinkTwUrl());
+      }
+    } catch (error) {
+      console.error('Error opening link:', error);
+      Alert.alert('Error', 'Could not open the link. Please make sure the app is installed.');
+    }
   };
 
   const handleShare = async (platform) => {
-    const deepLink = generateDeepLink();
-    const webLink = `https://footfallapp.com/signup?referralCode=${encodeURIComponent(referralCode)}`;
-    const message = `Join Footfall using my referral code "${referralCode}" and get rewards! Sign up here: ${webLink} or open in app: ${deepLink}`;
-
     try {
+      const linkTwUrl = generateLinkTwUrl();
+      const message = `Join Footfall using my referral link! ${linkTwUrl}\n\nOr use code: ${referralCode}`;
+      
+      const shareOptions = {
+        message: message,
+        url: linkTwUrl, // For platforms that support URL preview
+        title: 'Footfall Referral',
+      };
+
       switch (platform) {
         case 'whatsapp':
-          if (Platform.OS === 'android') {
-            SendIntentAndroid.sendText({
-              title: 'Share via WhatsApp',
-              text: message,
-              type: 'text/plain',
-              package: 'com.whatsapp'
-            });
-          } else {
-            Linking.openURL(`whatsapp://send?text=${encodeURIComponent(message)}`);
-          }
+          await Linking.openURL(`https://wa.me/?text=${encodeURIComponent(message)}`);
           break;
         case 'messenger':
-          if (Platform.OS === 'android') {
-            SendIntentAndroid.sendText({
-              title: 'Share via Messenger',
-              text: message,
-              type: 'text/plain',
-              package: 'com.facebook.orca'
-            });
-          } else {
-            Linking.openURL(`fb-messenger://share?link=${encodeURIComponent(message)}`);
-          }
+          await Linking.openURL(`fb-messenger://share/?link=${encodeURIComponent(linkTwUrl)}`);
           break;
         case 'instagram':
           if (Platform.OS === 'android') {
-            SendIntentAndroid.sendText({
-              title: 'Share via Instagram',
-              text: message,
-              type: 'text/plain',
-              package: 'com.instagram.android'
-            });
+            await Linking.openURL(`intent://share?text=${encodeURIComponent(message)}#Intent;package=com.instagram.android;scheme=https;end`);
           } else {
-            Linking.openURL(`instagram://sharing?text=${encodeURIComponent(message)}`);
+            await Linking.openURL(`instagram://library?AssetPath=${encodeURIComponent(linkTwUrl)}`);
           }
           break;
         case 'email':
-          if (Platform.OS === 'android') {
-            SendIntentAndroid.sendMail({
-              subject: 'Footfall Referral Code',
-              body: message,
-              chooserTitle: 'Send email using'
-            });
-          } else {
-            Linking.openURL(`mailto:?subject=Footfall Referral Code&body=${encodeURIComponent(message)}`);
-          }
+          await Linking.openURL(`mailto:?subject=Footfall Referral&body=${encodeURIComponent(message)}`);
+          break;
+        case 'sms':
+          await Linking.openURL(`sms:?body=${encodeURIComponent(message)}`);
           break;
         case 'more':
-          default:
-          Share.share({
-            message: message,
-            url: webLink,
-            title: 'Footfall Referral'
-          });
+        default:
+          await Share.share(shareOptions);
       }
     } catch (error) {
-      Alert.alert('Error', 'Unable to share at this time.');
+      console.error('Sharing error:', error);
+      Alert.alert('Error', 'Unable to share at this time. Please make sure the app is installed.');
     }
   };
 
@@ -104,6 +108,7 @@ const ReferralScreen = () => {
     { platform: 'messenger', icon: 'facebook', color: '#0084FF', label: 'Messenger' },
     { platform: 'instagram', icon: 'instagram', color: '#C13584', label: 'Instagram' },
     { platform: 'email', icon: 'envelope', color: '#FFFFFF', label: 'Email' },
+    { platform: 'sms', icon: 'comment', color: '#5BC236', label: 'SMS', iconType: 'fontawesome' },
     { platform: 'more', icon: 'ellipsis-horizontal', color: '#CCCCCC', label: 'More', iconType: 'ionicon' },
   ];
 
@@ -118,7 +123,7 @@ const ReferralScreen = () => {
           <View style={styles.header}>
             <Text style={styles.heading}>Invite Friends</Text>
             <Text style={styles.subheading}>
-              Share your referral code and earn rewards when they sign up
+              Share your referral link and earn rewards when they sign up
             </Text>
           </View>
 
@@ -135,6 +140,10 @@ const ReferralScreen = () => {
                 <Text style={styles.copyText}>Copy</Text>
               </View>
             </TouchableOpacity>
+            
+            <TouchableOpacity onPress={handleOpenLink}>
+              <Text style={styles.shortLinkText}>Tap to test your referral link</Text>
+            </TouchableOpacity>
           </View>
 
           <View style={styles.howItWorks}>
@@ -144,13 +153,13 @@ const ReferralScreen = () => {
                 <View style={styles.stepNumber}>
                   <Text style={styles.stepNumberText}>1</Text>
                 </View>
-                <Text style={styles.stepText}>Share your referral code</Text>
+                <Text style={styles.stepText}>Share your referral link</Text>
               </View>
               <View style={styles.step}>
                 <View style={styles.stepNumber}>
                   <Text style={styles.stepNumberText}>2</Text>
                 </View>
-                <Text style={styles.stepText}>Friend signs up using your code</Text>
+                <Text style={styles.stepText}>Friend clicks the link and signs up</Text>
               </View>
               <View style={styles.step}>
                 <View style={styles.stepNumber}>
@@ -174,6 +183,8 @@ const ReferralScreen = () => {
                     <View style={styles.glassIcon}>
                       {option.iconType === 'ionicon' ? (
                         <Ionicon name={option.icon} size={28} color={option.color} />
+                      ) : option.iconType === 'fontawesome' ? (
+                        <Icon name={option.icon} size={28} color={option.color} />
                       ) : (
                         <Icon name={option.icon} size={28} color={option.color} />
                       )}
@@ -189,6 +200,7 @@ const ReferralScreen = () => {
     </LinearGradient>
   );
 };
+
 
 const styles = StyleSheet.create({
   container: {
