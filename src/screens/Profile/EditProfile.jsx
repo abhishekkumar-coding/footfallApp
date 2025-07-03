@@ -44,23 +44,23 @@ const EditProfile = () => {
 
     return (
         <LinearGradient colors={['#000337', '#000000']} style={{flex:1}}>
-            <BackButton lable={"Edit Profile"}/>
+            <BackButton lable={"Edit Profile"} back/>
             <View style={styles.container}>
             <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
                 {/* <Text style={styles.heading}>Edit Profile</Text> */}
                 <View style={{ paddingHorizontal: wp(5) }}>
-                    <View style={styles.profileImageContainer}>
+                    {/* <View style={styles.profileImageContainer}>
                         <Image
                             source={{ uri: 'https://i.pravatar.cc/150?img=12' }}
                             style={styles.profileImage}
                         />
                         <Text style={styles.changePhoto}>Change Photo</Text>
-                    </View>
+                    </View> */}
 
                     <CustomInput lable="Name" placeholder={name} onChangeText={setName}  value={name}/>
                     <CustomInput lable="Email" placeholder={email} onChangeText={setEmail} value={email}/>
                     <CustomInput lable="Phone" placeholder={phone} onChangeText={setPhone} value={phone}/>
-                    <CustomInput lable="Password" placeholder={"Enter New Password"} onChangeText={setPassword} value={password}/>
+                    {/* <CustomInput lable="Password" placeholder={"Enter New Password"} onChangeText={setPassword} value={password}/> */}
                     {/* <CustomInput lable="Address" placeholder={address} />
                     <CustomInput lable="Country" placeholder={country} />
                     <CustomInput lable="State" placeholder={state} />
@@ -78,9 +78,7 @@ export default EditProfile;
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
-        paddingTop: hp(10),
-        paddingHorizontal: wp(0),
+       
     },
     heading: {
         fontFamily: 'Poppins-Bold',

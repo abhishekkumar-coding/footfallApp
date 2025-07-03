@@ -12,6 +12,7 @@ import {
   ActivityIndicator,
   Platform,
   Linking,
+  KeyboardAvoidingView
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import CustomInput from '../../components/CustomInput';
@@ -29,7 +30,6 @@ import { useSignupMutation } from '../../features/auth/authApi';
 import { z } from 'zod';
 import Toast from 'react-native-toast-message';
 import SendIntentAndroid from 'react-native-send-intent';
-// import { useApplyReferralMutation } from '../../features/shops/shopApi';
 
 const SignupScreen = () => {
   const navigation = useNavigation();
@@ -40,11 +40,7 @@ const SignupScreen = () => {
   const [referredBy, setReferredBy] = useState('')
   const [showError, setShowError] = useState(false);
 
-  // console.log("Getintent", SendIntentAndroid)
-
   const [signup, { isLoading }] = useSignupMutation();
-  // const [applyReferral] = useApplyReferralMutation()
-  // console.log("applyReferral : ", applyReferral())
 
   const signupSchema = z.object({
     name: z.string().min(3, { message: "Name must be at least 3 characters" }),
@@ -56,14 +52,13 @@ const SignupScreen = () => {
   });
 
   const handleSignup = async () => {
-    const formData = { name, email, phone, password , referredBy};
+    const formData = { name, email, phone, password, referredBy };
     if (!name.trim() || !email.trim() || !phone.trim() || !password.trim()) {
       setShowError(true)
       return;
     }
 
     const result = signupSchema.safeParse(formData);
-
 
     if (!result.success) {
       const firstError = result.error.errors[0]?.message || "Invalid input";
@@ -84,8 +79,6 @@ const SignupScreen = () => {
       setTimeout(() => {
         navigation.navigate('Login');
       }, 1500);
-      console.log(response);
-      console.log(response);
     } catch (error) {
       Toast.show({
         type: 'error',
@@ -94,11 +87,11 @@ const SignupScreen = () => {
       });
     }
   };
+
   useEffect(() => {
     const handleDeepLink = (url) => {
       if (!url) return;
 
-      // Parse the URL to get query parameters
       const query = url.split('?')[1];
       if (!query) return;
 
@@ -106,20 +99,10 @@ const SignupScreen = () => {
       const referral = params.get('referralCode');
 
       if (referral) {
-        setReferralCode(referral);
+        setReferredBy(referral);
       }
     };
 
-    //     // Handle Android intents
-    //     if (Platform.OS === 'android') {
-    //       SendIntentAndroid.getIntent().then(intent => {
-    //         if (intent?.data) {
-    //           handleDeepLink(intent.data);
-    //         }
-    //       });
-    //     }
-
-    // Handle iOS deep links
     Linking.getInitialURL().then(url => {
       if (url) handleDeepLink(url);
     });
@@ -132,80 +115,96 @@ const SignupScreen = () => {
       subscription?.remove();
     };
   }, []);
+
   return (
-    <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
-      {isLoading && (
-        <View style={styles.loaderContainer}>
-          <ActivityIndicator size="large" color="#fff" />
-        </View>
-      )}
-      <ScrollView style={{ flex: 1 }}>
-        <View style={styles.container}>
-          <BackButton />
-          <Text style={styles.heading}>Create an account ✨</Text>
-          <Text style={styles.subText}>Join us today! It only takes a moment</Text>
-
-          <LinearGradient
-            colors={['rgba(255, 255, 255, 0.1)', '#000']}
-            style={styles.formGradient}
+    <>
+      <BackButton lable={'Sign Up'} back />
+      <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
+        {isLoading && (
+          <View style={styles.loaderContainer}>
+            <ActivityIndicator size="large" color="#fff" />
+          </View>
+        )}
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={{ flex: 1 }}
+        >
+          <ScrollView
+            contentContainerStyle={styles.scrollContainer}
+            keyboardShouldPersistTaps="handled"
           >
-            <CustomInput
-              placeholder={'Enter Name'}
-              lable={"Name"}
-              iconComponent={<UserIcon />}
-              value={name}
-              showError={showError}
-              onChangeText={setName}
-            />
-            <CustomInput
-              placeholder={'Enter Email'}
-              lable={"Email"}
-              iconComponent={<EmailIcon />}
-              value={email}
-              showError={showError}
-              onChangeText={setEmail}
-            />
-            <CustomInput
-              placeholder={'Enter Phone'}
-              lable={"Phone"}
-              iconComponent={<PhoneIcon />}
-              value={phone}
-              showError={showError}
-              onChangeText={setPhone}
-            />
-            <CustomInput
-              placeholder={'Enter Password'}
-              lable={"Password"}
-              iconComponent={<LockIcon />}
-              value={password}
-              onChangeText={setPassword}
-              showError={showError}
-              isPassword={true}
-            />
-            <CustomInput
-              lable="Referral code"
-              placeholder="Enter Referral code"
-              required={false}
-              value={referredBy}
-              onChangeText={setReferredBy}
-            />
+            <View style={styles.container}>
+              <Text style={styles.heading}>Create an account ✨</Text>
+              <Text style={styles.subText}>Join us today! It only takes a moment</Text>
 
-            <CustomButton title={'Sign Up'} onPress={handleSignup} />
-            <SocialLoginOptions />
-            <TouchableOpacity onPress={() => navigation.navigate('Login')}>
-              <Text style={styles.loginText}>
-                Already have an account?{' '}
-                <Text style={{ color: '#4068F6', fontWeight: 'bold' }}>Login</Text>
-              </Text>
-            </TouchableOpacity>
-          </LinearGradient>
-        </View>
-      </ScrollView>
-    </LinearGradient>
+              <View
+          
+                style={styles.formContainer}
+              >
+                <CustomInput
+                  placeholder={'Enter Name'}
+                  lable={"Name"}
+                  iconComponent={<UserIcon />}
+                  value={name}
+                  showError={showError}
+                  onChangeText={setName}
+                />
+                <CustomInput
+                  placeholder={'Enter Email'}
+                  lable={"Email"}
+                  iconComponent={<EmailIcon />}
+                  value={email}
+                  showError={showError}
+                  onChangeText={setEmail}
+                />
+                <CustomInput
+                  placeholder={'Enter Phone'}
+                  lable={"Phone"}
+                  iconComponent={<PhoneIcon />}
+                  value={phone}
+                  showError={showError}
+                  onChangeText={setPhone}
+                />
+                <CustomInput
+                  placeholder={'Enter Password'}
+                  lable={"Password"}
+                  iconComponent={<LockIcon />}
+                  value={password}
+                  onChangeText={setPassword}
+                  showError={showError}
+                  isPassword={true}
+                />
+                <CustomInput
+                  lable="Referral code"
+                  placeholder="Enter Referral code (Optional)"
+                  required={false}
+                  value={referredBy}
+                  onChangeText={setReferredBy}
+                />
+
+                <View style={styles.buttonContainer}>
+                  <CustomButton title={'Sign Up'} onPress={handleSignup} />
+                </View>
+
+                <SocialLoginOptions />
+
+                <TouchableOpacity 
+                  onPress={() => navigation.navigate('Login')}
+                  style={styles.loginTextContainer}
+                >
+                  <Text style={styles.loginText}>
+                    Already have an account?{' '}
+                    <Text style={styles.loginLink}>Login</Text>
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </LinearGradient>
+    </>
   );
 };
-
-export default SignupScreen;
 
 const styles = StyleSheet.create({
   loaderContainer: {
@@ -219,64 +218,53 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(0,0,0,0.5)',
     zIndex: 999,
   },
-
+  scrollContainer: {
+    flexGrow: 1,
+  },
   container: {
-    width: "100%",
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 0,
+    paddingHorizontal: wp(5),
+    paddingBottom: hp(5),
   },
   heading: {
-    width: "100%",
-    paddingHorizontal: wp(5),
-    fontSize: RFValue(17),
+    fontSize: RFValue(22),
     fontFamily: "Poppins-SemiBold",
-    marginTop: hp(9),
+    marginTop: hp(4),
     color: '#fff',
     textAlign: "left",
+    marginBottom: hp(1),
   },
   subText: {
-    width: "100%",
-    paddingHorizontal: wp(5),
-    fontSize: RFValue(11),
+    fontSize: RFValue(14),
     color: '#d3d3d3',
-    marginBottom: hp(1),
+    marginBottom: hp(3),
     textAlign: "left",
     fontFamily: "Poppins-Regular",
   },
-  formGradient: {
+  formContainer: {
     width: '100%',
-    paddingHorizontal: wp(5),
-    paddingVertical: hp(1),
-    borderTopWidth: 0.2,
-    borderColor: "gray",
-    gap: 5,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#f7f9fc',
+    padding: wp(0),
     borderRadius: 12,
-    paddingHorizontal: wp(1.5),
-    marginVertical: hp(0),
+    marginBottom: hp(2),
   },
-  input: {
-    flex: 1,
-    fontSize: RFValue(14),
-    color: '#333',
-  },
-  button: {
+  buttonContainer: {
     marginTop: hp(2),
-    borderRadius: 12,
-    paddingVertical: 0,
-    alignItems: 'center',
+    marginBottom: hp(3),
+  },
+  loginTextContainer: {
+    marginTop: hp(1),
+    marginBottom: hp(2),
   },
   loginText: {
-    marginTop: 0,
-    fontSize: RFValue(10),
+    fontSize: RFValue(14),
     color: '#d3d3d3',
     fontFamily: "Poppins-Regular",
     textAlign: 'center',
   },
+  loginLink: {
+    color: '#4068F6',
+    fontFamily: "Poppins-SemiBold",
+  },
 });
+
+export default SignupScreen;

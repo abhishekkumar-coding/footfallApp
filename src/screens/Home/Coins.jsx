@@ -1,69 +1,97 @@
-import React, { useEffect } from 'react';
-import { ImageBackground, StyleSheet, View, Text } from 'react-native';
+import React, { useImperativeHandle, forwardRef } from 'react';
+import { ImageBackground, StyleSheet, View, Text, TouchableOpacity } from 'react-native';
 import { hp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useGetWalletSummaryQuery } from '../../features/shops/shopApi';
-// import { useGetWalletSummaryQuery } from '../../features/auth/authApi';
-// import { useSelector } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
 
+const Coins = forwardRef((props, ref) => {
+  const { data, refetch, isLoading } = useGetWalletSummaryQuery();
+  const totalPoints = data?.data?.wallet?.totalPoints ?? 0;
+  const redeemedPoints = data?.data?.wallet?.redeemed ?? 0;
 
-const Coins = ({ }) => {
-    // const refreshTrigger = useSelector((state) => state.wallet.refreshTrigger);
-    // const { data, isLoading, error, refetch } = useGetWalletSummaryQuery();
+  const navigation = useNavigation();
 
+  useImperativeHandle(
+    ref,
+    () => {
+      return {
+        refetch: () => refetch(),
+        loading: isLoading,
+      };
+    },
+    [refetch, isLoading],
+  );
+console.log(totalPoints)
+  return (
+    <View style={styles.container}>
+      <ImageBackground
+        source={require('../../../assets/icons_bg.png')}
+        style={styles.background}
+        resizeMode="stretch"
+      >
+        <View style={styles.details}>
+          <View style={styles.row}>
+            <View style={styles.pointsContainer}>
+              <Text style={styles.coinsText}>Points</Text>
+              <Text style={styles.coinsCount}>{isLoading ? '...' : totalPoints}</Text>
+            </View>
 
-    // 
-    const {data} = useGetWalletSummaryQuery()
-
-
-    let totalPoints = 0
-    if (data && data.data && data.data.wallet.totalPoints) {
-        totalPoints = data.data.wallet.totalPoints
-    }
-
-
-    return (
-        <View style={styles.container}>
-            <ImageBackground
-                source={require('../../../assets/icons_bg.png')}
-                style={styles.background}
-                resizeMode="stretch"
-            >
-                <View style={styles.details}>
-                    <Text style={styles.coinsText}>Coins</Text>
-                    <Text style={styles.coinsCount}>{totalPoints}</Text>
-                </View>
-            </ImageBackground>
+            <TouchableOpacity style={styles.redeemContainer} onPress={() => navigation.navigate("RedeemHistoryScreen")}>
+              <Text style={styles.redeemText}>Redeemed</Text>
+              <Text style={styles.coinsCount}>{isLoading ? '...' : redeemedPoints}</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-    )
-};
+      </ImageBackground>
+    </View>
+  );
+});
 
 export default Coins;
 
 const styles = StyleSheet.create({
-    container: {
-        width: '100%',
-        height: hp(12),
-        overflow: 'hidden',
-    },
-    background: {
-        flex: 1,
-        width: '100%',
-    },
-    details: {
-        flex: 1,
-        paddingHorizontal: 20,
-        paddingVertical: hp(1),
-        justifyContent: 'space-between',
-    },
-    coinsText: {
-        fontSize: RFValue(20),
-        fontFamily: 'Poppins-Bold',
-        color: '#fff',
-    },
-    coinsCount: {
-        fontSize: RFValue(20),
-        fontFamily: 'Poppins-SemiBold',
-        color: '#390099',
-    },
+  container: {
+    width: '100%',
+    height: hp(12),
+    overflow: 'hidden',
+    paddingHorizontal: 15 
+  },
+  background: {
+    flex: 1,
+    width: '100%',
+  },
+  details: {
+    flex: 1,
+    paddingHorizontal: 20,
+    paddingVertical: hp(1),
+    justifyContent: 'center',
+  },
+  row: {
+    flexDirection: 'row',       
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  pointsContainer: {
+    flex: 1,
+  },
+  redeemContainer: {
+    flex: 1,
+    alignItems: 'flex-end',
+  },
+  coinsText: {
+    fontSize: RFValue(20),
+    fontFamily: 'Poppins-Bold',
+    color: '#fff',
+  },
+  redeemText: {
+    fontSize: RFValue(18),
+    fontFamily: 'Poppins-Bold',
+    color: '#fff',
+  },
+  coinsCount: {
+    fontSize: RFValue(18),
+    fontFamily: 'Poppins-SemiBold',
+    color: '#390099',
+  },
 });

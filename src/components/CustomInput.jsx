@@ -96,7 +96,8 @@ const styles = StyleSheet.create({
     fontSize: RFValue(10),
     fontFamily: 'Poppins-Regular',
     color: '#fff',
-    paddingVertical: 0,
+    paddingVertical: 6,
+
   },
   errorText: {
     color: 'red',

@@ -51,7 +51,7 @@ const OtpScreen = () => {
 
   return (
     <LinearGradient colors={['#000337', '#000']} style={{ flex: 1 }}>
-      <BackButton />
+      <BackButton lable={'Verify OTP'} back/>
 
       <View style={styles.container}>
         <View style={styles.textContainer}>

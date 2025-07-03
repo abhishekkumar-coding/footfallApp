@@ -2,16 +2,16 @@ import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 import QRCode from 'react-native-qrcode-svg';
 
-const ShopQRCode = ({ shopId, email , logo}) => {
+const ShopQRCode = ({ shopId, email ,ownerId, logo}) => {
     console.log("ShopId : ", shopId)
-  const qrData = `shop_id=${shopId}&email=${email}`;
+  const qrData = `shop_id=${shopId}&owner=${ownerId}`;
 
   return (
     <View style={styles.container}>
       {/* <Text style={styles.title}>Scan to view shop details:</Text> */}
       <QRCode
         value={qrData}
-        size={130}
+        size={150}
         linearGradient={['#8e2de2', '#4a00e0']} 
         enableLinearGradient
         eyeColor="#4a00e0"

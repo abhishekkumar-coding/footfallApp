@@ -11,7 +11,7 @@ const QuickActions = () => {
 
     return (
         <View style={styles.container}>
-            <TouchableOpacity style={styles.buttonContainer} onPress={()=>navigation.navigate('Scanner')}>
+            <TouchableOpacity style={styles.buttonContainer} onPress={()=>navigation.navigate('ScanOptions')}>
                 <View style={[styles.iconContainerBase, styles.iconContainer1]}>
                     <Image source={require('../../../assets/scanner.png')} style={styles.icon} />
                 </View>
@@ -25,7 +25,7 @@ const QuickActions = () => {
                 <Text style={styles.iconText}>Offers</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.buttonContainer} onPress={()=>navigation.navigate('EditProfile')}>
                 <View style={[styles.iconContainerBase, styles.iconContainer3]}>
                     <Image source={require('../../../assets/account.png')} style={styles.icon} />
                 </View>
