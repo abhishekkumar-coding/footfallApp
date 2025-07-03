@@ -45,7 +45,7 @@ const ShopDetails = ({ route }) => {
     const navigation = useNavigation()
   const [scanShop] = useGetShopByScanMutation();
 
-console.log(scanShop)
+
     const {data} = useGetShopOffersByIdQuery(_id)
     console.log(data)
 
