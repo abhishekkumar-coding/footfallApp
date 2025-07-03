@@ -10,35 +10,32 @@ import {
   useCameraPermission,
   useCodeScanner,
 } from 'react-native-vision-camera';
-
+import { useGetWalletSummaryQuery, useGetShopByScanMutation, useLazygetShopByScanQuery } from '../features/shops/shopApi';
 import { useDispatch } from 'react-redux';
-
+import { triggerWalletRefresh } from '../features/wallet/walletSlice';
 import LinearGradient from 'react-native-linear-gradient';
 import { useSelector } from 'react-redux';
 import History from '../utils/icons/History';
 import Scan from '../utils/icons/scan';
-import { useGetShopByScanMutation } from '../features/shops/shopApi';
+import PageHeader from '../components/BackButton';
+
 
 const ScannerScreen = ({ navigation }) => {
   const { hasPermission, requestPermission } = useCameraPermission();
   const device = useCameraDevice('back');
-  const [latestScannedData, setLatestScannedData] = useState(null);
+
   const [hasScanned, setHasScanned] = useState(false);
   const [showScanSuccess, setShowScanSuccess] = useState(false);
   const [showScanError, setShowScanError] = useState(false);
   const [isLoadingShop, setIsLoadingShop] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
-  const [activeTab, setActiveTab] = useState('scan');
-
-  const history = useSelector(state => state.user.user.scanHistory);
-
-  console.log('Scan History : ', history);
-
-  const scanHistory = () => {};
-
-  const dispatch = useDispatch();
 
   const scanLineAnim = useRef(new Animated.Value(0)).current;
+  const [fetchShopByScan] = useGetShopByScanMutation();
+
+  useEffect(() => {
+    requestPermission();
+  }, []);
 
   useEffect(() => {
     const animation = Animated.loop(
@@ -58,67 +55,62 @@ const ScannerScreen = ({ navigation }) => {
       ]),
     );
     animation.start();
+    return () => animation.stop();
+  }, [scanLineAnim]);
 
-    return () => animation.stop(); // cleanup on unmount
-  }, []);
-
-  const handleScanSuccess = scannedData => {
-    setLatestScannedData(scannedData);
-    setShowScanSuccess(true);
-
-    setTimeout(() => {
-      setShowScanSuccess(false);
-    }, 2000); // hide after 2 seconds
-  };
-  const handleScanError = () => {
-    setShowScanError(true);
-    setTimeout(() => setShowScanError(false), 2000);
-  };
-
-  const [scanShop] = useGetShopByScanMutation();
-
-  useEffect(() => {
-    requestPermission();
-  }, []);
-
-  const handleShopFetch = async id => {
+  const handleShopFetch = async (shopId) => {
     try {
       setIsLoadingShop(true);
-      const result = await scanShop(id).unwrap();
-      console.log('Fetched shop data directly from unwrap:', result.data.shop);
-      // const walletSummary = await useGetWalletSummaryQuery();
-      navigation.navigate('ShopDetails', { shop: result.data.shop });
-      // dispatch(triggerWalletRefresh());
+
+      const result = await fetchShopByScan(shopId).unwrap();
+      console.log("Fetched shop data:", result.data.shop);
+
+      setIsLoadingShop(false);
+      setShowScanSuccess(true);
+
       setTimeout(() => {
-        navigation.navigate('ShopDetails', { shop: result.data.shop });
-        setIsLoadingShop(false);
+        setShowScanSuccess(false);
+        navigation.goBack();
       }, 1000);
+
     } catch (fetchError) {
-      console.log('Error fetching shop by ID:', fetchError);
+      console.log("Error fetching shop by ID:", fetchError);
+      setIsLoadingShop(false);
+
       const message = fetchError?.data?.message || 'Something went wrong';
       setErrorMessage(message);
       setShowScanError(true);
+      setTimeout(() => {
+        setShowScanSuccess(false);
+        navigation.goBack();
+      }, 1000);
+
       setTimeout(() => setShowScanError(false), 2000);
     } finally {
       setIsLoadingShop(false);
     }
   };
 
+  const handleScanError = () => {
+    setShowScanError(true);
+    setTimeout(() => setShowScanError(false), 2000);
+  };
+
   const codeScanner = useCodeScanner({
     codeTypes: ['qr', 'ean-13'],
-    onCodeScanned: codes => {
-      if (hasScanned) return;
+    onCodeScanned: (codes) => {
+      if (hasScanned || !codes.length) return;
+
       const scannedValue = codes[0].value;
-      console.log('Raw scanned data:', scannedValue);
+      console.log("Scanned QR data:", scannedValue);
 
       const params = new URLSearchParams(scannedValue);
-      const shop_id = params.get('shop_id');
+      const shopId = params.get('shop_id');
 
-      if (shop_id) {
-        console.log('Extracted shop_id:', shop_id);
+      if (shopId) {
+        console.log("Extracted shop_id:", shopId);
         setHasScanned(true);
-        handleShopFetch(shop_id);
-        handleScanSuccess(shop_id);
+        handleShopFetch(shopId);
       } else {
         console.log('shop_id not found in QR code');
         handleScanError();
@@ -126,7 +118,7 @@ const ScannerScreen = ({ navigation }) => {
     },
   });
 
-  if (device == null) {
+  if (!device) {
     return (
       <View style={styles.container}>
         <Text>Device Not Found</Text>
@@ -143,108 +135,70 @@ const ScannerScreen = ({ navigation }) => {
   }
 
   return (
+    <>
+    <PageHeader lable={'Scan QR'} back/>
     <View style={styles.container}>
-      {activeTab === 'scan' && (
-        <>
-          <Camera
-            style={StyleSheet.absoluteFill}
-            device={device}
-            isActive={true}
-            codeScanner={codeScanner}
-          />
+      <Camera
+        style={StyleSheet.absoluteFill}
+        device={device}
+        isActive
+        codeScanner={codeScanner}
+      />
 
-          <View style={styles.frame}>
-            <Animated.View
-              style={[
-                styles.scanLineContainer,
+      <View style={styles.frame}>
+        <Animated.View
+          style={[
+            styles.scanLineContainer,
+            {
+              transform: [
                 {
-                  transform: [
-                    {
-                      translateY: scanLineAnim.interpolate({
-                        inputRange: [0, 1],
-                        outputRange: [0, 240],
-                      }),
-                    },
-                  ],
+                  translateY: scanLineAnim.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [0, 240],
+                  }),
                 },
-              ]}
-            >
-              <LinearGradient
-                colors={['#00f6ff', '#00ffe0']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.scanLine}
-              />
-            </Animated.View>
+              ],
+            },
+          ]}
+        >
+          <LinearGradient
+            colors={['#00f6ff', '#00ffe0']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={styles.scanLine}
+          />
+        </Animated.View>
 
-            <View style={[styles.corner, styles.topLeft]} />
-            <View style={[styles.corner, styles.topRight]} />
-            <View style={[styles.corner, styles.bottomLeft]} />
-            <View style={[styles.corner, styles.bottomRight]} />
-          </View>
+        <View style={[styles.corner, styles.topLeft]} />
+        <View style={[styles.corner, styles.topRight]} />
+        <View style={[styles.corner, styles.bottomLeft]} />
+        <View style={[styles.corner, styles.bottomRight]} />
+      </View>
 
-          {showScanError && (
-            <View
-              style={[styles.resultContainer, { backgroundColor: '#B00020' }]}
-            >
-              <Text style={styles.resultTitle}>❌ {errorMessage}</Text>
-            </View>
-          )}
-          {isLoadingShop && (
-            <View style={styles.loaderContainer}>
-              <Text style={styles.loaderText}>Scanning....</Text>
-            </View>
-          )}
-        </>
-      )}
-
-      {activeTab === 'history' && (
-        <View style={styles.historyContainer}>
-          <Text style={styles.historyTitle}>Scan History</Text>
-          {!history || history.length === 0 ? (
-            <Text style={styles.historyEmpty}>No scans yet.</Text>
-          ) : (
-            history.map((item, index) => (
-              <View key={index} style={styles.historyItem}>
-                <Text style={styles.historyText}>{item.value}</Text>
-                <Text style={styles.historyDate}>
-                  {new Date(item.date).toLocaleString()}
-                </Text>
-              </View>
-            ))
-          )}
+      {showScanSuccess && (
+        <View style={[styles.resultContainer, { backgroundColor: '#00C853' }]}>
+          <Text style={styles.resultTitle}>✅ Scan Successful!</Text>
         </View>
       )}
 
-      {/* <View style={styles.tabBar}>
-        <View style={styles.tabButtonsContainer}>
-          <Pressable
-            style={[
-              styles.tabButton,
-              activeTab === 'scan' && styles.activeTabButton,
-            ]}
-            onPress={() => setActiveTab('scan')}
-          >
-            <Text style={[styles.tabText, activeTab === 'scan' && styles.activeTabText]}>
-              <Scan />
-            </Text>
-          </Pressable>
-          <Pressable
-            style={[
-              styles.tabButton,
-              activeTab === 'history' && styles.activeTabButton,
-            ]}
-            onPress={() => setActiveTab('history')}
-          >
-            <Text style={[styles.tabText, activeTab === 'history' && styles.activeTabText]}>
-              <View style={{alignSelf:"center"}}><History /></View>
-            </Text>
-          </Pressable>
+      {showScanError && (
+        <View style={[styles.resultContainer, { backgroundColor: '#B00020' }]}>
+          <Text style={styles.resultTitle}>❌ {errorMessage}</Text>
         </View>
-      </View> */}
+      )}
+
+      {isLoadingShop && (
+        <View style={styles.loaderContainer}>
+          <Text style={styles.loaderText}>Scanning...</Text>
+        </View>
+      )}
     </View>
+    </>
+
   );
 };
+
+
 
 export default ScannerScreen;
 
@@ -304,26 +258,26 @@ const styles = StyleSheet.create({
   topLeft: {
     top: 0,
     left: 0,
-    borderLeftWidth: 20,
-    borderTopWidth: 20,
+    borderLeftWidth: 5,
+    borderTopWidth: 5,
   },
   topRight: {
     top: 0,
     right: 0,
-    borderRightWidth: 20,
-    borderTopWidth: 20,
+    borderRightWidth: 5,
+    borderTopWidth: 5,
   },
   bottomLeft: {
     bottom: 0,
     left: 0,
-    borderLeftWidth: 20,
-    borderBottomWidth: 20,
+    borderLeftWidth: 5,
+    borderBottomWidth: 5,
   },
   bottomRight: {
     bottom: 0,
     right: 0,
-    borderRightWidth: 20,
-    borderBottomWidth: 20,
+    borderRightWidth: 5,
+    borderBottomWidth: 5,
   },
   resultContainer: {
     position: 'absolute',
@@ -395,8 +349,8 @@ const styles = StyleSheet.create({
 
   activeTabButton: {
     backgroundColor: '#FF4D00',
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center"
   },
 
   tabText: {
@@ -407,8 +361,8 @@ const styles = StyleSheet.create({
 
   activeTabText: {
     color: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
+    alignItems: "center",
+    justifyContent: "center"
   },
   historyContainer: {
     flex: 1,
@@ -443,4 +397,4 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 4,
   },
-});
+})

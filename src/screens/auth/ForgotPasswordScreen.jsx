@@ -40,6 +40,9 @@ const ForgotPasswordScreen = () => {
   };
 
   return (
+    <>
+      <BackButton lable={'Forgot Password'} back />
+    
     <LinearGradient colors={['#000337', '#000']} style={{ flex: 1 }}>
       <BackButton />
       <View style={styles.container}>
@@ -63,6 +66,8 @@ const ForgotPasswordScreen = () => {
         </LinearGradient>
       </View>
     </LinearGradient>
+    </>
+
   );
 };
 

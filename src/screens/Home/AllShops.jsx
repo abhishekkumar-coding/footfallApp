@@ -1,134 +1,140 @@
-import { StyleSheet, Text, View, FlatList, TouchableOpacity, Image } from 'react-native'
-import React, { useState } from 'react'
-import LinearGradient from 'react-native-linear-gradient'
+import {
+  StyleSheet,
+  Text,
+  View,
+  FlatList,
+  TouchableOpacity,
+  ScrollView,
+} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
+import PageHeader from '../../components/BackButton';
+import { useDispatch, useSelector } from 'react-redux';
+import { loadWishlist } from '../../features/wishlistSlice';
+import ShopCard from '../../components/ShopCard';
+
 
 const AllShops = ({ route }) => {
-    const { shopsData } = route.params;
+  const { shopsData } = route.params;
+  const [selectedCategory, setSelectedCategory] = useState('ALL');
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
 
-    const navigation = useNavigation()
+  // Extract unique categories from shopsData
+  const categories = [
+    'ALL',
+    'New Delhi',
+    'Noida',
+    'Gurugram',
+    ...new Set(shopsData.map(shop => shop.city)),
+  ];
 
+  // Filter shops based on selected category
+  const filteredShops =
+    selectedCategory === 'ALL'
+      ? shopsData
+      : shopsData.filter(shop => shop.city === selectedCategory);
 
-    const renderItem = ({ item }) => (
-        // console.log(item)
-        <TouchableOpacity style={styles.card} onPress={() => navigation.navigate('ShopDetails', { shop: item })}>
-            <Image
-                style={styles.cardImage}
-                source={{ uri: item.image }}
-            />
-            <View style={{ padding: 10, alignItems: "flex-start", flex: 1, justifyContent: "space-between" }}>
-                <Text style={styles.category}>{item.category}</Text>
-                <View style={{ flexDirection: "row", alignItems: "center", width: "100%", justifyContent: "space-between" }}>
-                    <Text style={styles.name}>{item.name}</Text>
-                    <Text style={styles.details}>⭐ {item.rating}</Text>
-                </View>
-                <Text style={styles.location}>{item.location}</Text>
-                <Text style={styles.timings}>{item.timings}</Text>
-                {/* <TouchableOpacity style={styles.contactButton} ><View style={{flexDirection:"row", justifyContent:"center", alignItems:"center"}}><PhoneIcon/> <Text style={styles.contact}> {item.contact}</Text></View></TouchableOpacity> */}
-            </View>
-        </TouchableOpacity>
-    );
+  useEffect(() => {
+    dispatch(loadWishlist());
+  }, [dispatch]);
 
-    return (
-        <LinearGradient
-            colors={['#000337', '#000000']}
-            style={styles.container}
-        >
-            <FlatList
-                data={shopsData}
-                renderItem={renderItem}
-                keyExtractor={item => item.id}
-                showsVerticalScrollIndicator={false}
-                // ListHeaderComponent={<View style={{ flexDirection: "row", justifyContent: "space-between", alignItems: "center" }}><Text style={styles.heading}>Nearby Shops</Text><TouchableOpacity onPress={handleViewAll}><Text style={[styles.heading, { fontSize: 18 }]}>View All</Text></TouchableOpacity></View>}
-                contentContainerStyle={{ gap: 15 }}
-                numColumns={2}
-                ListHeaderComponent={() => (
-                    <TouchableOpacity style={styles.titleContainer}>
-                        <Text style={styles.title}>Filter shops</Text>
-                    </TouchableOpacity>)}
-            />
-        </LinearGradient>
-    );
+  const renderItem = ({ item }) => (
+    <ShopCard
+      shop={item}
+      onPress={() => navigation.navigate('ShopDetails', { 
+        shop: item, 
+        image: item.cover || item.logo 
+      })}
+    />
+  );
+
+  return (
+    <>
+      <PageHeader lable={'Shops'} back />
+      <LinearGradient colors={['#000337', '#000000']} style={styles.container}>
+        {/* Filter Section */}
+        <View style={styles.filterContainer}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.filterScrollContent}
+          >
+            {categories.map(category => (
+              <TouchableOpacity
+                key={category}
+                style={[
+                  styles.filterButton,
+                  selectedCategory === category && styles.selectedFilterButton,
+                ]}
+                onPress={() => setSelectedCategory(category)}
+              >
+                <Text
+                  style={[
+                    styles.filterText,
+                    selectedCategory === category && styles.selectedFilterText,
+                  ]}
+                >
+                  {category}
+                </Text>
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+        </View>
+
+        {/* Shops Grid */}
+        <FlatList
+          data={filteredShops}
+          renderItem={renderItem}
+          keyExtractor={item => item.id}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
+          numColumns={2}
+        />
+      </LinearGradient>
+    </>
+  );
 };
-
-export default AllShops;
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: hp(6),
+    paddingTop: hp(1),
     paddingBottom: hp(12),
     paddingHorizontal: wp(4),
   },
-  title: {
-    fontSize: RFValue(14),
-    color: '#3B63EF',
-    fontFamily: 'Poppins-SemiBold',
-    alignSelf: 'center',
-    borderWidth: 1,
-    borderColor: '#fff',
+  filterContainer: {
+    marginBottom: hp(2),
+  },
+  filterScrollContent: {
+    paddingHorizontal: wp(1),
     alignItems: 'center',
-    borderRadius: 30,
+  },
+  filterButton: {
     paddingHorizontal: wp(6),
     paddingVertical: hp(0.5),
-  },
-  titleContainer: {
-    justifyContent: 'center',
-    marginTop: 10,
-    marginBottom: 30,
-  },
-  card: {
-    width: '47%',
-    backgroundColor: '#1f1f1f',
-    borderRadius: 12,
-    marginBottom: hp(0),
+    borderRadius: 30,
+    borderWidth: 1,
+    borderColor: '#FF4D00',
     marginHorizontal: wp(1),
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
-    position: 'relative',
   },
-  cardImage: {
-    width: '100%',
-    height: hp(14),
-    borderTopLeftRadius: 10,
-    borderTopRightRadius: 10,
-    marginBottom: hp(0),
+  selectedFilterButton: {
+    backgroundColor: '#FF4D00',
   },
-  name: {
-    fontSize: RFValue(11),
-    color: '#fff',
-    fontFamily: 'Poppins-SemiBold',
-  },
-  location: {
-    color: '#d3d3d3',
-    fontSize: RFValue(11.5),
-    fontFamily: 'Poppins-Regular',
-  },
-  category: {
-    color: '#A9CEFF',
+  filterText: {
     fontSize: RFValue(10),
-    fontFamily: 'Poppins-Regular',
-  },
-  details: {
-    fontSize: RFValue(9),
-    color: '#FFD700',
-    marginBottom: 2,
-    fontFamily: 'Poppins-Medium',
-  },
-  timings: {
-    fontSize: RFValue(11),
-    color: '#bbb',
-    fontFamily: 'Poppins-Regular',
-  },
-  contact: {
-    fontSize: RFValue(13),
     color: '#fff',
     fontFamily: 'Poppins-SemiBold',
-    alignSelf: 'center',
+  },
+  selectedFilterText: {
+    color: '#fff',
+  },
+  listContent: {
+    paddingBottom: hp(10.5),
   },
 });
 
+export default AllShops;

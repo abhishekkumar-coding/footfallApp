@@ -43,8 +43,8 @@ const AutoSlider = () => {
     return () => clearInterval(interval);
   }, [images]);
   return (
-    <View style={{ width: "100%", paddingVertical: hp(2), gap: 10 }}>
-      <Text style={styles.headText}>Greate Offers</Text>
+    <View style={{ width: "100%", paddingVertical: hp(2), gap: 10,paddingHorizontal:10 }}>
+      <Text style={styles.headText}>Top Offers</Text>
       <FlatList
         ref={flatListRef}
         data={images}
@@ -68,26 +68,27 @@ const styles = StyleSheet.create({
   container: {
     width: '100%',
     paddingVertical: hp(0),
+   
     // gap: 10,
     borderWidth:1,
     borderColor:"#fff"
   },
   headText: {
-    fontSize: RFValue(20),
-    fontFamily: 'Poppins-Bold',
+    fontSize: RFValue(16),
+    fontFamily: 'Poppins-SemiBold',
     color: '#fff',
     marginTop:hp(0)
   },
   imageContainer: {
     width,
-    height: 200,
+    height: 140,
     justifyContent: 'center',
     alignItems: 'flex-start',
   },
   image: {
-    width: width * 0.94,
-    height: 200,
+    width: width * 0.90,
+    height: 140,
     resizeMode: 'cover',
-    borderRadius: 20,
+    borderRadius: 5,
   },
 });

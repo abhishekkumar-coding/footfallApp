@@ -25,7 +25,7 @@ import { useLoginMutation } from '../../features/auth/authApi';
 import { z } from 'zod';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from '../../features/auth/userSlice';
 
 
@@ -36,6 +36,8 @@ const LoginScreen = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [showError, setShowError] = useState(false);
 
+  // const user = useSelector((state)=>state.user.user)
+  // console.log("User from Redux Store", user)
 
   const dispatch = useDispatch();
 

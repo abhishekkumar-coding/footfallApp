@@ -15,7 +15,7 @@ const Rewards = ({ rewardPoints}) => {
       {/* top row */}
       <View style={styles.row}>
         <View style={styles.labelRow}>
-          <Text style={styles.label}>Rewards</Text>
+          <Text style={styles.label}>Total Rewards</Text>
         </View>
         {/* you can swap this for a chevron if card is pressable */}
       </View>
