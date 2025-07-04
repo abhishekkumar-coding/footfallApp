@@ -30,7 +30,7 @@ const RedeemScanner = ({ navigation }) => {
   const scanLineAnim = useRef(new Animated.Value(0)).current;
 
   const { data, isLoading, error, refetch } = useGetTotalPointsByVendorQuery(
-    vendorId,
+    {vendorId},
     {
       skip: !vendorId,
     },

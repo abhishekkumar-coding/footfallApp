@@ -26,6 +26,7 @@ import { useNavigation } from '@react-navigation/native';
 import { clearUser } from '../features/auth/userSlice';
 import { shopApi, useGetWalletSummaryQuery } from '../features/shops/shopApi';
 import History from '../utils/icons/History';
+import { store } from '../store';
 
 const ProfileScreen = () => {
   const navigation = useNavigation();
