@@ -5,8 +5,8 @@ import { wp } from "../dimensions";
 const FilledFavIcon = (props) => {
   return (
     <Svg
-      width={wp(5)}
-      height={wp(5)}
+      width={wp(6)}
+      height={wp(6)}
       viewBox="0 0 24 24"
       id="favourite"
       xmlns="http://www.w3.org/2000/svg"

@@ -23,11 +23,11 @@ const wishlistSlice = createSlice({
     reducers: {
         addToWishlist: (state, action) => {
             const newItem = action.payload.data;
-            const type = action.payload.type;        
+            const type = action.payload.type;
             if (newItem) {
-                const existingItem = state.items[type]?.find(item => item?._id === newItem?._id)             
-                if (!existingItem) {                
-                    state.items[type].push(newItem);                               
+                const existingItem = state.items[type]?.find(item => item?._id === newItem?._id);
+                if (!existingItem) {
+                    state.items[type].push(newItem);
                     saveWishlistToAsyncStorage(state.items);
                 }
             }
@@ -43,12 +43,18 @@ const wishlistSlice = createSlice({
                 products: [],
                 clinics: [],
                 shops: []
-            };            
+            };
             saveWishlistToAsyncStorage(state.items);
         },
         setWishlist: (state, action) => {
-            state.items = action.payload;
-        }
+            const loadedItems = action.payload || {};
+            state.items = {
+                products: loadedItems.products || [],
+                clinics: loadedItems.clinics || [],
+                shops: loadedItems.shops || [],
+            };
+        },
+
     },
 });
 

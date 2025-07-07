@@ -18,7 +18,7 @@ const QuickActions = () => {
                 <Text style={styles.iconText}>Scan</Text>
             </TouchableOpacity>
 
-            <TouchableOpacity style={styles.buttonContainer}>
+            <TouchableOpacity style={styles.buttonContainer} onPress={()=>navigation.navigate("OffersScreen")}>
                 <View style={[styles.iconContainerBase, styles.iconContainer2]}>
                     <Image source={require('../../../assets/offer.png')} style={styles.icon} />
                 </View>
