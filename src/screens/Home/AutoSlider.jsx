@@ -1,8 +1,9 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { View, FlatList, Image, StyleSheet, Dimensions, Text, Animated } from 'react-native';
+import { View, FlatList, Image, StyleSheet, Dimensions, Text, Animated, TouchableOpacity } from 'react-native';
 import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useGetAllOffersQuery } from '../../features/shops/shopApi';
+import { useNavigation } from '@react-navigation/native';
 
 const { width } = Dimensions.get('window');
 
@@ -13,6 +14,7 @@ const SkeletonItem = () => (
 const AutoSlider = () => {
   const flatListRef = useRef(null);
   const scrollPosition = useRef(0);
+  const navigation = useNavigation()
 
   const { data, isLoading } = useGetAllOffersQuery();
 
@@ -52,6 +54,15 @@ const AutoSlider = () => {
     return () => clearInterval(interval);
   }, [images, initialImages]);
 
+  const handlePress = (title, description, endDate) => {
+    navigation.navigate('OfferDetails', {
+      title: title,
+      description: description,
+      endDate: endDate,
+      // qrCodeData: "dummy-qr-code-data",
+    });
+  };
+
   return (
     <View style={{ width: '100%', paddingVertical: hp(2), gap: 10, paddingHorizontal: 10 }}>
       <Text style={styles.headText}>Top Offers</Text>
@@ -72,12 +83,25 @@ const AutoSlider = () => {
           horizontal
           pagingEnabled
           showsHorizontalScrollIndicator={false}
-          renderItem={({ item }) => (
-            <View style={styles.imageContainer}>
-              <Image source={{ uri: item.bannerImage }} style={styles.image} />
-            </View>
-          )}
+          renderItem={({ item }) => {
+            const formattedDate = new Date(item.endTime).toLocaleString('en-IN', {
+              day: '2-digit',
+              month: 'short',
+              year: 'numeric',
+              hour: '2-digit',
+              minute: '2-digit',
+            });
+            return (
+              <TouchableOpacity
+                onPress={() => handlePress(item.title, item.description, formattedDate)}
+                style={styles.imageContainer}
+              >
+                <Image source={{ uri: item.bannerImage }} style={styles.image} />
+              </TouchableOpacity>
+            );
+          }}
         />
+
       )}
     </View>
   );

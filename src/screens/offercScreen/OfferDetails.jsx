@@ -56,7 +56,7 @@ const styles = StyleSheet.create({
         textAlign: "left",
     },
     card: {
-        width: "90%",
+        width: "100%",
         alignSelf: "center",
         backgroundColor: "#fff",
         borderRadius: 20,
