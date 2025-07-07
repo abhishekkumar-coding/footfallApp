@@ -29,6 +29,8 @@ import ScanOptionScreen from '../screens/ScanOptionScreen';
 import RedeemSummaryScreen from '../screens/RedeemSummaryScreen';
 import RedeemHistoryScreen from '../screens/RedeemHistoryScreen';
 import FavoritesScreen from '../screens/FavoritesScreen/FavoritesScreen';
+import OffersScreen from '../screens/offercScreen/OffersScreen';
+import OfferDetails from '../screens/offercScreen/OfferDetails';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -88,6 +90,16 @@ const HomeStack = () => (
       component={RedeemHistoryScreen}
       options={{ headerShown: false }}
     />
+    <Stack.Screen name='OffersScreen'
+     component={OffersScreen}
+     options={{headerShown:false}}
+     />
+     <Stack.Screen 
+     name='OfferDetails' 
+     component={OfferDetails}
+      options={{headerShown:false}}
+      />
+
   </Stack.Navigator>
 );
 

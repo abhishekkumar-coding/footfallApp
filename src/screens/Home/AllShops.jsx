@@ -12,18 +12,18 @@ import { useNavigation } from '@react-navigation/native';
 import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import PageHeader from '../../components/BackButton';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { loadWishlist } from '../../features/wishlistSlice';
 import ShopCard from '../../components/ShopCard';
-
+import ShopSkeletonCard from './ShopSkeletonCard';
 
 const AllShops = ({ route }) => {
   const { shopsData } = route.params;
   const [selectedCategory, setSelectedCategory] = useState('ALL');
+  const [isLoading, setIsLoading] = useState(true);
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
-  // Extract unique categories from shopsData
   const categories = [
     'ALL',
     'New Delhi',
@@ -32,7 +32,6 @@ const AllShops = ({ route }) => {
     ...new Set(shopsData.map(shop => shop.city)),
   ];
 
-  // Filter shops based on selected category
   const filteredShops =
     selectedCategory === 'ALL'
       ? shopsData
@@ -42,13 +41,21 @@ const AllShops = ({ route }) => {
     dispatch(loadWishlist());
   }, [dispatch]);
 
+  useEffect(() => {
+    setIsLoading(true);
+    const timer = setTimeout(() => setIsLoading(false), 1000); // simulate 1s loading
+    return () => clearTimeout(timer);
+  }, [selectedCategory]);
+
   const renderItem = ({ item }) => (
     <ShopCard
       shop={item}
-      onPress={() => navigation.navigate('ShopDetails', { 
-        shop: item, 
-        image: item.cover || item.logo 
-      })}
+      onPress={() =>
+        navigation.navigate('ShopDetails', {
+          shop: item,
+          image: item.cover || item.logo,
+        })
+      }
     />
   );
 
@@ -85,15 +92,25 @@ const AllShops = ({ route }) => {
           </ScrollView>
         </View>
 
-        {/* Shops Grid */}
-        <FlatList
-          data={filteredShops}
-          renderItem={renderItem}
-          keyExtractor={item => item.id}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContent}
-          numColumns={2}
-        />
+        {isLoading ? (
+          <FlatList
+            data={Array.from({ length: 6 })}
+            keyExtractor={(_, index) => `skeleton-${index}`}
+            renderItem={() => <ShopSkeletonCard />}
+            numColumns={2}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContent}
+          />
+        ) : (
+          <FlatList
+            data={filteredShops}
+            renderItem={renderItem}
+            keyExtractor={item => item._id}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={styles.listContent}
+            numColumns={2}
+          />
+        )}
       </LinearGradient>
     </>
   );
@@ -134,6 +151,11 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingBottom: hp(10.5),
+  },
+  skeletonContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
   },
 });
 

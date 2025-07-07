@@ -3,8 +3,8 @@ import Svg, { Path } from "react-native-svg";
 import { wp } from "../dimensions";
 const FilledHeart = (props) => (
   <Svg
-    width={wp(5)}
-    height={wp(5)}
+    width={wp(6)}
+    height={wp(6)}
     viewBox="0 0 15 15"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"

@@ -1,30 +1,40 @@
 import React, { useRef, useState, useEffect } from 'react';
-import { View, FlatList, Image, StyleSheet, Dimensions, Text } from 'react-native';
+import { View, FlatList, Image, StyleSheet, Dimensions, Text, Animated } from 'react-native';
 import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
+import { useGetAllOffersQuery } from '../../features/shops/shopApi';
 
 const { width } = Dimensions.get('window');
 
-const initialImages = [
-  { id: '1', uri: 'https://i.pinimg.com/736x/24/22/8c/24228c6899390c7a53f67af7f28f9f31.jpg' },
-  { id: '2', uri: 'https://i.pinimg.com/736x/a2/7f/3d/a27f3d4209b40c1db98cf718cad1edea.jpg' },
-  { id: '3', uri: 'https://i.pinimg.com/736x/7b/c9/b2/7bc9b2b1aad479631309ee864715878e.jpg' },
-];
+const SkeletonItem = () => (
+  <Animated.View style={[styles.skeletonContainer, styles.image]} />
+);
 
 const AutoSlider = () => {
   const flatListRef = useRef(null);
   const scrollPosition = useRef(0);
-  const [images, setImages] = useState(
-    Array.from({ length: 10 }, (_, i) => ({
-      ...initialImages[i % initialImages.length],
-      id: `${i}`,
-    }))
-  );
+
+  const { data, isLoading } = useGetAllOffersQuery();
+
+  const initialImages = data?.data?.offers || [];
+
+  const [images, setImages] = useState([]);
 
   useEffect(() => {
+    if (initialImages.length > 0) {
+      const initialBatch = Array.from({ length: 3 }, (_, i) => ({
+        ...initialImages[i % initialImages.length],
+        id: `${i}`,
+      }));
+      setImages(initialBatch);
+    }
+  }, [initialImages]);
+
+  useEffect(() => {
+    if (!images.length) return; // Prevent scroll interval if images not ready
+
     const interval = setInterval(() => {
       scrollPosition.current += width;
-
       flatListRef.current?.scrollToOffset({
         offset: scrollPosition.current,
         animated: true,
@@ -35,29 +45,40 @@ const AutoSlider = () => {
           ...img,
           id: `${images.length + i}`,
         }));
-
         setImages(prev => [...prev, ...nextBatch]);
       }
     }, 2000);
 
     return () => clearInterval(interval);
-  }, [images]);
+  }, [images, initialImages]);
+
   return (
-    <View style={{ width: "100%", paddingVertical: hp(2), gap: 10,paddingHorizontal:10 }}>
+    <View style={{ width: '100%', paddingVertical: hp(2), gap: 10, paddingHorizontal: 10 }}>
       <Text style={styles.headText}>Top Offers</Text>
-      <FlatList
-        ref={flatListRef}
-        data={images}
-        keyExtractor={item => item.id}
-        horizontal
-        pagingEnabled
-        showsHorizontalScrollIndicator={false}
-        renderItem={({ item }) => (
-          <View style={styles.imageContainer}>
-            <Image source={{ uri: item.uri }} style={styles.image} />
-          </View>
-        )}
-      />
+
+      {isLoading ? (
+        <FlatList
+          data={[1, 2, 3]} // dummy placeholders
+          keyExtractor={item => item.toString()}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          renderItem={() => <SkeletonItem />}
+        />
+      ) : (
+        <FlatList
+          ref={flatListRef}
+          data={images}
+          keyExtractor={item => item.id}
+          horizontal
+          pagingEnabled
+          showsHorizontalScrollIndicator={false}
+          renderItem={({ item }) => (
+            <View style={styles.imageContainer}>
+              <Image source={{ uri: item.bannerImage }} style={styles.image} />
+            </View>
+          )}
+        />
+      )}
     </View>
   );
 };
@@ -65,19 +86,11 @@ const AutoSlider = () => {
 export default AutoSlider;
 
 const styles = StyleSheet.create({
-  container: {
-    width: '100%',
-    paddingVertical: hp(0),
-   
-    // gap: 10,
-    borderWidth:1,
-    borderColor:"#fff"
-  },
   headText: {
     fontSize: RFValue(16),
     fontFamily: 'Poppins-SemiBold',
     color: '#fff',
-    marginTop:hp(0)
+    marginTop: hp(0),
   },
   imageContainer: {
     width,
@@ -86,9 +99,14 @@ const styles = StyleSheet.create({
     alignItems: 'flex-start',
   },
   image: {
-    width: width * 0.90,
+    width: width * 0.9,
     height: 140,
     resizeMode: 'cover',
     borderRadius: 5,
+  },
+  skeletonContainer: {
+    backgroundColor: '#444', // skeleton color
+    borderRadius: 5,
+    marginRight: wp(2),
   },
 });

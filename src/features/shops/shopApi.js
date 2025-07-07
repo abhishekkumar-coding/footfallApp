@@ -104,6 +104,15 @@ export const shopApi = createApi({
             }),
             invalidatesTags: ['VendorPoints', 'RedeemHistory', "Wallet"],
         }),
+
+        // Offers 
+
+        getAllOffers:builder.query({
+            query:()=>({
+                url:"offer/getAll",
+                method:"GET"
+            })
+        })
     }),
 });
 
@@ -118,6 +127,7 @@ export const {
     useGetTotalPointsByVendorQuery,
     useGetRedeemHistoryByVendorQuery,
     useRedeemVendorPointsMutation,
-    useGetRedeemHistoryQuery
+    useGetRedeemHistoryQuery,
+    useGetAllOffersQuery
     // useApplyReferralMutation
 } = shopApi;

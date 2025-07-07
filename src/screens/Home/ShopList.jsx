@@ -12,6 +12,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useGetAllShopsQuery } from '../../features/shops/shopApi';
 import { loadWishlist } from '../../features/wishlistSlice';
 import ShopCard from '../../components/ShopCard';
+import ShopSkeletonCard from "./ShopSkeletonCard"
 
 
 const ShopList = forwardRef((props, ref) => {
@@ -48,23 +49,33 @@ const ShopList = forwardRef((props, ref) => {
   );
 
   return (
-    <FlatList
-      data={shopData}
-      renderItem={renderItem}
-      keyExtractor={item => item._id}
-      showsVerticalScrollIndicator={false}
-      ListHeaderComponent={
-        <View style={styles.header}>
-          <Text style={styles.heading}>Nearby Shops</Text>
-          <TouchableOpacity onPress={handleViewAll}>
-            <Text style={styles.viewAll}>View All</Text>
-          </TouchableOpacity>
-        </View>
-      }
-      contentContainerStyle={styles.listContent}
-      numColumns={2}
-    />
-  );
+  <>
+    <View style={styles.header}>
+      <Text style={styles.heading}>Nearby Shops</Text>
+      <TouchableOpacity onPress={handleViewAll}>
+        <Text style={styles.viewAll}>View All</Text>
+      </TouchableOpacity>
+    </View>
+
+    {isLoading ? (
+      <View style={styles.skeletonContainer}>
+        {Array.from({ length: 6 }).map((_, index) => (
+          <ShopSkeletonCard key={index} />
+        ))}
+      </View>
+    ) : (
+      <FlatList
+        data={shopData}
+        renderItem={renderItem}
+        keyExtractor={item => item._id}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.listContent}
+        numColumns={2}
+      />
+    )}
+  </>
+);
+
 });
 
 const styles = StyleSheet.create({
@@ -72,7 +83,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingHorizontal: wp(2),
+    paddingHorizontal: wp(5),
     marginBottom: hp(1),
   },
   heading: {
@@ -89,6 +100,13 @@ const styles = StyleSheet.create({
     paddingBottom: hp(10.5),
     paddingHorizontal: wp(3),
   },
+  skeletonContainer: {
+  flexDirection: 'row',
+  flexWrap: 'wrap',
+  justifyContent: 'space-between',
+  paddingHorizontal: wp(3),
+},
+
 });
 
 export default ShopList;
