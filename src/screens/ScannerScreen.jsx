@@ -33,9 +33,14 @@ const ScannerScreen = ({ navigation }) => {
   const scanLineAnim = useRef(new Animated.Value(0)).current;
   const [fetchShopByScan] = useGetShopByScanMutation();
 
+
+  let shopId = ""
+
   useEffect(() => {
     requestPermission();
   }, []);
+
+  const pointsType = "percentage"
 
   useEffect(() => {
     const animation = Animated.loop(
@@ -63,14 +68,23 @@ const ScannerScreen = ({ navigation }) => {
       setIsLoadingShop(true);
 
       const result = await fetchShopByScan(shopId).unwrap();
-      console.log("Fetched shop data:", result.data.shop);
+      console.log("Fetched shop data:", result);
 
       setIsLoadingShop(false);
       setShowScanSuccess(true);
 
       setTimeout(() => {
         setShowScanSuccess(false);
-        navigation.goBack();
+        if (result.data.scanRewardType === "percentage") {
+          navigation.navigate("CashbackScreen", {
+            shopId: shopId,
+            returnPercent: result.data?.rewardPoints,
+          });
+        }
+        else {
+          navigation.goBack();
+        }
+
       }, 1000);
 
     } catch (fetchError) {
@@ -105,7 +119,7 @@ const ScannerScreen = ({ navigation }) => {
       console.log("Scanned QR data:", scannedValue);
 
       const params = new URLSearchParams(scannedValue);
-      const shopId = params.get('shop_id');
+      shopId = params.get('shop_id');
 
       if (shopId) {
         console.log("Extracted shop_id:", shopId);
@@ -136,63 +150,63 @@ const ScannerScreen = ({ navigation }) => {
 
   return (
     <>
-    <PageHeader lable={'Scan QR'} back/>
-    <View style={styles.container}>
-      <Camera
-        style={StyleSheet.absoluteFill}
-        device={device}
-        isActive
-        codeScanner={codeScanner}
-      />
+      <PageHeader lable={'Scan QR'} back />
+      <View style={styles.container}>
+        <Camera
+          style={StyleSheet.absoluteFill}
+          device={device}
+          isActive
+          codeScanner={codeScanner}
+        />
 
-      <View style={styles.frame}>
-        <Animated.View
-          style={[
-            styles.scanLineContainer,
-            {
-              transform: [
-                {
-                  translateY: scanLineAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0, 240],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          <LinearGradient
-            colors={['#00f6ff', '#00ffe0']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.scanLine}
-          />
-        </Animated.View>
+        <View style={styles.frame}>
+          <Animated.View
+            style={[
+              styles.scanLineContainer,
+              {
+                transform: [
+                  {
+                    translateY: scanLineAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, 240],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            <LinearGradient
+              colors={['#00f6ff', '#00ffe0']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.scanLine}
+            />
+          </Animated.View>
 
-        <View style={[styles.corner, styles.topLeft]} />
-        <View style={[styles.corner, styles.topRight]} />
-        <View style={[styles.corner, styles.bottomLeft]} />
-        <View style={[styles.corner, styles.bottomRight]} />
+          <View style={[styles.corner, styles.topLeft]} />
+          <View style={[styles.corner, styles.topRight]} />
+          <View style={[styles.corner, styles.bottomLeft]} />
+          <View style={[styles.corner, styles.bottomRight]} />
+        </View>
+
+        {showScanSuccess && (
+          <View style={[styles.resultContainer, { backgroundColor: '#00C853' }]}>
+            <Text style={styles.resultTitle}>✅ Scan Successful!</Text>
+          </View>
+        )}
+
+        {showScanError && (
+          <View style={[styles.resultContainer, { backgroundColor: '#B00020' }]}>
+            <Text style={styles.resultTitle}>❌ {errorMessage}</Text>
+          </View>
+        )}
+
+        {isLoadingShop && (
+          <View style={styles.loaderContainer}>
+            <Text style={styles.loaderText}>Scanning...</Text>
+          </View>
+        )}
       </View>
-
-      {showScanSuccess && (
-        <View style={[styles.resultContainer, { backgroundColor: '#00C853' }]}>
-          <Text style={styles.resultTitle}>✅ Scan Successful!</Text>
-        </View>
-      )}
-
-      {showScanError && (
-        <View style={[styles.resultContainer, { backgroundColor: '#B00020' }]}>
-          <Text style={styles.resultTitle}>❌ {errorMessage}</Text>
-        </View>
-      )}
-
-      {isLoadingShop && (
-        <View style={styles.loaderContainer}>
-          <Text style={styles.loaderText}>Scanning...</Text>
-        </View>
-      )}
-    </View>
     </>
 
   );

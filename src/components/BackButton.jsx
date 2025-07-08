@@ -52,7 +52,7 @@ const PageHeader = ({ lable, rightComponent, subTitle,back }) => {
               <Text style={[styles.title, { color: '#fff' }]}>{lable}</Text>
               {subTitle && (
                 <View style={styles.subTitleBox}>
-                  <Text style={[styles.subTitle, { color: '#000' }]}>
+                  <Text style={[styles.subTitle, { color: '#fff' }]}>
                     {subTitle}
                   </Text>
                 </View>
@@ -87,6 +87,7 @@ const styles = StyleSheet.create({
   leftSection: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent:"center"
   },
   iconButton: {
     padding: 6,

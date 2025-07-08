@@ -11,47 +11,26 @@ import {
 import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import LinearGradient from 'react-native-linear-gradient';
-import { useGetAllOffersQuery } from '../../features/shops/shopApi';
+import { useGetAllOffersQuery, useGetSortedOffersQuery } from '../../features/shops/shopApi';
 import BackButton from "../../components/BackButton"
 import { useNavigation } from '@react-navigation/native';
 
-const sampleOffers = [
-  {
-    id: '1',
-    title: '50% Off on Groceries',
-    description: 'Limited time offer on daily essentials.',
-    date: 'Valid till 30 Sep 2025',
-    image: 'https://images.unsplash.com/photo-1606756793539-ef74c1c2f6ac?fit=crop&w=800&q=80',
-  },
-  {
-    id: '2',
-    title: 'Flat ₹500 Off',
-    description: 'On electronics above ₹5,000.',
-    date: 'Valid till 15 Oct 2025',
-    image: 'https://images.unsplash.com/photo-1542831371-29b0f74f9713?fit=crop&w=800&q=80',
-  },
-  {
-    id: '3',
-    title: 'Buy 1 Get 1 Free',
-    description: 'On selected fashion brands.',
-    date: 'Valid till 10 Nov 2025',
-    image: 'https://images.unsplash.com/photo-1562887280-9de308f14f3c?fit=crop&w=800&q=80',
-  },
-];
 
 
 
-const filterOptions = ['Latest', 'Ending Soon', 'Distance'];
+const filterOptions = ['latest', 'endingSoon', 'distance'];
 
 const OffersScreen = () => {
-  const [selectedFilter, setSelectedFilter] = useState('Latest');
+  const [selectedFilter, setSelectedFilter] = useState('latest');
   const navigation = useNavigation()
+  const { data: shortedOffers } = useGetSortedOffersQuery(selectedFilter)
+  console.log("Shorted Offers : ", shortedOffers)
 
   const { data } = useGetAllOffersQuery()
   console.log("OffersScreen : ", data?.data)
-  const offers = data?.data?.offers || []
+  const offers = shortedOffers?.data?.offers || data?.data?.offers || [];
 
-   const handlePress = (title, description, endDate) => {
+  const handlePress = (title, description, endDate) => {
     navigation.navigate('OfferDetails', {
       title: title,
       description: description,
@@ -62,30 +41,30 @@ const OffersScreen = () => {
 
 
   const renderOffer = ({ item }) => {
-  const formattedDate = new Date(item.endTime).toLocaleString('en-IN', {
-    day: '2-digit',
-    month: 'short',
-    year: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-  console.log(item.title)
+    const formattedDate = new Date(item.endTime).toLocaleString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+    });
+    console.log(item.title)
 
-  return (
-    <TouchableOpacity onPress={()=>handlePress(item.title, item.description, formattedDate)}>
-    <ImageBackground
-      source={{ uri: item.bannerImage }}
-      style={styles.offerCard}
-      imageStyle={{ borderRadius: 12 }}
-    >
-    </ImageBackground>
-    </TouchableOpacity>
-  );
-};
+    return (
+      <TouchableOpacity onPress={() => handlePress(item.title, item.description, formattedDate)}>
+        <ImageBackground
+          source={{ uri: item.bannerImage }}
+          style={styles.offerCard}
+          imageStyle={{ borderRadius: 12 }}
+        >
+        </ImageBackground>
+      </TouchableOpacity>
+    );
+  };
 
   return (
     <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
-      <BackButton lable={"Offers"} back={true}/>
+      <BackButton lable={"Offers"} back={true} />
       <FlatList
         data={offers}
         renderItem={renderOffer}
@@ -135,7 +114,7 @@ const styles = StyleSheet.create({
     gap: hp(2),
     paddingTop: hp(1),
     paddingBottom: hp(5),
-    justifyContent:"space-between"
+    justifyContent: "space-between"
   },
   headerContainer: {
     marginTop: hp(2),

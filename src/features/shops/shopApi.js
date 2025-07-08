@@ -70,30 +70,30 @@ export const shopApi = createApi({
                 method: "GET"
             })
         }),
-        getSortedOffers :builder.query({
-            query:(sort)=>({
-                url:`offer/getSorted?sort=${sort}&lat=77.1025&lng=28.7041`,
-                method :"GET"
+        getSortedOffers: builder.query({
+            query: (sort) => ({
+                url: `offer/getSorted?sort=${sort}&lat=77.1025&lng=28.7041`,
+                method: "GET"
             })
         }),
-        getTotalPointsByVendor:builder.query({
-            query:({vendorId})=>({
-                url:`user/getTotalPointsByVendor/${vendorId}`,
-                method:"GET"
+        getTotalPointsByVendor: builder.query({
+            query: ({ vendorId }) => ({
+                url: `user/getTotalPointsByVendor/${vendorId}`,
+                method: "GET"
             }),
             providesTags: ['VendorPoints'],
         }),
-        getRedeemHistoryByVendor:builder.query({
-            query:(id)=>({
-                url:`user/getRedeemHistoryByVendor/${id}`,
-                method:"GET"
+        getRedeemHistoryByVendor: builder.query({
+            query: (id) => ({
+                url: `user/getRedeemHistoryByVendor/${id}`,
+                method: "GET"
             }),
             providesTags: ['RedeemHistory'],
         }),
-        getRedeemHistory:builder.query({
-            query:()=>({
-                url:"user/getRedeemHistory",
-                method:"GET"
+        getRedeemHistory: builder.query({
+            query: () => ({
+                url: "user/getRedeemHistory",
+                method: "GET"
             })
         }),
         redeemVendorPoints: builder.mutation({
@@ -107,12 +107,25 @@ export const shopApi = createApi({
 
         // Offers 
 
-        getAllOffers:builder.query({
-            query:()=>({
-                url:"offer/getAll",
-                method:"GET"
+        getAllOffers: builder.query({
+            query: () => ({
+                url: "offer/getAll",
+                method: "GET"
             })
-        })
+        }),
+
+        scanWithPurchaseAmount: builder.mutation({
+            query: (data) => {
+                const { id, purchaseAmount } = data;
+                return {
+                    url: `shop/scanWithPurchaseAmount/${id}`,
+                    method: "POST",
+                    body: { purchaseAmount },
+                };
+            },
+            invalidatesTags: ['Wallet']
+        }),
+
     }),
 });
 
@@ -128,6 +141,7 @@ export const {
     useGetRedeemHistoryByVendorQuery,
     useRedeemVendorPointsMutation,
     useGetRedeemHistoryQuery,
-    useGetAllOffersQuery
+    useGetAllOffersQuery,
+    useScanWithPurchaseAmountMutation
     // useApplyReferralMutation
 } = shopApi;
