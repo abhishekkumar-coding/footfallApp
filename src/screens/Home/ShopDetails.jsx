@@ -49,6 +49,7 @@ const ShopDetails = ({ route }) => {
     error: offersError,
   } = useGetShopOffersByIdQuery(shop?._id);
 
+  console.log("Shop Data : ", shop)
   const {
     contact,
     _id,
@@ -104,97 +105,97 @@ const ShopDetails = ({ route }) => {
     }
   }, [offersData]);
 
-  const sampleOffers = [
-    {
-      id: '1',
-      title: 'Flat 20% Off on All Items',
-      details: 'Valid till: 2025-06-25',
-      expiryDate: '2025-06-25',
-      distance: 1.5, // in km
-    },
-    {
-      id: '2',
-      title: 'Buy 1 Get 1 Free (Selected Products)',
-      details: 'Valid till: 2025-06-30',
-      expiryDate: '2025-06-30',
-      distance: 0.8,
-    },
-    {
-      id: '3',
-      title: 'Free Delivery on Orders Above ₹499',
-      details: 'Valid till: 2025-07-05',
-      expiryDate: '2025-07-05',
-      distance: 2.2,
-    },
-    {
-      id: '4',
-      title: '30% Off for First-Time Customers',
-      details: 'Valid till: 2025-07-15',
-      expiryDate: '2025-07-15',
-      distance: 1.0,
-    },
-  ];
+  // const sampleOffers = [
+  //   {
+  //     id: '1',
+  //     title: 'Flat 20% Off on All Items',
+  //     details: 'Valid till: 2025-06-25',
+  //     expiryDate: '2025-06-25',
+  //     distance: 1.5, // in km
+  //   },
+  //   {
+  //     id: '2',
+  //     title: 'Buy 1 Get 1 Free (Selected Products)',
+  //     details: 'Valid till: 2025-06-30',
+  //     expiryDate: '2025-06-30',
+  //     distance: 0.8,
+  //   },
+  //   {
+  //     id: '3',
+  //     title: 'Free Delivery on Orders Above ₹499',
+  //     details: 'Valid till: 2025-07-05',
+  //     expiryDate: '2025-07-05',
+  //     distance: 2.2,
+  //   },
+  //   {
+  //     id: '4',
+  //     title: '30% Off for First-Time Customers',
+  //     details: 'Valid till: 2025-07-15',
+  //     expiryDate: '2025-07-15',
+  //     distance: 1.0,
+  //   },
+  // ];
 
-  const getSortedOffers = () => {
-    if (!offersData || !Array.isArray(offersData)) return [];
+  // const getSortedOffers = () => {
+  //   if (!offersData || !Array.isArray(offersData)) return [];
 
-    const sortedOffers = [...offersData];
+  //   const sortedOffers = [...offersData];
 
-    if (sortBy === 'Ending Soon') {
-      return sortedOffers.sort(
-        (a, b) => new Date(a.endTime) - new Date(b.endTime),
-      );
-    } else {
-      // Latest: reverse order by startTime
-      return sortedOffers.sort(
-        (a, b) => new Date(b.startTime) - new Date(a.startTime),
-      );
-    }
-  };
+  //   if (sortBy === 'Ending Soon') {
+  //     return sortedOffers.sort(
+  //       (a, b) => new Date(a.endTime) - new Date(b.endTime),
+  //     );
+  //   } else {
+  //     // Latest: reverse order by startTime
+  //     return sortedOffers.sort(
+  //       (a, b) => new Date(b.startTime) - new Date(a.startTime),
+  //     );
+  //   }
+  // };
 
   const handleManualScan = async () => {
     try {
       setIsLoadingShop(true);
       const result = await scanShop(_id).unwrap();
-      console.log(result?.status === 400)
-      console.log('Fetched shop data directly from unwrap:', result);
-        if (result?.success) {
-            
-            Toast.show({
-              type: 'success',
-              text1: 'Scan Successfully!',
-          
-            });
-            // setShowScanSuccess(true);
-            dispatch(triggerWalletRefresh());
+
+      // console.log('Fetched shop data directly from unwrap:', result.data?.rewardPoints);
+      if (result?.success) {
+        Toast.show({
+          type: 'success',
+          text1: 'Scan Successfully!',
+        });
+
+        // dispatch(triggerWalletRefresh());
+
+        if (result.data?.scanRewardType === "percentage") {
+          navigation.navigate("CashbackScreen", {
+            shopId: _id,
+            returnPercent: result.data?.rewardPoints,
+          });
+        } else {
+          navigation.goBack();
         }
-       
-        else{
-              Toast.show({
-              type: 'error',
-              text1: 'Scan Error Try Again',
-          
-            });
-        }
-    //   navigation.goBack();
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Scan Error Try Again',
+        });
+      }
       setTimeout(() => setShowScanSuccess(false), 1000);
     } catch (fetchError) {
-         if(fetchError?.status === 400){
-              Toast.show({
-              type: 'error',
-              text1: fetchError?.data?.message,
-          
-            });
-        }
+      if (fetchError?.status === 400) {
+        Toast.show({
+          type: 'error',
+          text1: fetchError?.data?.message,
+        });
+      }
       console.log('Error fetching shop by ID:', fetchError);
-    //   const message = fetchError?.data?.message || 'Something went wrong';
-    //   setErrorMessage(message);
-    //   setShowScanError(true);
       setTimeout(() => setShowScanError(false), 2000);
     } finally {
       setIsLoadingShop(false);
     }
   };
+
   if (!shop) {
     return (
       <View style={styles.container}>
@@ -270,21 +271,46 @@ const ShopDetails = ({ route }) => {
 
           {/* Shop Details Section */}
           <View style={styles.shopDetails}>
-            <Text style={styles.category}>{category}</Text>
-            <View style={styles.titleRow}>
-              <Text style={styles.title}>{name}</Text>
+            <View style={styles.shopDetails}>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Category</Text>
+                <Text style={styles.detailValue}>{category}</Text>
+              </View>
+
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Shop Name</Text>
+                <Text style={styles.detailValue}>{name}</Text>
+              </View>
+
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Address</Text>
+                <Text style={styles.detailValue}>{address}</Text>
+              </View>
+
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Location</Text>
+                <Text style={styles.detailValue}>{city}, {state}, {pinCode}</Text>
+              </View>
+
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Timings</Text>
+                <Text style={styles.detailValue}>{startTime} - {endTime}</Text>
+              </View>
+
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Phone</Text>
+                <Text style={styles.detailValue}>{contact?.phone}</Text>
+              </View>
+
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>Email</Text>
+                <Text style={styles.detailValue}>{contact?.email}</Text>
+              </View>
             </View>
-            <Text style={styles.location}>📍 {address}</Text>
-            <Text style={styles.address}>
-              🏠 {city}, {state}, {pinCode}
-            </Text>
-            <Text style={styles.timings}>
-              🕒 {startTime} - {endTime}
-            </Text>
-            <Text style={styles.contact}>📞 {contact?.phone}</Text>
+
 
             {/* Offers Section */}
-            <View style={styles.offerSection}>
+            {/* <View style={styles.offerSection}>
               <Text style={styles.offerHeader}>🎁 Offers & Deals</Text>
               <Text style={styles.offerSubtext}>
                 View all active offers of a shop
@@ -318,7 +344,7 @@ const ShopDetails = ({ route }) => {
                   </Text>
                 </View>
               ))}
-            </View>
+            </View> */}
           </View>
         </ScrollView>
       </LinearGradient>
@@ -396,56 +422,35 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   shopDetails: {
-    backgroundColor: '#fff',
-    marginTop: hp(2),
-    paddingTop: hp(3),
-    paddingBottom: hp(5),
-    paddingHorizontal: wp(5),
-    borderTopLeftRadius: 50,
-    borderTopRightRadius: 50,
+    flex: 1,
+    backgroundColor: '#ffffff',
+    paddingHorizontal: wp(2),
+    paddingTop: hp(2),
+    paddingBottom: hp(20),
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
   },
-  titleRow: {
+  detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: hp(1),
+    marginBottom: hp(1.5),
+    flexWrap: 'wrap',
   },
-  title: {
-    fontSize: wp(6),
+  detailLabel: {
+    color: '#999', // light gray
+    fontFamily: 'Poppins-Regular',
+    fontSize: wp(4),
+    maxWidth: '45%',
+  },
+  detailValue: {
     color: '#000',
     fontFamily: 'Poppins-Bold',
-    marginBottom: hp(0.5),
-  },
-  category: {
-    color: '#3B63EF',
     fontSize: wp(4),
-    marginBottom: hp(0.5),
-    fontFamily: 'Poppins-SemiBold',
+    textAlign: 'right',
+    maxWidth: '50%',
   },
-  location: {
-    color: '#000',
-    fontSize: wp(4),
-    fontFamily: 'Poppins-Regular',
-    marginBottom: hp(0.5),
-  },
-  address: {
-    color: '#000',
-    fontSize: wp(4),
-    fontFamily: 'Poppins-Regular',
-    marginBottom: hp(0.5),
-  },
-  timings: {
-    color: '#000',
-    fontSize: wp(4),
-    fontFamily: 'Poppins-Regular',
-    marginBottom: hp(0.5),
-  },
-  contact: {
-    color: '#3B63EF',
-    fontSize: wp(4),
-    fontFamily: 'Poppins-SemiBold',
-    marginBottom: hp(1),
-  },
+
   offerSection: {
     marginTop: hp(2),
   },

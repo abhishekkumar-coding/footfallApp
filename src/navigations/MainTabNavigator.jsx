@@ -31,6 +31,7 @@ import RedeemHistoryScreen from '../screens/RedeemHistoryScreen';
 import FavoritesScreen from '../screens/FavoritesScreen/FavoritesScreen';
 import OffersScreen from '../screens/offercScreen/OffersScreen';
 import OfferDetails from '../screens/offercScreen/OfferDetails';
+import CashbackScreen from '../screens/CashbackScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -97,6 +98,11 @@ const HomeStack = () => (
      <Stack.Screen 
      name='OfferDetails' 
      component={OfferDetails}
+      options={{headerShown:false}}
+      />
+      <Stack.Screen 
+     name='CashbackScreen' 
+     component={CashbackScreen}
       options={{headerShown:false}}
       />
 
