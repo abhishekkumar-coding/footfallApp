@@ -33,7 +33,7 @@ const AutoSlider = () => {
   }, [initialImages]);
 
   useEffect(() => {
-    if (!images.length) return; // Prevent scroll interval if images not ready
+    if (!images.length) return;
 
     const interval = setInterval(() => {
       scrollPosition.current += width;
@@ -54,12 +54,14 @@ const AutoSlider = () => {
     return () => clearInterval(interval);
   }, [images, initialImages]);
 
-  const handlePress = (title, description, endDate) => {
+  const handlePress = (title, description, endDate, bannerImage, shopName, vendorId) => {
     navigation.navigate('OfferDetails', {
-      title: title,
-      description: description,
-      endDate: endDate,
-      // qrCodeData: "dummy-qr-code-data",
+      title,
+      description,
+      endDate,
+      bannerImage,
+      shopName, 
+      vendorId
     });
   };
 
@@ -93,7 +95,7 @@ const AutoSlider = () => {
             });
             return (
               <TouchableOpacity
-                onPress={() => handlePress(item.title, item.description, formattedDate)}
+                onPress={() => handlePress(item.title, item.description, formattedDate, item.bannerImage, item.shopId.name, item.shopId.owner)}
                 style={styles.imageContainer}
               >
                 <Image source={{ uri: item.bannerImage }} style={styles.image} />

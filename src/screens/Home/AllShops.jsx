@@ -5,6 +5,7 @@ import {
   FlatList,
   TouchableOpacity,
   ScrollView,
+  Image,
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
@@ -16,6 +17,7 @@ import { useDispatch } from 'react-redux';
 import { loadWishlist } from '../../features/wishlistSlice';
 import ShopCard from '../../components/ShopCard';
 import ShopSkeletonCard from './ShopSkeletonCard';
+import { useGetFilteredShopsQuery } from '../../features/shops/shopApi';
 
 const AllShops = ({ route }) => {
   const { shopsData } = route.params;
@@ -24,18 +26,22 @@ const AllShops = ({ route }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
+  const {data} = useGetFilteredShopsQuery(selectedCategory)
+  console.log("Filtered Shop: ", data?.data?.shops)
+
   const categories = [
     'ALL',
     'New Delhi',
     'Noida',
     'Gurugram',
+    'Patna',
     ...new Set(shopsData.map(shop => shop.city)),
   ];
 
   const filteredShops =
     selectedCategory === 'ALL'
       ? shopsData
-      : shopsData.filter(shop => shop.city === selectedCategory);
+      : data?.data?.shops
 
   useEffect(() => {
     dispatch(loadWishlist());
@@ -109,6 +115,13 @@ const AllShops = ({ route }) => {
             showsVerticalScrollIndicator={false}
             contentContainerStyle={styles.listContent}
             numColumns={2}
+            ListEmptyComponent={
+              <View style={{marginTop:hp(10)}}>
+                <Text style={{fontFamily:"Poppins-SemiBold", textAlign:"center", fontSize:RFValue(20), color:"#fff"}}>No shops available</Text>
+                <Text style={{fontFamily:"Poppins-Regular", textAlign:"center", fontSize:RFValue(15), color:"#999"}}>Please try again later.</Text>
+                <Image source={require('../../../assets/noShop.png')} style={{width:wp(40), height:hp(30), alignSelf:"center"}}/>
+              </View>
+            }
           />
         )}
       </LinearGradient>
