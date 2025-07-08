@@ -158,7 +158,7 @@ const ShopDetails = ({ route }) => {
       setIsLoadingShop(true);
       const result = await scanShop(_id).unwrap();
 
-      // console.log('Fetched shop data directly from unwrap:', result.data?.rewardPoints);
+      console.log('Fetched shop data directly from unwrap:', result);
       if (result?.success) {
         Toast.show({
           type: 'success',
@@ -183,12 +183,11 @@ const ShopDetails = ({ route }) => {
       }
       setTimeout(() => setShowScanSuccess(false), 1000);
     } catch (fetchError) {
-      if (fetchError?.status === 400) {
-        Toast.show({
-          type: 'error',
-          text1: fetchError?.data?.message,
-        });
-      }
+      Toast.show({
+        type: 'error',
+        text1: fetchError?.data?.message,
+
+      })
       console.log('Error fetching shop by ID:', fetchError);
       setTimeout(() => setShowScanError(false), 2000);
     } finally {

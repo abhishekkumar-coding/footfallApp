@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import {
   View,
   Text,
@@ -6,15 +6,24 @@ import {
   FlatList,
   ActivityIndicator,
 } from 'react-native';
-import { useGetScanHistoryQuery } from '../features/auth/authApi';
 import { RFValue } from 'react-native-responsive-fontsize';
 import LinearGradient from 'react-native-linear-gradient';
 import { hp } from '../utils/dimensions';
 import PageHeader from '../components/BackButton';
+import { useGetScanHistoryQuery } from '../features/shops/shopApi';
+import { useFocusEffect } from '@react-navigation/native';
 
 const HistoryScreen = () => {
-  const { data, isLoading, isError } = useGetScanHistoryQuery();
+  const { data, isLoading, isError, refetch } = useGetScanHistoryQuery();
   const history = data?.data || [];
+
+  useFocusEffect(
+    useCallback(() => {
+      console.log("Screen focused, refetching scan history...");
+      refetch();
+    }, [])
+  );
+
 
   if (isLoading) {
     return (
@@ -45,12 +54,12 @@ const HistoryScreen = () => {
   const renderItem = ({ item }) => {
     const formattedDate = item?.scannedAt
       ? new Date(item.scannedAt).toLocaleString('en-IN', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-        })
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
       : 'N/A';
 
     return (
@@ -75,7 +84,7 @@ const HistoryScreen = () => {
           keyExtractor={(item, index) => item._id || index.toString()}
           renderItem={renderItem}
           showsVerticalScrollIndicator={false}
-       
+
         />
       </LinearGradient>
     </>
@@ -85,8 +94,11 @@ const HistoryScreen = () => {
 export default HistoryScreen;
 
 const styles = StyleSheet.create({
+  container: {
+    paddingBottom: hp(7)
+  },
   headerContainer: {
-    paddingBottom: hp(2),
+    paddingBottom: hp(),
     borderBottomWidth: 1,
     borderBottomColor: '#555',
     marginBottom: 10,
@@ -97,7 +109,7 @@ const styles = StyleSheet.create({
     fontFamily: 'Poppins-Bold',
     textAlign: 'center',
   },
- 
+
   centered: {
     flex: 1,
     backgroundColor: '#000',

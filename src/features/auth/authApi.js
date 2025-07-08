@@ -69,13 +69,6 @@ export const authApi = createApi({
                 body: data
             })
         }),
-        getScanHistory: builder.query({
-            query: () => ({
-                url: "user/getScanHistory",
-                method: "GET"
-            })
-        }),
-        
     }),
 });
 
@@ -87,4 +80,4 @@ export const { useSignupMutation,
     // useGetWalletSummaryQuery,
     useUpdateUserMutation,
     // useRedeemVendorPointsMutation,
-    useGetScanHistoryQuery } = authApi;
+     } = authApi;
