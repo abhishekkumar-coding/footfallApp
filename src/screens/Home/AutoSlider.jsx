@@ -54,14 +54,15 @@ const AutoSlider = () => {
     return () => clearInterval(interval);
   }, [images, initialImages]);
 
-  const handlePress = (title, description, endDate, bannerImage, shopName, vendorId) => {
+  const handlePress = (title, description, endDate, bannerImage, shopName, vendorId, offerId) => {
     navigation.navigate('OfferDetails', {
       title,
       description,
       endDate,
       bannerImage,
       shopName, 
-      vendorId
+      vendorId,
+      offerId
     });
   };
 
@@ -95,7 +96,7 @@ const AutoSlider = () => {
             });
             return (
               <TouchableOpacity
-                onPress={() => handlePress(item.title, item.description, formattedDate, item.bannerImage, item.shopId.name, item.shopId.owner)}
+                onPress={() => handlePress(item.title, item.description, formattedDate, item.bannerImage, item.shopId.name, item.shopId.owner, item._id)}
                 style={styles.imageContainer}
               >
                 <Image source={{ uri: item.bannerImage }} style={styles.image} />
@@ -136,3 +137,4 @@ const styles = StyleSheet.create({
     marginRight: wp(2),
   },
 });
+

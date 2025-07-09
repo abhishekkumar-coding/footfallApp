@@ -16,7 +16,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useGetAllOffersQuery, useGetSortedOffersQuery } from '../../features/shops/shopApi';
 import BackButton from "../../components/BackButton";
 import { useNavigation } from '@react-navigation/native';
-// import { date } from 'zod';
+
 
 const filterOptions = [
   { label: 'All', value: 'all' },
@@ -37,18 +37,17 @@ const OffersScreen = () => {
       ? allOffersData?.data?.offers || []
       : sortedData?.data?.offers || [];
 
-  // console.log("Offers: ", offers[0].shopId.name)
 
 
-  const handlePress = (title, description, endDate, bannerImage, shopName, vendorId) => {
-    // console.log(shopName,vendorId )
+  const handlePress = (title, description, endDate, bannerImage, shopName, vendorId, offerId) => {
     navigation.navigate('OfferDetails', {
       title,
       description,
       endDate,
       bannerImage,
       shopName,
-      vendorId
+      vendorId,
+      offerId
     });
   };
 
@@ -61,9 +60,10 @@ const OffersScreen = () => {
       hour: '2-digit',
       minute: '2-digit',
     });
+    // console.log("offer id: ",item._id)
 
     return (
-      <TouchableOpacity onPress={() => handlePress(item.title, item.description, formattedDate, item.bannerImage, item.shopId.name, item.shopId.owner)}>
+      <TouchableOpacity onPress={() => handlePress(item.title, item.description, formattedDate, item.bannerImage, item.shopId.name, item.shopId.owner, item._id)}>
         <ImageBackground
           source={{ uri: item.bannerImage }}
           style={styles.offerCard}
@@ -77,7 +77,6 @@ const OffersScreen = () => {
     <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
       <BackButton lable={"Offers"} back={true} />
 
-      {/* Header with filter options */}
       <View style={styles.headerContainer}>
         <ScrollView
           horizontal
@@ -106,7 +105,6 @@ const OffersScreen = () => {
         </ScrollView>
       </View>
 
-      {/* Offers Section with Loader or FlatList */}
       {isLoading ? (
         <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
           <ActivityIndicator size="large" color="#ff5f6d" />
@@ -209,3 +207,4 @@ const styles = StyleSheet.create({
   }
 
 });
+

@@ -95,7 +95,7 @@ export const shopApi = createApi({
                 url: "user/getRedeemHistory",
                 method: "GET"
             }),
-            providesTags:["RedeemHistory"]
+            providesTags: ["RedeemHistory"]
         }),
         redeemVendorPoints: builder.mutation({
             query: ({ id, pointsToRedeem }) => ({
@@ -127,10 +127,10 @@ export const shopApi = createApi({
             invalidatesTags: ['Wallet']
         }),
 
-        getVendorById:builder.query({
-            query:({id})=>({
-                url:`vendor/getById/${id}`,
-                method:"GET"
+        getVendorById: builder.query({
+            query: ({ id }) => ({
+                url: `vendor/getById/${id}`,
+                method: "GET"
             })
         }),
         getScanHistory: builder.query({
@@ -138,14 +138,20 @@ export const shopApi = createApi({
                 url: "user/getScanHistory",
                 method: "GET"
             }),
-            refetchOnFocus : true
+            refetchOnFocus: true
         }),
-        getFilteredShops:builder.query({
-            query:(search)=>({
-                url:`shop/search?search=${search}&page=1&limit=10`,
-                method:"GET"
+        getFilteredShops: builder.query({
+            query: (search) => ({
+                url: `shop/search?search=${search}&page=1&limit=10`,
+                method: "GET"
             })
-        })
+        }),
+        scanOffer: builder.mutation({
+            query: ({ id }) => ({
+                url: `offer/scan/${id}`,
+                method: "POST",
+            }),
+        }),
 
     }),
 });
@@ -166,5 +172,7 @@ export const {
     useScanWithPurchaseAmountMutation,
     useGetVendorByIdQuery,
     useGetScanHistoryQuery,
-    useGetFilteredShopsQuery
+    useGetFilteredShopsQuery,
+    useScanOfferMutation
 } = shopApi;
+

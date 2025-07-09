@@ -1,20 +1,47 @@
-import React from 'react';
-import { View, StyleSheet, Image, Text, ScrollView, ActivityIndicator } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet, Image, Text, ScrollView, ActivityIndicator, TouchableOpacity } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import BackButton from "../../components/BackButton";
 import { hp, wp } from '../../utils/dimensions';
 import ShopQRCode from '../Home/ShopQRCode';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { useGetVendorByIdQuery } from '../../features/shops/shopApi';
+import { useGetVendorByIdQuery, useScanOfferMutation } from '../../features/shops/shopApi';
+import Toast from 'react-native-toast-message';
 
 
 const OfferDetails = ({ route }) => {
-    const { title, description, endDate, bannerImage, shopName, vendorId } = route.params;
 
-    const { data, isLoading, error } = useGetVendorByIdQuery({ id: vendorId });
+    const { title, description, endDate, bannerImage, shopName, vendorId, offerId } = route.params;
+
+    const { data: vendordata, isLoading, error } = useGetVendorByIdQuery({ id: vendorId });
+
+    const [triggerScanOffer, { data: offerData, isLoading:isOfferResult }] = useScanOfferMutation();
 
 
-    const vendorName = data?.data?.name || "";
+ const handleClick = async (value) => {
+  try {
+    const result = await triggerScanOffer({ id: value }).unwrap();
+    console.log("Offer data after scanning:", result);
+
+    Toast.show({
+      type: 'success',
+      text1: 'Offer Scanned',
+      text2: result.message,
+    });
+  } catch (err) {
+    console.error("Error scanning offer:", err);
+
+    Toast.show({
+      type: 'error',
+      text1: 'Scan Failed',
+      text2: err.data.message,
+    });
+  }
+};
+
+
+
+    const vendorName = vendordata?.data?.name || "";
 
     if (isLoading) {
         return (
@@ -69,7 +96,9 @@ const OfferDetails = ({ route }) => {
                         <View style={styles.qrContainer}>
                             <ShopQRCode vendorId={vendorId} />
                         </View>
-                        <Text style={styles.scanButton}>Scan Now</Text>
+                        <TouchableOpacity disabled={isOfferResult} onPress={() => handleClick(offerId)}>
+                            <Text style={styles.scanButton}  >{isOfferResult ? "Scanning..." : "Scan Now"}</Text>
+                        </TouchableOpacity>
                     </View>
                 </View>
 
@@ -192,3 +221,4 @@ const styles = StyleSheet.create({
 });
 
 export default OfferDetails;
+
