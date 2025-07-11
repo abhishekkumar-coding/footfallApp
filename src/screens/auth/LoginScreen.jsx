@@ -35,6 +35,7 @@ const LoginScreen = () => {
   const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(false);
   const [showError, setShowError] = useState(false);
+  const [loginType, setLoginType] = useState('user');
 
   // const user = useSelector((state)=>state.user.user)
   // console.log("User from Redux Store", user)
@@ -107,7 +108,11 @@ const LoginScreen = () => {
 
   }
 
-
+  const handleVendorClick = ()=>{
+      setLoginType('vendor')
+      navigation.navigate("VendorWebView")
+      setTimeout(()=>setLoginType("user"), 1000)
+  }
 
   return (
     <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
@@ -120,8 +125,30 @@ const LoginScreen = () => {
       <BackButton />
       <View style={styles.container}>
         <Text style={styles.heading}>Log in 🔐</Text>
-        <Text style={styles.subText}>Glad to see you! Please log in</Text>
+        {/* <Text style={styles.subText}>Glad to see you! Please log in</Text> */}
+        <View style={styles.loginTypeContainer}>
+          <TouchableOpacity onPress={() => setLoginType('user')}>
+            <Text
+              style={[
+                styles.loginTypeText,
+                loginType === 'user' && styles.activeLoginType,
+              ]}
+            >
+              User Login
+            </Text>
+          </TouchableOpacity>
 
+          <TouchableOpacity onPress={handleVendorClick}>
+            <Text
+              style={[
+                styles.loginTypeText,
+                loginType === 'vendor' && styles.activeLoginType,
+              ]}
+            >
+              Vendor Login
+            </Text>
+          </TouchableOpacity>
+        </View>
         <LinearGradient
           colors={['rgba(255, 255, 255, 0.1)', '#000']}
           style={styles.formGradient}
@@ -162,6 +189,7 @@ const LoginScreen = () => {
 
           <CustomButton title="Log in" onPress={handleLogin} />
 
+
           <SocialLoginOptions />
 
           <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
@@ -193,7 +221,7 @@ const styles = StyleSheet.create({
 
   container: {
     flex: 1,
-    alignItems: 'center',
+    // alignItems: 'center',
     justifyContent: 'center',
     paddingHorizontal: 0,
   },
@@ -205,6 +233,28 @@ const styles = StyleSheet.create({
     width: '100%',
     paddingHorizontal: wp(5),
   },
+  loginTypeContainer: {
+    flexDirection: 'row',
+    // justifyContent: 'center',
+    paddingHorizontal: wp(5),
+    marginVertical: 20,
+    gap: 20,
+  },
+
+  loginTypeText: {
+    color: '#ccc',
+    fontSize: 16,
+    paddingBottom: 4,
+    borderBottomWidth: 2,
+    borderBottomColor: 'transparent',
+  },
+
+  activeLoginType: {
+    color: '#fff',
+    fontWeight: 'bold',
+    borderBottomColor: '#fff',
+  },
+
   subText: {
     fontSize: RFValue(14),
     fontFamily: 'Poppins-Regular',
@@ -253,6 +303,6 @@ const styles = StyleSheet.create({
   signupLink: {
     color: '#4068F6',
     fontFamily: 'Poppins-Regular',
-    fontSize:RFValue(10)
+    fontSize: RFValue(10)
   },
 });

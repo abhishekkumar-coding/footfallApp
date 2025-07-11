@@ -5,18 +5,24 @@ import AppNavigator from './src/AppNavigator';
 import { Provider } from 'react-redux';
 import { store } from './src/store';
 import Toast from 'react-native-toast-message';
-import AppInitializer from './src/AppInitializer'; 
+import AppInitializer from './src/AppInitializer';
 import linking from './linking';
 import { navigationRef } from './src/navigations/NavigationUtil';
 import { toastConfig } from './src/components/toastConfig';
+import SplashScreen from 'react-native-splash-screen'
 
 
 const App = () => {
-    useEffect(() => {
-    // setTimeout(() => {
-    //   SplashScreen.hide();
 
-    // }, 3000);
+  //   useEffect(() => {
+  //   SplashScreen.hide();
+  // }, []);
+
+  useEffect(() => {
+    setTimeout(() => {
+      SplashScreen.hide();
+
+    }, 1000);
     if (Text.defaultProps == null) Text.defaultProps = {};
     Text.defaultProps.allowFontScaling = false;
     if (TextInput.defaultProps == null) TextInput.defaultProps = {};
@@ -37,10 +43,10 @@ const App = () => {
   })
   return (
     <Provider store={store}>
-      <AppInitializer>  
-        <NavigationContainer linking={linking}  ref={navigationRef}>
+      <AppInitializer>
+        <NavigationContainer linking={linking} ref={navigationRef}>
           <AppNavigator />
-          <Toast config={toastConfig}/>
+          <Toast config={toastConfig} />
         </NavigationContainer>
       </AppInitializer>
     </Provider>

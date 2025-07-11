@@ -5,6 +5,7 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { hp, wp } from '../../utils/dimensions';
@@ -49,7 +50,7 @@ const ShopDetails = ({ route }) => {
     error: offersError,
   } = useGetShopOffersByIdQuery(shop?._id);
 
-  console.log("Shop Data : ", shop)
+  console.log("Shop Data : ", shop.cover)
   const {
     contact,
     _id,
@@ -57,6 +58,7 @@ const ShopDetails = ({ route }) => {
     name,
     startTime,
     endTime,
+    cover,
     logo,
     address,
     city,
@@ -105,54 +107,7 @@ const ShopDetails = ({ route }) => {
     }
   }, [offersData]);
 
-  // const sampleOffers = [
-  //   {
-  //     id: '1',
-  //     title: 'Flat 20% Off on All Items',
-  //     details: 'Valid till: 2025-06-25',
-  //     expiryDate: '2025-06-25',
-  //     distance: 1.5, // in km
-  //   },
-  //   {
-  //     id: '2',
-  //     title: 'Buy 1 Get 1 Free (Selected Products)',
-  //     details: 'Valid till: 2025-06-30',
-  //     expiryDate: '2025-06-30',
-  //     distance: 0.8,
-  //   },
-  //   {
-  //     id: '3',
-  //     title: 'Free Delivery on Orders Above ₹499',
-  //     details: 'Valid till: 2025-07-05',
-  //     expiryDate: '2025-07-05',
-  //     distance: 2.2,
-  //   },
-  //   {
-  //     id: '4',
-  //     title: '30% Off for First-Time Customers',
-  //     details: 'Valid till: 2025-07-15',
-  //     expiryDate: '2025-07-15',
-  //     distance: 1.0,
-  //   },
-  // ];
-
-  // const getSortedOffers = () => {
-  //   if (!offersData || !Array.isArray(offersData)) return [];
-
-  //   const sortedOffers = [...offersData];
-
-  //   if (sortBy === 'Ending Soon') {
-  //     return sortedOffers.sort(
-  //       (a, b) => new Date(a.endTime) - new Date(b.endTime),
-  //     );
-  //   } else {
-  //     // Latest: reverse order by startTime
-  //     return sortedOffers.sort(
-  //       (a, b) => new Date(b.startTime) - new Date(a.startTime),
-  //     );
-  //   }
-  // };
-
+  
   const handleManualScan = async () => {
     try {
       setIsLoadingShop(true);
@@ -207,7 +162,7 @@ const ShopDetails = ({ route }) => {
 
   return (
     <>
-      <PageHeader lable={'Shop Details'} back />
+      {/* <PageHeader lable={'Shop Details'} back /> */}
       <LinearGradient
         colors={['#000337', '#000000']}
         style={styles.gradientContainer}
@@ -244,12 +199,14 @@ const ShopDetails = ({ route }) => {
         >
           {/* QR Code Section */}
           <View style={styles.qrContainer}>
-            <ShopQRCode
+            {/* <ShopQRCode
               shopId={_id}
               email={contact?.email ?? 'no-email'}
               ownerId={owner}
               logo={logo}
-            />
+            /> */}
+
+            <Image source={{uri:cover}} style={{width:"100%", height:350}}/>
 
             <View style={styles.buttonRow}>
               <TouchableOpacity
@@ -269,7 +226,6 @@ const ShopDetails = ({ route }) => {
           </View>
 
           {/* Shop Details Section */}
-          <View style={styles.shopDetails}>
             <View style={styles.shopDetails}>
               <View style={styles.detailRow}>
                 <Text style={styles.detailLabel}>Category</Text>
@@ -344,7 +300,6 @@ const ShopDetails = ({ route }) => {
                 </View>
               ))}
             </View> */}
-          </View>
         </ScrollView>
       </LinearGradient>
     </>
@@ -392,15 +347,17 @@ const styles = StyleSheet.create({
   },
   qrContainer: {
     alignItems: 'center',
-    paddingTop: hp(2),
-    paddingBottom: hp(2),
+    // paddingTop: hp(2),
+    // paddingBottom: hp(2),
   },
   buttonRow: {
+    position:"absolute",
+    bottom:90,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: hp(2),
-    gap: wp(4),
+    // marginTop: hp(2),
+    gap: wp(10),
   },
   scanButton: {
     backgroundColor: '#1E88E5',
@@ -423,11 +380,12 @@ const styles = StyleSheet.create({
   shopDetails: {
     flex: 1,
     backgroundColor: '#ffffff',
-    paddingHorizontal: wp(2),
-    paddingTop: hp(2),
-    paddingBottom: hp(20),
+    paddingHorizontal: wp(3),
+    paddingTop: hp(5),
+    paddingBottom: hp(40),
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
+    marginTop:-70
   },
   detailRow: {
     flexDirection: 'row',

@@ -93,9 +93,9 @@ const OfferDetails = ({ route }) => {
                     <View style={styles.qrWrapper}>
                         <Text style={styles.scanText}>Scan this code in the scanner to get rewards</Text>
                         <Text style={styles.validityText}>Valid till {endDate}</Text>
-                        <View style={styles.qrContainer}>
+                        {/* <View style={styles.qrContainer}>
                             <ShopQRCode vendorId={vendorId} />
-                        </View>
+                        </View> */}
                         <TouchableOpacity disabled={isOfferResult} onPress={() => handleClick(offerId)}>
                             <Text style={styles.scanButton}  >{isOfferResult ? "Scanning..." : "Scan Now"}</Text>
                         </TouchableOpacity>

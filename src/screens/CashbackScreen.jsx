@@ -15,8 +15,6 @@ const CashbackScreen = ({ navigation, route }) => {
 
     const { shopId, returnPercent } = route.params;
 
-    console.log("Shop Id in the cashbackScreen : ", returnPercent)
-
 
     const handleCalculate = async () => {
 
@@ -50,35 +48,50 @@ const CashbackScreen = ({ navigation, route }) => {
 
     return (
         <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
-            <BackButton lable={"Claim Cashback"} back={true} />
+            <BackButton lable="Claim Cashback" back />
 
-            <View style={styles.container}>
+            <LinearGradient 
+            colors={['#7209b7', '#000']}
+             style={styles.container}>
                 <View style={styles.card}>
-                    <Text style={styles.title}>Enter Purchase Amount</Text>
-
+                    <LinearGradient
+                        colors={['#000337', '#000']}
+                        start={{ x: 0, y: 1 }}
+                        end={{ x: 1, y: 0 }}
+                        style={styles.gradientCard}
+                    >
+                        <View style={{ flexDirection: "row", alignItems: "center", gap: 10, marginBottom: hp(2) }}>
+                            <Text style={styles.title}>Purchase Amount</Text>
+                            <Text style={styles.rate}>(₹)</Text>
+                        </View>
+                        <Text style={styles.description}>
+                            Enter the amount you spent at this shop to receive cashback
+                        </Text>
+                    </LinearGradient>
                     <TextInput
                         style={styles.input}
-                        placeholder="0.00"
-                        placeholderTextColor="#ccc"
+                        placeholder="Enter amount"
+                        placeholderTextColor="#000"
                         keyboardType="numeric"
                         value={purchaseAmount}
                         onChangeText={setPurchaseAmount}
                     />
 
                     <Text style={styles.returnPercent}>
-                        Cashback Return: {returnPercent}%
+                        Cashback Rate: <Text style={{ color: '#2b9348', fontFamily: "Poppins-Bold" }}>{returnPercent}%</Text>
                     </Text>
 
                     <TouchableOpacity
                         style={[styles.button, isLoading && { opacity: 0.6 }]}
                         onPress={handleCalculate}
+                        disabled={isLoading}
                     >
                         <Text style={styles.buttonText}>
-                            {isLoading ? "Calculating..." : "Claim Cashback"}
+                            {isLoading ? 'Calculating...' : 'Claim Cashback'}
                         </Text>
                     </TouchableOpacity>
                 </View>
-            </View>
+            </LinearGradient>
 
             {message && (
                 <View
@@ -86,7 +99,7 @@ const CashbackScreen = ({ navigation, route }) => {
                         styles.popupContainer,
                         {
                             backgroundColor:
-                                messageType === 'success' ? '#28a745' : '#dc3545',
+                                messageType === 'success' ? 'rgba(40, 167, 69, 0.9)' : 'rgba(220, 53, 69, 0.9)',
                         },
                     ]}
                 >
@@ -94,63 +107,103 @@ const CashbackScreen = ({ navigation, route }) => {
                 </View>
             )}
         </LinearGradient>
-    )
+    );
 };
-export default CashbackScreen
+
+export default CashbackScreen;
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        // justifyContent: 'center',
-        paddingHorizontal: 20,
+        paddingHorizontal: wp(5),
+        // backgroundColor: "#480ca8",
+        // backgroundColor: "rgba(255, 255, 255, 0.5)",
+        marginTop: hp(15),
+        borderRadius: (20)
     },
     card: {
-        width: '100%',
-        // backgroundColor: 'rgba(255,255,255,0.05)',
-        borderRadius: 20,
-        paddingVertical: hp(2),
-        paddingHorizontal: wp(4),
-        // alignItems: 'center',
-        // borderWidth: 1,
-        // borderColor: 'rgba(255,255,255,0.1)',
+        position: "absolute",
+        top: -100,
+        left: 0,
+        right: 0,
+        paddingHorizontal: wp(5)
     },
+    gradientCard: {
+        width: '100%',
+        height: hp(20),
+        borderRadius: 16,
+        padding: wp(8),
+        justifyContent: 'center',
+        shadowColor: '#000',
+        shadowOffset: {
+            width: 0,
+            height: 4,
+        },
+        shadowOpacity: 0.2,
+        shadowRadius: 6,
+        elevation: 6,
+    },
+
+
+    row: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 10, // If RN version <0.71, use marginLeft on second item
+    },
+
     title: {
-        color: '#FFF',
-        fontSize: RFValue(25),
-        fontFamily: 'Poppins-Regular',
-        marginBottom: 30,
-        textAlign: 'left',
+        fontSize: RFValue(20),
+        color: '#fff',
+        fontFamily: 'Poppins-SemiBold',
     },
+
+    rate: {
+        color: "#fff",
+        backgroundColor: "#007200",
+        paddingVertical: hp(0.5),
+        paddingHorizontal: wp(4),
+        fontFamily: "Poppins-Bold",
+        fontSize: RFValue(16),
+        borderRadius: 30,
+        overflow: 'hidden',
+    },
+
+    description: {
+        color: '#fff',
+        fontSize: RFValue(13),
+        fontFamily: 'Poppins-Regular',
+        // marginTop: hp(1),
+        opacity: 0.85,
+    },
+
     input: {
-        width: '100%',
-        height: 55,
-        borderColor: '#FF6B00',
-        borderWidth: 1,
+        backgroundColor: 'rgba(255,255,255,1)',
         borderRadius: 12,
         paddingHorizontal: 15,
+        paddingVertical: hp(1.5),
         fontSize: RFValue(16),
+        color: '#000',
         fontFamily: 'Poppins-Regular',
-        color: '#fff',
-        marginBottom: 25,
+        marginVertical: hp(2.5),
+        borderWidth:5,
+        borderColor: '#7b2cbf',
     },
     returnPercent: {
-        fontFamily: "Poppins-Regular",
         fontSize: RFValue(15),
-        color: "#fff",
-        textAlign: "left",
-        paddingBottom:hp(2)
+        color: '#fff',
+        fontFamily: 'Poppins-SemiBold',
+        marginBottom: hp(1),
     },
     button: {
-        backgroundColor: '#FF6B00',
-        width: '100%',
-        paddingVertical: 15,
+        backgroundColor: '#000337',
+        paddingVertical: hp(1.5),
         borderRadius: 12,
     },
     buttonText: {
         color: '#fff',
         fontSize: RFValue(16),
-        fontFamily: "Poppins-SemiBold",
-        textAlign: "center",
+        fontFamily: 'Poppins-SemiBold',
+        textAlign: 'center',
     },
     popupContainer: {
         position: 'absolute',

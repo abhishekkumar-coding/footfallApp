@@ -10,6 +10,7 @@ import NewPasswordScreen from './screens/auth/NewPasswordScreen';
 import MainTabNavigator from './navigations/MainTabNavigator';
 import ShopDetails from './screens/Home/ShopDetails';
 import { useSelector } from 'react-redux';
+import VendorWebView from './screens/VendorWebView';
 
 const Stack = createNativeStackNavigator();
 
@@ -31,6 +32,7 @@ const AppNavigator = () => {
 
             <Stack.Screen name="Main" component={MainTabNavigator} options={{ headerShown: false }} />
             <Stack.Screen name="ShopDetails" component={ShopDetails} options={{ headerShadowVisible: false }} />
+            <Stack.Screen name='VendorWebView' component={VendorWebView} options={{headerShown: false}}/>
 
         </Stack.Navigator>
     )

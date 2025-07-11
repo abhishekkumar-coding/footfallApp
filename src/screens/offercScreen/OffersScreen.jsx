@@ -31,11 +31,12 @@ const OffersScreen = () => {
 
   const { data: allOffersData, } = useGetAllOffersQuery();
   const { data: sortedData, isLoading } = useGetSortedOffersQuery(selectedFilter);
-
+  console.log("Sortetd Offer Data:" ,sortedData)
+  console.log("All Offer Data:" ,allOffersData)
   const offers =
     selectedFilter === 'all'
       ? allOffersData?.data?.offers || []
-      : sortedData?.data?.offers || [];
+      : sortedData?.data|| [];
 
 
 
