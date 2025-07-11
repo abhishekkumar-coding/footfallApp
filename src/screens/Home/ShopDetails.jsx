@@ -21,6 +21,31 @@ import { triggerWalletRefresh } from '../../features/auth/walletSlice';
 import { useNavigation } from '@react-navigation/native';
 import PageHeader from '../../components/BackButton';
 import Toast from 'react-native-toast-message';
+import Geolocation from 'react-native-geolocation-service';
+import { PermissionsAndroid, Platform } from 'react-native';
+
+const requestLocationPermission = async () => {
+  if (Platform.OS === 'ios') return true;
+
+  const granted = await PermissionsAndroid.request(
+    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+  );
+
+  return granted === PermissionsAndroid.RESULTS.GRANTED;
+};
+
+function getDistanceInMeters(lat1, lon1, lat2, lon2) {
+  const R = 6371000; // Earth’s radius in meters
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
+      Math.sin(dLon / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
 
 const ShopDetails = ({ route }) => {
   const navigation = useNavigation();
@@ -50,7 +75,7 @@ const ShopDetails = ({ route }) => {
     error: offersError,
   } = useGetShopOffersByIdQuery(shop?._id);
 
-  console.log("Shop Data : ", shop.cover)
+  console.log('Shop Data : ', shop.cover);
   const {
     contact,
     _id,
@@ -66,6 +91,8 @@ const ShopDetails = ({ route }) => {
     pinCode,
     owner,
   } = shop || {};
+
+  console.log('Shop Details', shop);
 
   useEffect(() => {
     if (data) {
@@ -107,47 +134,131 @@ const ShopDetails = ({ route }) => {
     }
   }, [offersData]);
 
-  
-  const handleManualScan = async () => {
-    try {
-      setIsLoadingShop(true);
-      const result = await scanShop(_id).unwrap();
+  // const handleManualScan = async () => {
+  //   try {
+  //     setIsLoadingShop(true);
+  //     const result = await scanShop(_id).unwrap();
 
-      console.log('Fetched shop data directly from unwrap:', result);
-      if (result?.success) {
-        Toast.show({
-          type: 'success',
-          text1: 'Scan Successfully!',
+  //     console.log('Fetched shop data directly from unwrap:', result);
+  //     if (result?.success) {
+  //       Toast.show({
+  //         type: 'success',
+  //         text1: 'Scan Successfully!',
+  //       });
+
+  //       // dispatch(triggerWalletRefresh());
+
+  //       if (result.data?.scanRewardType === 'percentage') {
+  //         navigation.navigate('CashbackScreen', {
+  //           shopId: _id,
+  //           returnPercent: result.data?.rewardPoints,
+  //         });
+  //       } else {
+  //         navigation.goBack();
+  //       }
+  //     } else {
+  //       Toast.show({
+  //         type: 'error',
+  //         text1: 'Scan Error Try Again',
+  //       });
+  //     }
+  //     setTimeout(() => setShowScanSuccess(false), 1000);
+  //   } catch (fetchError) {
+  //     Toast.show({
+  //       type: 'error',
+  //       text1: fetchError?.data?.message,
+  //     });
+  //     console.log('Error fetching shop by ID:', fetchError);
+  //     setTimeout(() => setShowScanError(false), 2000);
+  //   } finally {
+  //     setIsLoadingShop(false);
+  //   }
+  // };
+
+  const handleManualScan = async () => {
+    const hasPermission = await requestLocationPermission();
+    if (!hasPermission) {
+      Toast.show({ type: 'error', text1: 'Location permission denied' });
+      return;
+    }
+
+    setIsLoadingShop(true);
+
+    Geolocation.getCurrentPosition(
+      async position => {
+        const userLat = position.coords.latitude;
+        const userLng = position.coords.longitude;
+        console.log('📍 Your Current Location:', {
+          latitude: userLat,
+          longitude: userLng,
         });
 
-        // dispatch(triggerWalletRefresh());
+        // Extract shop lat/lng
+        const [shopLng, shopLat] = shop?.location?.coordinates || [];
+        console.log('🏪 Shop Location:', {
+          latitude: shopLat,
+          longitude: shopLng,
+        });
 
-        if (result.data?.scanRewardType === "percentage") {
-          navigation.navigate("CashbackScreen", {
-            shopId: _id,
-            returnPercent: result.data?.rewardPoints,
+        const scanRadius = 50;
+        const bufferDistance = 100; 
+        const effectiveRadius = scanRadius + bufferDistance;
+
+        const distance = getDistanceInMeters(
+          userLat,
+          userLng,
+          shopLat,
+          shopLng,
+        );
+        console.log(`🧭 Distance to shop: ${Math.round(distance)}m`);
+
+        if (distance > effectiveRadius) {
+          Toast.show({
+            type: 'error',
+            text1: `You're ${Math.round(distance)}m away.`,
+            text2: `Move closer to within ${effectiveRadius}m to scan.`,
           });
-        } else {
-          navigation.goBack();
+          setIsLoadingShop(false);
+          return;
         }
-      } else {
+
+        try {
+          const result = await scanShop(_id).unwrap();
+
+          if (result?.success) {
+            Toast.show({
+              type: 'success',
+              text1: 'Scan successful!',
+            });
+
+            if (result.data?.scanRewardType === 'percentage') {
+              navigation.navigate('CashbackScreen', {
+                shopId: _id,
+                returnPercent: result.data?.rewardPoints,
+              });
+            } else {
+              navigation.goBack();
+            }
+          } else {
+            Toast.show({ type: 'error', text1: 'Scan failed. Try again.' });
+          }
+        } catch (err) {
+          Toast.show({ type: 'error', text1: err?.data?.message || 'Error' });
+          console.log('❌ Scan error:', err);
+        } finally {
+          setIsLoadingShop(false);
+        }
+      },
+      error => {
         Toast.show({
           type: 'error',
-          text1: 'Scan Error Try Again',
+          text1: 'Location error',
+          text2: error.message,
         });
-      }
-      setTimeout(() => setShowScanSuccess(false), 1000);
-    } catch (fetchError) {
-      Toast.show({
-        type: 'error',
-        text1: fetchError?.data?.message,
-
-      })
-      console.log('Error fetching shop by ID:', fetchError);
-      setTimeout(() => setShowScanError(false), 2000);
-    } finally {
-      setIsLoadingShop(false);
-    }
+        setIsLoadingShop(false);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+    );
   };
 
   if (!shop) {
@@ -206,7 +317,10 @@ const ShopDetails = ({ route }) => {
               logo={logo}
             /> */}
 
-            <Image source={{uri:cover}} style={{width:"100%", height:350}}/>
+            <Image
+              source={{ uri: cover }}
+              style={{ width: '100%', height: 350 }}
+            />
 
             <View style={styles.buttonRow}>
               <TouchableOpacity
@@ -226,46 +340,49 @@ const ShopDetails = ({ route }) => {
           </View>
 
           {/* Shop Details Section */}
-            <View style={styles.shopDetails}>
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Category</Text>
-                <Text style={styles.detailValue}>{category}</Text>
-              </View>
-
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Shop Name</Text>
-                <Text style={styles.detailValue}>{name}</Text>
-              </View>
-
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Address</Text>
-                <Text style={styles.detailValue}>{address}</Text>
-              </View>
-
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Location</Text>
-                <Text style={styles.detailValue}>{city}, {state}, {pinCode}</Text>
-              </View>
-
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Timings</Text>
-                <Text style={styles.detailValue}>{startTime} - {endTime}</Text>
-              </View>
-
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Phone</Text>
-                <Text style={styles.detailValue}>{contact?.phone}</Text>
-              </View>
-
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>Email</Text>
-                <Text style={styles.detailValue}>{contact?.email}</Text>
-              </View>
+          <View style={styles.shopDetails}>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Category</Text>
+              <Text style={styles.detailValue}>{category}</Text>
             </View>
 
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Shop Name</Text>
+              <Text style={styles.detailValue}>{name}</Text>
+            </View>
 
-            {/* Offers Section */}
-            {/* <View style={styles.offerSection}>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Address</Text>
+              <Text style={styles.detailValue}>{address}</Text>
+            </View>
+
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Location</Text>
+              <Text style={styles.detailValue}>
+                {city}, {state}, {pinCode}
+              </Text>
+            </View>
+
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Timings</Text>
+              <Text style={styles.detailValue}>
+                {startTime} - {endTime}
+              </Text>
+            </View>
+
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Phone</Text>
+              <Text style={styles.detailValue}>{contact?.phone}</Text>
+            </View>
+
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>Email</Text>
+              <Text style={styles.detailValue}>{contact?.email}</Text>
+            </View>
+          </View>
+
+          {/* Offers Section */}
+          {/* <View style={styles.offerSection}>
               <Text style={styles.offerHeader}>🎁 Offers & Deals</Text>
               <Text style={styles.offerSubtext}>
                 View all active offers of a shop
@@ -351,8 +468,8 @@ const styles = StyleSheet.create({
     // paddingBottom: hp(2),
   },
   buttonRow: {
-    position:"absolute",
-    bottom:90,
+    position: 'absolute',
+    bottom: 90,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
@@ -385,7 +502,7 @@ const styles = StyleSheet.create({
     paddingBottom: hp(40),
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
-    marginTop:-70
+    marginTop: -70,
   },
   detailRow: {
     flexDirection: 'row',
