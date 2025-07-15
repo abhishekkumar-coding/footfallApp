@@ -223,7 +223,11 @@ const ShopDetails = ({ route }) => {
         }
 
         try {
-          const result = await scanShop(_id).unwrap();
+const result = await scanShop({
+  shopId: _id,
+  latitude: userLat,
+  longitude: userLng,
+}).unwrap();
 
           if (result?.success) {
             Toast.show({

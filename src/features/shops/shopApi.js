@@ -27,12 +27,17 @@ export const shopApi = createApi({
             }),
         }),
         getShopByScan: builder.mutation({
-            query: (id) => ({
-                url: `shop/scan/${id}`,
-                method: "POST",
+            query: ({ shopId, latitude, longitude }) => ({
+                url: `shop/scan/${shopId}`,
+                method: 'POST',
+                body: {
+                    latitude,
+                    longitude,
+                },
             }),
             invalidatesTags: ['Wallet'],
         }),
+
         getWalletSummary: builder.query({
             query: () => ({
                 url: "user/getWalletSummary",

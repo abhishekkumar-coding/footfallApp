@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -50,14 +50,34 @@ const LoginScreen = () => {
     password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
   });
 
+  useEffect(() => {
+    const loadSavedCredentials = async () => {
+      try {
+        const savedEmail = await AsyncStorage.getItem('rememberedEmail');
+        const savedPassword = await AsyncStorage.getItem('rememberedPassword');
+        const remember = await AsyncStorage.getItem('rememberMe');
+
+        if (remember === 'true' && savedEmail && savedPassword) {
+          setEmail(savedEmail);
+          setPassword(savedPassword);
+          setRememberMe(true);
+        }
+      } catch (error) {
+        console.log('Failed to load saved credentials', error);
+      }
+    };
+
+    loadSavedCredentials();
+  }, []);
+
+
   const handleLogin = async () => {
     const formData = { email, password };
 
     if (!email.trim() || !password.trim()) {
-      setShowError(true)
+      setShowError(true);
       return;
     }
-
 
     const result = loginSchema.safeParse(formData);
 
@@ -73,29 +93,40 @@ const LoginScreen = () => {
 
     try {
       const res = await login(formData).unwrap();
-      await AsyncStorage.setItem('token', res.data.token)
+      await AsyncStorage.setItem('token', res.data.token);
       await AsyncStorage.setItem('user', JSON.stringify(res.data.user));
-      console.log("user info", res.data.user)
-      dispatch(setUser(res.data.user))
+      dispatch(setUser(res.data.user));
+
+      // 🔐 Save credentials if "Remember Me" is checked
+      if (rememberMe) {
+        await AsyncStorage.setItem('rememberedEmail', email);
+        await AsyncStorage.setItem('rememberedPassword', password);
+        await AsyncStorage.setItem('rememberMe', 'true');
+      } else {
+        await AsyncStorage.removeItem('rememberedEmail');
+        await AsyncStorage.removeItem('rememberedPassword');
+        await AsyncStorage.setItem('rememberMe', 'false');
+      }
+
       Toast.show({
         type: 'success',
         text1: 'Login Successful',
         text2: 'Welcome back!',
       });
+
       setTimeout(() => {
         navigation.navigate('Main');
       }, 500);
-      // console.log(` Response : ${JSON.stringify(res.data.user)}`);
-      // checkToken()
     } catch (error) {
       Toast.show({
         type: 'error',
         text1: 'Login Failed',
         text2: error?.data?.message || 'Invalid credentials',
       });
-      console.log(error)
+      console.log(error);
     }
   };
+
 
   const checkToken = async () => {
     const token = await AsyncStorage.getItem('token')
@@ -108,10 +139,10 @@ const LoginScreen = () => {
 
   }
 
-  const handleVendorClick = ()=>{
-      setLoginType('vendor')
-      navigation.navigate("VendorWebView")
-      setTimeout(()=>setLoginType("user"), 1000)
+  const handleVendorClick = () => {
+    setLoginType('vendor')
+    navigation.navigate("VendorWebView")
+    setTimeout(() => setLoginType("user"), 1000)
   }
 
   return (
@@ -306,3 +337,4 @@ const styles = StyleSheet.create({
     fontSize: RFValue(10)
   },
 });
+

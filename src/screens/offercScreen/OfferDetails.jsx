@@ -7,9 +7,12 @@ import ShopQRCode from '../Home/ShopQRCode';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useGetVendorByIdQuery, useScanOfferMutation } from '../../features/shops/shopApi';
 import Toast from 'react-native-toast-message';
+import { useNavigation } from '@react-navigation/native';
 
 
 const OfferDetails = ({ route }) => {
+
+    const navigation = useNavigation()
 
     const { title, description, endDate, bannerImage, shopName, vendorId, offerId } = route.params;
 
@@ -96,8 +99,8 @@ const OfferDetails = ({ route }) => {
                         {/* <View style={styles.qrContainer}>
                             <ShopQRCode vendorId={vendorId} />
                         </View> */}
-                        <TouchableOpacity disabled={isOfferResult} onPress={() => handleClick(offerId)}>
-                            <Text style={styles.scanButton}  >{isOfferResult ? "Scanning..." : "Scan Now"}</Text>
+                        <TouchableOpacity disabled={isOfferResult} onPress={() => navigation.navigate('RewardScanner')}>
+                            <Text style={styles.scanButton}  >Scan Nowhfsdhhsdh</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
