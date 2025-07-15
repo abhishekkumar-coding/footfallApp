@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "629732782679",
+    "project_id": "footfallapp",
+    "storage_bucket": "footfallapp.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:629732782679:android:970c2f8548e55d53b5e912",
+        "android_client_info": {
+          "package_name": "com.footfall"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "629732782679-olmngf124v5dg54bob07c9crqcppssqg.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.footfall",
+            "certificate_hash": "5e8f16062ea3cd2c4a0d547876baa6f38cabf625"
+          }
+        },
+        {
+          "client_id": "629732782679-ug45qaukimq75elomr99d3ibn1b9fnmn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAaHWwTy96w2XjaK6w1KckARepgE2US8zg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "629732782679-ug45qaukimq75elomr99d3ibn1b9fnmn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
