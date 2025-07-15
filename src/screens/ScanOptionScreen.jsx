@@ -1,11 +1,27 @@
-import React from 'react';
+import React, { useLayoutEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { hp } from '../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import PageHeader from '../components/BackButton';
+import { useNavigation } from '@react-navigation/native';
 
 const ScanOptionScreen = ({ navigation }) => {
+    const parentNav = useNavigation();
+
+  useLayoutEffect(() => {
+    // 👇 hide tab bar when screen is focused
+    parentNav.getParent()?.setOptions({
+      tabBarStyle: { display: 'none' },
+    });
+
+    return () => {
+      // 👇 show it back when leaving
+      parentNav.getParent()?.setOptions({
+        tabBarStyle: { display: 'flex' },
+      });
+    };
+  }, [parentNav]);
     return (
         <>
         <PageHeader lable={'Scan Option'} back/>

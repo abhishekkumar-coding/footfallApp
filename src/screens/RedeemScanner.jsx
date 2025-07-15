@@ -16,6 +16,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import { useGetTotalPointsByVendorQuery } from '../features/shops/shopApi';
 import Toast from 'react-native-toast-message';
+import PageHeader from '../components/BackButton';
 
 const RedeemScanner = ({ navigation }) => {
   const { hasPermission, requestPermission } = useCameraPermission();
@@ -30,13 +31,13 @@ const RedeemScanner = ({ navigation }) => {
   const scanLineAnim = useRef(new Animated.Value(0)).current;
 
   const { data, isLoading, error, refetch } = useGetTotalPointsByVendorQuery(
-    {vendorId},
+    { vendorId },
     {
       skip: !vendorId,
     },
   );
- 
-  
+
+
   useEffect(() => {
     requestPermission();
   }, []);
@@ -78,7 +79,7 @@ const RedeemScanner = ({ navigation }) => {
         });
       }, 1000);
     } else if (error) {
-       
+
       console.log('Error fetching vendor points:', error);
       const message = error?.data?.message || 'Something went wrong';
       setErrorMessage(message);
@@ -94,7 +95,7 @@ const RedeemScanner = ({ navigation }) => {
         navigation.goBack();
       }, 1000);
     }
-  }, [data, error, navigation,vendorId]);
+  }, [data, error, navigation, vendorId]);
 
   const handleScanError = (message = 'Vendor ID not found in QR') => {
     setErrorMessage(message);
@@ -108,62 +109,62 @@ const RedeemScanner = ({ navigation }) => {
     setTimeout(() => setShowScanError(false), 2000);
   };
 
-const codeScanner = useCodeScanner({
+  const codeScanner = useCodeScanner({
     codeTypes: ['qr', 'ean-13'],
     onCodeScanned: (codes) => {
-        if (hasScanned || !codes.length || !codes[0].value) return;
-        const scannedValue = codes[0].value;
-        console.log("Scanned QR data:", scannedValue);
+      if (hasScanned || !codes.length || !codes[0].value) return;
+      const scannedValue = codes[0].value;
+      console.log("Scanned QR data:", scannedValue);
 
-        try {
-            let extractedVendorId = null;
-            
-            // Try to parse as URL first
-            if (scannedValue.startsWith('http')) {
-                const url = new URL(scannedValue);
-                extractedVendorId = url.searchParams.get('owner');
-            } 
-            // Try to parse as JSON
-            else if (scannedValue.startsWith('{') || scannedValue.startsWith('[')) {
-                try {
-                    const jsonData = JSON.parse(scannedValue);
-                    extractedVendorId = jsonData.owner || jsonData.vendorId || jsonData.id;
-                } catch (jsonError) {
-                    console.log("Not a valid JSON format");
-                }
-            }
-            // Fallback to query string parsing
-            else {
-                // Handle cases where the QR might be "owner=123" or "vendor_id=123"
-                const params = new URLSearchParams(scannedValue.includes('?') 
-                    ? scannedValue.split('?')[1] 
-                    : scannedValue);
-                
-                extractedVendorId = params.get('owner') || params.get('vendor_id') || params.get('vendorId');
-            }
+      try {
+        let extractedVendorId = null;
 
-            console.log("Extracted Vendor ID:", extractedVendorId);
-
-            if (extractedVendorId) {
-                setHasScanned(true);
-                setVendorId(extractedVendorId);
-                console.log("Vendor ID set:", extractedVendorId);
-                
-                Toast.show({
-                    type: 'info',
-                    text1: 'Scanning',
-                    text2: 'Fetching vendor information...',
-                    visibilityTime: 1000,
-                });
-            } else {
-                handleScanError("No valid vendor ID found in QR code");
-            }
-        } catch (e) {
-            console.log("Error parsing QR code:", e);
-            handleScanError("Invalid QR code format");
+        // Try to parse as URL first
+        if (scannedValue.startsWith('http')) {
+          const url = new URL(scannedValue);
+          extractedVendorId = url.searchParams.get('owner');
         }
+        // Try to parse as JSON
+        else if (scannedValue.startsWith('{') || scannedValue.startsWith('[')) {
+          try {
+            const jsonData = JSON.parse(scannedValue);
+            extractedVendorId = jsonData.owner || jsonData.vendorId || jsonData.id;
+          } catch (jsonError) {
+            console.log("Not a valid JSON format");
+          }
+        }
+        // Fallback to query string parsing
+        else {
+          // Handle cases where the QR might be "owner=123" or "vendor_id=123"
+          const params = new URLSearchParams(scannedValue.includes('?')
+            ? scannedValue.split('?')[1]
+            : scannedValue);
+
+          extractedVendorId = params.get('owner') || params.get('vendor_id') || params.get('vendorId');
+        }
+
+        console.log("Extracted Vendor ID:", extractedVendorId);
+
+        if (extractedVendorId) {
+          setHasScanned(true);
+          setVendorId(extractedVendorId);
+          console.log("Vendor ID set:", extractedVendorId);
+
+          Toast.show({
+            type: 'info',
+            text1: 'Scanning',
+            text2: 'Fetching vendor information...',
+            visibilityTime: 1000,
+          });
+        } else {
+          handleScanError("No valid vendor ID found in QR code");
+        }
+      } catch (e) {
+        console.log("Error parsing QR code:", e);
+        handleScanError("Invalid QR code format");
+      }
     },
-});
+  });
 
   if (!device) {
     return (
@@ -182,65 +183,66 @@ const codeScanner = useCodeScanner({
   }
 
   return (
-    <View style={styles.container}>
-      <Camera
-        style={StyleSheet.absoluteFill}
-        device={device}
-        isActive
-        codeScanner={codeScanner}
-      />
+    <>
+      <PageHeader lable={'Scan QR'} back />
+      <View style={styles.container}>
+        <Camera
+          style={StyleSheet.absoluteFill}
+          device={device}
+          isActive
+          codeScanner={codeScanner}
+        />
 
-      <View style={styles.frame}>
-        <Animated.View
-          style={[
-            styles.scanLineContainer,
-            {
-              transform: [
-                {
-                  translateY: scanLineAnim.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [0, 240],
-                  }),
-                },
-              ],
-            },
-          ]}
-        >
-          <LinearGradient
-            colors={['#00f6ff', '#00ffe0']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.scanLine}
-          />
-        </Animated.View>
+        <View style={styles.frame}>
+          <Animated.View
+            style={[
+              styles.scanLineContainer,
+              {
+                transform: [
+                  {
+                    translateY: scanLineAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [0, 240],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            <LinearGradient
+              colors={['#00f6ff', '#00ffe0']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.scanLine}
+            />
+          </Animated.View>
 
-        <View style={[styles.corner, styles.topLeft]} />
-        <View style={[styles.corner, styles.topRight]} />
-        <View style={[styles.corner, styles.bottomLeft]} />
-        <View style={[styles.corner, styles.bottomRight]} />
+          <View style={[styles.corner, styles.topLeft]} />
+          <View style={[styles.corner, styles.topRight]} />
+          <View style={[styles.corner, styles.bottomLeft]} />
+          <View style={[styles.corner, styles.bottomRight]} />
+        </View>
+
+        {showScanSuccess && (
+          <View style={[styles.resultContainer, { backgroundColor: '#00C853' }]}>
+            <Text style={styles.resultTitle}>✅ Scan Successful!</Text>
+          </View>
+        )}
+
+        {showScanError && (
+          <View style={[styles.resultContainer, { backgroundColor: '#B00020' }]}>
+            <Text style={styles.resultTitle}>❌ {errorMessage}</Text>
+          </View>
+        )}
+
+        {isLoadingShop && (
+          <View style={styles.loaderContainer}>
+            <Text style={styles.loaderText}>Scanning...</Text>
+          </View>
+        )}
       </View>
+    </>
 
-      {showScanSuccess && (
-        <View style={[styles.resultContainer, { backgroundColor: '#00C853' }]}>
-          <Text style={styles.resultTitle}>✅ Scan Successful!</Text>
-        </View>
-      )}
-
-      {showScanError && (
-        <View style={[styles.resultContainer, { backgroundColor: '#B00020' }]}>
-          <Text style={styles.resultTitle}>❌ {errorMessage}</Text>
-        </View>
-      )}
-
-      {isLoading && (
-        <View style={styles.loaderContainer}>
-          <ActivityIndicator size="large" color="#FF4D00" />
-          <Text style={styles.loaderText}>Fetching Vendor Data...</Text>
-        </View>
-      )}
-
-      <Toast />
-    </View>
   );
 };
 
@@ -253,15 +255,22 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
   },
+  centerView: {
+    width: '60%',
+    height: '60%',
+    backgroundColor: 'white',
+  },
   frame: {
     position: 'absolute',
     width: 240,
     height: 240,
     borderColor: '#FF4D00',
+    // borderWidth:10,
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
     backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backdropFilter: 'blur(10px)',
   },
   scanLineContainer: {
     position: 'absolute',
@@ -270,19 +279,44 @@ const styles = StyleSheet.create({
     width: '100%',
     height: 3,
   },
+
   scanLine: {
+    position: 'absolute',
     width: '100%',
     height: 3,
+    leftL: 0,
+    backgroundColor: 'linear-gradient(90deg, #00f6ff, #00ffe0)',
+    shadowColor: '#00ffe0',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.9,
+    shadowRadius: 10,
+    elevation: 20,
   },
   corner: {
     position: 'absolute',
     width: 70,
     height: 70,
     borderColor: '#FF4D00',
+    borderRadius: 5,
   },
-  topLeft: { top: 0, left: 0, borderLeftWidth: 5, borderTopWidth: 5 },
-  topRight: { top: 0, right: 0, borderRightWidth: 5, borderTopWidth: 5 },
-  bottomLeft: { bottom: 0, left: 0, borderLeftWidth: 5, borderBottomWidth: 5 },
+  topLeft: {
+    top: 0,
+    left: 0,
+    borderLeftWidth: 5,
+    borderTopWidth: 5,
+  },
+  topRight: {
+    top: 0,
+    right: 0,
+    borderRightWidth: 5,
+    borderTopWidth: 5,
+  },
+  bottomLeft: {
+    bottom: 0,
+    left: 0,
+    borderLeftWidth: 5,
+    borderBottomWidth: 5,
+  },
   bottomRight: {
     bottom: 0,
     right: 0,
@@ -294,15 +328,22 @@ const styles = StyleSheet.create({
     top: '40%',
     left: '10%',
     right: '10%',
+    backgroundColor: '#333',
     padding: 20,
     borderRadius: 10,
     alignItems: 'center',
     zIndex: 999,
+    elevation: 10,
   },
   resultTitle: {
     color: '#fff',
     fontSize: 16,
     fontWeight: 'bold',
+  },
+
+  resultText: {
+    fontSize: 14,
+    color: 'white',
   },
   loaderContainer: {
     position: 'absolute',
@@ -310,7 +351,7 @@ const styles = StyleSheet.create({
     bottom: 0,
     left: 0,
     right: 0,
-    backgroundColor: 'rgba(0,0,0,0.7)',
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 999,
@@ -319,6 +360,85 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
-    marginTop: 10,
   },
-});
+
+  tabBar: {
+    position: 'absolute',
+    bottom: 100,
+    left: 0,
+    right: 0,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  tabButtonsContainer: {
+    flexDirection: 'row',
+    width: 250,
+    justifyContent: 'space-around',
+    backgroundColor: '#111',
+    borderWidth: 0.5,
+    borderColor: '#fff',
+    paddingVertical: 5,
+    borderRadius: 35,
+    alignItems: 'center',
+  },
+
+  tabButton: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+
+  activeTabButton: {
+    backgroundColor: '#FF4D00',
+    alignItems: "center",
+    justifyContent: "center"
+  },
+
+  tabText: {
+    color: '#ccc',
+    fontSize: 20,
+    textAlign: 'center',
+  },
+
+  activeTabText: {
+    color: '#fff',
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  historyContainer: {
+    flex: 1,
+    width: '100%',
+    alignItems: 'center',
+    paddingTop: 80,
+    paddingHorizontal: 20,
+  },
+  historyTitle: {
+    fontSize: 24,
+    color: '#FF4D00',
+    marginBottom: 10,
+    fontWeight: 'bold',
+  },
+  historyEmpty: {
+    color: '#999',
+    fontSize: 16,
+  },
+  historyItem: {
+    width: '100%',
+    backgroundColor: 'rgba(255,255,255,0.1)',
+    padding: 15,
+    marginVertical: 5,
+    borderRadius: 8,
+  },
+  historyText: {
+    color: '#fff',
+    fontSize: 14,
+  },
+  historyDate: {
+    color: '#ccc',
+    fontSize: 12,
+    marginTop: 4,
+  },
+})
