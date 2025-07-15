@@ -10,6 +10,7 @@ import linking from './linking';
 import { navigationRef } from './src/navigations/NavigationUtil';
 import { toastConfig } from './src/components/toastConfig';
 import SplashScreen from 'react-native-splash-screen'
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 
 const App = () => {
@@ -42,14 +43,16 @@ const App = () => {
     }
   })
   return (
-    <Provider store={store}>
-      <AppInitializer>
-        <NavigationContainer linking={linking} ref={navigationRef}>
-          <AppNavigator />
-          <Toast config={toastConfig} />
-        </NavigationContainer>
-      </AppInitializer>
-    </Provider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <Provider store={store}>
+        <AppInitializer>
+          <NavigationContainer linking={linking} ref={navigationRef}>
+            <AppNavigator />
+            <Toast config={toastConfig} />
+          </NavigationContainer>
+        </AppInitializer>
+      </Provider>
+    </GestureHandlerRootView>
   );
 };
 

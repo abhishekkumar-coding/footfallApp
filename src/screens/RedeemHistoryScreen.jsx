@@ -1,4 +1,4 @@
-import { FlatList, StyleSheet, Text, View } from 'react-native';
+import { FlatList, ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import { useGetRedeemHistoryQuery } from '../features/shops/shopApi';
 import LinearGradient from 'react-native-linear-gradient';
@@ -13,12 +13,12 @@ const RedeemHistoryScreen = () => {
   const renderItem = ({ item }) => {
     const formattedDate = item?.createdAt
       ? new Date(item.createdAt).toLocaleString('en-IN', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-        })
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
       : 'N/A';
 
     return (
@@ -34,30 +34,30 @@ const RedeemHistoryScreen = () => {
 
   return (
     <>
-        <BackButton lable={"Redeem History"} back/>
-    <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1, paddingHorizontal: 20 }}>
-      {isLoading ? (
-        <View style={styles.centered}>
-          <Text style={styles.empty}>Loading redeem history...</Text>
-        </View>
-      ) : error ? (
-        <View style={styles.centered}>
-          <Text style={styles.empty}>Failed to load redeem history.</Text>
-        </View>
-      ) : redeemHistory.length === 0 ? (
-        <View style={styles.centered}>
-          <Text style={styles.empty}>No redeem history found.</Text>
-        </View>
-      ) : (
-        <FlatList
-          data={redeemHistory}
-          renderItem={renderItem}
-          keyExtractor={(item, index) => item._id || index.toString()}
-          contentContainerStyle={{ paddingBottom: hp(10) }}
-          showsVerticalScrollIndicator={false}
-        />
-      )}
-    </LinearGradient>
+      <BackButton lable={"Redeem History"} back />
+      <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1, paddingHorizontal: 20 }}>
+        {isLoading ? (
+          <View style={styles.centered}>
+            <ActivityIndicator size="large" color="#fff" />
+          </View>
+        ) : error ? (
+          <View style={styles.centered}>
+            <Text style={styles.empty}>Failed to load redeem history.</Text>
+          </View>
+        ) : redeemHistory.length === 0 ? (
+          <View style={styles.centered}>
+            <Text style={styles.empty}>No redeem history found.</Text>
+          </View>
+        ) : (
+          <FlatList
+            data={redeemHistory}
+            renderItem={renderItem}
+            keyExtractor={(item, index) => item._id || index.toString()}
+            contentContainerStyle={{ paddingBottom: hp(10) }}
+            showsVerticalScrollIndicator={false}
+          />
+        )}
+      </LinearGradient>
     </>
 
   );
@@ -86,14 +86,14 @@ const styles = StyleSheet.create({
     marginVertical: 5,
     borderRadius: 8,
   },
-text: {
-  color: '#fff',
-  fontSize: RFValue(14),
-  fontFamily: 'Poppins-SemiBold',
-  width: 200, 
-  flexWrap: 'wrap', 
-  numberOfLines: 2, 
-},
+  text: {
+    color: '#fff',
+    fontSize: RFValue(14),
+    fontFamily: 'Poppins-SemiBold',
+    width: 200,
+    flexWrap: 'wrap',
+    numberOfLines: 2,
+  },
   date: {
     color: '#ccc',
     fontSize: 12,

@@ -41,6 +41,7 @@ const FavoritesScreen = ({navigation}) => {
   const mainImage = galleryImages[0] || item.cover || item.logo;
 
   return (
+    
     <TouchableOpacity  // Changed from View to TouchableOpacity
       style={styles.card}
         onPress={() => navigate('Home', { 
@@ -95,7 +96,7 @@ const FavoritesScreen = ({navigation}) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#121212',
+    // backgroundColor: '#121212',
     paddingHorizontal: wp(3),
     paddingTop: hp(2),
   },
@@ -129,7 +130,7 @@ const styles = StyleSheet.create({
   },
   cardImage: {
     width: wp(25),
-    height: wp(25),
+    height: "100%",
     borderTopLeftRadius: 10,
     borderBottomLeftRadius: 10,
   },

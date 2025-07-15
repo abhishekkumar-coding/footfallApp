@@ -80,12 +80,12 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   coinsText: {
-    fontSize: RFValue(20),
+    fontSize: RFValue(17),
     fontFamily: 'Poppins-Bold',
     color: '#fff',
   },
   redeemText: {
-    fontSize: RFValue(18),
+    fontSize: RFValue(17),
     fontFamily: 'Poppins-Bold',
     color: '#fff',
   },

@@ -1,28 +1,35 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   TouchableOpacity,
   View,
   Text,
   Image,
   StyleSheet,
+  Pressable,
 } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
-
-
-
 import { useDispatch, useSelector } from 'react-redux';
-
+import { hp, wp } from '../utils/dimensions';
 import FilledFavIcon from '../utils/icons/FilledFavIcon';
 import EmptyHeart from '../utils/icons/EmptyHeart';
 import { addToWishlist, removeFromWishlist } from '../features/wishlistSlice';
-import { hp, wp } from '../utils/dimensions';
+
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withTiming,
+  runOnJS,
+} from 'react-native-reanimated';
+import {
+  GestureDetector,
+  Gesture,
+} from 'react-native-gesture-handler';
 
 const ShopCard = ({ shop, onPress }) => {
   const dispatch = useDispatch();
   const wishlist = useSelector(state => state.wishlist.items);
   const favoriteShops = wishlist.shops || [];
 
-  // Parse gallery images
   let galleryImages = [];
   try {
     galleryImages = JSON.parse(shop.gallery?.[0] || '[]');
@@ -41,14 +48,44 @@ const ShopCard = ({ shop, onPress }) => {
     }
   };
 
+  const rippleScale = useSharedValue(0);
+  const rippleOpacity = useSharedValue(0);
+  const [ripplePos, setRipplePos] = useState({ x: 0, y: 0 });
+
+  const rippleGesture = Gesture.Tap()
+    .onStart(e => {
+      runOnJS(setRipplePos)({ x: e.x, y: e.y });
+      rippleScale.value = 0;
+      rippleOpacity.value = 1;
+      rippleScale.value = withTiming(2, { duration: 300 }, () => {
+        rippleOpacity.value = withTiming(0, { duration: 200 });
+      });
+    })
+    .onEnd(() => {
+      runOnJS(toggleFavShop)();
+    });
+
+  const rippleStyle = useAnimatedStyle(() => {
+    const rippleSize = 40;
+    return {
+      position: 'absolute',
+      width: rippleSize,
+      height: rippleSize,
+      borderRadius: rippleSize / 2,
+      top: ripplePos.y - rippleSize / 2,
+      left: ripplePos.x - rippleSize / 2,
+      backgroundColor: 'rgba(255,255,255,0.3)',
+      transform: [{ scale: rippleScale.value }],
+      opacity: rippleOpacity.value,
+      zIndex: 0,
+    };
+  });
+
   return (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={onPress}
-    >
-      <Image 
-        style={styles.cardImage} 
-        source={{ uri: mainImage }} 
+    <TouchableOpacity style={styles.card} onPress={onPress}>
+      <Image
+        style={styles.cardImage}
+        source={{ uri: mainImage }}
         resizeMode="cover"
       />
       <View style={styles.cardContent}>
@@ -61,14 +98,29 @@ const ShopCard = ({ shop, onPress }) => {
           <Text style={styles.timings}>
             {shop.startTime} - {shop.endTime}
           </Text>
-          <TouchableOpacity onPress={toggleFavShop}>
-            {isFavorite ? <FilledFavIcon /> : <EmptyHeart />}
-          </TouchableOpacity>
+
+          {/* Ripple Effect on Heart Icon */}
+          <Pressable
+            onPress={() => { }}
+            android_disableSound
+            hitSlop={10}
+          >
+            <GestureDetector gesture={rippleGesture}>
+              <View style={styles.rippleWrapper}>
+                <Animated.View style={rippleStyle} />
+                {isFavorite ? <FilledFavIcon /> : <EmptyHeart />}
+              </View>
+            </GestureDetector>
+          </Pressable>
+
+
         </View>
       </View>
     </TouchableOpacity>
   );
 };
+
+export default ShopCard;
 
 const styles = StyleSheet.create({
   card: {
@@ -126,6 +178,12 @@ const styles = StyleSheet.create({
     color: '#bbb',
     fontFamily: 'Poppins-Regular',
   },
+  rippleWrapper: {
+    position: 'relative',
+    overflow: 'hidden',
+    padding: 5,
+    borderRadius: 50,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 });
-
-export default ShopCard;
