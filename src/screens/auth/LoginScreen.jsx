@@ -18,7 +18,7 @@ import SocialLoginOptions from '../../components/SocialLoginOptions';
 import LinearGradient from 'react-native-linear-gradient';
 import CheckBox from '@react-native-community/checkbox';
 import EmailIcon from '../../utils/icons/EmailIcon';
-import LockIcon from "../../utils/icons/LockIcon";
+import LockIcon from '../../utils/icons/LockIcon';
 import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useLoginMutation } from '../../features/auth/authApi';
@@ -27,7 +27,11 @@ import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from 'react-redux';
 import { setUser } from '../../features/auth/userSlice';
-
+import {
+  GoogleSignin,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
+import { useGoogleAuthUserMutation } from '../../features/auth/authApi';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -42,12 +46,14 @@ const LoginScreen = () => {
 
   const dispatch = useDispatch();
 
-
-  const [login, { isLoading }] = useLoginMutation()
+  const [login, { isLoading }] = useLoginMutation();
+  const [googleAuthUser] = useGoogleAuthUserMutation();
 
   const loginSchema = z.object({
     email: z.string().email({ message: 'Invalid email address' }),
-    password: z.string().min(6, { message: 'Password must be at least 6 characters' }),
+    password: z
+      .string()
+      .min(6, { message: 'Password must be at least 6 characters' }),
   });
 
   useEffect(() => {
@@ -70,7 +76,6 @@ const LoginScreen = () => {
     loadSavedCredentials();
   }, []);
 
-
   const handleLogin = async () => {
     const formData = { email, password };
 
@@ -82,7 +87,8 @@ const LoginScreen = () => {
     const result = loginSchema.safeParse(formData);
 
     if (!result.success) {
-      const errorMessage = result.error.errors[0]?.message || 'Validation failed';
+      const errorMessage =
+        result.error.errors[0]?.message || 'Validation failed';
       Toast.show({
         type: 'error',
         text1: 'Validation Error',
@@ -127,23 +133,136 @@ const LoginScreen = () => {
     }
   };
 
-
   const checkToken = async () => {
-    const token = await AsyncStorage.getItem('token')
+    const token = await AsyncStorage.getItem('token');
     if (token) {
-      console.log("Token Found : ", token)
+      console.log('Token Found : ', token);
+    } else {
+      console.log('token not found');
     }
-    else {
-      console.log("token not found",)
-    }
-
-  }
+  };
 
   const handleVendorClick = () => {
-    setLoginType('vendor')
-    navigation.navigate("VendorWebView")
-    setTimeout(() => setLoginType("user"), 1000)
+    setLoginType('vendor');
+    navigation.navigate('VendorWebView');
+    setTimeout(() => setLoginType('user'), 1000);
+  };
+
+  // const handleGoogleLogin = async () => {
+  //   try {
+  //     await GoogleSignin.hasPlayServices({
+  //       showPlayServicesUpdateDialog: true,
+  //     });
+  //     const userInfo = await GoogleSignin.signIn();
+  //     console.log('User Info', userInfo);
+
+  //     const idToken = userInfo.idToken || userInfo.data?.idToken;
+  //     if (!idToken) throw new Error('No ID token received from Google');
+
+  //     // ✅ Store the Google token in AsyncStorage
+  //     await AsyncStorage.setItem('token', idToken);
+  //     console.log('token', idToken)
+
+  //     // Normalize user data for your app
+  //     const normalizedUser = {
+  //       name: userInfo.data?.user?.name || 'User',
+  //       email: userInfo.data?.user?.email || '',
+  //       photo: userInfo.data?.user?.photo || null,
+  //     };
+  //     console.log('Normalize user data', normalizedUser);
+
+  //     await AsyncStorage.setItem('user', JSON.stringify(normalizedUser));
+  //     dispatch(setUser(normalizedUser));
+
+  //     Toast.show({
+  //       type: 'success',
+  //       text1: 'Google Login Success',
+  //       text2: `Welcome ${normalizedUser.name}`,
+  //     });
+
+  //     // dispatch(setUser(normalizedUser));
+
+  //     // await AsyncStorage.setItem('user', JSON.stringify(normalizedUser));
+
+  //     navigation.reset({
+  //       index: 0,
+  //       routes: [{ name: 'Main' }],
+  //     });
+  //   } catch (error) {
+  //     console.log('Google Sign-In Error:', error);
+  //     if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+  //       Toast.show({ type: 'info', text1: 'Sign-In Cancelled' });
+  //     } else if (error.code === statusCodes.IN_PROGRESS) {
+  //       Toast.show({ type: 'info', text1: 'Sign-In In Progress' });
+  //     } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+  //       Toast.show({ type: 'error', text1: 'Play Services Not Available' });
+  //     } else {
+  //       Toast.show({
+  //         type: 'error',
+  //         text1: 'Google Login Failed',
+  //         text2: error.message,
+  //       });
+  //     }
+  //   }
+  // };
+
+const handleGoogleLogin = async () => {
+  try {
+    await GoogleSignin.hasPlayServices({
+      showPlayServicesUpdateDialog: true,
+    });
+
+    const userInfo = await GoogleSignin.signIn();
+    console.log('User Info', userInfo);
+
+    const idToken = userInfo.idToken || userInfo.data?.idToken;
+    if (!idToken) throw new Error('No ID token received from Google');
+
+    // ✅ Send Google ID token to your backend
+    const response = await googleAuthUser({ token: idToken }).unwrap();
+    console.log('Backend Response:', response);
+
+    const appToken = response?.data?.token;
+    const user = response?.data?.user;
+
+    if (!appToken) throw new Error('App token missing in response');
+
+    // ✅ Store your app's token (not Google token)
+    await AsyncStorage.setItem('token', appToken);
+    console.log('Stored app token:', appToken);
+
+    // ✅ Normalize and store user data from your backend
+    await AsyncStorage.setItem('user', JSON.stringify(user));
+    dispatch(setUser(user));
+
+    Toast.show({
+      type: 'success',
+      text1: 'Google Login Success',
+      text2: `Welcome ${user?.name || 'User'}`,
+    });
+
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Main' }],
+    });
+  } catch (error) {
+    console.log('Google Sign-In Error:', error);
+    if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+      Toast.show({ type: 'info', text1: 'Sign-In Cancelled' });
+    } else if (error.code === statusCodes.IN_PROGRESS) {
+      Toast.show({ type: 'info', text1: 'Sign-In In Progress' });
+    } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+      Toast.show({ type: 'error', text1: 'Play Services Not Available' });
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: 'Google Login Failed',
+        text2: error.message,
+      });
+    }
   }
+};
+
 
   return (
     <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
@@ -213,15 +332,16 @@ const LoginScreen = () => {
               <Text style={styles.rememberText}>Remember me</Text>
             </View>
 
-            <TouchableOpacity onPress={() => navigation.navigate('ForgotPassword')}>
+            <TouchableOpacity
+              onPress={() => navigation.navigate('ForgotPassword')}
+            >
               <Text style={styles.forgotText}>Forgot Password?</Text>
             </TouchableOpacity>
           </View>
 
           <CustomButton title="Log in" onPress={handleLogin} />
 
-
-          <SocialLoginOptions />
+          <SocialLoginOptions onGooglePress={handleGoogleLogin} />
 
           <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
             <Text style={styles.signupText}>
@@ -334,7 +454,6 @@ const styles = StyleSheet.create({
   signupLink: {
     color: '#4068F6',
     fontFamily: 'Poppins-Regular',
-    fontSize: RFValue(10)
+    fontSize: RFValue(10),
   },
 });
-

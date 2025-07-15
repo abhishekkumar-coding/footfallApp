@@ -12,7 +12,7 @@ import {
   ActivityIndicator,
   Platform,
   Linking,
-  KeyboardAvoidingView
+  KeyboardAvoidingView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import CustomInput from '../../components/CustomInput';
@@ -22,51 +22,64 @@ import SocialLoginOptions from '../../components/SocialLoginOptions';
 import LinearGradient from 'react-native-linear-gradient';
 import UserIcon from '../../utils/icons/UserIcon';
 import EmailIcon from '../../utils/icons/EmailIcon';
-import LockIcon from "../../utils/icons/LockIcon";
+import LockIcon from '../../utils/icons/LockIcon';
 import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import PhoneIcon from '../../utils/icons/PhoneIcon';
-import { useSignupMutation } from '../../features/auth/authApi';
+import { useGoogleAuthUserMutation, useSignupMutation } from '../../features/auth/authApi';
 import { z } from 'zod';
 import Toast from 'react-native-toast-message';
 import SendIntentAndroid from 'react-native-send-intent';
+import {
+  GoogleSignin,
+  statusCodes,
+} from '@react-native-google-signin/google-signin';
+import { useDispatch } from 'react-redux';
+import { setUser } from '../../features/auth/userSlice';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const SignupScreen = () => {
   const navigation = useNavigation();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [phone, setPhone] = useState('')
+  const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
-  const [referredBy, setReferredBy] = useState('')
+  const [referredBy, setReferredBy] = useState('');
   const [showError, setShowError] = useState(false);
 
   const [signup, { isLoading }] = useSignupMutation();
+  const [googleAuthUser] = useGoogleAuthUserMutation();
+  const dispatch = useDispatch();
 
   const signupSchema = z.object({
-    name: z.string().min(3, { message: "Name must be at least 3 characters" }),
-    email: z.string().email({ message: "Invalid email address" }),
-    phone: z.string()
-      .min(10, { message: "Phone number must be at least 10 digits" })
-      .max(15, { message: "Phone number too long" }),
-    password: z.string().min(6, { message: "Password must be at least 6 characters" }),
+    name: z.string().min(3, { message: 'Name must be at least 3 characters' }),
+    email: z.string().email({ message: 'Invalid email address' }),
+    phone: z
+      .string()
+      .min(10, { message: 'Phone number must be at least 10 digits' })
+      .max(15, { message: 'Phone number too long' }),
+    password: z
+      .string()
+      .min(6, { message: 'Password must be at least 6 characters' }),
   });
 
   const handleSignup = async () => {
     const formData = { name, email, phone, password, referredBy };
     if (!name.trim() || !email.trim() || !phone.trim() || !password.trim()) {
-      setShowError(true)
+      setShowError(true);
       return;
     }
 
     const result = signupSchema.safeParse(formData);
 
     if (!result.success) {
-      const firstError = result.error.errors[0]?.message || "Invalid input";
+      const firstError = result.error.errors[0]?.message || 'Invalid input';
       Toast.show({
         type: 'error',
         text1: 'Validation Error',
         text2: firstError,
-      }); return;
+      });
+      return;
     }
 
     try {
@@ -89,7 +102,7 @@ const SignupScreen = () => {
   };
 
   useEffect(() => {
-    const handleDeepLink = (url) => {
+    const handleDeepLink = url => {
       if (!url) return;
 
       const query = url.split('?')[1];
@@ -115,6 +128,106 @@ const SignupScreen = () => {
       subscription?.remove();
     };
   }, []);
+  4;
+
+  // const onGooglePress = async () => {
+  //   try {
+  //     await GoogleSignin.hasPlayServices({
+  //       showPlayServicesUpdateDialog: true,
+  //     });
+  //     const userInfo = await GoogleSignin.signIn();
+
+  //     console.log('Google userInfo:', userInfo);
+
+  //     const idToken = userInfo.data?.idToken || userInfo.idToken;
+  //     const userName = userInfo.data?.user?.name || 'User';
+
+  //     if (!idToken) {
+  //       throw new Error('No ID token received from Google');
+  //     }
+
+  //     Toast.show({
+  //       type: 'success',
+  //       text1: 'Google Sign-In Success',
+  //       text2: `Welcome ${userName}`,
+  //     });
+
+  //     navigation.reset({
+  //       index: 0,
+  //       routes: [{ name: 'Main' }],
+  //     });
+
+  //   } catch (error) {
+  //     console.error('Google Sign-In Error:', error);
+  //     if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+  //       Toast.show({ type: 'info', text1: 'Sign-In Cancelled' });
+  //     } else if (error.code === statusCodes.IN_PROGRESS) {
+  //       Toast.show({ type: 'info', text1: 'Sign-In In Progress' });
+  //     } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+  //       Toast.show({ type: 'error', text1: 'Play Services Not Available' });
+  //     } else {
+  //       Toast.show({
+  //         type: 'error',
+  //         text1: 'Google Sign-In Error',
+  //         text2: error?.message || 'Something went wrong',
+  //       });
+  //     }
+  //   }
+  // };
+
+  const onGooglePress = async () => {
+    try {
+      await GoogleSignin.hasPlayServices({
+        showPlayServicesUpdateDialog: true,
+      });
+
+      const userInfo = await GoogleSignin.signIn();
+      console.log('Google userInfo:', userInfo);
+
+      const idToken = userInfo.idToken || userInfo.data?.idToken;
+      if (!idToken) throw new Error('No ID token received from Google');
+
+      // ✅ Send to backend to convert to your app token
+      const response = await googleAuthUser({ token: idToken }).unwrap();
+      console.log('Backend Response:', response);
+
+      const appToken = response?.data?.token;
+      const user = response?.data?.user;
+
+      if (!appToken) throw new Error('App token missing in response');
+
+      // ✅ Save app token and user info
+      await AsyncStorage.setItem('token', appToken);
+      await AsyncStorage.setItem('user', JSON.stringify(user));
+      dispatch(setUser(user));
+
+      Toast.show({
+        type: 'success',
+        text1: 'Google Sign-Up Success',
+        text2: `Welcome ${user?.name || 'User'}`,
+      });
+
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Main' }],
+      });
+    } catch (error) {
+      console.error('Google Sign-Up Error:', error);
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        Toast.show({ type: 'info', text1: 'Sign-Up Cancelled' });
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        Toast.show({ type: 'info', text1: 'Sign-Up In Progress' });
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        Toast.show({ type: 'error', text1: 'Play Services Not Available' });
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: 'Google Sign-Up Failed',
+          text2: error?.message || 'Something went wrong',
+        });
+      }
+    }
+  };
 
   return (
     <>
@@ -135,15 +248,14 @@ const SignupScreen = () => {
           >
             <View style={styles.container}>
               <Text style={styles.heading}>Create an account ✨</Text>
-              <Text style={styles.subText}>Join us today! It only takes a moment</Text>
+              <Text style={styles.subText}>
+                Join us today! It only takes a moment
+              </Text>
 
-              <View
-          
-                style={styles.formContainer}
-              >
+              <View style={styles.formContainer}>
                 <CustomInput
                   placeholder={'Enter Name'}
-                  lable={"Name"}
+                  lable={'Name'}
                   iconComponent={<UserIcon />}
                   value={name}
                   showError={showError}
@@ -151,7 +263,7 @@ const SignupScreen = () => {
                 />
                 <CustomInput
                   placeholder={'Enter Email'}
-                  lable={"Email"}
+                  lable={'Email'}
                   iconComponent={<EmailIcon />}
                   value={email}
                   showError={showError}
@@ -159,7 +271,7 @@ const SignupScreen = () => {
                 />
                 <CustomInput
                   placeholder={'Enter Phone'}
-                  lable={"Phone"}
+                  lable={'Phone'}
                   iconComponent={<PhoneIcon />}
                   value={phone}
                   showError={showError}
@@ -167,7 +279,7 @@ const SignupScreen = () => {
                 />
                 <CustomInput
                   placeholder={'Enter Password'}
-                  lable={"Password"}
+                  lable={'Password'}
                   iconComponent={<LockIcon />}
                   value={password}
                   onChangeText={setPassword}
@@ -186,9 +298,9 @@ const SignupScreen = () => {
                   <CustomButton title={'Sign Up'} onPress={handleSignup} />
                 </View>
 
-                <SocialLoginOptions />
+                <SocialLoginOptions onGooglePress={onGooglePress} />
 
-                <TouchableOpacity 
+                <TouchableOpacity
                   onPress={() => navigation.navigate('Login')}
                   style={styles.loginTextContainer}
                 >
@@ -228,18 +340,18 @@ const styles = StyleSheet.create({
   },
   heading: {
     fontSize: RFValue(22),
-    fontFamily: "Poppins-SemiBold",
+    fontFamily: 'Poppins-SemiBold',
     marginTop: hp(4),
     color: '#fff',
-    textAlign: "left",
+    textAlign: 'left',
     marginBottom: hp(1),
   },
   subText: {
     fontSize: RFValue(14),
     color: '#d3d3d3',
     marginBottom: hp(3),
-    textAlign: "left",
-    fontFamily: "Poppins-Regular",
+    textAlign: 'left',
+    fontFamily: 'Poppins-Regular',
   },
   formContainer: {
     width: '100%',
@@ -258,12 +370,12 @@ const styles = StyleSheet.create({
   loginText: {
     fontSize: RFValue(14),
     color: '#d3d3d3',
-    fontFamily: "Poppins-Regular",
+    fontFamily: 'Poppins-Regular',
     textAlign: 'center',
   },
   loginLink: {
     color: '#4068F6',
-    fontFamily: "Poppins-SemiBold",
+    fontFamily: 'Poppins-SemiBold',
   },
 });
 
