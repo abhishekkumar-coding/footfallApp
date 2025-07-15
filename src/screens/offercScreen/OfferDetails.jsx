@@ -100,7 +100,7 @@ const OfferDetails = ({ route }) => {
                             <ShopQRCode vendorId={vendorId} />
                         </View> */}
                         <TouchableOpacity disabled={isOfferResult} onPress={() => navigation.navigate('RewardScanner')}>
-                            <Text style={styles.scanButton}  >Scan Nowhfsdhhsdh</Text>
+                            <Text style={styles.scanButton}  >Scan Now</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

@@ -41,8 +41,8 @@ function getDistanceInMeters(lat1, lon1, lat2, lon2) {
   const a =
     Math.sin(dLat / 2) ** 2 +
     Math.cos((lat1 * Math.PI) / 180) *
-      Math.cos((lat2 * Math.PI) / 180) *
-      Math.sin(dLon / 2) ** 2;
+    Math.cos((lat2 * Math.PI) / 180) *
+    Math.sin(dLon / 2) ** 2;
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }
@@ -134,46 +134,6 @@ const ShopDetails = ({ route }) => {
     }
   }, [offersData]);
 
-  // const handleManualScan = async () => {
-  //   try {
-  //     setIsLoadingShop(true);
-  //     const result = await scanShop(_id).unwrap();
-
-  //     console.log('Fetched shop data directly from unwrap:', result);
-  //     if (result?.success) {
-  //       Toast.show({
-  //         type: 'success',
-  //         text1: 'Scan Successfully!',
-  //       });
-
-  //       // dispatch(triggerWalletRefresh());
-
-  //       if (result.data?.scanRewardType === 'percentage') {
-  //         navigation.navigate('CashbackScreen', {
-  //           shopId: _id,
-  //           returnPercent: result.data?.rewardPoints,
-  //         });
-  //       } else {
-  //         navigation.goBack();
-  //       }
-  //     } else {
-  //       Toast.show({
-  //         type: 'error',
-  //         text1: 'Scan Error Try Again',
-  //       });
-  //     }
-  //     setTimeout(() => setShowScanSuccess(false), 1000);
-  //   } catch (fetchError) {
-  //     Toast.show({
-  //       type: 'error',
-  //       text1: fetchError?.data?.message,
-  //     });
-  //     console.log('Error fetching shop by ID:', fetchError);
-  //     setTimeout(() => setShowScanError(false), 2000);
-  //   } finally {
-  //     setIsLoadingShop(false);
-  //   }
-  // };
 
   const handleManualScan = async () => {
     const hasPermission = await requestLocationPermission();
@@ -201,7 +161,7 @@ const ShopDetails = ({ route }) => {
         });
 
         const scanRadius = 50;
-        const bufferDistance = 100; 
+        const bufferDistance = 100;
         const effectiveRadius = scanRadius + bufferDistance;
 
         const distance = getDistanceInMeters(
@@ -223,11 +183,11 @@ const ShopDetails = ({ route }) => {
         }
 
         try {
-const result = await scanShop({
-  shopId: _id,
-  latitude: userLat,
-  longitude: userLng,
-}).unwrap();
+          const result = await scanShop({
+            shopId: _id,
+            latitude: userLat,
+            longitude: userLng,
+          }).unwrap();
 
           if (result?.success) {
             Toast.show({
@@ -361,9 +321,15 @@ const result = await scanShop({
             </View>
 
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Location</Text>
+              <Text style={styles.detailLabel}>city</Text>
               <Text style={styles.detailValue}>
-                {city}, {state}, {pinCode}
+                {city}
+              </Text>
+            </View>
+            <View style={styles.detailRow}>
+              <Text style={styles.detailLabel}>pincode</Text>
+              <Text style={styles.detailValue}>
+                {pinCode}
               </Text>
             </View>
 
@@ -384,43 +350,6 @@ const result = await scanShop({
               <Text style={styles.detailValue}>{contact?.email}</Text>
             </View>
           </View>
-
-          {/* Offers Section */}
-          {/* <View style={styles.offerSection}>
-              <Text style={styles.offerHeader}>🎁 Offers & Deals</Text>
-              <Text style={styles.offerSubtext}>
-                View all active offers of a shop
-              </Text>
-
-              <View style={styles.sortContainer}>
-                {['Latest', 'Ending Soon', 'Distance'].map(option => (
-                  <TouchableOpacity
-                    key={option}
-                    onPress={() => setSortBy(option)}
-                  >
-                    <Text
-                      style={[
-                        styles.sortOption,
-                        sortBy === option && styles.activeSortOption,
-                      ]}
-                    >
-                      {option}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-
-              {getSortedOffers().map(offer => (
-                <View key={offer._id || offer.shopId} style={styles.offerCard}>
-                  <Text style={styles.offerTitle}>{offer.title}</Text>
-                  <Text style={styles.offerDetails}>{offer.description}</Text>
-                  <Text style={styles.offerDetails}>
-                    🗓️ Valid: {new Date(offer.startTime).toLocaleDateString()} -{' '}
-                    {new Date(offer.endTime).toLocaleDateString()}
-                  </Text>
-                </View>
-              ))}
-            </View> */}
         </ScrollView>
       </LinearGradient>
     </>

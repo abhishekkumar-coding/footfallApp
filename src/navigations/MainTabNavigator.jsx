@@ -32,13 +32,14 @@ import FavoritesScreen from '../screens/FavoritesScreen/FavoritesScreen';
 import OffersScreen from '../screens/offercScreen/OffersScreen';
 import OfferDetails from '../screens/offercScreen/OfferDetails';
 import CashbackScreen from '../screens/CashbackScreen';
+import NotificationScreen from '../screens/notificationscreen/NotificationScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 const HomeStack = () => (
   <Stack.Navigator
-    
+
   >
     <Stack.Screen
       name="HomeMain"
@@ -92,19 +93,24 @@ const HomeStack = () => (
       options={{ headerShown: false }}
     />
     <Stack.Screen name='OffersScreen'
-     component={OffersScreen}
-     options={{headerShown:false}}
-     />
-     <Stack.Screen 
-     name='OfferDetails' 
-     component={OfferDetails}
-      options={{headerShown:false}}
-      />
-      <Stack.Screen 
-     name='CashbackScreen' 
-     component={CashbackScreen}
-      options={{headerShown:false}}
-      />
+      component={OffersScreen}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+      name='OfferDetails'
+      component={OfferDetails}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+      name='CashbackScreen'
+      component={CashbackScreen}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+      name='NotificationScreen'
+      component={NotificationScreen}
+      options={{ headerShown: false }}
+    />
 
   </Stack.Navigator>
 );
@@ -159,7 +165,7 @@ const MainTabNavigator = () => {
         },
         tabBarActiveTintColor: '#fff',
         tabBarInactiveTintColor: '#d3d3d3',
-        
+
       }}
     >
       <Tab.Screen
@@ -174,7 +180,7 @@ const MainTabNavigator = () => {
       />
       <Tab.Screen
         name="Favorites"
-         component={FavoritesStack}
+        component={FavoritesStack}
         options={{
           headerShown: false,
           tabBarIcon: ({ focused }) => {
@@ -204,13 +210,13 @@ const MainTabNavigator = () => {
             tabBarStyle: hideOnScreens.includes(routeName)
               ? { display: 'none' }
               : {
-                  backgroundColor: '#181818',
-                  position: 'absolute',
-                  elevation: 0,
-                  borderTopWidth: 0,
-                  overflow: 'hidden',
-                  height: 70,
-                },
+                backgroundColor: '#181818',
+                position: 'absolute',
+                elevation: 0,
+                borderTopWidth: 0,
+                overflow: 'hidden',
+                height: 70,
+              },
             tabBarIcon: ({ focused }) =>
               focused ? <FilledProfile /> : <EmptyProfile />,
           };

@@ -4,8 +4,8 @@ import { wp } from "../dimensions";
 const EmptyHeart = (props) => (
   <Svg
     fill="#fff"
-    width={wp(6)}
-    height={wp(6)}
+    width={wp(7)}
+    height={wp(7)}
     viewBox="0 0 24 24"
     id="favourite"
     data-name="Line Color"

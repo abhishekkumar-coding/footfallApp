@@ -1,10 +1,12 @@
-import { SafeAreaView, StyleSheet, View, Image } from 'react-native';
+import { SafeAreaView, StyleSheet, View, Image, TouchableOpacity } from 'react-native';
 import React from 'react';
 import NotificationIcon from '../../utils/icons/NotificationIcon';
 import { wp, hp } from '../../utils/dimensions';
 import LinearGradient from 'react-native-linear-gradient';
+import { useNavigation } from '@react-navigation/native';
 
 const HeaderHome = () => {
+  const navigation = useNavigation()
   return (
     
     <SafeAreaView style={styles.container}>
@@ -13,7 +15,9 @@ const HeaderHome = () => {
         style={styles.logoImage}
         resizeMode="contain"
       />
+      <TouchableOpacity onPress={()=>navigation.navigate('NotificationScreen')}>
       <NotificationIcon />
+      </TouchableOpacity>
     </SafeAreaView>
   );
 };
