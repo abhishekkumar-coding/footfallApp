@@ -27,27 +27,27 @@ const HistoryScreen = () => {
 
   if (isLoading) {
     return (
-      <View style={styles.centered}>
+    <LinearGradient colors={['#000337', '#000000']} style={styles.centered}>
         <ActivityIndicator size="large" color="orange" />
-      </View>
+      </LinearGradient>
     );
   }
 
   if (isError) {
     return (
-      <View style={styles.centered}>
+    <LinearGradient colors={['#000337', '#000000']} style={styles.centered}>
         <Text style={styles.empty}>
           Failed to load history. Please try again.
         </Text>
-      </View>
+      </LinearGradient>
     );
   }
 
   if (history.length === 0) {
     return (
-      <View style={styles.centered}>
+    <LinearGradient colors={['#000337', '#000000']} style={styles.centered}>
         <Text style={styles.empty}>No scans yet.</Text>
-      </View>
+      </LinearGradient>
     );
   }
 

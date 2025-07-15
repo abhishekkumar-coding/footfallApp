@@ -236,38 +236,39 @@ const ShopDetails = ({ route }) => {
   }
 
   return (
-    <>
-      {/* <PageHeader lable={'Shop Details'} back /> */}
-      <LinearGradient
-        colors={['#000337', '#000000']}
-        style={styles.gradientContainer}
-      >
-        {/* Loading and status indicators */}
-        {(isLoadingShop || isLoadingVendor) && (
-          <View style={styles.loaderContainer}>
-            <Text style={styles.loaderText}>
-              {isLoadingShop ? 'Scanning...' : 'Fetching vendor points...'}
-            </Text>
-          </View>
-        )}
 
-        {showScanSuccess && (
-          <View
-            style={[styles.resultContainer, { backgroundColor: '#28A745' }]}
-          >
-            <Text style={styles.resultTitle}>
-              ✅ Shop scanned successfully!
-            </Text>
-          </View>
-        )}
-        {showScanError && (
-          <View
-            style={[styles.resultContainer, { backgroundColor: '#B00020' }]}
-          >
-            <Text style={styles.resultTitle}>❌ {errorMessage}</Text>
-          </View>
-        )}
+    <LinearGradient
+      colors={['#000337', '#000000']}
+      style={{ flex: 1 }}
+    >
+      <PageHeader lable={"Shop Details"} back={true}/>
+      {/* Loading and status indicators */}
+      {(isLoadingShop || isLoadingVendor) && (
+        <View style={styles.loaderContainer}>
+          <Text style={styles.loaderText}>
+            {isLoadingShop ? 'Scanning...' : 'Fetching vendor points...'}
+          </Text>
+        </View>
+      )}
 
+      {showScanSuccess && (
+        <View
+          style={[styles.resultContainer, { backgroundColor: '#28A745' }]}
+        >
+          <Text style={styles.resultTitle}>
+            ✅ Shop scanned successfully!
+          </Text>
+        </View>
+      )}
+      {showScanError && (
+        <View
+          style={[styles.resultContainer, { backgroundColor: '#B00020' }]}
+        >
+          <Text style={styles.resultTitle}>❌ {errorMessage}</Text>
+        </View>
+      )}
+
+      <View style={styles.gradientContainer}>
         <ScrollView
           contentContainerStyle={styles.scrollContainer}
           showsVerticalScrollIndicator={false}
@@ -321,13 +322,13 @@ const ShopDetails = ({ route }) => {
             </View>
 
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>city</Text>
+              <Text style={styles.detailLabel}>City</Text>
               <Text style={styles.detailValue}>
                 {city}
               </Text>
             </View>
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>pincode</Text>
+              <Text style={styles.detailLabel}>Pincode</Text>
               <Text style={styles.detailValue}>
                 {pinCode}
               </Text>
@@ -351,14 +352,18 @@ const ShopDetails = ({ route }) => {
             </View>
           </View>
         </ScrollView>
-      </LinearGradient>
-    </>
+      </View>
+    </LinearGradient>
   );
 };
 
 const styles = StyleSheet.create({
   gradientContainer: {
     flex: 1,
+    position:"absolute",
+    top:0,
+    right:0,
+    left:0
   },
   scrollContainer: {
     paddingBottom: hp(5),
@@ -440,7 +445,7 @@ const styles = StyleSheet.create({
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    alignItems: 'center',
+    // alignItems: 'center',
     marginBottom: hp(1.5),
     flexWrap: 'wrap',
   },
@@ -452,8 +457,8 @@ const styles = StyleSheet.create({
   },
   detailValue: {
     color: '#000',
-    fontFamily: 'Poppins-Bold',
-    fontSize: wp(4),
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: wp(3.4),
     textAlign: 'right',
     maxWidth: '50%',
   },
