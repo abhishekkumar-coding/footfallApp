@@ -4,6 +4,8 @@ import { authApi } from "./features/auth/authApi";
 import userReducer from "./features/auth/userSlice"
 import walletReducer from "./features/auth/walletSlice"
 import wishlistReducer from "./features/wishlistSlice"
+import notificationReducer from './features/notificationSlice';
+
 
 export const store = configureStore({
   reducer: {
@@ -11,6 +13,7 @@ export const store = configureStore({
     [authApi.reducerPath]: authApi.reducer,
     user : userReducer,
        wishlist: wishlistReducer,
+       notification:notificationReducer,
     wallet: walletReducer, 
   },
   middleware: (getDefaultMiddleware) =>

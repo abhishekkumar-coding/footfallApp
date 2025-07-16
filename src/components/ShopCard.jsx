@@ -32,11 +32,13 @@ const ShopCard = ({ shop, onPress }) => {
 
   let galleryImages = [];
   try {
-    galleryImages = JSON.parse(shop.gallery?.[0] || '[]');
+    galleryImages = JSON.parse(shop.gallery[0] || '[]');
+    // galleryImages = shop?.gallery[0]
   } catch (error) {
     console.warn('Failed to parse gallery JSON:', error);
   }
   const mainImage = galleryImages[0] || shop.cover ;
+  console.log("Gallery Image: ", galleryImages)
   // const mainImage = galleryImages[0] || shop.cover || shop.logo;
   const isFavorite = favoriteShops.some(fav => fav._id === shop._id);
 
