@@ -18,7 +18,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { loadWishlist, removeFromWishlist } from '../../features/wishlistSlice';
 import { navigate } from '../../navigations/NavigationUtil';
 
-const FavoritesScreen = ({navigation}) => {
+const FavoritesScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const wishlist = useSelector(state => state.wishlist.items);
   const favoriteShops = wishlist.shops || [];
@@ -31,41 +31,41 @@ const FavoritesScreen = ({navigation}) => {
     dispatch(removeFromWishlist({ removeId: shopId, type: 'shops' }));
   };
 
- const renderShopItem = ({ item }) => {
-  let galleryImages = [];
-  try {
-    galleryImages = JSON.parse(item.gallery?.[0] || '[]');
-  } catch (error) {
-    console.warn('Failed to parse gallery JSON:', error);
-  }
-  const mainImage = galleryImages[0] || item.cover || item.logo;
+  const renderShopItem = ({ item }) => {
+    let galleryImages = [];
+    try {
+      galleryImages = JSON.parse(item.gallery?.[0] || '[]');
+    } catch (error) {
+      console.warn('Failed to parse gallery JSON:', error);
+    }
+    const mainImage = galleryImages[0] || item.cover || item.logo;
 
-  return (
-    
-    <TouchableOpacity  // Changed from View to TouchableOpacity
-      style={styles.card}
-        onPress={() => navigate('Home', { 
-        screen: 'ShopDetails', 
-        params: { shop: item, image: mainImage }
-      })}
-    >
-      <Image style={styles.cardImage} source={{ uri: mainImage }} />
-      <View style={styles.cardContent}>
-        <Text style={styles.category}>{item.category}</Text>
-        <Text style={styles.name}>{item.name}</Text>
-        <Text style={styles.location}>{item.city}</Text>
-        <View style={styles.favTimeContainer}>
-          <Text style={styles.timings}>
-            {item.startTime} - {item.endTime}
-          </Text>
-          <TouchableOpacity onPress={() => handleRemoveFavorite(item._id)}>
-            <FilledFavIcon />
-          </TouchableOpacity>
+    return (
+
+      <TouchableOpacity  // Changed from View to TouchableOpacity
+        style={styles.card}
+        onPress={() => navigate('Home', {
+          screen: 'ShopDetails',
+          params: { shop: item, image: mainImage }
+        })}
+      >
+        <Image style={styles.cardImage} source={{ uri: mainImage }} />
+        <View style={styles.cardContent}>
+          <Text style={styles.category}>{item.category}</Text>
+          <Text style={styles.name}>{item.name}</Text>
+          <Text style={styles.location}>{item.city}</Text>
+          <View style={styles.favTimeContainer}>
+            <Text style={styles.timings}>
+              {item.startTime} - {item.endTime}
+            </Text>
+            <TouchableOpacity onPress={() => handleRemoveFavorite(item._id)}>
+              <FilledFavIcon />
+            </TouchableOpacity>
+          </View>
         </View>
-      </View>
-    </TouchableOpacity>  // Closing tag changed to match
-  );
-};
+      </TouchableOpacity>  // Closing tag changed to match
+    );
+  };
 
   return (
     <>
@@ -74,6 +74,7 @@ const FavoritesScreen = ({navigation}) => {
         <View style={styles.container}>
           {favoriteShops.length === 0 ? (
             <View style={styles.emptyContainer}>
+              <Image source={require('../../../assets/emptyofferBox.png')} style={{ width: wp(50), height: hp(20) }} />
               <Text style={styles.emptyText}>No favorites yet</Text>
               <Text style={styles.emptySubText}>
                 Tap the heart icon to add shops to your favorites

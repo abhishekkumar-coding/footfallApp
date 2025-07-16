@@ -5,10 +5,11 @@ import {
   StyleSheet,
   FlatList,
   ActivityIndicator,
+  Image,
 } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import LinearGradient from 'react-native-linear-gradient';
-import { hp } from '../utils/dimensions';
+import { hp, wp } from '../utils/dimensions';
 import PageHeader from '../components/BackButton';
 import { useGetScanHistoryQuery } from '../features/shops/shopApi';
 import { useFocusEffect } from '@react-navigation/native';
@@ -45,7 +46,8 @@ const HistoryScreen = () => {
     if (history.length === 0) {
       return (
         <View style={styles.centered}>
-          <Text style={styles.empty}>No scans yet.</Text>
+          <Image source={require('../../assets/emptyofferBox.png')} style={{width:wp(50), height:hp(20)}}/>
+          <Text style={styles.empty}>No scans yet</Text>
         </View>
       );
     }
@@ -121,7 +123,7 @@ const styles = StyleSheet.create({
   empty: {
     color: '#999',
     fontSize: RFValue(16),
-    fontFamily: 'Poppins-Regular',
+    fontFamily: 'Poppins-SemiBold',
     textAlign: 'center',
     marginHorizontal: 20,
   },

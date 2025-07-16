@@ -1,6 +1,6 @@
 import * as React from "react";
-import Svg, {G, Line, Path, Polygon, Polyline, Rect } from "react-native-svg";
-import { wp } from "../dimensions";
+import Svg, { G, Line, Path, Polygon, Polyline, Rect } from "react-native-svg";
+import { hp, wp } from "../dimensions";
 export const CloseEyeIcon = (props) => (
   <Svg
     width={wp(5.5)}
@@ -155,29 +155,29 @@ export const EyeIcon = (props) => (
 );
 
 export const FavIcon = (props) => (
-    <Svg
-        fill="#bbb"
-        width={wp(5)}
-        height={wp(5)}
-        viewBox="0 0 24 24"
-        id="favourite"
-        data-name="Line Color"
-        xmlns="http://www.w3.org/2000/svg"
-        className="icon line-color"
-        {...props}
-    >
-        <Path
-            id="primary"
-            d="M19.57,5.44a4.91,4.91,0,0,1,0,6.93L12,20,4.43,12.37A4.91,4.91,0,0,1,7.87,4a4.9,4.9,0,0,1,3.44,1.44,4.46,4.46,0,0,1,.69.88,4.46,4.46,0,0,1,.69-.88,4.83,4.83,0,0,1,6.88,0Z"
-            style={{
-                fill: "none",
-                stroke: "#bbb",
-                strokeLinecap: "round",
-                strokeLinejoin: "round",
-                strokeWidth: 2,
-            }}
-        />
-    </Svg>
+  <Svg
+    fill="#bbb"
+    width={wp(5)}
+    height={wp(5)}
+    viewBox="0 0 24 24"
+    id="favourite"
+    data-name="Line Color"
+    xmlns="http://www.w3.org/2000/svg"
+    className="icon line-color"
+    {...props}
+  >
+    <Path
+      id="primary"
+      d="M19.57,5.44a4.91,4.91,0,0,1,0,6.93L12,20,4.43,12.37A4.91,4.91,0,0,1,7.87,4a4.9,4.9,0,0,1,3.44,1.44,4.46,4.46,0,0,1,.69.88,4.46,4.46,0,0,1,.69-.88,4.83,4.83,0,0,1,6.88,0Z"
+      style={{
+        fill: "none",
+        stroke: "#bbb",
+        strokeLinecap: "round",
+        strokeLinejoin: "round",
+        strokeWidth: 2,
+      }}
+    />
+  </Svg>
 );
 
 export const FilledFavIcon = (props) => {
@@ -294,7 +294,7 @@ export const FilledProfile = (props) => (
 export const History = (props) => (
   <Svg
     width={wp(6)}
-        height={wp(6)}
+    height={wp(6)}
     viewBox="0 0 16 16"
     xmlns="http://www.w3.org/2000/svg"
     fill="#fff"
@@ -377,7 +377,7 @@ export const LogOutIcon = (props) => (
   <Svg
     fill="#fff"
     width={wp(6)}
-        height={hp(3)}
+    height={hp(3)}
     viewBox="0 0 24 24"
     id="sign-out-left-2"
     data-name="Line Color"
@@ -428,7 +428,7 @@ export const LogOutIcon = (props) => (
 export const NotificationIcon = (props) => (
   <Svg
     width={wp(6)}
-        height={hp(3)}
+    height={hp(3)}
     viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
@@ -565,26 +565,26 @@ export const ProfileEditIcon = (props) => (
 );
 
 export const Scan = (props) => (
-    <Svg
-        width={wp(6)}
-        height={wp(6)}
-        viewBox="0 0 15 15"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        {...props}
-    >
-        <Path
-            d="M0.5 5V2.5C0.5 1.39543 1.39543 0.5 2.5 0.5H5M10 0.5H12.5C13.6046 0.5 14.5 1.39543 14.5 2.5V5M0.5 10V12.5C0.5 13.6046 1.39543 14.5 2.5 14.5H5M14.5 10V12.5C14.5 13.6046 13.6046 14.5 12.5 14.5H10M2 7.5H13"
-            stroke="#fff"
-        />
-    </Svg>
+  <Svg
+    width={wp(6)}
+    height={wp(6)}
+    viewBox="0 0 15 15"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <Path
+      d="M0.5 5V2.5C0.5 1.39543 1.39543 0.5 2.5 0.5H5M10 0.5H12.5C13.6046 0.5 14.5 1.39543 14.5 2.5V5M0.5 10V12.5C0.5 13.6046 1.39543 14.5 2.5 14.5H5M14.5 10V12.5C14.5 13.6046 13.6046 14.5 12.5 14.5H10M2 7.5H13"
+      stroke="#fff"
+    />
+  </Svg>
 );
 
 export const ScannerIcon = (props) => (
   <Svg
     fill="#fff"
     width={wp(6)}
-        height={hp(3)}
+    height={hp(3)}
     viewBox="0 0 24 24"
     id="qr-code-scan-2"
     data-name="Flat Line"
@@ -695,8 +695,8 @@ export const WalletIcon = (props) => (
   <Svg
     fill="#fff"
     width={wp(6)}
-        height={hp(3)}
-            viewBox="0 0 24 24"
+    height={hp(3)}
+    viewBox="0 0 24 24"
     xmlns="http://www.w3.org/2000/svg"
     {...props}
   >
