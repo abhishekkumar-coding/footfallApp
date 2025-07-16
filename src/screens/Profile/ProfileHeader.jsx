@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
     width: wp(15),
     height: hp(7),
     resizeMode: "cover",
-    marginTop: hp(1),
+    // marginTop: hp(1),
   },
   details: {},
   userName: {
@@ -151,3 +151,10 @@ const styles = StyleSheet.create({
     color: "#d3d3d3",
   },
 });
+
+
+
+
+
+
+
