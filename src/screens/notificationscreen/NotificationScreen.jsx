@@ -5,35 +5,43 @@ import { hp, wp } from '../../utils/dimensions';
 import PageHeader from '../../components/BackButton';
 import { Warning } from '../../utils/icons/icons';
 import { Congrates } from '../../utils/icons/icons';
+import { useSelector } from 'react-redux';
 
-const notifications = [
-  {
-    id: '1',
-    title: 'Warning Alert!',
-    message: 'You tried scanning outside allowed radius.',
-    type: 'warning',
-  },
-  {
-    id: '2',
-    title: 'Congratulations!',
-    message: 'You’ve earned 100 bonus points.',
-    type: 'congrats',
-  },
-  {
-    id: '3',
-    title: 'Warning!',
-    message: 'Multiple failed scan attempts detected.',
-    type: 'warning',
-  },
-  {
-    id: '4',
-    title: 'Reward Unlocked!',
-    message: 'Cashback applied at XYZ Store.',
-    type: 'congrats',
-  },
-];
 
-const NotificationScreen = () => {
+// const notifications = [
+//   {
+//     id: '1',
+//     title: 'Warning Alert!',
+//     message: 'You tried scanning outside allowed radius.',
+//     type: 'warning',
+//   },
+//   {
+//     id: '2',
+//     title: 'Congratulations!',
+//     message: 'You’ve earned 100 bonus points.',
+//     type: 'congrats',
+//   },
+//   {
+//     id: '3',
+//     title: 'Warning!',
+//     message: 'Multiple failed scan attempts detected.',
+//     type: 'warning',
+//   },
+//   {
+//     id: '4',
+//     title: 'Reward Unlocked!',
+//     message: 'Cashback applied at XYZ Store.',
+//     type: 'congrats',
+//   },
+// ];
+
+
+
+const NotificationScreen = ({ route }) => {
+  const { notifications } = route.params;
+  // const notifications = []
+
+
   const renderItem = ({ item }) => {
     const isWarning = item.type === 'warning';
 
@@ -51,7 +59,7 @@ const NotificationScreen = () => {
               isWarning ? styles.warningIconBg : styles.congratsIconBg,
             ]}
           >
-            {isWarning ? <Warning/> : <Congrates/>}
+            {isWarning ? <Warning /> : <Congrates />}
           </View>
           <View style={{ flex: 1, marginLeft: wp(3) }}>
             <Text style={styles.notificationTitle}>{item.title}</Text>
@@ -66,12 +74,23 @@ const NotificationScreen = () => {
     <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
       <PageHeader lable="Notifications" back={true} />
       <View style={styles.container}>
-        <FlatList
-          data={notifications}
-          renderItem={renderItem}
-          keyExtractor={item => item.id}
-          contentContainerStyle={{ paddingBottom: hp(5) }}
-        />
+        {notifications.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Image
+              source={require('../../../assets/emptyNotification.png')} // Make sure this image exists
+              style={styles.emptyImage}
+              resizeMode="contain"
+            />
+            {/* <Text style={styles.emptyText}>No notifications yet</Text> */}
+          </View>
+        ) : (
+          <FlatList
+            data={notifications}
+            renderItem={renderItem}
+            keyExtractor={item => item.id?.toString()}
+            contentContainerStyle={{ paddingBottom: hp(5) }}
+          />
+        )}
       </View>
     </LinearGradient>
   );
@@ -122,4 +141,21 @@ const styles = StyleSheet.create({
     color: '#ccc',
     fontSize: wp(3.5),
   },
+  emptyContainer: {
+    flex: 1,
+    alignItems: 'center',
+    // justifyContent: 'center',
+    marginTop: hp(10),
+  },
+  emptyImage: {
+    width: wp(50),
+    height: wp(50),
+    marginBottom: hp(2),
+  },
+  emptyText: {
+    color: '#ccc',
+    fontSize: wp(4),
+    fontWeight: '500',
+  },
+
 });
