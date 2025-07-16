@@ -20,6 +20,7 @@ const ShopList = forwardRef((props, ref) => {
   const dispatch = useDispatch();
   const { data, refetch, isLoading } = useGetAllShopsQuery();
   const shopData = data?.data?.shops || [];
+  console.log("shop. data: ", shopData)
 
   useEffect(() => {
     dispatch(loadWishlist());
