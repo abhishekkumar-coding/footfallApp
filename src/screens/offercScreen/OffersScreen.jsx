@@ -31,12 +31,12 @@ const OffersScreen = () => {
 
   const { data: allOffersData, } = useGetAllOffersQuery();
   const { data: sortedData, isLoading } = useGetSortedOffersQuery(selectedFilter);
-  console.log("Sortetd Offer Data:" ,sortedData)
-  console.log("All Offer Data:" ,allOffersData)
+  console.log("Sortetd Offer Data:", sortedData)
+  console.log("All Offer Data:", allOffersData)
   const offers =
     selectedFilter === 'all'
       ? allOffersData?.data?.offers || []
-      : sortedData?.data|| [];
+      : sortedData?.data || [];
 
 
 
@@ -64,7 +64,16 @@ const OffersScreen = () => {
     // console.log("offer id: ",item._id)
 
     return (
-      <TouchableOpacity onPress={() => handlePress(item.title, item.description, formattedDate, item.bannerImage, item.shopId.name, item.shopId.owner, item._id)}>
+      <TouchableOpacity
+        activeOpacity={0.7}
+        onPress={() =>
+          handlePress(item.title,
+            item.description,
+            formattedDate,
+            item.bannerImage,
+            item.shopId.name,
+            item.shopId.owner,
+            item._id)}>
         <ImageBackground
           source={{ uri: item.bannerImage }}
           style={styles.offerCard}

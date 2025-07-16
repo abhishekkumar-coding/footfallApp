@@ -235,7 +235,7 @@ const RedeemScanner = ({ navigation }) => {
           </View>
         )}
 
-        {isLoadingShop && (
+        {isLoading && (
           <View style={styles.loaderContainer}>
             <Text style={styles.loaderText}>Scanning...</Text>
           </View>

@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useCallback } from 'react';
 import {
   View,
   Text,
@@ -19,47 +19,57 @@ const HistoryScreen = () => {
 
   useFocusEffect(
     useCallback(() => {
-      console.log("Screen focused, refetching scan history...");
       refetch();
     }, [])
   );
 
+  const renderContent = () => {
+    if (isLoading) {
+      return (
+        <View style={styles.centered}>
+          <ActivityIndicator size="large" color="orange" />
+        </View>
+      );
+    }
 
-  if (isLoading) {
-    return (
-    <LinearGradient colors={['#000337', '#000000']} style={styles.centered}>
-        <ActivityIndicator size="large" color="orange" />
-      </LinearGradient>
-    );
-  }
+    if (isError) {
+      return (
+        <View style={styles.centered}>
+          <Text style={styles.empty}>
+            Failed to load history. Please try again.
+          </Text>
+        </View>
+      );
+    }
 
-  if (isError) {
-    return (
-    <LinearGradient colors={['#000337', '#000000']} style={styles.centered}>
-        <Text style={styles.empty}>
-          Failed to load history. Please try again.
-        </Text>
-      </LinearGradient>
-    );
-  }
+    if (history.length === 0) {
+      return (
+        <View style={styles.centered}>
+          <Text style={styles.empty}>No scans yet.</Text>
+        </View>
+      );
+    }
 
-  if (history.length === 0) {
     return (
-    <LinearGradient colors={['#000337', '#000000']} style={styles.centered}>
-        <Text style={styles.empty}>No scans yet.</Text>
-      </LinearGradient>
+      <FlatList
+        contentContainerStyle={styles.container}
+        data={history}
+        keyExtractor={(item, index) => item._id || index.toString()}
+        renderItem={renderItem}
+        showsVerticalScrollIndicator={false}
+      />
     );
-  }
+  };
 
   const renderItem = ({ item }) => {
     const formattedDate = item?.scannedAt
       ? new Date(item.scannedAt).toLocaleString('en-IN', {
-        day: '2-digit',
-        month: 'short',
-        year: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-      })
+          day: '2-digit',
+          month: 'short',
+          year: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit',
+        })
       : 'N/A';
 
     return (
@@ -76,16 +86,8 @@ const HistoryScreen = () => {
   return (
     <>
       <PageHeader lable={'Scan History'} />
-
       <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
-        <FlatList
-          contentContainerStyle={styles.container}
-          data={history}
-          keyExtractor={(item, index) => item._id || index.toString()}
-          renderItem={renderItem}
-          showsVerticalScrollIndicator={false}
-
-        />
+        {renderContent()}
       </LinearGradient>
     </>
   );
@@ -112,7 +114,7 @@ const styles = StyleSheet.create({
 
   centered: {
     flex: 1,
-    backgroundColor: '#000',
+    // backgroundColor: '#000',
     justifyContent: 'center',
     alignItems: 'center',
   },
