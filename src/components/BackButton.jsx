@@ -12,8 +12,9 @@ import { goBack, navigate } from '../navigations/NavigationUtil';
 import LeftArrowIcon from '../utils/icons/LeftArrowIcon';
 import { Fonts } from '../utils/typography';
 import LinearGradient from 'react-native-linear-gradient';
+import { wp } from '../utils/dimensions';
 
-const PageHeader = ({ lable, rightComponent, subTitle,back }) => {
+const PageHeader = ({ lable, rightComponent, subTitle, back, bg }) => {
   const handleBack = () => {
     goBack();
   };
@@ -37,16 +38,16 @@ const PageHeader = ({ lable, rightComponent, subTitle,back }) => {
         >
           <View style={styles.leftSection}>
             {
-              back&&
+              back &&
 
-            <TouchableOpacity onPress={handleBack} style={styles.iconButton}>
-              <LeftArrowIcon
-                name="chevron-left"
-                type="feather"
-                width={24}
-                height={30}
-              />
-            </TouchableOpacity>
+              <TouchableOpacity onPress={handleBack} style={[bg ? styles.iconButtonBg : null, styles.iconButton]}>
+                <LeftArrowIcon
+                  name="chevron-left"
+                  type="feather"
+                  width={24}
+                  height={30}
+                />
+              </TouchableOpacity>
             }
             <View>
               <Text style={[styles.title, { color: '#fff' }]}>{lable}</Text>
@@ -87,16 +88,22 @@ const styles = StyleSheet.create({
   leftSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent:"center"
+    justifyContent: "center"
   },
   iconButton: {
     padding: 6,
-    borderRadius: 100,
+    borderRadius: 50,
+
+  },
+  iconButtonBg: {
+    backgroundColor: "rgba(0,0,0,0.8)",
+    paddingVertical: wp(1.3),
+    paddingHorizontal: wp(2)
   },
   title: {
     fontSize: 14,
     fontFamily: Fonts.primary_SemiBold,
-    marginLeft:10,
+    marginLeft: 10,
     marginTop: 2,
 
   },

@@ -241,7 +241,7 @@ const ShopDetails = ({ route }) => {
       colors={['#000337', '#000000']}
       style={{ flex: 1 }}
     >
-      <PageHeader lable={"Shop Details"} back={true}/>
+      <PageHeader  back bg/>
       {/* Loading and status indicators */}
       {(isLoadingShop || isLoadingVendor) && (
         <View style={styles.loaderContainer}>
