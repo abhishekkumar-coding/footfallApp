@@ -171,13 +171,38 @@ const MainTabNavigator = () => {
       <Tab.Screen
         name="Home"
         component={HomeStack}
+        options={({route})=>{
+          const routeName = 
+          getFocusedRouteNameFromRoute(route) ?? 'HomeMain';
+          const hideOnScreens = ['RewardScanner', 'RedeemScanner'];
+          return {
+            headerShown: false,
+            tabBarStyle: hideOnScreens.includes(routeName)
+              ? { display: 'none' }
+              : {
+                backgroundColor: '#181818',
+                position: 'absolute',
+                elevation: 0,
+                borderTopWidth: 0,
+                overflow: 'hidden',
+                height: 70,
+              },
+            tabBarIcon: ({ focused }) =>
+              focused ? <FilledHome /> : <EmptyHome />,
+          };
+
+        }}
+      />
+       {/* <Tab.Screen
+        name="Home"
+        component={HomeStack}
         options={{
           headerShown: false,
           tabBarIcon: ({ focused }) => {
             return focused ? <FilledHome /> : <EmptyHome />;
           },
-        }}
-      />
+        }}/> */}
+
       <Tab.Screen
         name="Favorites"
         component={FavoritesStack}

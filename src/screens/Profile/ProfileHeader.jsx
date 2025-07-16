@@ -83,7 +83,6 @@ const ProfileHeader = ({ navigation, user }) => {
   console.log("ProfileHeader user prop:", user);
 
   const { email, name, photo } = user || {};
-  console.log("Profile Photo: ",photo)
 
   return (
     <View style={styles.container}>

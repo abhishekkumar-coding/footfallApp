@@ -9,19 +9,19 @@ import { useNavigation } from '@react-navigation/native';
 const ScanOptionScreen = ({ navigation }) => {
     const parentNav = useNavigation();
 
-  useLayoutEffect(() => {
-    // 👇 hide tab bar when screen is focused
-    parentNav.getParent()?.setOptions({
-      tabBarStyle: { display: 'none' },
-    });
+//   useLayoutEffect(() => {
+//     // 👇 hide tab bar when screen is focused
+//     parentNav.getParent()?.setOptions({
+//       tabBarStyle: { display: 'none' },
+//     });
 
-    return () => {
-      // 👇 show it back when leaving
-      parentNav.getParent()?.setOptions({
-        tabBarStyle: { display: 'flex' },
-      });
-    };
-  }, [parentNav]);
+//     return () => {
+//       // 👇 show it back when leaving
+//       parentNav.getParent()?.setOptions({
+//         tabBarStyle: { display: 'flex' },
+//       });
+//     };
+//   }, [parentNav]);
     return (
         <>
         <PageHeader lable={'Scan Option'} back/>
@@ -79,7 +79,7 @@ const styles = StyleSheet.create({
     },
     optionText: {
         color: '#fff',
-        fontSize: RFValue(14),
+        fontSize: RFValue(12),
         fontWeight: '600',
     },
 });
