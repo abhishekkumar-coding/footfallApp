@@ -21,7 +21,7 @@ import EmailIcon from '../../utils/icons/EmailIcon';
 import LockIcon from '../../utils/icons/LockIcon';
 import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { useLoginMutation } from '../../features/auth/authApi';
+import { useGoogleLoginMutation, useLoginMutation } from '../../features/auth/authApi';
 import { z } from 'zod';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -31,7 +31,6 @@ import {
   GoogleSignin,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
-import { useGoogleAuthUserMutation } from '../../features/auth/authApi';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
@@ -47,7 +46,7 @@ const LoginScreen = () => {
   const dispatch = useDispatch();
 
   const [login, { isLoading }] = useLoginMutation();
-  const [googleAuthUser] = useGoogleAuthUserMutation();
+  const [googleLogin] = useGoogleLoginMutation();
 
   const loginSchema = z.object({
     email: z.string().email({ message: 'Invalid email address' }),
@@ -206,11 +205,85 @@ const LoginScreen = () => {
   //   }
   // };
 
+// const handleGoogleLogin = async () => {
+//   try {
+//     await GoogleSignin.hasPlayServices({
+//       showPlayServicesUpdateDialog: true,
+//     });
+
+//     // 👇 Always sign out first to force account picker
+//     await GoogleSignin.signOut();
+
+//     const userInfo = await GoogleSignin.signIn();
+//     console.log('User Info', userInfo);
+
+//     const idToken = userInfo.idToken || userInfo.data?.idToken;
+//     if (!idToken) throw new Error('No ID token received from Google');
+
+//     // ✅ Send Google ID token to your backend
+//     // const response = await googleAuthUser({ token: idToken }).unwrap();
+//     const response = await googleLogin({ token: idToken }).unwrap();
+//     console.log('Backend Response:', response);
+
+//     const appToken = response?.data?.token;
+//     const backendUser = response?.data?.user;
+//     console.log("All USer Data", backendUser)
+
+//     if (!appToken) throw new Error('App token missing in response');
+//      const googlePhoto = userInfo.user?.photo || userInfo.data?.user?.photo;
+//     const fullUser = {
+//       ...backendUser,
+//       photo: backendUser.photo || googlePhoto, // prefer backend value if available
+//     };
+
+//     console.log("Full User", fullUser)
+
+//     // ✅ Store your app's token (not Google token)
+//     await AsyncStorage.setItem('token', appToken);
+//     console.log('Stored app token:', appToken);
+
+//     // ✅ Normalize and store user data from your backend
+//     // await AsyncStorage.setItem('user', JSON.stringify(user));
+//     // dispatch(setUser(user));
+//     await AsyncStorage.setItem('user', JSON.stringify(fullUser));
+//     dispatch(setUser(fullUser));
+
+//     Toast.show({
+//       type: 'success',
+//       text1: 'Google Login Success',
+//       text2: `Welcome ${user?.name || 'User'}`,
+//     });
+
+//     navigation.reset({
+//       index: 0,
+//       routes: [{ name: 'Main' }],
+//     });
+//   } catch (error) {
+//     console.log('Google Sign-In Error:', error);
+//     if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+//       Toast.show({ type: 'info', text1: 'Sign-In Cancelled' });
+//     } else if (error.code === statusCodes.IN_PROGRESS) {
+//       Toast.show({ type: 'info', text1: 'Sign-In In Progress' });
+//     } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+//       Toast.show({ type: 'error', text1: 'Play Services Not Available' });
+//     } else {
+//       Toast.show({
+//         type: 'error',
+//         text1: 'Google Login Failed',
+//         text2: error.message,
+//       });
+//     }
+//   }
+// };
+
 const handleGoogleLogin = async () => {
   try {
     await GoogleSignin.hasPlayServices({
       showPlayServicesUpdateDialog: true,
     });
+
+    // 👇 Always sign out first to force account picker
+    await GoogleSignin.signOut();
 
     const userInfo = await GoogleSignin.signIn();
     console.log('User Info', userInfo);
@@ -219,26 +292,31 @@ const handleGoogleLogin = async () => {
     if (!idToken) throw new Error('No ID token received from Google');
 
     // ✅ Send Google ID token to your backend
-    const response = await googleAuthUser({ token: idToken }).unwrap();
+    const response = await googleLogin({ token: idToken }).unwrap();
     console.log('Backend Response:', response);
 
     const appToken = response?.data?.token;
-    const user = response?.data?.user;
-
+    const backendUser = response?.data?.user;
     if (!appToken) throw new Error('App token missing in response');
 
-    // ✅ Store your app's token (not Google token)
+    const googlePhoto = userInfo.user?.photo || userInfo.data?.user?.photo;
+    const fullUser = {
+      ...backendUser,
+      photo: backendUser?.photo || googlePhoto,
+    };
+
+    console.log("Full User", fullUser);
+
+    // ✅ Save token and user
     await AsyncStorage.setItem('token', appToken);
-    console.log('Stored app token:', appToken);
+    await AsyncStorage.setItem('user', JSON.stringify(fullUser));
+    dispatch(setUser(fullUser));
 
-    // ✅ Normalize and store user data from your backend
-    await AsyncStorage.setItem('user', JSON.stringify(user));
-    dispatch(setUser(user));
-
+    // ✅ FIXED: Use fullUser.name in Toast
     Toast.show({
       type: 'success',
       text1: 'Google Login Success',
-      text2: `Welcome ${user?.name || 'User'}`,
+      text2: `Welcome ${fullUser?.name || 'User'}`,
     });
 
     navigation.reset({
@@ -257,7 +335,7 @@ const handleGoogleLogin = async () => {
       Toast.show({
         type: 'error',
         text1: 'Google Login Failed',
-        text2: error.message,
+        text2: error.message || 'Something went wrong',
       });
     }
   }
