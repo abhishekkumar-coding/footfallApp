@@ -68,9 +68,23 @@ export const authApi = createApi({
       }),
     }),
     // ✅ NEW: Google Auth Login/Signup API
-    googleAuthUser: builder.mutation({
+    // googleAuthUser: builder.mutation({
+    //   query: googleTokenData => ({
+    //     url: 'user/googleAuthUser',
+    //     method: 'POST',
+    //     body: googleTokenData, 
+    //   }),
+    // }),
+    googleLogin: builder.mutation({
       query: googleTokenData => ({
-        url: 'user/googleAuthUser',
+        url: 'user/googleLogin',
+        method: 'POST',
+        body: googleTokenData, 
+      }),
+    }),
+    googleSignUp: builder.mutation({
+      query: googleTokenData => ({
+        url: 'user/googleSignUp',
         method: 'POST',
         body: googleTokenData, 
       }),
@@ -87,5 +101,6 @@ export const {
   // useGetWalletSummaryQuery,
   useUpdateUserMutation,
   // useRedeemVendorPointsMutation,
-  useGoogleAuthUserMutation,
+  useGoogleLoginMutation,
+  useGoogleSignUpMutation,
 } = authApi;

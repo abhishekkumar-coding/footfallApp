@@ -26,7 +26,11 @@ import LockIcon from '../../utils/icons/LockIcon';
 import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import PhoneIcon from '../../utils/icons/PhoneIcon';
-import { useGoogleAuthUserMutation, useSignupMutation } from '../../features/auth/authApi';
+import {
+  useGoogleAuthUserMutation,
+  useGoogleSignUpMutation,
+  useSignupMutation,
+} from '../../features/auth/authApi';
 import { z } from 'zod';
 import Toast from 'react-native-toast-message';
 import SendIntentAndroid from 'react-native-send-intent';
@@ -48,7 +52,8 @@ const SignupScreen = () => {
   const [showError, setShowError] = useState(false);
 
   const [signup, { isLoading }] = useSignupMutation();
-  const [googleAuthUser] = useGoogleAuthUserMutation();
+  // const [googleAuthUser] = useGoogleAuthUserMutation();
+  const [googleSignUp] = useGoogleSignUpMutation();
   const dispatch = useDispatch();
 
   const signupSchema = z.object({
@@ -181,18 +186,25 @@ const SignupScreen = () => {
         showPlayServicesUpdateDialog: true,
       });
 
+      // ✅ Always sign out first to force account selection
+      await GoogleSignin.signOut();
+
       const userInfo = await GoogleSignin.signIn();
       console.log('Google userInfo:', userInfo);
 
       const idToken = userInfo.idToken || userInfo.data?.idToken;
+      const photo = userInfo.user?.photo;
+
       if (!idToken) throw new Error('No ID token received from Google');
 
       // ✅ Send to backend to convert to your app token
-      const response = await googleAuthUser({ token: idToken }).unwrap();
+      // const response = await googleAuthUser({ token: idToken }).unwrap();
+      const response = await googleSignUp({ token: idToken, photo }).unwrap();
       console.log('Backend Response:', response);
 
       const appToken = response?.data?.token;
-      const user = response?.data?.user;
+      // const user = response?.data?.user;
+      const user = { ...response?.data?.user, photo };
 
       if (!appToken) throw new Error('App token missing in response');
 
@@ -223,7 +235,7 @@ const SignupScreen = () => {
         Toast.show({
           type: 'error',
           text1: 'Google Sign-Up Failed',
-          text2: error?.message || 'Something went wrong',
+          text2: error?.data?.message || 'Something went wrong',
         });
       }
     }
