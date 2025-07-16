@@ -36,7 +36,8 @@ const ShopCard = ({ shop, onPress }) => {
   } catch (error) {
     console.warn('Failed to parse gallery JSON:', error);
   }
-  const mainImage = galleryImages[0] || shop.cover || shop.logo;
+  const mainImage = galleryImages[0] || shop.cover ;
+  // const mainImage = galleryImages[0] || shop.cover || shop.logo;
   const isFavorite = favoriteShops.some(fav => fav._id === shop._id);
 
   const toggleFavShop = () => {
@@ -84,9 +85,14 @@ const ShopCard = ({ shop, onPress }) => {
   return (
     <TouchableOpacity style={styles.card} onPress={onPress}>
       <Image
+        source={
+          mainImage
+            ? { uri: mainImage }
+            : require('../../assets/emptyShop.png')
+        }
         style={styles.cardImage}
-        source={{ uri: mainImage }}
         resizeMode="cover"
+        onError={() => setImageError(true)}
       />
       <View style={styles.cardContent}>
         <Text style={styles.category}>{shop.category}</Text>

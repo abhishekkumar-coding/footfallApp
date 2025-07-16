@@ -1,8 +1,8 @@
-import { FlatList, ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { FlatList, ActivityIndicator, StyleSheet, Text, View, Image } from 'react-native';
 import React from 'react';
 import { useGetRedeemHistoryQuery } from '../features/shops/shopApi';
 import LinearGradient from 'react-native-linear-gradient';
-import { hp } from '../utils/dimensions';
+import { hp, wp } from '../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import BackButton from '../components/BackButton';
 
@@ -46,6 +46,7 @@ const RedeemHistoryScreen = () => {
           </View>
         ) : redeemHistory.length === 0 ? (
           <View style={styles.centered}>
+            <Image source={require('../../assets/emptyofferBox.png')} style={{ width: wp(50), height: hp(20) }} />
             <Text style={styles.empty}>No redeem history found.</Text>
           </View>
         ) : (
@@ -73,7 +74,7 @@ const styles = StyleSheet.create({
   },
   empty: {
     color: '#999',
-    fontSize: 16,
+    fontSize: RFValue(18),
     textAlign: 'center',
     marginHorizontal: 20,
   },

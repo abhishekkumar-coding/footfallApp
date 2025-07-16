@@ -174,7 +174,7 @@ const MainTabNavigator = () => {
         options={({route})=>{
           const routeName = 
           getFocusedRouteNameFromRoute(route) ?? 'HomeMain';
-          const hideOnScreens = ['RewardScanner', 'RedeemScanner'];
+          const hideOnScreens = ['ScanOptions', 'RewardScanner', 'RedeemScanner', 'OffersScreen', 'OfferDetails', 'NotificationScreen', 'ShopDetails'];
           return {
             headerShown: false,
             tabBarStyle: hideOnScreens.includes(routeName)

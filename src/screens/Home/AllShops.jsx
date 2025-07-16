@@ -133,7 +133,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingTop: hp(1),
-    paddingBottom: hp(12),
+    paddingBottom: hp(4),
     paddingHorizontal: wp(4),
   },
   filterContainer: {
