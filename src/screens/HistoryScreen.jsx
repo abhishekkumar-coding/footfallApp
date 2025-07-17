@@ -46,8 +46,8 @@ const HistoryScreen = () => {
     if (history.length === 0) {
       return (
         <View style={styles.centered}>
-          <Image source={require('../../assets/emptyofferBox.png')} style={{width:wp(50), height:hp(20)}}/>
-          <Text style={styles.empty}>No scans yet</Text>
+          <Image source={require('../../assets/emptyScanHistory.png')} style={{width:wp(50), height:hp(20)}}/>
+          {/* <Text style={styles.empty}>No scans yet</Text> */}
         </View>
       );
     }

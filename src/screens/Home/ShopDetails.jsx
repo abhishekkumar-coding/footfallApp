@@ -48,184 +48,56 @@ function getDistanceInMeters(lat1, lon1, lat2, lon2) {
 }
 
 const ShopDetails = ({ route }) => {
-  const navigation = useNavigation();
-  const { shop } = route.params;
+    const { shop } = route.params;
+    const [sortBy, setSortBy] = useState('Latest');
 
-  const [sortBy, setSortBy] = useState('Latest');
-  const dispatch = useDispatch();
-  const [isLoadingShop, setIsLoadingShop] = useState(false);
-  const [showScanSuccess, setShowScanSuccess] = useState(false);
-  const [showScanError, setShowScanError] = useState(false);
-  const [errorMessage, setErrorMessage] = useState('');
-  const [vendorId, setVendorId] = useState(null);
-  const [redeemTrigger, setRedeemTrigger] = useState(0);
+    const sampleOffers = [
+        {
+            id: '1',
+            title: 'Flat 20% Off on All Items',
+            details: 'Valid till: 2025-06-25',
+            expiryDate: '2025-06-25',
+            distance: 1.5, // in km
+        },
+        {
+            id: '2',
+            title: 'Buy 1 Get 1 Free (Selected Products)',
+            details: 'Valid till: 2025-06-30',
+            expiryDate: '2025-06-30',
+            distance: 0.8,
+        },
+        {
+            id: '3',
+            title: 'Free Delivery on Orders Above ₹499',
+            details: 'Valid till: 2025-07-05',
+            expiryDate: '2025-07-05',
+            distance: 2.2,
+        },
+        {
+            id: '4',
+            title: '30% Off for First-Time Customers',
+            details: 'Valid till: 2025-07-15',
+            expiryDate: '2025-07-15',
+            distance: 1.0,
+        },
+    ];
 
-  const {
-    data,
-    isLoading: isLoadingVendor,
-    error,
-  } = useGetTotalPointsByVendorQuery(
-    { vendorId, redeemTrigger },
-    { skip: !vendorId },
-  );
-  const [scanShop] = useGetShopByScanMutation();
-  const {
-    data: offersData,
-    isLoading: isLoadingOffers,
-    error: offersError,
-  } = useGetShopOffersByIdQuery(shop?._id);
+   const getSortedOffers = () => {
+    const sortedOffers = [...sampleOffers];
 
-  console.log('Shop Data : ', shop.cover);
-  const {
-    contact,
-    _id,
-    category,
-    name,
-    startTime,
-    endTime,
-    cover,
-    logo,
-    address,
-    city,
-    state,
-    pinCode,
-    owner,
-  } = shop || {};
-
-  console.log('Shop Details', shop);
-
-  useEffect(() => {
-    if (data) {
-      console.log('Fetched vendor points:', data);
-      setShowScanSuccess(true);
-
-      setTimeout(() => {
-        setShowScanSuccess(false);
-        navigation.navigate('RedeemSummaryScreen', {
-          vendorDetails: data.data,
-        });
-      }, 1000);
-    } else if (error) {
-      console.log('Error fetching vendor points:', error);
-      setErrorMessage(error?.data?.message || 'Something went wrong');
-      setShowScanError(true);
-      setTimeout(() => {
-        setShowScanError(false);
-        navigation.goBack();
-      }, 1000);
-    }
-  }, [data, error, navigation]);
-
-  useEffect(() => {
-    if (offersData) {
-      console.log('Shop offers:', offersData);
-    }
-  }, [offersData]);
-
-  const handleRedeem = ownerId => {
-    console.log('Setting vendor ID for redeem:', ownerId);
-    setVendorId(ownerId);
-    setRedeemTrigger(prev => prev + 1);
-  };
-
-  useEffect(() => {
-    if (offersData) {
-      console.log('Shop offers:', offersData);
-    }
-  }, [offersData]);
-
-
-  const handleManualScan = async () => {
-    const hasPermission = await requestLocationPermission();
-    if (!hasPermission) {
-      Toast.show({ type: 'error', text1: 'Location permission denied' });
-      return;
-    }
-
-    setIsLoadingShop(true);
-
-    Geolocation.getCurrentPosition(
-      async position => {
-        const userLat = position.coords.latitude;
-        const userLng = position.coords.longitude;
-        console.log('📍 Your Current Location:', {
-          latitude: userLat,
-          longitude: userLng,
-        });
-
-        // Extract shop lat/lng
-        const [shopLng, shopLat] = shop?.location?.coordinates || [];
-        console.log('🏪 Shop Location:', {
-          latitude: shopLat,
-          longitude: shopLng,
-        });
-
-        const scanRadius = 50;
-        const bufferDistance = 100;
-        const effectiveRadius = scanRadius + bufferDistance;
-
-        const distance = getDistanceInMeters(
-          userLat,
-          userLng,
-          shopLat,
-          shopLng,
+    if (sortBy === "Ending Soon") {
+        return sortedOffers.sort((a, b) =>
+            new Date(a.expiryDate || 0) - new Date(b.expiryDate || 0)
         );
-        console.log(`🧭 Distance to shop: ${Math.round(distance)}m`);
+    } else if (sortBy === "Distance") {
+        return sortedOffers.sort((a, b) => a.distance - b.distance);
+    } else {
+        return [...sortedOffers].reverse(); // safe reverse
+    }
+};
 
-        if (distance > effectiveRadius) {
-          Toast.show({
-            type: 'error',
-            text1: `You're ${Math.round(distance)}m away.`,
-            text2: `Move closer to within ${effectiveRadius}m to scan.`,
-          });
-          setIsLoadingShop(false);
-          return;
-        }
 
-        try {
-          const result = await scanShop({
-            shopId: _id,
-            latitude: userLat,
-            longitude: userLng,
-          }).unwrap();
 
-          if (result?.success) {
-            Toast.show({
-              type: 'success',
-              text1: 'Scan successful!',
-            });
-
-            if (result.data?.scanRewardType === 'percentage') {
-              navigation.navigate('CashbackScreen', {
-                shopId: _id,
-                returnPercent: result.data?.rewardPoints,
-              });
-            } else {
-              navigation.goBack();
-            }
-          } else {
-            Toast.show({ type: 'error', text1: 'Scan failed. Try again.' });
-          }
-        } catch (err) {
-          Toast.show({ type: 'error', text1: err?.data?.message || 'Error' });
-          console.log('❌ Scan error:', err);
-        } finally {
-          setIsLoadingShop(false);
-        }
-      },
-      error => {
-        Toast.show({
-          type: 'error',
-          text1: 'Location error',
-          text2: error.message,
-        });
-        setIsLoadingShop(false);
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
-    );
-  };
-
-  if (!shop) {
     return (
       <View style={styles.container}>
         <Text style={{ color: '#fff' }}>

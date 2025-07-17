@@ -46,8 +46,8 @@ const RedeemHistoryScreen = () => {
           </View>
         ) : redeemHistory.length === 0 ? (
           <View style={styles.centered}>
-            <Image source={require('../../assets/emptyofferBox.png')} style={{ width: wp(50), height: hp(20) }} />
-            <Text style={styles.empty}>No redeem history found.</Text>
+            <Image source={require('../../assets/emptyRedeemHistory.png')} style={{ width: wp(50), height: hp(20) }} />
+            {/* <Text style={styles.empty}>No redeem history found.</Text> */}
           </View>
         ) : (
           <FlatList

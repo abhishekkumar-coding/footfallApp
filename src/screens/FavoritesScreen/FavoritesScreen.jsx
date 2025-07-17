@@ -74,8 +74,8 @@ const FavoritesScreen = ({ navigation }) => {
         <View style={styles.container}>
           {favoriteShops.length === 0 ? (
             <View style={styles.emptyContainer}>
-              <Image source={require('../../../assets/emptyofferBox.png')} style={{ width: wp(50), height: hp(20) }} />
-              <Text style={styles.emptyText}>No favorites yet</Text>
+              <Image source={require('../../../assets/emptyfavorite.png')} style={{ width: wp(50), height: hp(20) }} />
+              {/* <Text style={styles.emptyText}>No favorites yet</Text> */}
               <Text style={styles.emptySubText}>
                 Tap the heart icon to add shops to your favorites
               </Text>

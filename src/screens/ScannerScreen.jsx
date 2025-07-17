@@ -10,15 +10,37 @@ import {
   useCameraPermission,
   useCodeScanner,
 } from 'react-native-vision-camera';
-import { useGetWalletSummaryQuery, useGetShopByScanMutation, useLazygetShopByScanQuery } from '../features/shops/shopApi';
-import { useDispatch } from 'react-redux';
-import { triggerWalletRefresh } from '../features/wallet/walletSlice';
+import { useGetShopByIdQuery, useGetShopByScanMutation } from '../features/shops/shopApi';
 import LinearGradient from 'react-native-linear-gradient';
-import { useSelector } from 'react-redux';
-import History from '../utils/icons/History';
-import Scan from '../utils/icons/scan';
 import PageHeader from '../components/BackButton';
+import Geolocation from 'react-native-geolocation-service';
+import { PermissionsAndroid, Platform } from 'react-native';
+import Toast from 'react-native-toast-message';
 
+
+
+const requestLocationPermission = async () => {
+  if (Platform.OS === 'ios') return true;
+
+  const granted = await PermissionsAndroid.request(
+    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+  );
+
+  return granted === PermissionsAndroid.RESULTS.GRANTED;
+};
+
+function getDistanceInMeters(lat1, lon1, lat2, lon2) {
+  const R = 6371000; // Earth’s radius in meters
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) *
+    Math.cos((lat2 * Math.PI) / 180) *
+    Math.sin(dLon / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
 
 const ScannerScreen = ({ navigation }) => {
   const { hasPermission, requestPermission } = useCameraPermission();
@@ -29,18 +51,24 @@ const ScannerScreen = ({ navigation }) => {
   const [showScanError, setShowScanError] = useState(false);
   const [isLoadingShop, setIsLoadingShop] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const [id, setId] = useState(null)
 
   const scanLineAnim = useRef(new Animated.Value(0)).current;
-  const [fetchShopByScan] = useGetShopByScanMutation();
+  const [scanShop] = useGetShopByScanMutation();
+  const { data: shopData, isLoading: ShopDataLoading } = useGetShopByIdQuery(id, { skip: !id })
+  console.log("Fetched Shop Data: ", shopData?.data?._id);
+
+  useEffect(() => {
+    if (id && shopData?.data) {
+      handleShopFetch(shopData.data);
+    }
+  }, [id, shopData]);
 
 
-  let shopId = ""
 
   useEffect(() => {
     requestPermission();
   }, []);
-
-  const pointsType = "percentage"
 
   useEffect(() => {
     const animation = Animated.loop(
@@ -63,46 +91,96 @@ const ScannerScreen = ({ navigation }) => {
     return () => animation.stop();
   }, [scanLineAnim]);
 
-  const handleShopFetch = async (shopId) => {
-    try {
-      setIsLoadingShop(true);
+  const handleShopFetch = async (shop) => {
+    const hasPermission = await requestLocationPermission();
 
-      const result = await fetchShopByScan(shopId).unwrap();
-      console.log("Fetched shop data:", result);
-
-      setIsLoadingShop(false);
-      setShowScanSuccess(true);
-
-      setTimeout(() => {
-        setShowScanSuccess(false);
-        if (result.data.scanRewardType === "percentage") {
-          navigation.navigate("CashbackScreen", {
-            shopId: shopId,
-            returnPercent: result.data?.rewardPoints,
-          });
-        }
-        else {
-          navigation.goBack();
-        }
-
-      }, 1000);
-
-    } catch (fetchError) {
-      console.log("Error fetching shop by ID:", fetchError);
-      setIsLoadingShop(false);
-
-      const message = fetchError?.data?.message || 'Something went wrong';
-      setErrorMessage(message);
-      setShowScanError(true);
-      setTimeout(() => {
-        setShowScanSuccess(false);
-        navigation.goBack();
-      }, 1000);
-
-      setTimeout(() => setShowScanError(false), 2000);
-    } finally {
-      setIsLoadingShop(false);
+    if (!hasPermission) {
+      Toast.show({ type: 'error', text1: 'Location permission denied' });
+      return;
     }
+
+    setIsLoadingShop(true);
+
+    Geolocation.getCurrentPosition(
+      async position => {
+        const userLat = position.coords.latitude;
+        const userLng = position.coords.longitude;
+        console.log('📍 Your Current Location:', {
+          latitude: userLat,
+          longitude: userLng,
+        });
+
+        // Extract shop lat/lng
+        const [shopLng, shopLat] = shop?.location?.coordinates || [];
+        console.log('🏪 Shop Location:', {
+          latitude: shopLat,
+          longitude: shopLng,
+        });
+
+        const scanRadius = 50;
+        const bufferDistance = 100;
+        const effectiveRadius = scanRadius + bufferDistance;
+
+        const distance = getDistanceInMeters(
+          userLat,
+          userLng,
+          shopLat,
+          shopLng,
+        );
+        console.log(`🧭 Distance to shop: ${Math.round(distance)}m`);
+
+        if (distance > effectiveRadius) {
+          Toast.show({
+            type: 'error',
+            text1: `You're ${Math.round(distance)}m away.`,
+            text2: `Move closer to within ${effectiveRadius}m to scan.`,
+          });
+          setIsLoadingShop(false);
+          return;
+        }
+
+        try {
+          const result = await scanShop({
+            shopId: shop._id,
+            latitude: userLat,
+            longitude: userLng,
+          }).unwrap();
+
+          if (result?.success) {
+            Toast.show({
+              type: 'success',
+              text1: 'Scan successful!',
+            });
+
+            if (result.data?.scanRewardType === 'percentage') {
+              navigation.navigate('CashbackScreen', {
+                shopId: shop._id,
+                returnPercent: result.data?.rewardPoints,
+              });
+
+            } else {
+              navigation.goBack();
+            }
+          } else {
+            Toast.show({ type: 'error', text1: 'Scan failed. Try again.' });
+          }
+        } catch (err) {
+          Toast.show({ type: 'error', text1: err?.data?.message || 'Error' });
+          console.log('❌ Scan error:', err);
+        } finally {
+          setIsLoadingShop(false);
+        }
+      },
+      error => {
+        Toast.show({
+          type: 'error',
+          text1: 'Location error',
+          text2: error.message,
+        });
+        setIsLoadingShop(false);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+    );
   };
 
   const handleScanError = () => {
@@ -119,12 +197,13 @@ const ScannerScreen = ({ navigation }) => {
       console.log("Scanned QR data:", scannedValue);
 
       const params = new URLSearchParams(scannedValue);
-      shopId = params.get('shop_id');
+      const extractedIdFronQr = params.get('shop_id');
 
-      if (shopId) {
-        console.log("Extracted shop_id:", shopId);
+      if (extractedIdFronQr) {
+        setId(extractedIdFronQr)
+        console.log("Extracted shop_id:", extractedIdFronQr);
         setHasScanned(true);
-        handleShopFetch(shopId);
+        // handleShopFetch(shopId);
       } else {
         console.log('shop_id not found in QR code');
         handleScanError();
