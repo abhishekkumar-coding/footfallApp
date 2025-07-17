@@ -180,66 +180,131 @@ const SignupScreen = () => {
   //   }
   // };
 
-  const onGooglePress = async () => {
-    try {
-      await GoogleSignin.hasPlayServices({
-        showPlayServicesUpdateDialog: true,
-      });
+  // const onGooglePress = async () => {
+  //   try {
+  //     await GoogleSignin.hasPlayServices({
+  //       showPlayServicesUpdateDialog: true,
+  //     });
 
-      // ✅ Always sign out first to force account selection
-      await GoogleSignin.signOut();
+  //     // ✅ Always sign out first to force account selection
+  //     await GoogleSignin.signOut();
 
-      const userInfo = await GoogleSignin.signIn();
-      console.log('Google userInfo:', userInfo);
+  //     const userInfo = await GoogleSignin.signIn();
+  //     console.log('Google userInfo:', userInfo);
 
-      const idToken = userInfo.idToken || userInfo.data?.idToken;
-      const photo = userInfo.user?.photo;
+  //     const idToken = userInfo.idToken || userInfo.data?.idToken;
+  //     const photo = userInfo.user?.photo;
 
-      if (!idToken) throw new Error('No ID token received from Google');
+  //     if (!idToken) throw new Error('No ID token received from Google');
 
-      // ✅ Send to backend to convert to your app token
-      // const response = await googleAuthUser({ token: idToken }).unwrap();
-      const response = await googleSignUp({ token: idToken, photo }).unwrap();
-      console.log('Backend Response:', response);
+  //     // ✅ Send to backend to convert to your app token
+  //     // const response = await googleAuthUser({ token: idToken }).unwrap();
+  //     const response = await googleSignUp({ token: idToken, photo }).unwrap();
+  //     console.log('Backend Response:', response);
 
-      const appToken = response?.data?.token;
-      // const user = response?.data?.user;
-      const user = { ...response?.data?.user, photo };
+  //     const appToken = response?.data?.token;
+  //     // const user = response?.data?.user;
+  //     const user = { ...response?.data?.user, photo };
 
-      if (!appToken) throw new Error('App token missing in response');
+  //     if (!appToken) throw new Error('App token missing in response');
 
-      // ✅ Save app token and user info
-      await AsyncStorage.setItem('token', appToken);
-      await AsyncStorage.setItem('user', JSON.stringify(user));
-      dispatch(setUser(user));
+  //     // ✅ Save app token and user info
+  //     await AsyncStorage.setItem('token', appToken);
+  //     await AsyncStorage.setItem('user', JSON.stringify(user));
+  //     dispatch(setUser(user));
 
+  //     Toast.show({
+  //       type: 'success',
+  //       text1: 'Google Sign-Up Success',
+  //       text2: `Welcome ${user?.name || 'User'}`,
+  //     });
+
+  //     navigation.reset({
+  //       index: 0,
+  //       routes: [{ name: 'Main' }],
+  //     });
+  //   } catch (error) {
+  //     console.error('Google Sign-Up Error:', error);
+  //     if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+  //       Toast.show({ type: 'info', text1: 'Sign-Up Cancelled' });
+  //     } else if (error.code === statusCodes.IN_PROGRESS) {
+  //       Toast.show({ type: 'info', text1: 'Sign-Up In Progress' });
+  //     } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+  //       Toast.show({ type: 'error', text1: 'Play Services Not Available' });
+  //     } else {
+  //       Toast.show({
+  //         type: 'error',
+  //         text1: 'Google Sign-Up Failed',
+  //         text2: error?.data?.message || 'Something went wrong',
+  //       });
+  //     }
+  //   }
+  // };
+
+const onGooglePress = async () => {
+  try {
+    await GoogleSignin.hasPlayServices({
+      showPlayServicesUpdateDialog: true,
+    });
+
+    await GoogleSignin.signOut();
+
+    const userInfo = await GoogleSignin.signIn();
+    console.log('Google userInfo:', userInfo);
+
+    const idToken = userInfo.idToken || userInfo.data?.idToken;
+    if (!idToken) throw new Error('No ID token received from Google');
+
+    // Send token to backend
+    const response = await googleSignUp({ token: idToken }).unwrap();
+    console.log('Backend Response:', response);
+
+    // ✅ Fix here: use "newUser" instead of "user"
+    const backendUser = response?.data?.newUser || {};
+
+    const user = {
+      ...backendUser,
+      photo: backendUser.photo || userInfo.user?.photo,
+      name: backendUser.name || userInfo.user?.name,
+      email: backendUser.email || userInfo.user?.email,
+    };
+
+    const appToken = response?.data?.token;
+    if (!appToken) throw new Error('App token missing in response');
+
+    await AsyncStorage.setItem('token', appToken);
+    await AsyncStorage.setItem('user', JSON.stringify(user));
+    dispatch(setUser(user));
+
+    Toast.show({
+      type: 'success',
+      text1: 'Google Sign-Up Success',
+      text2: `Welcome ${user?.name || 'User'}`,
+    });
+
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Main' }],
+    });
+  } catch (error) {
+    console.error('Google Sign-Up Error:', error);
+    if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+      Toast.show({ type: 'info', text1: 'Sign-Up Cancelled' });
+    } else if (error.code === statusCodes.IN_PROGRESS) {
+      Toast.show({ type: 'info', text1: 'Sign-Up In Progress' });
+    } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+      Toast.show({ type: 'error', text1: 'Play Services Not Available' });
+    } else {
       Toast.show({
-        type: 'success',
-        text1: 'Google Sign-Up Success',
-        text2: `Welcome ${user?.name || 'User'}`,
+        type: 'error',
+        text1: 'Google Sign-Up Failed',
+        text2: error?.data?.message || 'Something went wrong',
       });
-
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Main' }],
-      });
-    } catch (error) {
-      console.error('Google Sign-Up Error:', error);
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        Toast.show({ type: 'info', text1: 'Sign-Up Cancelled' });
-      } else if (error.code === statusCodes.IN_PROGRESS) {
-        Toast.show({ type: 'info', text1: 'Sign-Up In Progress' });
-      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        Toast.show({ type: 'error', text1: 'Play Services Not Available' });
-      } else {
-        Toast.show({
-          type: 'error',
-          text1: 'Google Sign-Up Failed',
-          text2: error?.data?.message || 'Something went wrong',
-        });
-      }
     }
-  };
+  }
+};
+
+
 
   return (
     <>

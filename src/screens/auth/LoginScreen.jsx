@@ -147,64 +147,6 @@ const LoginScreen = () => {
     setTimeout(() => setLoginType('user'), 1000);
   };
 
-  // const handleGoogleLogin = async () => {
-  //   try {
-  //     await GoogleSignin.hasPlayServices({
-  //       showPlayServicesUpdateDialog: true,
-  //     });
-  //     const userInfo = await GoogleSignin.signIn();
-  //     console.log('User Info', userInfo);
-
-  //     const idToken = userInfo.idToken || userInfo.data?.idToken;
-  //     if (!idToken) throw new Error('No ID token received from Google');
-
-  //     // ✅ Store the Google token in AsyncStorage
-  //     await AsyncStorage.setItem('token', idToken);
-  //     console.log('token', idToken)
-
-  //     // Normalize user data for your app
-  //     const normalizedUser = {
-  //       name: userInfo.data?.user?.name || 'User',
-  //       email: userInfo.data?.user?.email || '',
-  //       photo: userInfo.data?.user?.photo || null,
-  //     };
-  //     console.log('Normalize user data', normalizedUser);
-
-  //     await AsyncStorage.setItem('user', JSON.stringify(normalizedUser));
-  //     dispatch(setUser(normalizedUser));
-
-  //     Toast.show({
-  //       type: 'success',
-  //       text1: 'Google Login Success',
-  //       text2: `Welcome ${normalizedUser.name}`,
-  //     });
-
-  //     // dispatch(setUser(normalizedUser));
-
-  //     // await AsyncStorage.setItem('user', JSON.stringify(normalizedUser));
-
-  //     navigation.reset({
-  //       index: 0,
-  //       routes: [{ name: 'Main' }],
-  //     });
-  //   } catch (error) {
-  //     console.log('Google Sign-In Error:', error);
-  //     if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-  //       Toast.show({ type: 'info', text1: 'Sign-In Cancelled' });
-  //     } else if (error.code === statusCodes.IN_PROGRESS) {
-  //       Toast.show({ type: 'info', text1: 'Sign-In In Progress' });
-  //     } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-  //       Toast.show({ type: 'error', text1: 'Play Services Not Available' });
-  //     } else {
-  //       Toast.show({
-  //         type: 'error',
-  //         text1: 'Google Login Failed',
-  //         text2: error.message,
-  //       });
-  //     }
-  //   }
-  // };
-
 // const handleGoogleLogin = async () => {
 //   try {
 //     await GoogleSignin.hasPlayServices({
@@ -335,7 +277,7 @@ const handleGoogleLogin = async () => {
       Toast.show({
         type: 'error',
         text1: 'Google Login Failed',
-        text2: error.message || 'Something went wrong',
+        text2: error?.data?.message || 'Something went wrong',
       });
     }
   }
