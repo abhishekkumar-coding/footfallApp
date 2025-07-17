@@ -60,7 +60,7 @@ const AutoSlider = () => {
       description,
       endDate,
       bannerImage,
-      shopName, 
+      shopName,
       vendorId,
       offerId
     });
@@ -72,7 +72,7 @@ const AutoSlider = () => {
 
       {isLoading ? (
         <FlatList
-          data={[1, 2, 3]} // dummy placeholders
+          data={[1, 2, 3]}
           keyExtractor={item => item.toString()}
           horizontal
           showsHorizontalScrollIndicator={false}
