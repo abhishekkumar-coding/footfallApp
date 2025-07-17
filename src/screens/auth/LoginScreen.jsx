@@ -689,6 +689,8 @@ const LoginScreen = () => {
   const [showError, setShowError] = useState(false);
   const [loginType, setLoginType] = useState('user');
 
+  const [googleLoading, setGoogleLoading] = useState(false);
+
   // const user = useSelector((state)=>state.user.user)
   // console.log("User from Redux Store", user)
 
@@ -798,6 +800,7 @@ const LoginScreen = () => {
 
   const handleGoogleLogin = async () => {
     try {
+      setGoogleLoading(true);
       await GoogleSignin.hasPlayServices({
         showPlayServicesUpdateDialog: true,
       });
@@ -858,12 +861,14 @@ const LoginScreen = () => {
           text2: error?.data?.message || 'Something went wrong',
         });
       }
+    } finally {
+      setGoogleLoading(false);
     }
   };
 
   return (
     <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
-      {isLoading && (
+      {(isLoading || googleLoading) && (
         <View style={styles.loaderContainer}>
           <ActivityIndicator size="large" color="#fff" />
         </View>

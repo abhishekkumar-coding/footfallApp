@@ -51,6 +51,9 @@ const SignupScreen = () => {
   const [referredBy, setReferredBy] = useState('');
   const [showError, setShowError] = useState(false);
 
+  const [googleLoading, setGoogleLoading] = useState(false);
+
+
   const [signup, { isLoading }] = useSignupMutation();
   // const [googleAuthUser] = useGoogleAuthUserMutation();
   const [googleSignUp] = useGoogleSignUpMutation();
@@ -243,6 +246,7 @@ const SignupScreen = () => {
 
 const onGooglePress = async () => {
   try {
+    setGoogleLoading(true);
     await GoogleSignin.hasPlayServices({
       showPlayServicesUpdateDialog: true,
     });
@@ -301,6 +305,8 @@ const onGooglePress = async () => {
         text2: error?.data?.message || 'Something went wrong',
       });
     }
+  }finally {
+    setGoogleLoading(false); 
   }
 };
 
@@ -310,7 +316,7 @@ const onGooglePress = async () => {
     <>
       <BackButton lable={'Sign Up'} back />
       <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
-        {isLoading && (
+        {(isLoading || googleLoading) && (
           <View style={styles.loaderContainer}>
             <ActivityIndicator size="large" color="#fff" />
           </View>
