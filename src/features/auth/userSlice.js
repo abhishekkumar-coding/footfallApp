@@ -2,6 +2,7 @@ import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
     user: null,
+    fcmToken: ''
 }
 
 export const userSlice = createSlice({
@@ -13,11 +14,14 @@ export const userSlice = createSlice({
         },
         clearUser: (state) => {
             state.user = null
-        }
+        },
+        setFcmToken: (state, action) => {
+            state.fcmToken = action.payload;
+        },
     },
 
 
 })
 
-export const { setUser, clearUser } = userSlice.actions
+export const { setUser, clearUser , setFcmToken} = userSlice.actions
 export default userSlice.reducer

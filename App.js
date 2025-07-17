@@ -1,6 +1,7 @@
-import { 
-  LogBox, Platform, ScrollView, StatusBar, StyleSheet, 
-  Text, TextInput, TouchableOpacity, UIManager 
+import {
+  Alert,
+  LogBox, Platform, ScrollView, StatusBar, StyleSheet,
+  Text, TextInput, TouchableOpacity, UIManager
 } from 'react-native';
 import React, { useEffect } from 'react';
 import { NavigationContainer } from '@react-navigation/native';
@@ -16,16 +17,21 @@ import SplashScreen from 'react-native-splash-screen';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
+
 GoogleSignin.configure({
   webClientId: '629732782679-ug45qaukimq75elomr99d3ibn1b9fnmn.apps.googleusercontent.com',
-  offlineAccess: true, 
+  offlineAccess: true,
 });
 
 const App = () => {
+
+
   useEffect(() => {
-    setTimeout(() => {
+    const initializeApp = async () => {
       SplashScreen.hide();
-    }, 1000);
+    };
+
+    initializeApp()
 
     if (Text.defaultProps == null) Text.defaultProps = {};
     Text.defaultProps.allowFontScaling = false;

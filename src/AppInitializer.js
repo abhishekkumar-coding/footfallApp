@@ -3,12 +3,16 @@ import { useDispatch } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { setUser } from './features/auth/userSlice';
 import { View, ActivityIndicator } from 'react-native';
+import { requestNotificationPermission, getAndStoreFcmToken, setupNotificationListeners } from './features/notificationHelper';
 
 const AppInitializer = ({ children }) => {
   const dispatch = useDispatch();
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+
+    let unsubscribeNotification = null
+
     const bootstrap = async () => {
       try {
         const token = await AsyncStorage.getItem('token');
@@ -21,6 +25,10 @@ const AppInitializer = ({ children }) => {
         } else {
           console.log('No token/user found — user needs to log in.');
         }
+
+        await requestNotificationPermission();
+        await getAndStoreFcmToken(dispatch);
+        unsubscribeNotification = setupNotificationListeners();
       } catch (e) {
         console.error('Failed to restore user from AsyncStorage:', e);
       } finally {
@@ -39,7 +47,7 @@ const AppInitializer = ({ children }) => {
     );
   }
 
-  return children; // Let the rest of your app render once ready
+  return children;
 };
 
 export default AppInitializer;

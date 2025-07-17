@@ -3,12 +3,13 @@ import React from 'react';
 import ProfileEditIcon from '../../utils/icons/ProfileEditIcon';
 import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
+import { useSelector } from 'react-redux';
 
 const ProfileHeader = ({ navigation, user }) => {
-  console.log("ProfileHeader user prop:", user);
+  // console.log("ProfileHeader user prop:", user);
 
   const { email, name, photo } = user || {};
-  console.log("Profile Photo: ", photo)
+  // console.log("Profile Photo: ", photo)
 
   return (
     <View style={styles.container}>
