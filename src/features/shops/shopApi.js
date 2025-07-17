@@ -158,10 +158,11 @@ export const shopApi = createApi({
       }),
     }),
     scanOffer: builder.mutation({
-      query: ({ id }) => ({
+      query: (id) => ({
         url: `offer/scan/${id}`,
         method: 'POST',
       }),
+        invalidatesTags: ['Wallet'],
     }),
   }),
 });

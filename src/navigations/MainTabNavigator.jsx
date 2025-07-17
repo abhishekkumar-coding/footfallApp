@@ -33,6 +33,7 @@ import OffersScreen from '../screens/offercScreen/OffersScreen';
 import OfferDetails from '../screens/offercScreen/OfferDetails';
 import CashbackScreen from '../screens/CashbackScreen';
 import NotificationScreen from '../screens/notificationscreen/NotificationScreen';
+import OfferScanner from '../screens/Home/OfferScanner';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -111,7 +112,11 @@ const HomeStack = () => (
       component={NotificationScreen}
       options={{ headerShown: false }}
     />
-
+    <Stack.Screen
+    name='OfferScanner'
+    component={OfferScanner}
+    options={{headerShown:false}}
+  />
   </Stack.Navigator>
 );
 
