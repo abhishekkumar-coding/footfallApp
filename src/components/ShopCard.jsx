@@ -29,6 +29,7 @@ const ShopCard = ({ shop, onPress }) => {
   const dispatch = useDispatch();
   const wishlist = useSelector(state => state.wishlist.items);
   const favoriteShops = wishlist.shops || [];
+  const [imageError, setImageError] = useState(false);
 
   let galleryImages = [];
   try {
@@ -37,7 +38,7 @@ const ShopCard = ({ shop, onPress }) => {
   } catch (error) {
     console.warn('Failed to parse gallery JSON:', error);
   }
-  const mainImage = galleryImages[0] || shop.cover ;
+  const mainImage = galleryImages[0] || shop.cover;
   console.log("Gallery Image: ", galleryImages)
   // const mainImage = galleryImages[0] || shop.cover || shop.logo;
   const isFavorite = favoriteShops.some(fav => fav._id === shop._id);
@@ -88,14 +89,17 @@ const ShopCard = ({ shop, onPress }) => {
     <TouchableOpacity style={styles.card} onPress={onPress}>
       <Image
         source={
-          mainImage
-            ? { uri: mainImage }
-            : require('../../assets/emptyShop.png')
+          imageError || !mainImage
+            ? require('../../assets/emptyShop.png')
+            : { uri: mainImage }
+
         }
         style={styles.cardImage}
         resizeMode="cover"
-        onError={() => setImageError(true)}
-      />
+        onError={(e) => {
+          console.warn("Image load error for shop:", shop.name, e.nativeEvent.error);
+          setImageError(true);
+        }} />
       <View style={styles.cardContent}>
         <Text style={styles.category}>{shop.category}</Text>
         <View style={styles.nameContainer}>

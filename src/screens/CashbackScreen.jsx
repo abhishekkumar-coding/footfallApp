@@ -152,7 +152,7 @@ const styles = StyleSheet.create({
     },
 
     title: {
-        fontSize: RFValue(20),
+        fontSize: RFValue(15),
         color: '#fff',
         fontFamily: 'Poppins-SemiBold',
     },

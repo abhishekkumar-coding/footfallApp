@@ -69,11 +69,6 @@ const ShopDetails = ({ route }) => {
     { skip: !vendorId },
   );
   const [scanShop] = useGetShopByScanMutation();
-  const {
-    data: offersData,
-    isLoading: isLoadingOffers,
-    error: offersError,
-  } = useGetShopOffersByIdQuery(shop?._id);
 
   console.log('Shop Data : ', shop.cover);
   const {
@@ -116,23 +111,12 @@ const ShopDetails = ({ route }) => {
     }
   }, [data, error, navigation]);
 
-  useEffect(() => {
-    if (offersData) {
-      console.log('Shop offers:', offersData);
-    }
-  }, [offersData]);
 
   const handleRedeem = ownerId => {
     console.log('Setting vendor ID for redeem:', ownerId);
     setVendorId(ownerId);
     setRedeemTrigger(prev => prev + 1);
   };
-
-  useEffect(() => {
-    if (offersData) {
-      console.log('Shop offers:', offersData);
-    }
-  }, [offersData]);
 
 
   const handleManualScan = async () => {
