@@ -1,93 +1,91 @@
-import React from 'react';
-import { View, Text, FlatList, StyleSheet, Image } from 'react-native';
+import React, { useState } from 'react';
+import {
+  View,
+  Text,
+  FlatList,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { hp, wp } from '../../utils/dimensions';
 import PageHeader from '../../components/BackButton';
-import { Warning } from '../../utils/icons/icons';
-import { Congrates } from '../../utils/icons/icons';
-import { useSelector } from 'react-redux';
+import { useNavigation } from '@react-navigation/native';
+import {
+  useGetNotificationsQuery,
+  useGetShopByIdQuery,
+  useGetOfferByIdQuery,
+} from '../../features/shops/shopApi';
+
+const NotificationScreen = () => {
+  const [shopId, setShopId] = useState(null);
+  const [offerId, setOfferId] = useState(null);
+
+  const navigation = useNavigation();
+  const { data, isLoading } = useGetNotificationsQuery();
+
+  const notifications = data?.data || []
+
+  console.log("Notifications Data: ", notifications)
 
 
-// const notifications = [
-//   {
-//     id: '1',
-//     title: 'Warning Alert!',
-//     message: 'You tried scanning outside allowed radius.',
-//     type: 'warning',
-//   },
-//   {
-//     id: '2',
-//     title: 'Congratulations!',
-//     message: 'You’ve earned 100 bonus points.',
-//     type: 'congrats',
-//   },
-//   {
-//     id: '3',
-//     title: 'Warning!',
-//     message: 'Multiple failed scan attempts detected.',
-//     type: 'warning',
-//   },
-//   {
-//     id: '4',
-//     title: 'Reward Unlocked!',
-//     message: 'Cashback applied at XYZ Store.',
-//     type: 'congrats',
-//   },
-// ];
-
-
-
-const NotificationScreen = ({ route }) => {
-  const { notifications } = route.params;
-  // const notifications = []
-
+  const handleNotificationPress = async (item) => {
+    try {
+      if (item.entityType === 'offer') {
+        // setOfferId(item.offerId);
+        console.log("Offer Data from Notification Screen: ", item.offerId)
+        navigation.navigate('OfferDetails', { offerId: item.offerId });
+      } else if (item.entityType === 'shop') {
+        // setShopId(item.shopId);
+        navigation.navigate('ShopDetails', { shopId: item.shopId });
+      }
+    } catch (error) {
+      console.error('Failed to navigate to details:', error);
+    }
+  };
 
   const renderItem = ({ item }) => {
-    const isWarning = item.type === 'warning';
+    const isOffer = item.entityType === 'offer';
+    const isShop = item.entityType === 'shop';
 
     return (
-      <View
+      <TouchableOpacity
+        onPress={() => handleNotificationPress(item)}
         style={[
           styles.notificationCard,
-          isWarning ? styles.warningCard : styles.congratsCard,
+          isOffer && styles.offerCard,
+          isShop && styles.shopCard,
         ]}
       >
-        <View style={styles.row}>
-          <View
-            style={[
-              styles.iconCircle,
-              isWarning ? styles.warningIconBg : styles.congratsIconBg,
-            ]}
-          >
-            {isWarning ? <Warning /> : <Congrates />}
-          </View>
-          <View style={{ flex: 1, marginLeft: wp(3) }}>
-            <Text style={styles.notificationTitle}>{item.title}</Text>
-            <Text style={styles.notificationMessage}>{item.message}</Text>
-          </View>
-        </View>
-      </View>
+        <Text style={styles.notificationTitle}>{item.title}</Text>
+        <Text style={styles.entityType}>{item.entityType.toUpperCase()}</Text>
+      </TouchableOpacity>
     );
   };
 
   return (
     <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
-      <PageHeader lable="Notifications" back={true} />
+      <PageHeader lable="Notifications" back />
       <View style={styles.container}>
-        {notifications.length === 0 ? (
+        {isLoading ? (
+          <View style={{flex:1, justifyContent:"center", alignItems:"center"}}>
+          <ActivityIndicator color="#fff" size="large" />
+          </View>
+        ) : notifications.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Image
-              source={require('../../../assets/emptyNotification.png')} // Make sure this image exists
+              source={require('../../../assets/emptyNotification.png')}
               style={styles.emptyImage}
               resizeMode="contain"
             />
-            {/* <Text style={styles.emptyText}>No notifications yet</Text> */}
+            <Text style={styles.emptyText}>No notifications yet</Text>
           </View>
         ) : (
           <FlatList
             data={notifications}
             renderItem={renderItem}
-            keyExtractor={item => item.id?.toString()}
+            keyExtractor={(item) => item._id}
             contentContainerStyle={{ paddingBottom: hp(5) }}
           />
         )}
@@ -101,51 +99,40 @@ export default NotificationScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: wp(4),
-  },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
+    paddingHorizontal: wp(4),
+    paddingTop: hp(2),
   },
   notificationCard: {
     borderRadius: wp(3),
     padding: wp(4),
-    marginBottom: hp(1.5),
+    marginBottom: hp(2),
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 4,
+    elevation: 3,
   },
-  warningCard: {
-    backgroundColor: 'rgba(244, 151, 142, 0.4)',
+  offerCard: {
+    backgroundColor: 'rgba(251, 111, 146, 0.3)', // light green
   },
-  congratsCard: {
-    backgroundColor: 'rgba(149, 213, 173, 0.4)',
-  },
-  iconCircle: {
-    width: wp(10),
-    height: wp(10),
-    borderRadius: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  warningIconBg: {
-    backgroundColor: '#ef233c',
-  },
-  congratsIconBg: {
-    backgroundColor: '#2b9348',
+  shopCard: {
+    backgroundColor: 'rgba(85, 166, 48, 0.3)', // light orange
   },
   notificationTitle: {
-    color: '#fff',
     fontSize: wp(4),
-    fontWeight: '600',
+    fontWeight: 'bold',
+    color: '#000',
     marginBottom: hp(0.5),
   },
-  notificationMessage: {
-    color: '#ccc',
+  entityType: {
     fontSize: wp(3.5),
+    fontWeight: '500',
+    color: '#555',
   },
   emptyContainer: {
     flex: 1,
     alignItems: 'center',
-    // justifyContent: 'center',
-    marginTop: hp(10),
+    justifyContent: 'center',
   },
   emptyImage: {
     width: wp(50),
@@ -153,9 +140,8 @@ const styles = StyleSheet.create({
     marginBottom: hp(2),
   },
   emptyText: {
-    color: '#ccc',
     fontSize: wp(4),
-    fontWeight: '500',
+    color: '#fff',
+    textAlign: 'center',
   },
-
 });

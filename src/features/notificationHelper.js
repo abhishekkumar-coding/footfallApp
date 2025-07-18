@@ -1,6 +1,8 @@
 import { Alert, PermissionsAndroid, Platform } from 'react-native';
 import messaging from '@react-native-firebase/messaging';
 import { setFcmToken } from '../features/auth/userSlice';
+import notifee, { AndroidImportance } from '@notifee/react-native';
+
 
 export const requestNotificationPermission = async () => {
   try {
@@ -40,16 +42,47 @@ export const getAndStoreFcmToken = async (dispatch) => {
 };
 
 export const setupNotificationListeners = () => {
-  // Foreground notifications
+  // Foreground message listener
   const unsubscribe = messaging().onMessage(async (remoteMessage) => {
     const { title, body } = remoteMessage.notification || {};
-    Alert.alert(title || 'New Notification', body || 'You have a new message.');
+
+    await notifee.displayNotification({
+      title: title || 'New Notification',
+      body: body || 'You have a new message',
+      android: {
+        channelId: 'default',
+        smallIcon: 'screen',
+        importance: AndroidImportance.HIGH,
+      },
+    });
   });
 
-  // Background message handler
-  messaging().setBackgroundMessageHandler(async remoteMessage => {
+  // Background & quit-state messages should be handled in index.js or App.js:
+  messaging().setBackgroundMessageHandler(async (remoteMessage) => {
     console.log('Background message received:', remoteMessage);
+
+    const { title, body } = remoteMessage.notification || {};
+
+    await notifee.displayNotification({
+      title: title || 'New Notification',
+      body: body || 'You have a new message',
+      android: {
+        channelId: 'default',
+        smallIcon: 'screen',
+        importance: AndroidImportance.HIGH,
+      },
+    });
   });
 
   return unsubscribe;
 };
+
+export const createNotificationChannel = async () => {
+  await notifee.createChannel({
+    id: 'default',
+    name: 'Default Channel',
+    importance: AndroidImportance.HIGH,
+    sound: 'default'
+  });
+};
+

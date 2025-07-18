@@ -40,20 +40,13 @@ const OffersScreen = () => {
 
 
 
-  const handlePress = (title, description, endDate, bannerImage, shopName, vendorId, offerId) => {
-    navigation.navigate('OfferDetails', {
-      title,
-      description,
-      endDate,
-      bannerImage,
-      shopName,
-      vendorId,
-      offerId
-    });
+  const handlePress = (offerId) => {
+    navigation.navigate('OfferDetails', {offerId});
   };
 
 
   const renderOffer = ({ item }) => {
+    console.log(item)
     const formattedDate = new Date(item.endTime).toLocaleString('en-IN', {
       day: '2-digit',
       month: 'short',
@@ -67,13 +60,7 @@ const OffersScreen = () => {
       <TouchableOpacity
         activeOpacity={0.7}
         onPress={() =>
-          handlePress(item.title,
-            item.description,
-            formattedDate,
-            item.bannerImage,
-            item.shopId.name,
-            item.shopId.owner,
-            item._id)}>
+          handlePress(item._id)}>
         <ImageBackground
           source={{ uri: item.bannerImage }}
           style={styles.offerCard}

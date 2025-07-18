@@ -16,6 +16,8 @@ import { toastConfig } from './src/components/toastConfig';
 import SplashScreen from 'react-native-splash-screen';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import notifee, { AndroidImportance } from '@notifee/react-native';
+import { createNotificationChannel, setupNotificationListeners, } from './src/features/notificationHelper';
 
 
 GoogleSignin.configure({
@@ -23,15 +25,25 @@ GoogleSignin.configure({
   offlineAccess: true,
 });
 
+
+
 const App = () => {
 
 
   useEffect(() => {
     const initializeApp = async () => {
-      SplashScreen.hide();
+      try {
+        setTimeout(() => {
+          SplashScreen.hide();
+        }, 2000)
+        await createNotificationChannel();
+        setupNotificationListeners()
+      } catch (error) {
+        console.warn('Initialization error:', error);
+      }
     };
 
-    initializeApp()
+    initializeApp();
 
     if (Text.defaultProps == null) Text.defaultProps = {};
     Text.defaultProps.allowFontScaling = false;
@@ -57,6 +69,10 @@ const App = () => {
       }
     }
   }, []);
+
+
+ 
+
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

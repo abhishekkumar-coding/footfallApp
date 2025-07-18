@@ -164,6 +164,18 @@ export const shopApi = createApi({
       }),
         invalidatesTags: ['Wallet'],
     }),
+    getNotifications : builder.query({
+      query:()=>({
+        url:"notification/getNotifications",
+        method: "GET"
+      })
+    }),
+    getOfferById : builder.query({
+      query:(id)=>({
+        url:`offer/getById/${id}`,
+        method:"GET"
+      })
+    })
   }),
 });
 
@@ -186,4 +198,6 @@ export const {
   useGetScanHistoryQuery,
   useGetFilteredShopsQuery,
   useScanOfferMutation,
+  useGetNotificationsQuery,
+  useGetOfferByIdQuery
 } = shopApi;
