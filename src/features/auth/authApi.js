@@ -76,10 +76,10 @@ export const authApi = createApi({
     //   }),
     // }),
     googleLogin: builder.mutation({
-      query: ({googleTokenData, fcmToken}) => ({
+      query: ({token, fcmToken}) => ({
         url: 'user/googleLogin',
         method: 'POST',
-        body: {googleTokenData, fcmToken}, 
+        body: {token, fcmToken}, 
       }),
     }),
     googleSignUp: builder.mutation({
