@@ -17,8 +17,10 @@ import {
   useGetWalletSummaryQuery,
 } from '../features/shops/shopApi';
 import { useRedeemVendorPointsMutation } from '../features/shops/shopApi';
+import { useTranslation } from 'react-i18next';
 
 const RedeemSummaryScreen = ({ route }) => {
+  const { t } = useTranslation();
   const [modalVisible, setModalVisible] = useState(false);
   const [redeemPoints, setRedeemPoints] = useState('');
   const [message, setMessage] = useState(null);
@@ -51,7 +53,7 @@ const RedeemSummaryScreen = ({ route }) => {
       setIsDisabled(false);
 
       setMessageType('success');
-      setMessage('Points redeemed successfully!');
+       setMessage(t('redeemScreen.successMessage'));
       setTimeout(() => setMessage(null), 2000);
     } catch (error) {
       console.error('Error redeeming points:', error);
@@ -59,7 +61,7 @@ const RedeemSummaryScreen = ({ route }) => {
 
       setMessageType('error');
       setMessage(
-        error?.data?.message || 'Failed to redeem points. Please try again.',
+        error?.data?.message || t('redeemScreen.errorMessage')
       );
       setTimeout(() => setMessage(null), 2000);
     }
@@ -78,7 +80,7 @@ const RedeemSummaryScreen = ({ route }) => {
 
   return (
     <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
-      <BackButton lable={'Redeem'} back />
+      <BackButton lable={t('redeemScreen.title')} back />
       <ScrollView contentContainerStyle={styles.container}>
         <View style={styles.profileContainer}>
           <Text style={styles.vendorName}>{vendorDetails.vendor.name}</Text>
@@ -89,7 +91,7 @@ const RedeemSummaryScreen = ({ route }) => {
           colors={['#DA22FF', '#9733EE']}
           style={styles.balanceCard}
         >
-          <Text style={styles.balanceLabel}>POINT BALANCE</Text>
+          <Text style={styles.balanceLabel}>{t('redeemScreen.pointBalanceLabel')}</Text>
           <Text style={styles.balanceAmount}>{totalPoints.toFixed(2)}</Text>
 
           <View style={styles.buttonRow}>
@@ -97,19 +99,19 @@ const RedeemSummaryScreen = ({ route }) => {
               style={styles.actionButton}
               onPress={handleClaimPress}
             >
-              <Text style={styles.actionText}>Claim</Text>
+               <Text style={styles.actionText}>{t('redeemScreen.claimButton')}</Text>
             </TouchableOpacity>
           </View>
         </LinearGradient>
 
-        <Text style={styles.sectionTitle}>Redeem History</Text>
+        <Text style={styles.sectionTitle}>{t('redeemScreen.redeemHistoryTitle')}</Text>
         <View style={{ marginBottom: 50 }}>
           {Array.isArray(data?.data) && data.data.length > 0 ? (
             data.data.map(item => (
               <View style={styles.transactionItem}>
                 <View>
                   <Text style={styles.reason} numberOfLines={3}>
-                    {item.reason}
+                    {item.reason || t('redeemScreen.noRedeemHistory')}
                   </Text>
                   <Text style={styles.transactionDate}>{item.date}</Text>
                 </View>
@@ -117,7 +119,9 @@ const RedeemSummaryScreen = ({ route }) => {
               </View>
             ))
           ) : (
-            <Text style={styles.transactionDate}>No redeem history found.</Text>
+             <Text style={styles.transactionDate}>
+              {t('redeemScreen.noRedeemHistory')}
+            </Text>
           )}
         </View>
 
@@ -130,10 +134,10 @@ const RedeemSummaryScreen = ({ route }) => {
         >
           <View style={styles.modalOverlay}>
             <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Enter Points to Redeem</Text>
+              <Text style={styles.modalTitle}>{t('redeemScreen.enterPointsPrompt')}</Text>
               <TextInput
                 style={styles.input}
-                placeholder="Points"
+                placeholder={t('redeemScreen.pointsPlaceholder')}
                 placeholderTextColor="#ccc"
                 keyboardType="numeric"
                 value={redeemPoints}
@@ -144,7 +148,7 @@ const RedeemSummaryScreen = ({ route }) => {
                   style={[styles.modalBtn, { backgroundColor: '#555' }]}
                   onPress={() => setModalVisible(false)}
                 >
-                  <Text style={styles.modalBtnText}>Cancel</Text>
+                  <Text style={styles.modalBtnText}>{t('redeemScreen.cancelButton')}</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={[
@@ -158,7 +162,7 @@ const RedeemSummaryScreen = ({ route }) => {
                   onPress={() => handleRedeemConfirm(vendorId)}
                 >
                   <Text style={styles.modalBtnText}>
-                    {isLoading ? 'Processing...' : 'Redeem'}
+                    {isLoading ? t('redeemScreen.processingText') : t('redeemScreen.confirmRedeemButton')}
                   </Text>
                 </TouchableOpacity>
               </View>

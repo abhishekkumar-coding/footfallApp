@@ -34,14 +34,15 @@ import OfferDetails from '../screens/offercScreen/OfferDetails';
 import CashbackScreen from '../screens/CashbackScreen';
 import NotificationScreen from '../screens/notificationscreen/NotificationScreen';
 import OfferScanner from '../screens/Home/OfferScanner';
+import LanguageSelectionScreen from '../screens/LanguageScreen';
+import LanguageScreen from '../screens/LanguageScreen';
+import { useTranslation } from 'react-i18next';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 const HomeStack = () => (
-  <Stack.Navigator
-
-  >
+  <Stack.Navigator>
     <Stack.Screen
       name="HomeMain"
       component={HomeScreen}
@@ -93,30 +94,32 @@ const HomeStack = () => (
       component={RedeemHistoryScreen}
       options={{ headerShown: false }}
     />
-    <Stack.Screen name='OffersScreen'
+
+    <Stack.Screen
+      name="OffersScreen"
       component={OffersScreen}
       options={{ headerShown: false }}
     />
     <Stack.Screen
-      name='OfferDetails'
+      name="OfferDetails"
       component={OfferDetails}
       options={{ headerShown: false }}
     />
     <Stack.Screen
-      name='CashbackScreen'
+      name="CashbackScreen"
       component={CashbackScreen}
       options={{ headerShown: false }}
     />
     <Stack.Screen
-      name='NotificationScreen'
+      name="NotificationScreen"
       component={NotificationScreen}
       options={{ headerShown: false }}
     />
     <Stack.Screen
-    name='OfferScanner'
-    component={OfferScanner}
-    options={{headerShown:false}}
-  />
+      name="OfferScanner"
+      component={OfferScanner}
+      options={{ headerShown: false }}
+    />
   </Stack.Navigator>
 );
 
@@ -142,10 +145,16 @@ const ProfileStack = () => (
       component={RedeemHistoryScreen}
       options={{ headerShown: false }}
     />
+    <Stack.Screen
+      name="Language"
+      component={LanguageScreen}
+      options={{ headerShown: false }}
+    />
   </Stack.Navigator>
 );
 
 const MainTabNavigator = () => {
+  const { t } = useTranslation();
   return (
     <Tab.Navigator
       screenOptions={{
@@ -170,35 +179,42 @@ const MainTabNavigator = () => {
         },
         tabBarActiveTintColor: '#fff',
         tabBarInactiveTintColor: '#d3d3d3',
-
       }}
     >
       <Tab.Screen
         name="Home"
         component={HomeStack}
-        options={({route})=>{
-          const routeName = 
-          getFocusedRouteNameFromRoute(route) ?? 'HomeMain';
-          const hideOnScreens = ['ScanOptions', 'RewardScanner', 'RedeemScanner', 'OffersScreen', 'OfferDetails', 'NotificationScreen', 'ShopDetails', 'OfferScanner'];
+        options={({ route }) => {
+          const routeName = getFocusedRouteNameFromRoute(route) ?? 'HomeMain';
+          const hideOnScreens = [
+            'ScanOptions',
+            'RewardScanner',
+            'RedeemScanner',
+            'OffersScreen',
+            'OfferDetails',
+            'NotificationScreen',
+            'ShopDetails',
+            'OfferScanner',
+          ];
           return {
             headerShown: false,
+            tabBarLabel: t('tab_home'),
             tabBarStyle: hideOnScreens.includes(routeName)
               ? { display: 'none' }
               : {
-                backgroundColor: '#181818',
-                position: 'absolute',
-                elevation: 0,
-                borderTopWidth: 0,
-                overflow: 'hidden',
-                height: 70,
-              },
+                  backgroundColor: '#181818',
+                  position: 'absolute',
+                  elevation: 0,
+                  borderTopWidth: 0,
+                  overflow: 'hidden',
+                  height: 70,
+                },
             tabBarIcon: ({ focused }) =>
               focused ? <FilledHome /> : <EmptyHome />,
           };
-
         }}
       />
-       {/* <Tab.Screen
+      {/* <Tab.Screen
         name="Home"
         component={HomeStack}
         options={{
@@ -213,6 +229,7 @@ const MainTabNavigator = () => {
         component={FavoritesStack}
         options={{
           headerShown: false,
+          tabBarLabel: t('tab_favorites'),
           tabBarIcon: ({ focused }) => {
             return focused ? <FilledHeart /> : <EmptyHeart />;
           },
@@ -223,6 +240,7 @@ const MainTabNavigator = () => {
         component={HistoryScreen}
         options={{
           headerShown: false,
+          tabBarLabel: t('tab_history'),
           tabBarIcon: ({ focused }) => {
             return focused ? <FilledHistoryIcon /> : <History />;
           },
@@ -237,16 +255,17 @@ const MainTabNavigator = () => {
           const hideOnScreens = ['EditProfile', 'Referral'];
           return {
             headerShown: false,
+            tabBarLabel: t('tab_profile'),
             tabBarStyle: hideOnScreens.includes(routeName)
               ? { display: 'none' }
               : {
-                backgroundColor: '#181818',
-                position: 'absolute',
-                elevation: 0,
-                borderTopWidth: 0,
-                overflow: 'hidden',
-                height: 70,
-              },
+                  backgroundColor: '#181818',
+                  position: 'absolute',
+                  elevation: 0,
+                  borderTopWidth: 0,
+                  overflow: 'hidden',
+                  height: 70,
+                },
             tabBarIcon: ({ focused }) =>
               focused ? <FilledProfile /> : <EmptyProfile />,
           };

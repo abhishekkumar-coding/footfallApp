@@ -24,12 +24,14 @@ import {
   GestureDetector,
   Gesture,
 } from 'react-native-gesture-handler';
+import { useTranslation } from 'react-i18next'; 
 
 const ShopCard = ({ shop, onPress }) => {
   const dispatch = useDispatch();
   const wishlist = useSelector(state => state.wishlist.items);
   const favoriteShops = wishlist.shops || [];
   const [imageError, setImageError] = useState(false);
+const { t } = useTranslation();
 
   let galleryImages = [];
   try {
@@ -108,7 +110,7 @@ const ShopCard = ({ shop, onPress }) => {
         <Text style={styles.location}>{shop.city}</Text>
         <View style={styles.favTimeContainer}>
           <Text style={styles.timings}>
-            {shop.startTime} - {shop.endTime}
+            {t('timings', { start: shop.startTime, end: shop.endTime })}
           </Text>
 
           {/* Ripple Effect on Heart Icon */}

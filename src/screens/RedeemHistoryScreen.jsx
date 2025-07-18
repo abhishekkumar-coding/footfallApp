@@ -5,8 +5,10 @@ import LinearGradient from 'react-native-linear-gradient';
 import { hp, wp } from '../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import BackButton from '../components/BackButton';
+import { useTranslation } from 'react-i18next';
 
 const RedeemHistoryScreen = () => {
+  const { t } = useTranslation();
   const { data, isLoading, error } = useGetRedeemHistoryQuery();
   const redeemHistory = data?.data ?? [];
 
@@ -21,11 +23,11 @@ const RedeemHistoryScreen = () => {
       })
       : 'N/A';
 
-    return (
+      return (
       <View style={styles.item}>
         <View style={{ width: '75%' }}>
-          <Text style={styles.text} numberOfLines={3}>{item?.reason || 'N/A'}</Text>
-          <Text style={styles.date}>Date: {formattedDate}</Text>
+          <Text style={styles.text} numberOfLines={3}>{item?.reason || t('redeem_noReason')}</Text>
+          <Text style={styles.date}>{t('redeem_date')}: {formattedDate}</Text>
         </View>
         <Text style={styles.points}>- {item?.points ?? '0'}</Text>
       </View>
@@ -34,7 +36,7 @@ const RedeemHistoryScreen = () => {
 
   return (
     <>
-      <BackButton lable={"Redeem History"} back />
+      <BackButton lable={t('redeem_title')} back />
       <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1, paddingHorizontal: 20 }}>
         {isLoading ? (
           <View style={styles.centered}>
@@ -42,12 +44,12 @@ const RedeemHistoryScreen = () => {
           </View>
         ) : error ? (
           <View style={styles.centered}>
-            <Text style={styles.empty}>Failed to load redeem history.</Text>
+            <Text style={styles.empty}>{t('redeem_failed')}</Text>
           </View>
         ) : redeemHistory.length === 0 ? (
           <View style={styles.centered}>
             <Image source={require('../../assets/emptyRedeemHistory.png')} style={{ width: wp(50), height: hp(20) }} />
-            {/* <Text style={styles.empty}>No redeem history found.</Text> */}
+            {/* <Text style={styles.empty}>{t('redeem_empty')}</Text> */}
           </View>
         ) : (
           <FlatList

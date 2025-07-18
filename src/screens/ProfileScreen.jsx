@@ -26,9 +26,13 @@ import { useNavigation } from '@react-navigation/native';
 import { clearUser } from '../features/auth/userSlice';
 import { shopApi, useGetWalletSummaryQuery } from '../features/shops/shopApi';
 import History from '../utils/icons/History';
+// import LanguageIcon  from '../utils/icons/LanguageIcon ';
 import { store } from '../store';
+import { useTranslation } from 'react-i18next';
+import LanguageIcon from '../utils/icons/LanguageIcon';
 
 const ProfileScreen = () => {
+   const { t } = useTranslation();
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState('');
 
@@ -56,7 +60,7 @@ const ProfileScreen = () => {
 
   return (
     <>
-      <BackButton lable={'Profile'} rightComponent={<TouchableOpacity style={styles.logOut} onPress={handleLogout}>
+      <BackButton lable={t('profile')} rightComponent={<TouchableOpacity style={styles.logOut} onPress={handleLogout}>
           <LogOutIcon />
         </TouchableOpacity>}/>
       <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
@@ -66,17 +70,17 @@ const ProfileScreen = () => {
           <Rewards rewardPoints={rewards} />
           <TabButton
             Icon={ProfileEditIcon}
-            label="Update Profile"
+            l label={t('update_profile')}
             onPress={() => navigation.navigate('EditProfile')}
           />
           <TabButton
             Icon={ScannerIcon}
-            label="Referral & Earn"
+            label={t('referral_earn')}
             onPress={() => navigation.navigate('Referral')}
           />
           <TabButton
             Icon={NotificationIcon}
-            label="Notifications"
+           label={t('notifications')}
             onPress={() => setActiveTab('Notifications')}
           />
 
@@ -87,8 +91,13 @@ const ProfileScreen = () => {
           /> */}
           <TabButton
             Icon={History}
-            label="Redeem History"
+            label={t('redeem_history')}
             onPress={() => navigation.navigate('RedeemHistoryScreen')}
+          />
+          <TabButton
+            Icon={LanguageIcon}
+             label={t('change_language')}
+            onPress={() => navigation.navigate('Language', { isInitialSetup: false })}
           />
           {/* <TouchableOpacity >
                 <View style={styles.container2}>

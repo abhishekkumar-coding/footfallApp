@@ -13,8 +13,10 @@ import { hp, wp } from '../utils/dimensions';
 import PageHeader from '../components/BackButton';
 import { useGetScanHistoryQuery } from '../features/shops/shopApi';
 import { useFocusEffect } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 
 const HistoryScreen = () => {
+  const { t } = useTranslation();
   const { data, isLoading, isError, refetch } = useGetScanHistoryQuery();
   const history = data?.data || [];
 
@@ -37,7 +39,7 @@ const HistoryScreen = () => {
       return (
         <View style={styles.centered}>
           <Text style={styles.empty}>
-            Failed to load history. Please try again.
+           {t('fetch_error')}
           </Text>
         </View>
       );
@@ -47,7 +49,7 @@ const HistoryScreen = () => {
       return (
         <View style={styles.centered}>
           <Image source={require('../../assets/emptyScanHistory.png')} style={{width:wp(50), height:hp(20)}}/>
-          {/* <Text style={styles.empty}>No scans yet</Text> */}
+          {/* <Text style={styles.empty}>{t('no_scans')}</Text> */}
         </View>
       );
     }
@@ -78,7 +80,7 @@ const HistoryScreen = () => {
       <View style={styles.item}>
         <View style={{ flex: 1 }}>
           <Text style={styles.shopName}>{item?.shopId?.name || 'N/A'}</Text>
-          <Text style={styles.date}>Date: {formattedDate}</Text>
+          <Text style={styles.date}>{t('date_label')}: {formattedDate}</Text>
         </View>
         <Text style={styles.points}>+ {item?.points ?? '0'}</Text>
       </View>
@@ -87,7 +89,7 @@ const HistoryScreen = () => {
 
   return (
     <>
-      <PageHeader lable={'Scan History'} />
+      <PageHeader lable={t('scan_history')} />
       <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
         {renderContent()}
       </LinearGradient>

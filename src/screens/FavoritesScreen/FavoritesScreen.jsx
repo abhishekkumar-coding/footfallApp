@@ -17,8 +17,10 @@ import PageHeader from '../../components/BackButton';
 import LinearGradient from 'react-native-linear-gradient';
 import { loadWishlist, removeFromWishlist } from '../../features/wishlistSlice';
 import { navigate } from '../../navigations/NavigationUtil';
+import { useTranslation } from 'react-i18next';
 
 const FavoritesScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const wishlist = useSelector(state => state.wishlist.items);
   const favoriteShops = wishlist.shops || [];
@@ -69,16 +71,14 @@ const FavoritesScreen = ({ navigation }) => {
 
   return (
     <>
-      <PageHeader lable={'Favorites'} />
+      <PageHeader lable={t('favorites')} />
       <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
         <View style={styles.container}>
           {favoriteShops.length === 0 ? (
             <View style={styles.emptyContainer}>
               <Image source={require('../../../assets/emptyfavorite.png')} style={{ width: wp(50), height: hp(20) }} />
               {/* <Text style={styles.emptyText}>No favorites yet</Text> */}
-              <Text style={styles.emptySubText}>
-                Tap the heart icon to add shops to your favorites
-              </Text>
+               {t('favorites_empty_subtext')}
             </View>
           ) : (
             <FlatList

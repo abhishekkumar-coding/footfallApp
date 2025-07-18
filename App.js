@@ -16,6 +16,8 @@ import { toastConfig } from './src/components/toastConfig';
 import SplashScreen from 'react-native-splash-screen';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import i18n from './src/i18n';
+import { I18nextProvider } from 'react-i18next';
 
 
 GoogleSignin.configure({
@@ -58,14 +60,31 @@ const App = () => {
     }
   }, []);
 
+  useEffect(() => {
+  const checkLanguage = async () => {
+    const lang = await AsyncStorage.getItem('appLanguage');
+    if (!lang) {
+      navigation.navigate('Language', { isInitialSetup: true });
+    } else {
+      changeAppLanguage(lang); // Apply saved language
+      // Then navigate to your main screen or onboarding
+    }
+  };
+
+  checkLanguage();
+}, []);
+
+
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Provider store={store}>
         <AppInitializer>
+          <I18nextProvider i18n={i18n}>
           <NavigationContainer linking={linking} ref={navigationRef}>
             <AppNavigator />
             <Toast config={toastConfig} />
           </NavigationContainer>
+          </I18nextProvider>
         </AppInitializer>
       </Provider>
     </GestureHandlerRootView>

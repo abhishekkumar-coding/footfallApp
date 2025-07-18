@@ -16,29 +16,27 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useGetAllOffersQuery, useGetSortedOffersQuery } from '../../features/shops/shopApi';
 import BackButton from "../../components/BackButton";
 import { useNavigation } from '@react-navigation/native';
-
+import { useTranslation } from 'react-i18next';  // Import useTranslation
 
 const filterOptions = [
-  { label: 'All', value: 'all' },
-  { label: 'Latest', value: 'latest' },
-  { label: 'Ending soon', value: 'endingSoon' },
-  { label: 'Distance', value: 'distance' },
+  { labelKey: 'filterAll', value: 'all' },
+  { labelKey: 'filterLatest', value: 'latest' },
+  { labelKey: 'filterEndingSoon', value: 'endingSoon' },
+  { labelKey: 'filterDistance', value: 'distance' },
 ];
 
 const OffersScreen = () => {
   const [selectedFilter, setSelectedFilter] = useState('all');
   const navigation = useNavigation();
+  const { t } = useTranslation();  // Initialize translations
 
-  const { data: allOffersData, } = useGetAllOffersQuery();
+  const { data: allOffersData } = useGetAllOffersQuery();
   const { data: sortedData, isLoading } = useGetSortedOffersQuery(selectedFilter);
-  console.log("Sortetd Offer Data:", sortedData)
-  console.log("All Offer Data:", allOffersData)
+
   const offers =
     selectedFilter === 'all'
       ? allOffersData?.data?.offers || []
       : sortedData?.data || [];
-
-
 
   const handlePress = (title, description, endDate, bannerImage, shopName, vendorId, offerId) => {
     navigation.navigate('OfferDetails', {
@@ -52,7 +50,6 @@ const OffersScreen = () => {
     });
   };
 
-
   const renderOffer = ({ item }) => {
     const formattedDate = new Date(item.endTime).toLocaleString('en-IN', {
       day: '2-digit',
@@ -61,7 +58,6 @@ const OffersScreen = () => {
       hour: '2-digit',
       minute: '2-digit',
     });
-    // console.log("offer id: ",item._id)
 
     return (
       <TouchableOpacity
@@ -79,13 +75,13 @@ const OffersScreen = () => {
           style={styles.offerCard}
           imageStyle={{ borderRadius: 12 }}
         />
-
       </TouchableOpacity>
     );
   };
+
   return (
     <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
-      <BackButton lable={"Offers"} back={true} />
+      <BackButton lable={t('offers')} back={true} />
 
       <View style={styles.headerContainer}>
         <ScrollView
@@ -95,7 +91,7 @@ const OffersScreen = () => {
         >
           {filterOptions.map(option => (
             <TouchableOpacity
-              key={option}
+              key={option.value}
               style={[
                 styles.filterButton,
                 selectedFilter === option.value && styles.selectedFilterButton,
@@ -108,7 +104,7 @@ const OffersScreen = () => {
                   selectedFilter === option.value && styles.selectedFilterText,
                 ]}
               >
-                {option.label}
+                {t(option.labelKey)}
               </Text>
             </TouchableOpacity>
           ))}
@@ -129,21 +125,21 @@ const OffersScreen = () => {
           ListEmptyComponent={
             <View style={{ justifyContent: "center", alignItems: "center", paddingVertical: hp(5) }}>
               <Image source={require('../../../assets/emptyofferBox.png')} style={{ width: wp(50), height: hp(20) }} />
-              <Text style={{ fontSize: RFValue(20), color: "#999", fontFamily: "Poppins-SemiBold", textAlign: "center" }}>No Offers Available</Text>
+              <Text style={{ fontSize: RFValue(20), color: "#999", fontFamily: "Poppins-SemiBold", textAlign: "center" }}>
+                {t('noOffersAvailable')}
+              </Text>
             </View>
           }
         />
       )}
     </LinearGradient>
-  )
-
+  );
 };
 
 export default OffersScreen;
 
 const styles = StyleSheet.create({
   listContent: {
-    // backgroundColor: '#000',
     paddingHorizontal: wp(2),
     gap: hp(2),
     paddingTop: hp(1),
@@ -215,6 +211,4 @@ const styles = StyleSheet.create({
     fontSize: RFValue(14),
     fontFamily: 'Poppins-SemiBold',
   }
-
 });
-

@@ -412,6 +412,8 @@ import PageHeader from '../../components/BackButton';
 import Toast from 'react-native-toast-message';
 import Geolocation from 'react-native-geolocation-service';
 import { PermissionsAndroid, Platform } from 'react-native';
+import { useTranslation } from 'react-i18next';
+
 
 const requestLocationPermission = async () => {
   if (Platform.OS === 'ios') return true;
@@ -437,6 +439,7 @@ function getDistanceInMeters(lat1, lon1, lat2, lon2) {
 }
 
 const ShopDetails = ({ route }) => {
+  const { t } = useTranslation();
   const navigation = useNavigation();
   const { shop } = route.params;
 
@@ -527,7 +530,7 @@ const ShopDetails = ({ route }) => {
   const handleManualScan = async () => {
     const hasPermission = await requestLocationPermission();
     if (!hasPermission) {
-      Toast.show({ type: 'error', text1: 'Location permission denied' });
+      Toast.show({ type: 'error', text1: t('location_denied') });
       return;
     }
 
@@ -564,8 +567,8 @@ const ShopDetails = ({ route }) => {
         if (distance > effectiveRadius) {
           Toast.show({
             type: 'error',
-            text1: `You're ${Math.round(distance)}m away.`,
-            text2: `Move closer to within ${effectiveRadius}m to scan.`,
+            text1: t('distance_away', { distance: Math.round(distance) }),
+            text2: t('move_closer', { radius: effectiveRadius }),
           });
           setIsLoadingShop(false);
           return;
@@ -593,7 +596,7 @@ const ShopDetails = ({ route }) => {
               navigation.goBack();
             }
           } else {
-            Toast.show({ type: 'error', text1: 'Scan failed. Try again.' });
+            Toast.show({ type: 'error', text1: t('scan_failed_try') });
           }
         } catch (err) {
           Toast.show({ type: 'error', text1: err?.data?.message || 'Error' });
@@ -619,7 +622,7 @@ const ShopDetails = ({ route }) => {
     return (
       <View style={styles.container}>
         <Text style={{ color: '#fff' }}>
-          Shop data not available. Please try scanning again.
+          {t('shop_data_missing')}
         </Text>
       </View>
     );
@@ -636,7 +639,8 @@ const ShopDetails = ({ route }) => {
       {(isLoadingShop || isLoadingVendor) && (
         <View style={styles.loaderContainer}>
           <Text style={styles.loaderText}>
-            {isLoadingShop ? 'Scanning...' : 'Fetching vendor points...'}
+            {/* {isLoadingShop ? 'Scanning...' : 'Fetching vendor points...'} */}
+            {isLoadingShop ? t('scanning') : t('fetching_points')}
           </Text>
         </View>
       )}
@@ -646,7 +650,7 @@ const ShopDetails = ({ route }) => {
           style={[styles.resultContainer, { backgroundColor: '#28A745' }]}
         >
           <Text style={styles.resultTitle}>
-            ✅ Shop scanned successfully!
+           {t('scanSuccessful')}
           </Text>
         </View>
       )}
@@ -654,7 +658,7 @@ const ShopDetails = ({ route }) => {
         <View
           style={[styles.resultContainer, { backgroundColor: '#B00020' }]}
         >
-          <Text style={styles.resultTitle}>❌ {errorMessage}</Text>
+          <Text style={styles.resultTitle}>{t('scan_failed', { message: errorMessage })}</Text>
         </View>
       )}
 
@@ -682,14 +686,14 @@ const ShopDetails = ({ route }) => {
                 style={styles.scanButton}
                 onPress={handleManualScan}
               >
-                <Text style={styles.buttonText}>Scan me</Text>
+                <Text style={styles.buttonText}>{t('scan_me')}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.redeemButton}
                 onPress={() => handleRedeem(owner)}
               >
-                <Text style={styles.buttonText}>Redeem</Text>
+                <Text style={styles.buttonText}>{t('redeem')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -697,47 +701,47 @@ const ShopDetails = ({ route }) => {
           {/* Shop Details Section */}
           <View style={styles.shopDetails}>
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Category</Text>
+              <Text style={styles.detailLabel}>{t('category')}</Text>
               <Text style={styles.detailValue}>{category}</Text>
             </View>
 
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Shop Name</Text>
+              <Text style={styles.detailLabel}>{t('shop_name')}</Text>
               <Text style={styles.detailValue}>{name}</Text>
             </View>
 
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Address</Text>
+              <Text style={styles.detailLabel}>{t('address')}</Text>
               <Text style={styles.detailValue}>{address}</Text>
             </View>
 
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>City</Text>
+              <Text style={styles.detailLabel}>{t('city')}</Text>
               <Text style={styles.detailValue}>
                 {city}
               </Text>
             </View>
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Pincode</Text>
+              <Text style={styles.detailLabel}>{t('pincode')}</Text>
               <Text style={styles.detailValue}>
                 {pinCode}
               </Text>
             </View>
 
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Timings</Text>
+              <Text style={styles.detailLabel}>{t('timing')}</Text>
               <Text style={styles.detailValue}>
                 {startTime} - {endTime}
               </Text>
             </View>
 
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Phone</Text>
+              <Text style={styles.detailLabel}>{t('phone')}</Text>
               <Text style={styles.detailValue}>{contact?.phone}</Text>
             </View>
 
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Email</Text>
+              <Text style={styles.detailLabel}>{t('email')}</Text>
               <Text style={styles.detailValue}>{contact?.email}</Text>
             </View>
           </View>

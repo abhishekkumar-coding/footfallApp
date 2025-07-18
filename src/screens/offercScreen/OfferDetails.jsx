@@ -8,17 +8,20 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { useGetVendorByIdQuery, useScanOfferMutation } from '../../features/shops/shopApi';
 import Toast from 'react-native-toast-message';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 
 
 const OfferDetails = ({ route }) => {
-
+    
     const navigation = useNavigation()
+    const { t } = useTranslation();
 
     const { title, description, endDate, bannerImage, shopName, vendorId, offerId } = route.params;
 
     const { data: vendordata, isLoading, error } = useGetVendorByIdQuery({ id: vendorId });
 
     const [triggerScanOffer, { data: offerData, isLoading:isOfferResult }] = useScanOfferMutation();
+
 
 
  const handleClick = async (value) => {
@@ -57,7 +60,7 @@ const OfferDetails = ({ route }) => {
 
     return (
         <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1, paddingBottom: hp(5) }}>
-            <BackButton lable={"Offer Details"} back={true} />
+            <BackButton lable={t('offerDetails')} back={true} />
 
             <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
                 <Text style={styles.title}>{title}</Text>
@@ -74,11 +77,11 @@ const OfferDetails = ({ route }) => {
                 <View style={styles.card}>
                     <View style={styles.infoCard}>
                         <View style={styles.infoRow}>
-                            <Text style={styles.label}>Shop Name:</Text>
+                            <Text style={styles.label}>{t('shopName')}</Text>
                             <Text style={styles.value}>{shopName}</Text>
                         </View>
                         <View style={styles.infoRow}>
-                            <Text style={styles.label}>Owner Name:</Text>
+                            <Text style={styles.label}>{t('ownerName')}</Text>
                             <Text style={styles.value}>{vendorName}</Text>
                         </View>
                     </View>
@@ -94,13 +97,13 @@ const OfferDetails = ({ route }) => {
                     />
 
                     <View style={styles.qrWrapper}>
-                        <Text style={styles.scanText}>Scan this code in the scanner to get rewards</Text>
-                        <Text style={styles.validityText}>Valid till {endDate}</Text>
+                        <Text style={styles.scanText}>{t('scanCodeText')}</Text>
+                        <Text style={styles.validityText}>{t('validTill', { date: endDate })}</Text>
                         {/* <View style={styles.qrContainer}>
                             <ShopQRCode vendorId={vendorId} />
                         </View> */}
                         <TouchableOpacity disabled={isOfferResult} onPress={() => navigation.navigate('OfferScanner')}>
-                            <Text style={styles.scanButton}  >Scan Now</Text>
+                            <Text style={styles.scanButton}  >{t('scanNow')}</Text>
                         </TouchableOpacity>
                     </View>
                 </View>

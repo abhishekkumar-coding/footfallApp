@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from 'react';
 import {
   View,
@@ -35,8 +34,10 @@ import {
   GoogleSignin,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
+import { useTranslation } from 'react-i18next';
 
 const LoginScreen = () => {
+  const { t } = useTranslation();
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -46,9 +47,8 @@ const LoginScreen = () => {
 
   const [googleLoading, setGoogleLoading] = useState(false);
 
-
-  const fcmToken = useSelector((state)=>state.user.fcmToken)
-  console.log("FCM Token from Redux Store", fcmToken)
+  const fcmToken = useSelector(state => state.user.fcmToken);
+  console.log('FCM Token from Redux Store', fcmToken);
 
   const dispatch = useDispatch();
 
@@ -97,7 +97,7 @@ const LoginScreen = () => {
         result.error.errors[0]?.message || 'Validation failed';
       Toast.show({
         type: 'error',
-        text1: 'Validation Error',
+        text1: t('validation_error'),
         text2: errorMessage,
       });
       return;
@@ -108,7 +108,7 @@ const LoginScreen = () => {
       await AsyncStorage.setItem('token', res.data.token);
       await AsyncStorage.setItem('user', JSON.stringify(res.data.user));
       dispatch(setUser(res.data.user));
-      console.log("Login Response: ", res.data)
+      console.log('Login Response: ', res.data);
 
       // 🔐 Save credentials if "Remember Me" is checked
       if (rememberMe) {
@@ -123,8 +123,8 @@ const LoginScreen = () => {
 
       Toast.show({
         type: 'success',
-        text1: 'Login Successful',
-        text2: 'Welcome back!',
+        text1: t('login_success_title'),
+        text2: t('login_success_message'),
       });
 
       setTimeout(() => {
@@ -133,8 +133,8 @@ const LoginScreen = () => {
     } catch (error) {
       Toast.show({
         type: 'error',
-        text1: 'Login Failed',
-        text2: error?.data?.message || 'Invalid credentials',
+        text1: t('login_failed_title'),
+        text2: t('login_failed_message'),
       });
       console.log(error);
     }
@@ -172,7 +172,7 @@ const LoginScreen = () => {
       if (!idToken) throw new Error('No ID token received from Google');
 
       // ✅ Send Google ID token to your backend
-      const response = await googleLogin({ token: idToken , fcmToken}).unwrap();
+      const response = await googleLogin({ token: idToken, fcmToken }).unwrap();
       console.log('Backend Response:', response);
 
       const appToken = response?.data?.token;
@@ -195,8 +195,8 @@ const LoginScreen = () => {
       // ✅ FIXED: Use fullUser.name in Toast
       Toast.show({
         type: 'success',
-        text1: 'Google Login Success',
-        text2: `Welcome ${fullUser?.name || 'User'}`,
+        text1: t('google_success'),
+        text2: t('google_welcome', { name: fullUser?.name || 'User' }),
       });
 
       navigation.reset({
@@ -206,16 +206,16 @@ const LoginScreen = () => {
     } catch (error) {
       console.log('Google Sign-In Error:', error);
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        Toast.show({ type: 'info', text1: 'Sign-In Cancelled' });
+        Toast.show({ type: 'info', text1: t('google_cancelled') });
       } else if (error.code === statusCodes.IN_PROGRESS) {
-        Toast.show({ type: 'info', text1: 'Sign-In In Progress' });
+        Toast.show({ type: 'info', text1: t('google_progress') });
       } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        Toast.show({ type: 'error', text1: 'Play Services Not Available' });
+        Toast.show({ type: 'error', text1: t('google_play_services_error') });
       } else {
         Toast.show({
           type: 'error',
-          text1: 'Google Login Failed',
-          text2: error?.data?.message || 'Something went wrong',
+          text1: t('google_failed'),
+          text2: t('google_default_error'),
         });
       }
     } finally {
@@ -233,7 +233,7 @@ const LoginScreen = () => {
 
       <BackButton />
       <View style={styles.container}>
-        <Text style={styles.heading}>Log in 🔐</Text>
+        <Text style={styles.heading}>{t('login_title')}</Text>
         {/* <Text style={styles.subText}>Glad to see you! Please log in</Text> */}
         <View style={styles.loginTypeContainer}>
           <TouchableOpacity onPress={() => setLoginType('user')}>
@@ -243,7 +243,7 @@ const LoginScreen = () => {
                 loginType === 'user' && styles.activeLoginType,
               ]}
             >
-              User Login
+              {t('login_user')}
             </Text>
           </TouchableOpacity>
 
@@ -254,7 +254,7 @@ const LoginScreen = () => {
                 loginType === 'vendor' && styles.activeLoginType,
               ]}
             >
-              Vendor Login
+              {t('login_vendor')}
             </Text>
           </TouchableOpacity>
         </View>
@@ -263,16 +263,16 @@ const LoginScreen = () => {
           style={styles.formGradient}
         >
           <CustomInput
-            placeholder="Enter Email"
-            lable="Email"
+            placeholder={t('login_email_placeholder')}
+            lable={t('login_email_label')}
             iconComponent={<EmailIcon />}
             value={email}
             onChangeText={setEmail}
             showError={showError}
           />
           <CustomInput
-            placeholder="Enter Password"
-            lable="Password"
+            placeholder={t('login_password_placeholder')}
+            lable={t('login_password_label')}
             isPassword={true}
             iconComponent={<LockIcon />}
             value={password}
@@ -288,24 +288,24 @@ const LoginScreen = () => {
                 onValueChange={setRememberMe}
                 tintColors={{ true: '#fff', false: '#ccc' }}
               />
-              <Text style={styles.rememberText}>Remember me</Text>
+              <Text style={styles.rememberText}>{t('remember_me')}</Text>
             </View>
 
             <TouchableOpacity
               onPress={() => navigation.navigate('ForgotPassword')}
             >
-              <Text style={styles.forgotText}>Forgot Password?</Text>
+              <Text style={styles.forgotText}>{t('forgot_password')}</Text>
             </TouchableOpacity>
           </View>
 
-          <CustomButton title="Log in" onPress={handleLogin} />
+          <CustomButton title={t('login_button')} onPress={handleLogin} />
 
           <SocialLoginOptions onGooglePress={handleGoogleLogin} />
 
           <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
             <Text style={styles.signupText}>
-              Don't have an account?{' '}
-              <Text style={styles.signupLink}>Sign up</Text>
+              {t('no_account')}{' '}
+              <Text style={styles.signupLink}>{t('signup_link')}</Text>
             </Text>
           </TouchableOpacity>
         </LinearGradient>

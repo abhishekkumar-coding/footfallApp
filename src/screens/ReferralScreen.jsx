@@ -18,8 +18,11 @@ import LinearGradient from 'react-native-linear-gradient';
 import { RFValue } from 'react-native-responsive-fontsize';
 import BackButton from '../components/BackButton';
 import { hp, wp } from '../utils/dimensions';
+import { useTranslation } from 'react-i18next';
 
 const ReferralScreen = () => {
+  const { t } = useTranslation();
+
   const user = useSelector(state => state.user.user);
   const referralCode = user?.referralCode || 'N/A';
 
@@ -29,7 +32,7 @@ const ReferralScreen = () => {
 
   const handleCopyCode = () => {
     Clipboard.setString(referralCode);
-    Alert.alert('Copied', 'Referral code copied to clipboard');
+    Alert.alert(t('referral.copiedTitle'), t('referral.copiedMessage'));
   };
 
   const generateDeepLink = () => {
@@ -60,10 +63,7 @@ const ReferralScreen = () => {
       }
     } catch (error) {
       console.error('Error opening link:', error);
-      Alert.alert(
-        'Error',
-        'Could not open the link. Please make sure the app is installed.',
-      );
+      t('error'), t('link_error');
     }
   };
 
@@ -130,57 +130,55 @@ const ReferralScreen = () => {
       platform: 'whatsapp',
       icon: 'whatsapp',
       color: '#25D366',
-      label: 'WhatsApp',
+      label: t('whatsapp'),
     },
     {
       platform: 'messenger',
       icon: 'facebook',
       color: '#0084FF',
-      label: 'Messenger',
+      label: t('messenger'),
     },
     {
       platform: 'instagram',
       icon: 'instagram',
       color: '#C13584',
-      label: 'Instagram',
+      label: t('instagram'),
     },
-    { platform: 'email', icon: 'envelope', color: '#FFFFFF', label: 'Email' },
+    { platform: 'email', icon: 'envelope', color: '#FFFFFF', label: t('email'), },
     {
       platform: 'sms',
       icon: 'comment',
       color: '#5BC236',
-      label: 'SMS',
+      label: t('sms'),
       iconType: 'fontawesome',
     },
     {
       platform: 'more',
       icon: 'ellipsis-horizontal',
       color: '#CCCCCC',
-      label: 'More',
+      label: t('more'),
       iconType: 'ionicon',
     },
   ];
 
   return (
     <>
-
-      <BackButton lable={'Referral &  Earn'} back />
+      <BackButton lable={t('referral.title')} back />
       <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
         <View style={styles.container}>
-         
           <ScrollView
             contentContainerStyle={styles.scrollContainer}
             showsVerticalScrollIndicator={false}
           >
             <View style={styles.header}>
-              <Text style={styles.heading}>Invite Friends</Text>
+              <Text style={styles.heading}>{t('referral.inviteFriends')}</Text>
               <Text style={styles.subheading}>
-                Share your referral link and earn rewards when they sign up
+                {t('referral.shareMessage')}
               </Text>
             </View>
 
             <View style={styles.rewardCard}>
-              <Text style={styles.rewardTitle}>Your Referral Code</Text>
+              <Text style={styles.rewardTitle}>{t('referral.yourCode')}</Text>
               <TouchableOpacity
                 style={styles.codeBox}
                 onPress={handleCopyCode}
@@ -189,47 +187,45 @@ const ReferralScreen = () => {
                 <Text style={styles.codeText}>{referralCode}</Text>
                 <View style={styles.copyButton}>
                   <Ionicon name="copy-outline" size={20} color="#fff" />
-                  <Text style={styles.copyText}>Copy</Text>
+                  <Text style={styles.copyText}>{t('referral.copy')}</Text>
                 </View>
               </TouchableOpacity>
 
               <TouchableOpacity onPress={handleOpenLink}>
                 <Text style={styles.shortLinkText}>
-                  Tap to test your referral link
+                  {t('referral.testLink')}
                 </Text>
               </TouchableOpacity>
             </View>
 
             <View style={styles.howItWorks}>
-              <Text style={styles.sectionTitle}>How It Works</Text>
+              <Text style={styles.sectionTitle}>
+                {t('referral.howItWorks')}
+              </Text>
               <View style={styles.stepContainer}>
                 <View style={styles.step}>
                   <View style={styles.stepNumber}>
                     <Text style={styles.stepNumberText}>1</Text>
                   </View>
-                  <Text style={styles.stepText}>Share your referral link</Text>
+                  <Text style={styles.stepText}>{t('referral.step1')}</Text>
                 </View>
                 <View style={styles.step}>
                   <View style={styles.stepNumber}>
                     <Text style={styles.stepNumberText}>2</Text>
                   </View>
-                  <Text style={styles.stepText}>
-                    Friend clicks the link and signs up
-                  </Text>
+                  <Text style={styles.stepText}>{t('referral.step2')}</Text>
                 </View>
                 <View style={styles.step}>
                   <View style={styles.stepNumber}>
                     <Text style={styles.stepNumberText}>3</Text>
                   </View>
-                  <Text style={styles.stepText}>
-                    You both earn Footfall rewards!
-                  </Text>
+                  <Text style={styles.stepText}>{t('referral.step3')}</Text>
                 </View>
               </View>
             </View>
 
             <View style={styles.shareSection}>
-              <Text style={styles.sectionTitle}>Share Via</Text>
+              <Text style={styles.sectionTitle}>{t('referral.shareVia')}</Text>
               <View style={styles.glassContainer}>
                 <View style={styles.iconsGrid}>
                   {shareOptions.map((option, index) => (
@@ -275,7 +271,6 @@ const ReferralScreen = () => {
 const styles = StyleSheet.create({
   container: {
     paddingHorizontal: wp(5),
-  
   },
   scrollContainer: {
     paddingBottom: hp(10),

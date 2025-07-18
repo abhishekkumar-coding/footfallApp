@@ -13,12 +13,13 @@ import { useGetAllShopsQuery } from '../../features/shops/shopApi';
 import { loadWishlist } from '../../features/wishlistSlice';
 import ShopCard from '../../components/ShopCard';
 import ShopSkeletonCard from "./ShopSkeletonCard"
-
+import { useTranslation } from 'react-i18next';
 
 const ShopList = forwardRef((props, ref) => {
   const { navigation } = props;
   const dispatch = useDispatch();
   const { data, refetch, isLoading } = useGetAllShopsQuery();
+  const { t } = useTranslation();
   const shopData = data?.data?.shops || [];
   console.log("shop. data: ", shopData)
 
@@ -52,9 +53,9 @@ const ShopList = forwardRef((props, ref) => {
   return (
   <>
     <View style={styles.header}>
-      <Text style={styles.heading}>Nearby Shops</Text>
+      <Text style={styles.heading}>{t('nearby_shops')}</Text>
       <TouchableOpacity onPress={handleViewAll}>
-        <Text style={styles.viewAll}>View All</Text>
+        <Text style={styles.viewAll}>{t('view_all')}</Text>
       </TouchableOpacity>
     </View>
 

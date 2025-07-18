@@ -6,7 +6,7 @@ import PageHeader from '../../components/BackButton';
 import { Warning } from '../../utils/icons/icons';
 import { Congrates } from '../../utils/icons/icons';
 import { useSelector } from 'react-redux';
-
+import { useTranslation } from 'react-i18next';
 
 // const notifications = [
 //   {
@@ -38,6 +38,8 @@ import { useSelector } from 'react-redux';
 
 
 const NotificationScreen = ({ route }) => {
+    const { t } = useTranslation();
+
   const { notifications } = route.params;
   // const notifications = []
 
@@ -62,8 +64,8 @@ const NotificationScreen = ({ route }) => {
             {isWarning ? <Warning /> : <Congrates />}
           </View>
           <View style={{ flex: 1, marginLeft: wp(3) }}>
-            <Text style={styles.notificationTitle}>{item.title}</Text>
-            <Text style={styles.notificationMessage}>{item.message}</Text>
+            <Text style={styles.notificationTitle}>{t(item.title)}</Text>
+            <Text style={styles.notificationMessage}>{t(item.message)}</Text>
           </View>
         </View>
       </View>
@@ -72,7 +74,7 @@ const NotificationScreen = ({ route }) => {
 
   return (
     <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
-      <PageHeader lable="Notifications" back={true} />
+      <PageHeader lable={t('notifications')} back={true} />
       <View style={styles.container}>
         {notifications.length === 0 ? (
           <View style={styles.emptyContainer}>

@@ -4,7 +4,10 @@ import { StyleSheet, View, Text } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';    
 import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
+import { useTranslation } from 'react-i18next';
+
 const Rewards = ({ rewardPoints}) => {
+   const { t } = useTranslation();
   return (
     <LinearGradient
       colors={['#FF6BD6', '#FF2DCF']}
@@ -15,7 +18,7 @@ const Rewards = ({ rewardPoints}) => {
       {/* top row */}
       <View style={styles.row}>
         <View style={styles.labelRow}>
-          <Text style={styles.label}>Total Rewards</Text>
+          <Text style={styles.label}>{t('total_rewards')}</Text>
         </View>
         {/* you can swap this for a chevron if card is pressable */}
       </View>
