@@ -184,6 +184,13 @@ export const shopApi = createApi({
       }),
       invalidatesTags: ['Notifications'],
     }),
+    getUserLocation: builder.query({
+      query: ({ lat, lng, apiKey }) => ({
+        url: `geocode/json?latlng=${lat},${lng}&key=${apiKey}`,
+        method: 'GET',
+      }),
+      providesTags: ['UserLocation'],
+    }),
   }),
 });
 
@@ -208,5 +215,6 @@ export const {
   useScanOfferMutation,
   useGetNotificationsQuery,
   useGetOfferByIdQuery,
-  useMarkNotificationAsReadMutation
+  useMarkNotificationAsReadMutation,
+  useGetUserLocationQuery
 } = shopApi;

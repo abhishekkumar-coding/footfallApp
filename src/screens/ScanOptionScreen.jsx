@@ -77,7 +77,7 @@ const styles = StyleSheet.create({
   },
   optionText: {
     color: '#fff',
-    fontSize: RFValue(12),
+    fontSize: RFValue(11),
     fontWeight: '600',
   },
 });

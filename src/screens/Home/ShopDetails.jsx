@@ -294,7 +294,10 @@ const ShopDetails = ({ route }) => {
             /> */}
 
             <Image
-              source={{ uri: cover }}
+              source={
+                !cover
+                  ? require('../../../assets/emptyShop.png')
+                  : { uri: cover }}
               style={{ width: '100%', height: 350 }}
             />
 

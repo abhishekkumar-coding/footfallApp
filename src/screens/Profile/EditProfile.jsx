@@ -7,7 +7,7 @@ import {
   TouchableOpacity,
   ActivityIndicator,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import BackButton from '../../components/BackButton';
 import CustomButton from '../../components/CustomButton';
@@ -57,6 +57,14 @@ const EditProfile = () => {
   const [lat, setLat] = useState(userLat || null);
   const [lng, setLng] = useState(userLng || null);
   const [isLocLoading, setIsLocLoading] = useState(false);
+  const [addressDetails, setAddressDetails] = useState({
+    address: '',
+    city: '',
+    state: '',
+    country: '',
+    postcode: '',
+  });
+
 
   console.log(`user lat : ${lat} and long : ${lng}`);
 
@@ -106,20 +114,54 @@ const EditProfile = () => {
     }
   };
 
+  const fetchAddressFromCoordinates = async (lat, lng) => {
+    try {
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,
+        { headers: { "User-Agent": "Footfall" } }
+      );
+      const data = await res.json();
+      const { address, display_name } = data;
+      console.log("Location Data: ", data)
+
+      setAddressDetails({
+        address: display_name || '',
+        city: address?.city || address?.town || address?.village || '',
+        state: address?.state || '',
+        country: address?.country || '',
+        postcode: address?.postcode || '',
+      });
+    } catch (error) {
+      console.error("Error fetching address:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (lat && lng) {
+      const fetchData = async () => {
+        await fetchAddressFromCoordinates(lat, lng);
+      };
+      fetchData();
+    }
+  }, [lat, lng]);
+
+
+
   const handleAutoDetect = async () => {
     setIsLocLoading(true);
     const hasPermission = await requestLocationPermission();
-     if (!hasPermission) {
+    if (!hasPermission) {
       Toast.show({ type: 'error', text1: t('locationPermissionDenied') });
       setIsLocLoading(false);
       return;
     }
 
     Geolocation.getCurrentPosition(
-      position => {
+      async position => {
         const { latitude, longitude } = position.coords;
         setLat(latitude);
         setLng(longitude);
+        await fetchAddressFromCoordinates(latitude, longitude);
         setIsLocLoading(false);
         Toast.show({
           type: 'success',
@@ -160,6 +202,42 @@ const EditProfile = () => {
             <CustomInput lable={t('name')} placeholder={name} onChangeText={setName} value={name} />
             <CustomInput lable={t('email')} placeholder={email} onChangeText={setEmail} value={email} />
             <CustomInput lable={t('phone')} placeholder={phone} onChangeText={setPhone} value={phone} />
+            <CustomInput
+              lable={t('City')}
+              placeholder={t('city')}
+              onChangeText={(text) =>
+                setAddressDetails((prev) => ({ ...prev, city: text }))
+              }
+              value={addressDetails.city}
+            />
+
+            <CustomInput
+              lable={t('State')}
+              placeholder={t('state')}
+              onChangeText={(text) =>
+                setAddressDetails((prev) => ({ ...prev, state: text }))
+              }
+              value={addressDetails.state}
+            />
+
+            <CustomInput
+              lable={t('Pincode')}
+              placeholder={t('pincode')}
+              onChangeText={(text) =>
+                setAddressDetails((prev) => ({ ...prev, postcode: text }))
+              }
+              value={addressDetails.postcode}
+            />
+
+            <CustomInput
+              lable={t('Address')}
+              placeholder={t('address')}
+              onChangeText={(text) =>
+                setAddressDetails((prev) => ({ ...prev, address: text }))
+              }
+              value={addressDetails.address}
+            />
+
             {/* <CustomInput lable="Password" placeholder={"Enter New Password"} onChangeText={setPassword} value={password}/> */}
             {/* <CustomInput lable="Address" placeholder={address} />
                     <CustomInput lable="Country" placeholder={country} />
@@ -181,6 +259,7 @@ const EditProfile = () => {
               onPress={handleSave}
             />
           </View>
+
         </ScrollView>
       </View>
     </LinearGradient>
@@ -243,4 +322,22 @@ const styles = StyleSheet.create({
     fontSize: RFValue(14),
     fontFamily: 'Poppins-Medium',
   },
+  locationBox: {
+    backgroundColor: '#1E1E2F',
+    paddingVertical: 10,
+    paddingHorizontal: 14,
+    borderRadius: 8,
+    marginBottom: 10,
+  },
+  locationLabel: {
+    color: '#ccc',
+    fontSize: RFValue(13),
+    fontFamily: 'Poppins-Medium',
+  },
+  locationValue: {
+    color: '#fff',
+    fontSize: RFValue(15),
+    fontFamily: 'Poppins-SemiBold',
+  },
+
 });

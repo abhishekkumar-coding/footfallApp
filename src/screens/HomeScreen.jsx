@@ -14,6 +14,7 @@ import AutoSlider from './Home/AutoSlider';
 import { useSelector } from 'react-redux';
 import Coins from './Home/Coins';
 import QuickActions from './Home/QuickActions';
+import FeaturedShopsSection from './Home/FeaturedShopsSection';
 
 const useDynamicRefs = () => {
   const refs = useRef({});
@@ -57,6 +58,7 @@ const HomeScreen = ({ navigation }) => {
           <QuickActions />
           <View style={{ paddingHorizontal: 6 }}>
             <AutoSlider />
+            <FeaturedShopsSection/>
           </View>
           <ShopList navigation={navigation} ref={refs('shopListRef')} />
         </View>

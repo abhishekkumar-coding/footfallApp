@@ -37,6 +37,7 @@ import OfferScanner from '../screens/Home/OfferScanner';
 import LanguageSelectionScreen from '../screens/LanguageScreen';
 import LanguageScreen from '../screens/LanguageScreen';
 import { useTranslation } from 'react-i18next';
+import AllFeaturedShops from '../screens/Home/AllFeaturedShops';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -120,6 +121,11 @@ const HomeStack = () => (
       component={OfferScanner}
       options={{ headerShown: false }}
     />
+    <Stack.Screen
+    name='AllFeaturedShops'
+    component={AllFeaturedShops}
+    options={{headerShown:false}}
+    />
   </Stack.Navigator>
 );
 
@@ -195,6 +201,7 @@ const MainTabNavigator = () => {
             'NotificationScreen',
             'ShopDetails',
             'OfferScanner',
+            'AllFeaturedShops'
           ];
           return {
             headerShown: false,
