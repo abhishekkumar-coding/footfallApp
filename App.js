@@ -16,6 +16,8 @@ import { toastConfig } from './src/components/toastConfig';
 import SplashScreen from 'react-native-splash-screen';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import i18n from './src/i18n';
+import { I18nextProvider } from 'react-i18next';
 import notifee, { AndroidImportance } from '@notifee/react-native';
 import { createNotificationChannel, setupNotificationListeners, } from './src/features/notificationHelper';
 
@@ -78,10 +80,12 @@ const App = () => {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <Provider store={store}>
         <AppInitializer>
+          <I18nextProvider i18n={i18n}>
           <NavigationContainer linking={linking} ref={navigationRef}>
             <AppNavigator />
             <Toast config={toastConfig} />
           </NavigationContainer>
+          </I18nextProvider>
         </AppInitializer>
       </Provider>
     </GestureHandlerRootView>

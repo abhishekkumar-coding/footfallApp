@@ -17,8 +17,10 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useGetTotalPointsByVendorQuery } from '../features/shops/shopApi';
 import Toast from 'react-native-toast-message';
 import PageHeader from '../components/BackButton';
+import { useTranslation } from 'react-i18next';
 
 const RedeemScanner = ({ navigation }) => {
+  const { t } = useTranslation();
   const { hasPermission, requestPermission } = useCameraPermission();
   const device = useCameraDevice('back');
 
@@ -69,8 +71,8 @@ const RedeemScanner = ({ navigation }) => {
       // setShowScanSuccess(true);
       Toast.show({
         type: 'success',
-        text1: 'Vendor Found',
-        text2: 'Successfully retrieved vendor information',
+        text1: t('vendorFound'),
+        text2: t('vendorInfoRetrieved'),
       });
       setTimeout(() => {
         setShowScanSuccess(false);
@@ -79,14 +81,12 @@ const RedeemScanner = ({ navigation }) => {
         });
       }, 1000);
     } else if (error) {
-
-      console.log('Error fetching vendor points:', error);
-      const message = error?.data?.message || 'Something went wrong';
+      const message = error?.data?.message || t('somethingWentWrong');
       setErrorMessage(message);
       setShowScanError(true);
       Toast.show({
         type: 'error',
-        text1: 'Error',
+        text1: t('error'),
         text2: message,
         visibilityTime: 2000,
       });
@@ -97,12 +97,12 @@ const RedeemScanner = ({ navigation }) => {
     }
   }, [data, error, navigation, vendorId]);
 
-  const handleScanError = (message = 'Vendor ID not found in QR') => {
+ const handleScanError = (message = t('vendorIdNotFound')) => {
     setErrorMessage(message);
     setShowScanError(true);
     Toast.show({
       type: 'error',
-      text1: 'Scan Error',
+      text1: t('scanError'),
       text2: message,
       visibilityTime: 2000,
     });
@@ -122,7 +122,7 @@ const RedeemScanner = ({ navigation }) => {
         // Try to parse as URL first
         if (scannedValue.startsWith('http')) {
           const url = new URL(scannedValue);
-          extractedVendorId = url.searchParams.get('owner');
+         extractedVendorId = url.searchParams.get('owner');
         }
         // Try to parse as JSON
         else if (scannedValue.startsWith('{') || scannedValue.startsWith('[')) {
@@ -148,20 +148,17 @@ const RedeemScanner = ({ navigation }) => {
         if (extractedVendorId) {
           setHasScanned(true);
           setVendorId(extractedVendorId);
-          console.log("Vendor ID set:", extractedVendorId);
-
           Toast.show({
             type: 'info',
-            text1: 'Scanning',
-            text2: 'Fetching vendor information...',
+            text1: t('scanning'),
+            text2: t('scanningVendorInfo'),
             visibilityTime: 1000,
           });
         } else {
-          handleScanError("No valid vendor ID found in QR code");
+          handleScanError(t('noValidVendorId'));
         }
-      } catch (e) {
-        console.log("Error parsing QR code:", e);
-        handleScanError("Invalid QR code format");
+      } catch {
+        handleScanError(t('invalidQrFormat'));
       }
     },
   });
@@ -169,7 +166,7 @@ const RedeemScanner = ({ navigation }) => {
   if (!device) {
     return (
       <View style={styles.container}>
-        <Text>Device Not Found</Text>
+        <Text>{t('deviceNotFound')}</Text>
       </View>
     );
   }
@@ -177,14 +174,14 @@ const RedeemScanner = ({ navigation }) => {
   if (!hasPermission) {
     return (
       <View style={styles.container}>
-        <Text>Requesting camera permission...</Text>
+        <Text>{t('requestingCameraPermission')}</Text>
       </View>
     );
   }
 
   return (
     <>
-      <PageHeader lable={'Scan QR'} back />
+       <PageHeader lable={t('scanQr')} back />
       <View style={styles.container}>
         <Camera
           style={StyleSheet.absoluteFill}
@@ -225,7 +222,7 @@ const RedeemScanner = ({ navigation }) => {
 
         {showScanSuccess && (
           <View style={[styles.resultContainer, { backgroundColor: '#00C853' }]}>
-            <Text style={styles.resultTitle}>✅ Scan Successful!</Text>
+            {t('scanSuccessful')}
           </View>
         )}
 
@@ -237,7 +234,7 @@ const RedeemScanner = ({ navigation }) => {
 
         {isLoading && (
           <View style={styles.loaderContainer}>
-            <Text style={styles.loaderText}>Scanning...</Text>
+            <Text style={styles.loaderText}>{t('scanning')}</Text>
           </View>
         )}
       </View>

@@ -4,6 +4,7 @@ import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useGetAllOffersQuery } from '../../features/shops/shopApi';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 
 const { width } = Dimensions.get('window');
 
@@ -15,6 +16,7 @@ const AutoSlider = () => {
   const flatListRef = useRef(null);
   const scrollPosition = useRef(0);
   const navigation = useNavigation()
+  const { t } = useTranslation();
 
   const { data, isLoading } = useGetAllOffersQuery();
 
@@ -60,7 +62,7 @@ const AutoSlider = () => {
 
   return (
     <View style={{ width: '100%', paddingVertical: hp(2), gap: 10, paddingHorizontal: 10 }}>
-      <Text style={styles.headText}>Top Offers</Text>
+      <Text style={styles.headText}>{t('top_offers')}</Text>
 
       {isLoading ? (
         <FlatList

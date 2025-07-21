@@ -4,11 +4,14 @@ import NotificationIcon from '../../utils/icons/NotificationIcon';
 import { wp, hp } from '../../utils/dimensions';
 import { useNavigation } from '@react-navigation/native';
 import { useSelector } from 'react-redux';
+import { useGetNotificationsQuery } from '../../features/shops/shopApi';
 
 const HeaderHome = () => {
   const navigation = useNavigation();
-  const notifications = useSelector((state)=>state.notification.notifications)
-  const badgeCount = notifications.length
+  const notifications = useSelector((state) => state.notification.notifications)
+  const { data, isLoading } = useGetNotificationsQuery();
+
+  const badgeCount = data?.data.length
 
   return (
     <SafeAreaView style={styles.container}>
@@ -18,12 +21,14 @@ const HeaderHome = () => {
         resizeMode="contain"
       />
 
-      <TouchableOpacity onPress={() => navigation.navigate('NotificationScreen', {notifications})}>
+      <TouchableOpacity onPress={() => navigation.navigate('NotificationScreen', { notifications })}>
         <View style={styles.iconContainer}>
           <NotificationIcon />
-          <View style={styles.notificationBadge}>
-            <Text style={styles.badgeText}>{badgeCount}</Text>
-          </View>
+          {badgeCount > 0 && (
+            <View style={styles.notificationBadge}>
+              <Text style={styles.badgeText}>{badgeCount}</Text>
+            </View>
+          )}
         </View>
       </TouchableOpacity>
     </SafeAreaView>

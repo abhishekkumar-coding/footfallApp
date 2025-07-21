@@ -41,8 +41,10 @@ import {
 import { useDispatch } from 'react-redux';
 import { setUser } from '../../features/auth/userSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useTranslation } from 'react-i18next';
 
 const SignupScreen = () => {
+  const { t } = useTranslation();
   const navigation = useNavigation();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
@@ -53,22 +55,21 @@ const SignupScreen = () => {
 
   const [googleLoading, setGoogleLoading] = useState(false);
 
-
   const [signup, { isLoading }] = useSignupMutation();
   // const [googleAuthUser] = useGoogleAuthUserMutation();
   const [googleSignUp] = useGoogleSignUpMutation();
   const dispatch = useDispatch();
 
   const signupSchema = z.object({
-    name: z.string().min(3, { message: 'Name must be at least 3 characters' }),
-    email: z.string().email({ message: 'Invalid email address' }),
+    name: z.string().min(3, { message: t('signup.validation.name_min') }),
+    email: z.string().email({ message: t('signup.validation.email_invalid') }),
     phone: z
       .string()
-      .min(10, { message: 'Phone number must be at least 10 digits' })
-      .max(15, { message: 'Phone number too long' }),
+      .min(10, { message: t('signup.validation.phone_min') })
+      .max(15, { message: t('signup.validation.phone_max') }),
     password: z
       .string()
-      .min(6, { message: 'Password must be at least 6 characters' }),
+      .min(6, { message: t('signup.validation.password_min') }),
   });
 
   const handleSignup = async () => {
@@ -81,10 +82,11 @@ const SignupScreen = () => {
     const result = signupSchema.safeParse(formData);
 
     if (!result.success) {
-      const firstError = result.error.errors[0]?.message || 'Invalid input';
+      const firstError =
+        result.error.errors[0]?.message || t('validation_failed');
       Toast.show({
         type: 'error',
-        text1: 'Validation Error',
+        text1: t('signup.validation_error') || t('validation_error'),
         text2: firstError,
       });
       return;
@@ -94,8 +96,8 @@ const SignupScreen = () => {
       const response = await signup(formData).unwrap();
       Toast.show({
         type: 'success',
-        text1: 'Signup Successful',
-        text2: 'You can now log in.',
+        text1: t('signup.messages.success_title'),
+        text2: t('signup.messages.success_message'),
       });
       setTimeout(() => {
         navigation.navigate('Login');
@@ -103,8 +105,8 @@ const SignupScreen = () => {
     } catch (error) {
       Toast.show({
         type: 'error',
-        text1: 'Signup Failed',
-        text2: error?.data?.message || 'Something went wrong',
+        text1: t('signup.messages.failed_title'),
+        text2: error?.data?.message || t('signup.messages.failed_message'),
       });
     }
   };
@@ -244,77 +246,80 @@ const SignupScreen = () => {
   //   }
   // };
 
-const onGooglePress = async () => {
-  try {
-    setGoogleLoading(true);
-    await GoogleSignin.hasPlayServices({
-      showPlayServicesUpdateDialog: true,
-    });
-
-    await GoogleSignin.signOut();
-
-    const userInfo = await GoogleSignin.signIn();
-    console.log('Google userInfo:', userInfo);
-
-    const idToken = userInfo.idToken || userInfo.data?.idToken;
-    if (!idToken) throw new Error('No ID token received from Google');
-
-    // Send token to backend
-    const response = await googleSignUp({ token: idToken }).unwrap();
-    console.log('Backend Response:', response);
-
-    // ✅ Fix here: use "newUser" instead of "user"
-    const backendUser = response?.data?.newUser || {};
-
-    const user = {
-      ...backendUser,
-      photo: backendUser.photo || userInfo.user?.photo,
-      name: backendUser.name || userInfo.user?.name,
-      email: backendUser.email || userInfo.user?.email,
-    };
-
-    const appToken = response?.data?.token;
-    if (!appToken) throw new Error('App token missing in response');
-
-    await AsyncStorage.setItem('token', appToken);
-    await AsyncStorage.setItem('user', JSON.stringify(user));
-    dispatch(setUser(user));
-
-    Toast.show({
-      type: 'success',
-      text1: 'Google Sign-Up Success',
-      text2: `Welcome ${user?.name || 'User'}`,
-    });
-
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Main' }],
-    });
-  } catch (error) {
-    console.error('Google Sign-Up Error:', error);
-    if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-      Toast.show({ type: 'info', text1: 'Sign-Up Cancelled' });
-    } else if (error.code === statusCodes.IN_PROGRESS) {
-      Toast.show({ type: 'info', text1: 'Sign-Up In Progress' });
-    } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-      Toast.show({ type: 'error', text1: 'Play Services Not Available' });
-    } else {
-      Toast.show({
-        type: 'error',
-        text1: 'Google Sign-Up Failed',
-        text2: error?.data?.message || 'Something went wrong',
+  const onGooglePress = async () => {
+    try {
+      setGoogleLoading(true);
+      await GoogleSignin.hasPlayServices({
+        showPlayServicesUpdateDialog: true,
       });
+
+      await GoogleSignin.signOut();
+
+      const userInfo = await GoogleSignin.signIn();
+      console.log('Google userInfo:', userInfo);
+
+      const idToken = userInfo.idToken || userInfo.data?.idToken;
+      if (!idToken) throw new Error('No ID token received from Google');
+
+      // Send token to backend
+      const response = await googleSignUp({ token: idToken }).unwrap();
+      console.log('Backend Response:', response);
+
+      // ✅ Fix here: use "newUser" instead of "user"
+      const backendUser = response?.data?.newUser || {};
+
+      const user = {
+        ...backendUser,
+        photo: backendUser.photo || userInfo.user?.photo,
+        name: backendUser.name || userInfo.user?.name,
+        email: backendUser.email || userInfo.user?.email,
+      };
+
+      const appToken = response?.data?.token;
+      if (!appToken) throw new Error('App token missing in response');
+
+      await AsyncStorage.setItem('token', appToken);
+      await AsyncStorage.setItem('user', JSON.stringify(user));
+      dispatch(setUser(user));
+
+      Toast.show({
+        type: 'success',
+        text1: t('signup.google.success'),
+        text2: t('signup.google.welcome', {
+          name: user?.name || t('signup.google.default_name', 'User'),
+        }),
+      });
+
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Main' }],
+      });
+    } catch (error) {
+      console.error('Google Sign-Up Error:', error);
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        Toast.show({ type: 'info', text1: t('signup.google.cancelled') });
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        Toast.show({ type: 'info', text1: t('signup.google.progress') });
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        Toast.show({
+          type: 'error',
+          text1: t('signup.google.play_services_error'),
+        });
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: t('signup.google.failed'),
+          text2: error?.data?.message || t('signup.google.default_error'),
+        });
+      }
+    } finally {
+      setGoogleLoading(false);
     }
-  }finally {
-    setGoogleLoading(false); 
-  }
-};
-
-
+  };
 
   return (
     <>
-      <BackButton lable={'Sign Up'} back />
+      <BackButton lable={t('signup.title')} back />
       <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
         {(isLoading || googleLoading) && (
           <View style={styles.loaderContainer}>
@@ -330,39 +335,37 @@ const onGooglePress = async () => {
             keyboardShouldPersistTaps="handled"
           >
             <View style={styles.container}>
-              <Text style={styles.heading}>Create an account ✨</Text>
-              <Text style={styles.subText}>
-                Join us today! It only takes a moment
-              </Text>
+               <Text style={styles.heading}>{t('signup.heading')}</Text>
+              <Text style={styles.subText}>{t('signup.subheading')}</Text>
 
               <View style={styles.formContainer}>
                 <CustomInput
-                  placeholder={'Enter Name'}
-                  lable={'Name'}
+                  placeholder={t('signup.placeholders.name')}
+                  lable={t('signup.labels.name')}
                   iconComponent={<UserIcon />}
                   value={name}
                   showError={showError}
                   onChangeText={setName}
                 />
-                <CustomInput
-                  placeholder={'Enter Email'}
-                  lable={'Email'}
+                 <CustomInput
+                  placeholder={t('signup.placeholders.email')}
+                  lable={t('signup.labels.email')}
                   iconComponent={<EmailIcon />}
                   value={email}
                   showError={showError}
                   onChangeText={setEmail}
                 />
                 <CustomInput
-                  placeholder={'Enter Phone'}
-                  lable={'Phone'}
+                  placeholder={t('signup.placeholders.phone')}
+                  lable={t('signup.labels.phone')}
                   iconComponent={<PhoneIcon />}
                   value={phone}
                   showError={showError}
                   onChangeText={setPhone}
                 />
                 <CustomInput
-                  placeholder={'Enter Password'}
-                  lable={'Password'}
+                  placeholder={t('signup.placeholders.password')}
+                  lable={t('signup.labels.password')}
                   iconComponent={<LockIcon />}
                   value={password}
                   onChangeText={setPassword}
@@ -370,15 +373,15 @@ const onGooglePress = async () => {
                   isPassword={true}
                 />
                 <CustomInput
-                  lable="Referral code"
-                  placeholder="Enter Referral code (Optional)"
+                  lable={t('signup.labels.referral')}
+                  placeholder={t('signup.placeholders.referral')}
                   required={false}
                   value={referredBy}
                   onChangeText={setReferredBy}
                 />
 
                 <View style={styles.buttonContainer}>
-                  <CustomButton title={'Sign Up'} onPress={handleSignup} />
+                  <CustomButton title={t('signup.button')} onPress={handleSignup} />
                 </View>
 
                 <SocialLoginOptions onGooglePress={onGooglePress} />
@@ -388,8 +391,8 @@ const onGooglePress = async () => {
                   style={styles.loginTextContainer}
                 >
                   <Text style={styles.loginText}>
-                    Already have an account?{' '}
-                    <Text style={styles.loginLink}>Login</Text>
+                    {t('signup.links.already_account')}{' '}
+                    <Text style={styles.loginLink}>{t('signup.links.login')}</Text>
                   </Text>
                 </TouchableOpacity>
               </View>

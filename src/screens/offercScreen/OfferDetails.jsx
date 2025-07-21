@@ -15,11 +15,14 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { useGetOfferByIdQuery, useScanOfferMutation } from '../../features/shops/shopApi';
 import Toast from 'react-native-toast-message';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 
 const fallbackBanner = require('../../../assets/images/fallback-banner.png');
 
 const OfferDetails = ({ route }) => {
     const navigation = useNavigation();
+        const { t } = useTranslation();
+
     const [error, setError] = useState(false);
 
     const { offerId } = route.params || {};
@@ -60,15 +63,25 @@ const OfferDetails = ({ route }) => {
         );
     }
 
+    
+
     const {
         title = 'No Title Available',
         description = 'No description provided.',
         bannerImage,
-        endDate = 'N/A',
+        // endDate = 'N/A',
         shopId,
     } = offer;
 
     const shopName = shopId?.name || 'Shop not available';
+
+     const formattedDate = new Date(offer.endTime).toLocaleString('en-IN', {
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric',
+      hour: '2-digit',
+      minute: '2-digit',
+     });
 
     return (
         <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1, paddingBottom: hp(5) }}>
@@ -92,7 +105,7 @@ const OfferDetails = ({ route }) => {
                 <View style={styles.card}>
                     <View style={styles.infoCard}>
                         <View style={styles.infoRow}>
-                            <Text style={styles.label}>Shop Name:</Text>
+                            <Text style={styles.label}>{t('shopName')}</Text>
                             <Text style={styles.value}>{shopName}</Text>
                         </View>
                     </View>
@@ -109,7 +122,7 @@ const OfferDetails = ({ route }) => {
 
                     <View style={styles.qrWrapper}>
                         <Text style={styles.scanText}>Tap the button below to open the scanner</Text>
-                        <Text style={styles.validityText}>Valid till {endDate}</Text>
+                        <Text style={styles.validityText}>Valid till {formattedDate}</Text>
 
                         <TouchableOpacity onPress={() => navigation.navigate('OfferScanner')}>
                             <Text style={styles.scanButton}>Scan Now</Text>

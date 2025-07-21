@@ -2,32 +2,32 @@ import { createSlice } from '@reduxjs/toolkit';
 
 
 const initialState = {
-    notifications: [
-        {
-            id: '1',
-            title: 'Warning Alert!',
-            message: 'You tried scanning outside allowed radius.',
-            type: 'warning',
-        },
-        {
-            id: '2',
-            title: 'Congratulations!',
-            message: 'You’ve earned 100 bonus points.',
-            type: 'congrats',
-        },
-        {
-            id: '3',
-            title: 'Warning!',
-            message: 'Multiple failed scan attempts detected.',
-            type: 'warning',
-        },
-        {
-            id: '4',
-            title: 'Reward Unlocked!',
-            message: 'Cashback applied at XYZ Store.',
-            type: 'congrats',
-        },
-    ]
+ notifications: [
+    {
+      id: '1',
+      title: 'warning_alert_title', 
+      message: 'outside_radius_message',
+      type: 'warning',
+    },
+    {
+      id: '2',
+      title: 'congrats_title',
+      message: 'earned_bonus_message',
+      type: 'congrats',
+    },
+    {
+      id: '3',
+      title: 'warning_title',
+      message: 'failed_scan_message',
+      type: 'warning',
+    },
+    {
+      id: '4',
+      title: 'reward_title',
+      message: 'cashback_applied_message',
+      type: 'congrats',
+    },
+  ],
 }
 
 const notificationSlice = createSlice({

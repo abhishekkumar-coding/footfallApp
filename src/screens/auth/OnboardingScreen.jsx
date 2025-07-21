@@ -12,32 +12,33 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomButton from '../../components/CustomButton';
-import { wp, hp } from '../../utils/dimensions'; 
+import { wp, hp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
-
+import { useTranslation } from 'react-i18next';
 
 const { width } = Dimensions.get('window');
 
-const slides = [
-  {
-    image: require('../../../assets/onboarding1.png'),
-    title: 'Discover Local Shops',
-    desc: 'Find the best deals and shops near you.',
-  },
-  {
-    image: require('../../../assets/onboarding2.png'),
-    title: 'Earn Rewards',
-    desc: 'Scan QR codes and earn points with every visit.',
-  },
-  {
-    image: require('../../../assets/onboarding3.png'),
-    title: 'Spin & Win',
-    desc: 'Play games and win discounts & rewards.',
-  },
-];
-
 const OnboardingScreen = () => {
   const navigation = useNavigation();
+  const { t } = useTranslation();
+
+  const slides = [
+    {
+      image: require('../../../assets/onboarding1.png'),
+      title: t('onboarding.slides.0.title'),
+      desc: t('onboarding.slides.0.desc'),
+    },
+    {
+      image: require('../../../assets/onboarding2.png'),
+      title: t('onboarding.slides.1.title'),
+      desc: t('onboarding.slides.1.desc'),
+    },
+    {
+      image: require('../../../assets/onboarding3.png'),
+      title: t('onboarding.slides.2.title'),
+      desc: t('onboarding.slides.2.desc'),
+    },
+  ];
 
   const handleSignin = () => {
     navigation.navigate('Login');
@@ -67,13 +68,21 @@ const OnboardingScreen = () => {
           ))}
         </View>
         <View style={styles.buttonContainer}>
-          <Text style={styles.slogan}>Explore Stores Around You</Text>
-          <Text style={styles.description}>
-            Discover nearby shops, earn rewards, and unlock fun deals every day!
-          </Text>
+           <Text style={styles.slogan}>{t('onboarding.slogan')}</Text>
+          <Text style={styles.description}>{t('onboarding.description')}</Text>
           <View style={styles.buttonContainer2}>
-            <CustomButton  backgroundColor='transparent' borderWidth={1} title={"Sign In"} onPress={handleSignin} />
-            <CustomButton  backgroundColor='#FF4D00' borderWidth={1} title={"Sign Up"} onPress={handleSignup}/>
+            <CustomButton
+              backgroundColor="transparent"
+              borderWidth={1}
+              title={t('onboarding.buttons.signIn')}
+              onPress={handleSignin}
+            />
+            <CustomButton
+              backgroundColor="#FF4D00"
+              borderWidth={1}
+              title={t('onboarding.buttons.signUp')}
+              onPress={handleSignup}
+            />
           </View>
         </View>
       </SafeAreaView>
@@ -83,13 +92,12 @@ const OnboardingScreen = () => {
 
 export default OnboardingScreen;
 
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    gap: hp(5)
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: hp(5),
   },
   // scrollContent: {
   //   width: "100%",
@@ -105,14 +113,14 @@ const styles = StyleSheet.create({
   slidesContainer: {
     width: '100%',
     marginTop: hp(5),
-    paddingHorizontal:wp(2)
+    paddingHorizontal: wp(2),
   },
   slideContainer: {
     flexDirection: 'row',
-    justifyContent: "space-between",
+    justifyContent: 'space-between',
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     borderWidth: 0.5,
-    borderColor: "gray",
+    borderColor: 'gray',
     borderRadius: wp(6),
     paddingVertical: hp(1),
     paddingHorizontal: wp(2),
@@ -129,7 +137,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
     paddingVertical: hp(1),
     paddingHorizontal: wp(4),
-    textAlign:"right"
+    textAlign: 'right',
   },
   image: {
     width: width * 0.28,
@@ -147,12 +155,12 @@ const styles = StyleSheet.create({
     // fontWeight: 'bold',
     color: '#fff',
     marginBottom: hp(0.8),
-    fontFamily:"Poppins-SemiBold"
+    fontFamily: 'Poppins-SemiBold',
   },
   desc: {
     fontSize: wp(3),
     color: '#d3d3d3',
-    fontFamily:"Poppins-Regular"
+    fontFamily: 'Poppins-Regular',
   },
   buttonContainer: {
     alignItems: 'center',
@@ -160,9 +168,9 @@ const styles = StyleSheet.create({
     marginBottom: 0,
   },
   slogan: {
-    fontSize:RFValue(15),
+    fontSize: RFValue(15),
     // fontWeight: 'bold',
-    fontFamily:"Poppins-SemiBold",
+    fontFamily: 'Poppins-SemiBold',
     textAlign: 'center',
     color: '#fff',
     paddingHorizontal: 20,
@@ -170,17 +178,15 @@ const styles = StyleSheet.create({
   },
   description: {
     fontSize: RFValue(12),
-    fontFamily:"Poppins-Regular",
+    fontFamily: 'Poppins-Regular',
     textAlign: 'center',
     color: '#d3d3d3',
     paddingHorizontal: wp(6),
-    paddingVertical:hp(1.5)
+    paddingVertical: hp(1.5),
   },
-  buttonContainer2:{
-    flexDirection:"row",
-    paddingHorizontal:wp(28.2),
-    gap:wp(5),
-
+  buttonContainer2: {
+    flexDirection: 'row',
+    paddingHorizontal: wp(28.2),
+    gap: wp(5),
   },
 });
-

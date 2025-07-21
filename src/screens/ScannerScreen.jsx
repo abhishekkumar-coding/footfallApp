@@ -16,7 +16,7 @@ import PageHeader from '../components/BackButton';
 import Geolocation from 'react-native-geolocation-service';
 import { PermissionsAndroid, Platform } from 'react-native';
 import Toast from 'react-native-toast-message';
-
+import { useTranslation } from 'react-i18next';
 
 
 const requestLocationPermission = async () => {
@@ -43,6 +43,7 @@ function getDistanceInMeters(lat1, lon1, lat2, lon2) {
 }
 
 const ScannerScreen = ({ navigation }) => {
+  const { t } = useTranslation();
   const { hasPermission, requestPermission } = useCameraPermission();
   const device = useCameraDevice('back');
 
@@ -94,8 +95,8 @@ const ScannerScreen = ({ navigation }) => {
   const handleShopFetch = async (shop) => {
     const hasPermission = await requestLocationPermission();
 
-    if (!hasPermission) {
-      Toast.show({ type: 'error', text1: 'Location permission denied' });
+      if (!hasPermission) {
+      Toast.show({ type: 'error', text1: t('locationPermissionDenied') });
       return;
     }
 
@@ -132,8 +133,8 @@ const ScannerScreen = ({ navigation }) => {
         if (distance > effectiveRadius) {
           Toast.show({
             type: 'error',
-            text1: `You're ${Math.round(distance)}m away.`,
-            text2: `Move closer to within ${effectiveRadius}m to scan.`,
+            text1: t('tooFarAway', { distance: Math.round(distance) }),
+            text2: t('moveCloserToScan', { radius: effectiveRadius }),
           });
           setIsLoadingShop(false);
           return;
@@ -149,7 +150,7 @@ const ScannerScreen = ({ navigation }) => {
           if (result?.success) {
             Toast.show({
               type: 'success',
-              text1: 'Scan successful!',
+              text1: t('scanSuccessful'),
             });
 
             if (result.data?.scanRewardType === 'percentage') {
@@ -162,11 +163,10 @@ const ScannerScreen = ({ navigation }) => {
               navigation.goBack();
             }
           } else {
-            Toast.show({ type: 'error', text1: 'Scan failed. Try again.' });
+            Toast.show({ type: 'error', text1: t('scanFailedTryAgain') });
           }
         } catch (err) {
-          Toast.show({ type: 'error', text1: err?.data?.message || 'Error' });
-          console.log('❌ Scan error:', err);
+          Toast.show({ type: 'error', text1: err?.data?.message || t('error') });
         } finally {
           setIsLoadingShop(false);
         }
@@ -174,7 +174,7 @@ const ScannerScreen = ({ navigation }) => {
       error => {
         Toast.show({
           type: 'error',
-          text1: 'Location error',
+          text1: t('locationError'),
           text2: error.message,
         });
         setIsLoadingShop(false);
@@ -214,7 +214,7 @@ const ScannerScreen = ({ navigation }) => {
   if (!device) {
     return (
       <View style={styles.container}>
-        <Text>Device Not Found</Text>
+         <Text>{t('deviceNotFound')}</Text>
       </View>
     );
   }
@@ -222,14 +222,14 @@ const ScannerScreen = ({ navigation }) => {
   if (!hasPermission) {
     return (
       <View style={styles.container}>
-        <Text>Requesting camera permission...</Text>
+      <Text>{t('requestingCameraPermission')}</Text>
       </View>
     );
   }
 
   return (
     <>
-      <PageHeader lable={'Scan QR'} back />
+      <PageHeader lable={t('scanQr')} back />
       <View style={styles.container}>
         <Camera
           style={StyleSheet.absoluteFill}
@@ -270,19 +270,19 @@ const ScannerScreen = ({ navigation }) => {
 
         {showScanSuccess && (
           <View style={[styles.resultContainer, { backgroundColor: '#00C853' }]}>
-            <Text style={styles.resultTitle}>✅ Scan Successful!</Text>
+            <Text style={styles.resultTitle}>✅ {t('scanSuccessful')}</Text>
           </View>
         )}
 
         {showScanError && (
           <View style={[styles.resultContainer, { backgroundColor: '#B00020' }]}>
-            <Text style={styles.resultTitle}>❌ {errorMessage}</Text>
+            <Text style={styles.resultTitle}>❌ {errorMessage || t('scanFailedTryAgain')}</Text>
           </View>
         )}
 
         {isLoadingShop && (
           <View style={styles.loaderContainer}>
-            <Text style={styles.loaderText}>Scanning...</Text>
+            <Text style={styles.loaderText}>{t('scanning')}</Text>
           </View>
         )}
       </View>

@@ -17,12 +17,15 @@ import {
   useGetShopByIdQuery,
   useGetOfferByIdQuery,
 } from '../../features/shops/shopApi';
+import { useMarkNotificationAsReadMutation } from '../../features/shops/shopApi';
+
 
 const NotificationScreen = () => {
   const [shopId, setShopId] = useState(null);
   const [offerId, setOfferId] = useState(null);
 
   const navigation = useNavigation();
+  const [markAsRead] = useMarkNotificationAsReadMutation();
   const { data, isLoading } = useGetNotificationsQuery();
 
   const notifications = data?.data || []
@@ -32,13 +35,15 @@ const NotificationScreen = () => {
 
   const handleNotificationPress = async (item) => {
     try {
+        const marrkedRes = await markAsRead(item._id);
+        console.log("Marked Res : ", marrkedRes)
       if (item.entityType === 'offer') {
         // setOfferId(item.offerId);
         console.log("Offer Data from Notification Screen: ", item.offerId)
         navigation.navigate('OfferDetails', { offerId: item.offerId });
       } else if (item.entityType === 'shop') {
         // setShopId(item.shopId);
-        navigation.navigate('ShopDetails', { shopId: item.shopId });
+        navigation.navigate('ShopDetails', { id: item.shopId });
       }
     } catch (error) {
       console.error('Failed to navigate to details:', error);
@@ -69,8 +74,8 @@ const NotificationScreen = () => {
       <PageHeader lable="Notifications" back />
       <View style={styles.container}>
         {isLoading ? (
-          <View style={{flex:1, justifyContent:"center", alignItems:"center"}}>
-          <ActivityIndicator color="#fff" size="large" />
+          <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+            <ActivityIndicator color="#fff" size="large" />
           </View>
         ) : notifications.length === 0 ? (
           <View style={styles.emptyContainer}>
@@ -79,7 +84,7 @@ const NotificationScreen = () => {
               style={styles.emptyImage}
               resizeMode="contain"
             />
-            <Text style={styles.emptyText}>No notifications yet</Text>
+            {/* <Text style={styles.emptyText}>No notifications yet</Text> */}
           </View>
         ) : (
           <FlatList
@@ -113,7 +118,7 @@ const styles = StyleSheet.create({
     elevation: 3,
   },
   offerCard: {
-    backgroundColor: 'rgba(251, 111, 146, 0.3)', // light green
+    backgroundColor: 'rgba(251, 111, 146, 1)', // light green
   },
   shopCard: {
     backgroundColor: 'rgba(85, 166, 48, 0.3)', // light orange
@@ -121,7 +126,7 @@ const styles = StyleSheet.create({
   notificationTitle: {
     fontSize: wp(4),
     fontWeight: 'bold',
-    color: '#000',
+    color: '#fff',
     marginBottom: hp(0.5),
   },
   entityType: {

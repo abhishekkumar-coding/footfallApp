@@ -11,7 +11,7 @@ const baseQueryWithAuth = async (args, api, extraOptions) => {
       return headers;
     },
   });
-//   console.log(`ShopApi : ${token}`);
+  //   console.log(`ShopApi : ${token}`);
   return authenticatedBaseQuery(args, api, extraOptions);
 };
 
@@ -26,10 +26,10 @@ export const shopApi = createApi({
         method: 'GET',
       }),
     }),
-    getShopById : builder.query({
-      query:(id)=>({
-        url:`shop/getById/${id}`,
-        method:'GET'
+    getShopById: builder.query({
+      query: (id) => ({
+        url: `shop/getById/${id}`,
+        method: 'GET'
       })
     }),
     getShopByScan: builder.mutation({
@@ -162,20 +162,28 @@ export const shopApi = createApi({
         url: `offer/scan/${id}`,
         method: 'POST',
       }),
-        invalidatesTags: ['Wallet'],
+      invalidatesTags: ['Wallet'],
     }),
-    getNotifications : builder.query({
-      query:()=>({
-        url:"notification/getNotifications",
+    getNotifications: builder.query({
+      query: () => ({
+        url: "notification/getNotifications",
+        method: "GET"
+      }),
+      providesTags: ['Notifications'],
+    }),
+    getOfferById: builder.query({
+      query: (id) => ({
+        url: `offer/getById/${id}`,
         method: "GET"
       })
     }),
-    getOfferById : builder.query({
-      query:(id)=>({
-        url:`offer/getById/${id}`,
-        method:"GET"
-      })
-    })
+    markNotificationAsRead: builder.mutation({
+      query: (notificationId) => ({
+        url: `notification/markNotificationAsRead/${notificationId}`,
+        method: 'POST',
+      }),
+      invalidatesTags: ['Notifications'],
+    }),
   }),
 });
 
@@ -199,5 +207,6 @@ export const {
   useGetFilteredShopsQuery,
   useScanOfferMutation,
   useGetNotificationsQuery,
-  useGetOfferByIdQuery
+  useGetOfferByIdQuery,
+  useMarkNotificationAsReadMutation
 } = shopApi;

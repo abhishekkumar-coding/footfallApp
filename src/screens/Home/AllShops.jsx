@@ -26,7 +26,7 @@ const AllShops = ({ route }) => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
-  const {data} = useGetFilteredShopsQuery(selectedCategory)
+  const { data } = useGetFilteredShopsQuery(selectedCategory)
   console.log("Filtered Shop: ", data?.data?.shops)
 
   const categories = [
@@ -56,12 +56,9 @@ const AllShops = ({ route }) => {
   const renderItem = ({ item }) => (
     <ShopCard
       shop={item}
-      onPress={() =>
-        navigation.navigate('ShopDetails', {
-          shop: item,
-          image: item.cover || item.logo,
-        })
-      }
+      onPress={() => navigation.navigate('ShopDetails', {
+        id: item._id,
+      })}
     />
   );
 
@@ -116,10 +113,10 @@ const AllShops = ({ route }) => {
             contentContainerStyle={styles.listContent}
             numColumns={2}
             ListEmptyComponent={
-              <View style={{marginTop:hp(10)}}>
-                <Text style={{fontFamily:"Poppins-SemiBold", textAlign:"center", fontSize:RFValue(20), color:"#fff"}}>No shops available</Text>
-                <Text style={{fontFamily:"Poppins-Regular", textAlign:"center", fontSize:RFValue(15), color:"#999"}}>Please try again later.</Text>
-                <Image source={require('../../../assets/noShop.png')} style={{width:wp(40), height:hp(30), alignSelf:"center"}}/>
+              <View style={{ marginTop: hp(10) }}>
+                <Text style={{ fontFamily: "Poppins-SemiBold", textAlign: "center", fontSize: RFValue(20), color: "#fff" }}>No shops available</Text>
+                <Text style={{ fontFamily: "Poppins-Regular", textAlign: "center", fontSize: RFValue(15), color: "#999" }}>Please try again later.</Text>
+                <Image source={require('../../../assets/noShop.png')} style={{ width: wp(40), height: hp(30), alignSelf: "center" }} />
               </View>
             }
           />

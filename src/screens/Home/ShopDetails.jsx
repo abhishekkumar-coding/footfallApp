@@ -7,6 +7,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  ActivityIndicator,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { hp, wp } from '../../utils/dimensions';
@@ -16,6 +17,7 @@ import {
   useGetShopOffersByIdQuery,
   useGetShopByScanMutation,
   useGetTotalPointsByVendorQuery,
+  useGetShopByIdQuery,
 } from '../../features/shops/shopApi';
 import { useDispatch } from 'react-redux';
 import { triggerWalletRefresh } from '../../features/auth/walletSlice';
@@ -24,6 +26,8 @@ import PageHeader from '../../components/BackButton';
 import Toast from 'react-native-toast-message';
 import Geolocation from 'react-native-geolocation-service';
 import { PermissionsAndroid, Platform } from 'react-native';
+import { useTranslation } from 'react-i18next';
+
 
 const requestLocationPermission = async () => {
   if (Platform.OS === 'ios') return true;
@@ -49,8 +53,10 @@ function getDistanceInMeters(lat1, lon1, lat2, lon2) {
 }
 
 const ShopDetails = ({ route }) => {
+  const { t } = useTranslation();
   const navigation = useNavigation();
-  const { shop } = route.params;
+
+  const { id } = route.params
 
   const [sortBy, setSortBy] = useState('Latest');
   const dispatch = useDispatch();
@@ -60,6 +66,10 @@ const ShopDetails = ({ route }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [vendorId, setVendorId] = useState(null);
   const [redeemTrigger, setRedeemTrigger] = useState(0);
+  const { data: shopData, isLoading: isShopLoading, error: shopError } = useGetShopByIdQuery(id);
+
+  const shop = shopData?.data;
+
 
   const {
     data,
@@ -70,13 +80,9 @@ const ShopDetails = ({ route }) => {
     { skip: !vendorId },
   );
   const [scanShop] = useGetShopByScanMutation();
-  const {
-    data: offersData,
-    isLoading: isLoadingOffers,
-    error: offersError,
-  } = useGetShopOffersByIdQuery(shop?._id);
 
-  console.log('Shop Data : ', shop.cover);
+
+  // console.log('Shop Data : ', shop.cover);
   const {
     contact,
     _id,
@@ -117,29 +123,17 @@ const ShopDetails = ({ route }) => {
     }
   }, [data, error, navigation]);
 
-  useEffect(() => {
-    if (offersData) {
-      console.log('Shop offers:', offersData);
-    }
-  }, [offersData]);
-
   const handleRedeem = ownerId => {
     console.log('Setting vendor ID for redeem:', ownerId);
     setVendorId(ownerId);
     setRedeemTrigger(prev => prev + 1);
   };
 
-  useEffect(() => {
-    if (offersData) {
-      console.log('Shop offers:', offersData);
-    }
-  }, [offersData]);
-
 
   const handleManualScan = async () => {
     const hasPermission = await requestLocationPermission();
     if (!hasPermission) {
-      Toast.show({ type: 'error', text1: 'Location permission denied' });
+      Toast.show({ type: 'error', text1: t('location_denied') });
       return;
     }
 
@@ -176,8 +170,8 @@ const ShopDetails = ({ route }) => {
         if (distance > effectiveRadius) {
           Toast.show({
             type: 'error',
-            text1: `You're ${Math.round(distance)}m away.`,
-            text2: `Move closer to within ${effectiveRadius}m to scan.`,
+            text1: t('distance_away', { distance: Math.round(distance) }),
+            text2: t('move_closer', { radius: effectiveRadius }),
           });
           setIsLoadingShop(false);
           return;
@@ -205,7 +199,7 @@ const ShopDetails = ({ route }) => {
               navigation.goBack();
             }
           } else {
-            Toast.show({ type: 'error', text1: 'Scan failed. Try again.' });
+            Toast.show({ type: 'error', text1: t('scan_failed_try') });
           }
         } catch (err) {
           Toast.show({ type: 'error', text1: err?.data?.message || 'Error' });
@@ -226,16 +220,30 @@ const ShopDetails = ({ route }) => {
     );
   };
 
-  if (!shop) {
-
+  if (isShopLoading) {
     return (
-      <View style={styles.container}>
-        <Text style={{ color: '#fff' }}>
-          Shop data not available. Please try scanning again.
-        </Text>
-      </View>
+      <LinearGradient
+        colors={['#000337', '#000000']}
+        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+      >
+        <ActivityIndicator size="large" color="#fff" />
+      </LinearGradient>
     );
   }
+
+  if (!shop) {
+    return (
+      <LinearGradient
+        colors={['#000337', '#000000']}
+        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+      >
+        <Text style={{ color: '#fff', fontSize: 16 }}>
+          {t('shop_data_missing')}
+        </Text>
+      </LinearGradient>
+    );
+  }
+
 
   return (
 
@@ -243,12 +251,13 @@ const ShopDetails = ({ route }) => {
       colors={['#000337', '#000000']}
       style={{ flex: 1 }}
     >
-      <PageHeader  back bg/>
+      <PageHeader back bg />
       {/* Loading and status indicators */}
       {(isLoadingShop || isLoadingVendor) && (
         <View style={styles.loaderContainer}>
           <Text style={styles.loaderText}>
-            {isLoadingShop ? 'Scanning...' : 'Fetching vendor points...'}
+            {/* {isLoadingShop ? 'Scanning...' : 'Fetching vendor points...'} */}
+            {isLoadingShop ? t('scanning') : t('fetching_points')}
           </Text>
         </View>
       )}
@@ -258,7 +267,7 @@ const ShopDetails = ({ route }) => {
           style={[styles.resultContainer, { backgroundColor: '#28A745' }]}
         >
           <Text style={styles.resultTitle}>
-            ✅ Shop scanned successfully!
+            {t('scanSuccessful')}
           </Text>
         </View>
       )}
@@ -266,7 +275,7 @@ const ShopDetails = ({ route }) => {
         <View
           style={[styles.resultContainer, { backgroundColor: '#B00020' }]}
         >
-          <Text style={styles.resultTitle}>❌ {errorMessage}</Text>
+          <Text style={styles.resultTitle}>{t('scan_failed', { message: errorMessage })}</Text>
         </View>
       )}
 
@@ -294,14 +303,14 @@ const ShopDetails = ({ route }) => {
                 style={styles.scanButton}
                 onPress={handleManualScan}
               >
-                <Text style={styles.buttonText}>Scan me</Text>
+                <Text style={styles.buttonText}>{t('scan_me')}</Text>
               </TouchableOpacity>
 
               <TouchableOpacity
                 style={styles.redeemButton}
                 onPress={() => handleRedeem(owner)}
               >
-                <Text style={styles.buttonText}>Redeem</Text>
+                <Text style={styles.buttonText}>{t('redeem')}</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -309,47 +318,47 @@ const ShopDetails = ({ route }) => {
           {/* Shop Details Section */}
           <View style={styles.shopDetails}>
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Category</Text>
+              <Text style={styles.detailLabel}>{t('category')}</Text>
               <Text style={styles.detailValue}>{category}</Text>
             </View>
 
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Shop Name</Text>
+              <Text style={styles.detailLabel}>{t('shop_name')}</Text>
               <Text style={styles.detailValue}>{name}</Text>
             </View>
 
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Address</Text>
+              <Text style={styles.detailLabel}>{t('address')}</Text>
               <Text style={styles.detailValue}>{address}</Text>
             </View>
 
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>City</Text>
+              <Text style={styles.detailLabel}>{t('city')}</Text>
               <Text style={styles.detailValue}>
                 {city}
               </Text>
             </View>
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Pincode</Text>
+              <Text style={styles.detailLabel}>{t('pincode')}</Text>
               <Text style={styles.detailValue}>
                 {pinCode}
               </Text>
             </View>
 
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Timings</Text>
+              <Text style={styles.detailLabel}>{t('timing')}</Text>
               <Text style={styles.detailValue}>
                 {startTime} - {endTime}
               </Text>
             </View>
 
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Phone</Text>
+              <Text style={styles.detailLabel}>{t('phone')}</Text>
               <Text style={styles.detailValue}>{contact?.phone}</Text>
             </View>
 
             <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>Email</Text>
+              <Text style={styles.detailLabel}>{t('email')}</Text>
               <Text style={styles.detailValue}>{contact?.email}</Text>
             </View>
           </View>
@@ -362,10 +371,10 @@ const ShopDetails = ({ route }) => {
 const styles = StyleSheet.create({
   gradientContainer: {
     flex: 1,
-    position:"absolute",
-    top:0,
-    right:0,
-    left:0
+    position: "absolute",
+    top: 0,
+    right: 0,
+    left: 0
   },
   scrollContainer: {
     paddingBottom: hp(5),

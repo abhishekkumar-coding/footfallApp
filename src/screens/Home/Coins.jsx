@@ -4,13 +4,14 @@ import { hp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useGetWalletSummaryQuery } from '../../features/shops/shopApi';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 
 const Coins = forwardRef((props, ref) => {
   const { data, refetch, isLoading } = useGetWalletSummaryQuery();
   const totalPoints = data?.data?.wallet?.totalPoints ?? 0;
   const redeemedPoints = data?.data?.wallet?.redeemed ?? 0;
-
   const navigation = useNavigation();
+  const { t } = useTranslation();
 
   useImperativeHandle(
     ref,
@@ -33,12 +34,12 @@ console.log(totalPoints)
         <View style={styles.details}>
           <View style={styles.row}>
             <View style={styles.pointsContainer}>
-              <Text style={styles.coinsText}>Points</Text>
+              <Text style={styles.coinsText}>{t('points')}</Text>
               <Text style={styles.coinsCount}>{isLoading ? '...' : totalPoints}</Text>
             </View>
 
             <TouchableOpacity style={styles.redeemContainer} onPress={() => navigation.navigate("RedeemHistoryScreen")}>
-              <Text style={styles.redeemText}>Redeemed</Text>
+              <Text style={styles.redeemText}>{t('redeemed')}</Text>
               <Text style={styles.coinsCount}>{isLoading ? '...' : redeemedPoints}</Text>
             </TouchableOpacity>
           </View>
