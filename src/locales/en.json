@@ -26,13 +26,13 @@
   "scanCodeText": "Scan this code in the scanner to get rewards",
   "validTill": "Valid till {{date}}",
   "scanNow": "Scan Now",
-  "offerScanned": "Offer Scanned",
+  "offerScanned": "🎉 Offer scanned successfully!",
   "scanFailed": "Scan Failed",
   "offers": "Offers",
-  "filterAll": "All",
-  "filterLatest": "Latest",
-  "filterEndingSoon": "Ending soon",
-  "filterDistance": "Distance",
+  "all": "All",
+  "latest": "Latest",
+  "endingSoon": "Ending soon",
+  "distance": "Distance",
   "noOffersAvailable": "No Offers Available",
   "editProfile": "Edit Profile",
   "name": "Name",
@@ -148,12 +148,12 @@
     "shareVia": "Share via",
     "shareError": "Unable to share at this time. Please make sure the app is installed."
   },
-   "whatsapp": "WhatsApp",
+  "whatsapp": "WhatsApp",
   "messenger": "Messenger",
   "instagram": "Instagram",
   "sms": "SMS",
   "more": "More",
-   "claim_cashback": "Claim Cashback",
+  "claim_cashback": "Claim Cashback",
   "purchase_amount": "Purchase Amount",
   "currency_rupee": "(₹)",
   "enter_cashback_description": "Enter the amount you spent at this shop to receive cashback",
@@ -241,7 +241,7 @@
       "default_error": "Something went wrong"
     }
   },
-   "onboarding": {
+  "onboarding": {
     "slides": [
       {
         "title": "Discover Local Shops",
@@ -262,5 +262,7 @@
       "signIn": "Sign In",
       "signUp": "Sign Up"
     }
-  }
+  },
+  "scanQR": "Scan QR",
+  "pleaseTryAgain": "Please try again"
 }

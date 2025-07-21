@@ -10,6 +10,8 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import LinearGradient from 'react-native-linear-gradient';
 import BackButton from '../components/BackButton';
 import { hp, wp } from '../utils/dimensions';
+import Geolocation from 'react-native-geolocation-service';
+import { PermissionsAndroid, Platform } from 'react-native';
 import { useScanWithPurchaseAmountMutation } from '../features/shops/shopApi';
 import { useTranslation } from 'react-i18next';
 
@@ -24,6 +26,37 @@ const CashbackScreen = ({ navigation, route }) => {
 
   const { shopId, returnPercent } = route.params;
 
+  // const handleCalculate = async () => {
+  //   if (
+  //     !purchaseAmount ||
+  //     isNaN(Number(purchaseAmount)) ||
+  //     Number(purchaseAmount) <= 0
+  //   ) {
+  //     setMessageType('error');
+  //     setMessage(t('please_enter_valid_amount'));
+  //     setTimeout(() => setMessage(null), 1000);
+  //     return;
+  //   }
+  //   try {
+  //     const response = await scanWithPurchaseAmount({
+  //       id: shopId,
+  //       purchaseAmount: Number(purchaseAmount),
+  //     }).unwrap();
+  //     console.log('Claim cashback Response: ', response);
+  //     setMessageType('success');
+  //     setMessage(t('points_awarded'));
+  //     setTimeout(() => {
+  //       setMessage(null);
+  //       navigation.navigate('HomeMain');
+  //     }, 1000);
+  //   } catch (error) {
+  //     console.error('Error:', error);
+  //     setMessageType('error');
+  //     setMessage(error?.data?.message || t('cashback_error'));
+  //     setTimeout(() => setMessage(null), 1000);
+  //   }
+  // };
+
   const handleCalculate = async () => {
     if (
       !purchaseAmount ||
@@ -35,24 +68,55 @@ const CashbackScreen = ({ navigation, route }) => {
       setTimeout(() => setMessage(null), 1000);
       return;
     }
-    try {
-      const response = await scanWithPurchaseAmount({
-        id: shopId,
-        purchaseAmount: Number(purchaseAmount),
-      }).unwrap();
-      console.log('Claim cashback Response: ', response);
-      setMessageType('success');
-      setMessage(t('points_awarded'));
-      setTimeout(() => {
-        setMessage(null);
-        navigation.navigate('HomeMain');
-      }, 1000);
-    } catch (error) {
-      console.error('Error:', error);
+
+    const hasPermission = async () => {
+      if (Platform.OS === 'ios') return true;
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    };
+
+    if (!(await hasPermission())) {
       setMessageType('error');
-      setMessage(error?.data?.message || t('cashback_error'));
+      setMessage(t('location_permission_denied'));
       setTimeout(() => setMessage(null), 1000);
+      return;
     }
+
+    Geolocation.getCurrentPosition(
+      async position => {
+        const { latitude, longitude } = position.coords;
+        try {
+          const response = await scanWithPurchaseAmount({
+            id: shopId,
+            purchaseAmount: Number(purchaseAmount),
+            latitude,
+            longitude,
+          }).unwrap();
+
+          console.log('Claim cashback Response: ', response);
+          setMessageType('success');
+          setMessage(t('points_awarded'));
+          setTimeout(() => {
+            setMessage(null);
+            navigation.navigate('HomeMain');
+          }, 1000);
+        } catch (error) {
+          console.error('Error:', error);
+          setMessageType('error');
+          setMessage(error?.data?.message || t('cashback_error'));
+          setTimeout(() => setMessage(null), 1000);
+        }
+      },
+      error => {
+        console.log('Location Error:', error);
+        setMessageType('error');
+        setMessage(t('location_fetch_error'));
+        setTimeout(() => setMessage(null), 1000);
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+    );
   };
 
   return (

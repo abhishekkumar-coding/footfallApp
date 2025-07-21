@@ -29,10 +29,10 @@
   "offerScanned": "ऑफ़र स्कैन किया गया",
   "scanFailed": "स्कैन विफल",
   "offers": "ऑफ़र",
-  "filterAll": "सब",
-  "filterLatest": "ताज़ा",
-  "filterEndingSoon": "जल्द समाप्त होने वाले",
-  "filterDistance": "दूरी",
+  "all": "सभी",
+  "latest": "नवीनतम",
+  "endingSoon": "जल्द समाप्त हो रहा है",
+  "distance": "दूरी",
   "noOffersAvailable": "कोई ऑफ़र उपलब्ध नहीं है",
   "editProfile": "प्रोफ़ाइल संपादित करें",
   "name": "नाम",
@@ -263,5 +263,7 @@
       "signIn": "साइन इन करें",
       "signUp": "साइन अप करें"
     }
-  }
+  },
+  "scanQR": "क्यूआर स्कैन करें",
+  "pleaseTryAgain": "कृपया पुनः प्रयास करें"
 }

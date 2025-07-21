@@ -32,7 +32,7 @@ import { useTranslation } from 'react-i18next';
 import LanguageIcon from '../utils/icons/LanguageIcon';
 
 const ProfileScreen = () => {
-   const { t } = useTranslation();
+  const { t } = useTranslation();
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState('');
 
@@ -60,17 +60,22 @@ const ProfileScreen = () => {
 
   return (
     <>
-      <BackButton lable={t('profile')} rightComponent={<TouchableOpacity style={styles.logOut} onPress={handleLogout}>
-          <LogOutIcon />
-        </TouchableOpacity>}/>
+      <BackButton
+        lable={t('profile')}
+        rightComponent={
+          <TouchableOpacity style={styles.logOut} onPress={handleLogout}>
+            <LogOutIcon />
+          </TouchableOpacity>
+        }
+      />
       <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
-        
         <SafeAreaView style={styles.container}>
           <ProfileHeader navigation={navigation} user={user} />
           <Rewards rewardPoints={rewards} />
           <TabButton
             Icon={ProfileEditIcon}
-            l label={t('update_profile')}
+            l
+            label={t('update_profile')}
             onPress={() => navigation.navigate('EditProfile')}
           />
           <TabButton
@@ -80,8 +85,9 @@ const ProfileScreen = () => {
           />
           <TabButton
             Icon={NotificationIcon}
-           label={t('notifications')}
-            onPress={() => setActiveTab('Notifications')}
+            label={t('notifications')}
+            // onPress={() => setActiveTab('Notifications')}
+           onPress={() => navigation.navigate('NotificationScreen')}
           />
 
           {/* <TabButton
@@ -96,14 +102,16 @@ const ProfileScreen = () => {
           />
           <TabButton
             Icon={LanguageIcon}
-             label={t('change_language')}
-            onPress={() => navigation.navigate('Language', { isInitialSetup: false })}
+            label={t('change_language')}
+            onPress={() =>
+              navigation.navigate('Language', { isInitialSetup: false })
+            }
           />
-          <TabButton
+          {/* <TabButton
             Icon={LanguageIcon}
              label={t('change_language')}
             onPress={() => navigation.navigate('Language', { isInitialSetup: false })}
-          />
+          /> */}
           {/* <TouchableOpacity >
                 <View style={styles.container2}>
                     <Text style={styles.heading2}>Log out</Text>
@@ -121,7 +129,7 @@ export default ProfileScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-  
+
     alignItems: 'flex-start',
     justifyContent: '',
     paddingHorizontal: wp(4),
@@ -140,7 +148,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     textAlign: 'center',
   },
- 
+
   container2: {
     flexDirection: 'row',
     alignItems: 'center',
