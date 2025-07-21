@@ -3,6 +3,8 @@
   "select_language": "Select Language",
   "english": "English",
   "hindi": "Hindi",
+  "chooseLanguage": "Choose a preferred language",
+  "continue": "Continue",
   "points": "Points",
   "redeemed": "Redeemed",
   "quick_actions": {
@@ -264,5 +266,8 @@
     }
   },
   "scanQR": "Scan QR",
-  "pleaseTryAgain": "Please try again"
+  "pleaseTryAgain": "Please try again",
+  "shops": "Shops",
+  "noShopsAvailable": "No shops available",
+  "pleaseTryAgainLater": "Please try again later"
 }

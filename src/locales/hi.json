@@ -3,6 +3,8 @@
   "select_language": "भाषा चुनें",
   "english": "अंग्रेज़ी",
   "hindi": "हिंदी",
+  "chooseLanguage": "अपनी पसंदीदा भाषा चुनें",
+  "continue": "जारी रखें",
   "points": "अंक",
   "redeemed": "भुनाए गए",
   "quick_actions": {
@@ -265,5 +267,8 @@
     }
   },
   "scanQR": "क्यूआर स्कैन करें",
-  "pleaseTryAgain": "कृपया पुनः प्रयास करें"
+  "pleaseTryAgain": "कृपया पुनः प्रयास करें",
+  "shops": "दुकानें",
+  "noShopsAvailable": "कोई दुकान उपलब्ध नहीं है",
+  "pleaseTryAgainLater": "कृपया बाद में पुनः प्रयास करें"
 }
