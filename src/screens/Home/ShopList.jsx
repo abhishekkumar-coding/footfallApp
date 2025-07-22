@@ -4,24 +4,32 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  Image,
 } from 'react-native';
 import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { forwardRef, useEffect, useImperativeHandle } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { useGetAllShopsQuery } from '../../features/shops/shopApi';
+import { useGetAllShopsQuery, useGetNearbyShopsQuery } from '../../features/shops/shopApi';
 import { loadWishlist } from '../../features/wishlistSlice';
 import ShopCard from '../../components/ShopCard';
 import ShopSkeletonCard from "./ShopSkeletonCard"
 import { useTranslation } from 'react-i18next';
 
 const ShopList = forwardRef((props, ref) => {
+  const user = useSelector(state => state.user.user);
+
+  const lat = user?.location?.coordinates?.[1] || null
+  const lng = user?.location?.coordinates?.[0] || null
+  console.log("User lat and long: ", lat, lng)
+
   const { navigation } = props;
   const dispatch = useDispatch();
-  const { data, refetch, isLoading } = useGetAllShopsQuery();
+  // const { data, refetch, isLoading } = useGetAllShopsQuery();
   const { t } = useTranslation();
-  const shopData = data?.data?.shops || [];
-  console.log("shop. data: ", shopData)
+  const { data, refetch, error, isLoading } = useGetNearbyShopsQuery({ lat, lng });
+  const shopData = data?.data || [];
+  console.log("NearBy Shops: ", data)
 
   useEffect(() => {
     dispatch(loadWishlist());
@@ -72,6 +80,20 @@ const ShopList = forwardRef((props, ref) => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
           numColumns={2}
+          ListEmptyComponent={
+            <View style={{ marginTop: hp(10) }}>
+              <Text style={{ fontFamily: "Poppins-SemiBold", textAlign: "center", fontSize: RFValue(20), color: "#fff" }}>
+                {t('noShopsAvailable')}
+              </Text>
+              <Text style={{ fontFamily: "Poppins-Regular", textAlign: "center", fontSize: RFValue(15), color: "#999" }}>
+                {t('pleaseTryAgainLater')}
+              </Text>
+              <Image
+                source={require('../../../assets/noShop.png')}
+                style={{ width: wp(40), height: hp(30), alignSelf: "center" }}
+              />
+            </View>
+          }
         />
       )}
     </>

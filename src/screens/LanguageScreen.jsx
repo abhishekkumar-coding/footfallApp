@@ -144,6 +144,7 @@ import i18n, { changeAppLanguage } from '../i18n';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import PageHeader from '../components/BackButton';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // const languages = [
 //   { code: 'en', label: 'English', native: 'A' },
@@ -182,6 +183,8 @@ const LanguageScreen = ({ route, navigation }) => {
   };
 
   return (
+        <SafeAreaView style={{ flex: 1 }}>
+
     <LinearGradient colors={['#000337', '#000337']} style={styles.gradient}>
       <PageHeader back bg />
       <View style={styles.content}>
@@ -272,6 +275,7 @@ const LanguageScreen = ({ route, navigation }) => {
         </LinearGradient>
       </View>
     </LinearGradient>
+    </SafeAreaView>
   );
 };
 

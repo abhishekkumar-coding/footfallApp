@@ -140,112 +140,7 @@ const SignupScreen = () => {
   }, []);
   4;
 
-  // const onGooglePress = async () => {
-  //   try {
-  //     await GoogleSignin.hasPlayServices({
-  //       showPlayServicesUpdateDialog: true,
-  //     });
-  //     const userInfo = await GoogleSignin.signIn();
-
-  //     console.log('Google userInfo:', userInfo);
-
-  //     const idToken = userInfo.data?.idToken || userInfo.idToken;
-  //     const userName = userInfo.data?.user?.name || 'User';
-
-  //     if (!idToken) {
-  //       throw new Error('No ID token received from Google');
-  //     }
-
-  //     Toast.show({
-  //       type: 'success',
-  //       text1: 'Google Sign-In Success',
-  //       text2: `Welcome ${userName}`,
-  //     });
-
-  //     navigation.reset({
-  //       index: 0,
-  //       routes: [{ name: 'Main' }],
-  //     });
-
-  //   } catch (error) {
-  //     console.error('Google Sign-In Error:', error);
-  //     if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-  //       Toast.show({ type: 'info', text1: 'Sign-In Cancelled' });
-  //     } else if (error.code === statusCodes.IN_PROGRESS) {
-  //       Toast.show({ type: 'info', text1: 'Sign-In In Progress' });
-  //     } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-  //       Toast.show({ type: 'error', text1: 'Play Services Not Available' });
-  //     } else {
-  //       Toast.show({
-  //         type: 'error',
-  //         text1: 'Google Sign-In Error',
-  //         text2: error?.message || 'Something went wrong',
-  //       });
-  //     }
-  //   }
-  // };
-
-  // const onGooglePress = async () => {
-  //   try {
-  //     await GoogleSignin.hasPlayServices({
-  //       showPlayServicesUpdateDialog: true,
-  //     });
-
-  //     // ✅ Always sign out first to force account selection
-  //     await GoogleSignin.signOut();
-
-  //     const userInfo = await GoogleSignin.signIn();
-  //     console.log('Google userInfo:', userInfo);
-
-  //     const idToken = userInfo.idToken || userInfo.data?.idToken;
-  //     const photo = userInfo.user?.photo;
-
-  //     if (!idToken) throw new Error('No ID token received from Google');
-
-  //     // ✅ Send to backend to convert to your app token
-  //     // const response = await googleAuthUser({ token: idToken }).unwrap();
-  //     const response = await googleSignUp({ token: idToken, photo }).unwrap();
-  //     console.log('Backend Response:', response);
-
-  //     const appToken = response?.data?.token;
-  //     // const user = response?.data?.user;
-  //     const user = { ...response?.data?.user, photo };
-
-  //     if (!appToken) throw new Error('App token missing in response');
-
-  //     // ✅ Save app token and user info
-  //     await AsyncStorage.setItem('token', appToken);
-  //     await AsyncStorage.setItem('user', JSON.stringify(user));
-  //     dispatch(setUser(user));
-
-  //     Toast.show({
-  //       type: 'success',
-  //       text1: 'Google Sign-Up Success',
-  //       text2: `Welcome ${user?.name || 'User'}`,
-  //     });
-
-  //     navigation.reset({
-  //       index: 0,
-  //       routes: [{ name: 'Main' }],
-  //     });
-  //   } catch (error) {
-  //     console.error('Google Sign-Up Error:', error);
-  //     if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-  //       Toast.show({ type: 'info', text1: 'Sign-Up Cancelled' });
-  //     } else if (error.code === statusCodes.IN_PROGRESS) {
-  //       Toast.show({ type: 'info', text1: 'Sign-Up In Progress' });
-  //     } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-  //       Toast.show({ type: 'error', text1: 'Play Services Not Available' });
-  //     } else {
-  //       Toast.show({
-  //         type: 'error',
-  //         text1: 'Google Sign-Up Failed',
-  //         text2: error?.data?.message || 'Something went wrong',
-  //       });
-  //     }
-  //   }
-  // };
-
+  
   const onGooglePress = async () => {
     try {
       setGoogleLoading(true);
@@ -454,14 +349,14 @@ const styles = StyleSheet.create({
     marginBottom: hp(2),
   },
   loginText: {
-    fontSize: RFValue(14),
+    fontSize: 16,
     color: '#d3d3d3',
     fontFamily: 'Poppins-Regular',
     textAlign: 'center',
   },
   loginLink: {
     color: '#4068F6',
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: 'Poppins-Regular',
   },
 });
 

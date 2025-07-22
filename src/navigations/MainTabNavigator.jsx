@@ -104,7 +104,7 @@ const HomeStack = () => (
     <Stack.Screen
       name="OfferDetails"
       component={OfferDetails}
-      options={{ headerShown: false }}
+      options={{ headerShown: false, statusBarColor: '#000', }}
     />
     <Stack.Screen
       name="CashbackScreen"
@@ -173,7 +173,7 @@ const MainTabNavigator = () => {
           height: 70,
         },
         tabBarIconStyle: {
-          marginTop: 10,
+          marginTop: 2,
         },
         tabBarLabelStyle: {
           // marginBottom: 10,
@@ -202,6 +202,7 @@ const MainTabNavigator = () => {
             'ShopDetails',
             'OfferScanner',
             'AllFeaturedShops',
+            'EditProfile'
           ];
 
           const isHidden = hideOnScreens.includes(routeName);

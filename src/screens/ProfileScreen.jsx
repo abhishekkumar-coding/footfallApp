@@ -1,5 +1,4 @@
 import {
-  SafeAreaView,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -30,6 +29,7 @@ import History from '../utils/icons/History';
 import { store } from '../store';
 import { useTranslation } from 'react-i18next';
 import LanguageIcon from '../utils/icons/LanguageIcon';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ProfileScreen = () => {
   const { t } = useTranslation();
@@ -60,6 +60,8 @@ const ProfileScreen = () => {
 
   return (
     <>
+        <SafeAreaView style={{ flex: 1 }}>
+
       <BackButton
         lable={t('profile')}
         rightComponent={
@@ -120,6 +122,7 @@ const ProfileScreen = () => {
             </TouchableOpacity> */}
         </SafeAreaView>
       </LinearGradient>
+      </SafeAreaView>
     </>
   );
 };
@@ -129,7 +132,6 @@ export default ProfileScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-
     alignItems: 'flex-start',
     justifyContent: '',
     paddingHorizontal: wp(4),

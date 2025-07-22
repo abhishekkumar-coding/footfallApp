@@ -27,6 +27,7 @@ import Toast from 'react-native-toast-message';
 import Geolocation from 'react-native-geolocation-service';
 import { PermissionsAndroid, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 const requestLocationPermission = async () => {
@@ -66,6 +67,8 @@ const ShopDetails = ({ route }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [vendorId, setVendorId] = useState(null);
   const [redeemTrigger, setRedeemTrigger] = useState(0);
+  const [imageError, setImageError] = useState(false);
+
   const { data: shopData, isLoading: isShopLoading, error: shopError } = useGetShopByIdQuery(id);
 
   const shop = shopData?.data;
@@ -221,66 +224,66 @@ const ShopDetails = ({ route }) => {
   // };
 
   const handleManualScan = async () => {
-  const hasPermission = await requestLocationPermission();
-  if (!hasPermission) {
-    Toast.show({ type: 'error', text1: t('location_denied') });
-    return;
-  }
+    const hasPermission = await requestLocationPermission();
+    if (!hasPermission) {
+      Toast.show({ type: 'error', text1: t('location_denied') });
+      return;
+    }
 
-  setIsLoadingShop(true);
+    setIsLoadingShop(true);
 
-  Geolocation.getCurrentPosition(
-    async position => {
-      const userLat = position.coords.latitude;
-      const userLng = position.coords.longitude;
+    Geolocation.getCurrentPosition(
+      async position => {
+        const userLat = position.coords.latitude;
+        const userLng = position.coords.longitude;
 
-      console.log('📍 User Location:', {
-        latitude: userLat,
-        longitude: userLng,
-      });
-
-      try {
-        const result = await scanShop({
-          shopId: _id,
+        console.log('📍 User Location:', {
           latitude: userLat,
           longitude: userLng,
-        }).unwrap();
+        });
 
-        if (result?.success) {
-          Toast.show({
-            type: 'success',
-            text1: t('scanSuccessful'),
-          });
+        try {
+          const result = await scanShop({
+            shopId: _id,
+            latitude: userLat,
+            longitude: userLng,
+          }).unwrap();
 
-          if (result.data?.scanRewardType === 'percentage') {
-            navigation.navigate('CashbackScreen', {
-              shopId: _id,
-              returnPercent: result.data?.rewardPoints,
+          if (result?.success) {
+            Toast.show({
+              type: 'success',
+              text1: t('scanSuccessful'),
             });
+
+            if (result.data?.scanRewardType === 'percentage') {
+              navigation.navigate('CashbackScreen', {
+                shopId: _id,
+                returnPercent: result.data?.rewardPoints,
+              });
+            } else {
+              navigation.goBack();
+            }
           } else {
-            navigation.goBack();
+            Toast.show({ type: 'error', text1: t('scan_failed_try') });
           }
-        } else {
-          Toast.show({ type: 'error', text1: t('scan_failed_try') });
+        } catch (err) {
+          Toast.show({ type: 'error', text1: err?.data?.message || 'Error' });
+          console.log('❌ Scan error:', err);
+        } finally {
+          setIsLoadingShop(false);
         }
-      } catch (err) {
-        Toast.show({ type: 'error', text1: err?.data?.message || 'Error' });
-        console.log('❌ Scan error:', err);
-      } finally {
+      },
+      error => {
+        Toast.show({
+          type: 'error',
+          text1: t('locationError'),
+          text2: error.message,
+        });
         setIsLoadingShop(false);
-      }
-    },
-    error => {
-      Toast.show({
-        type: 'error',
-        text1: t('locationError'),
-        text2: error.message,
-      });
-      setIsLoadingShop(false);
-    },
-    { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
-  );
-};
+      },
+      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+    );
+  };
 
 
   if (isShopLoading) {
@@ -309,6 +312,7 @@ const ShopDetails = ({ route }) => {
 
 
   return (
+        <SafeAreaView style={{ flex: 1 }}>
 
     <LinearGradient
       colors={['#000337', '#000000']}
@@ -358,32 +362,26 @@ const ShopDetails = ({ route }) => {
 
             <Image
               source={
-                !cover
+                imageError || !cover
                   ? require('../../../assets/emptyShop.png')
                   : { uri: cover }}
               style={{ width: '100%', height: 350 }}
+              onError={(e) => {
+                console.warn("Image load error for shop:", shop.name, e.nativeEvent.error);
+                setImageError(true);
+              }}
             />
-
-            <View style={styles.buttonRow}>
-              <TouchableOpacity
-                style={styles.scanButton}
-                onPress={handleManualScan}
-              >
-                <Text style={styles.buttonText}>{t('scan_me')}</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity
-                style={styles.redeemButton}
-                onPress={() => handleRedeem(owner)}
-              >
-                <Text style={styles.buttonText}>{t('redeem')}</Text>
-              </TouchableOpacity>
+            <View style={styles.textWrapper}>
+              <Text style={styles.titleText}>{name}</Text>
+              <Text style={styles.subtitleText}>{category}</Text>
             </View>
+
+
           </View>
 
           {/* Shop Details Section */}
           <View style={styles.shopDetails}>
-            <View style={styles.detailRow}>
+            {/* <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>{t('category')}</Text>
               <Text style={styles.detailValue}>{category}</Text>
             </View>
@@ -391,7 +389,7 @@ const ShopDetails = ({ route }) => {
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>{t('shop_name')}</Text>
               <Text style={styles.detailValue}>{name}</Text>
-            </View>
+            </View> */}
 
             <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>{t('address')}</Text>
@@ -427,10 +425,26 @@ const ShopDetails = ({ route }) => {
               <Text style={styles.detailLabel}>{t('email')}</Text>
               <Text style={styles.detailValue}>{contact?.email}</Text>
             </View>
+            <View style={styles.buttonRow}>
+              <TouchableOpacity
+                style={styles.scanButton}
+                onPress={handleManualScan}
+              >
+                <Text style={styles.buttonText}>{t('scan_me')}</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.redeemButton}
+                onPress={() => handleRedeem(owner)}
+              >
+                <Text style={styles.buttonText}>{t('redeem')}</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         </ScrollView>
       </View>
     </LinearGradient>
+    </SafeAreaView>
   );
 };
 
@@ -444,6 +458,26 @@ const styles = StyleSheet.create({
   },
   scrollContainer: {
     paddingBottom: hp(5),
+  },
+  textWrapper: {
+    paddingVertical: 4,
+    position: "absolute",
+    bottom: hp(8),
+    left: wp(5),
+  },
+  titleText: {
+    fontSize: RFValue(25),
+fontFamily:"Poppins-SemiBold",
+    color: '#000',
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    paddingHorizontal: wp(2),
+    borderRadius: 50
+  },
+  subtitleText: {
+    fontSize: RFValue(16),
+    color: '#fff',
+    marginTop: 2,
+    marginLeft: 20
   },
   loaderContainer: {
     position: 'absolute',
@@ -484,7 +518,9 @@ const styles = StyleSheet.create({
   },
   buttonRow: {
     position: 'absolute',
-    bottom: 90,
+    bottom: hp(12),
+    left: 0,
+    right: 0,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
@@ -514,7 +550,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     paddingHorizontal: wp(3),
     paddingTop: hp(5),
-    paddingBottom: hp(40),
+    paddingBottom: hp(30),
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
     marginTop: -70,

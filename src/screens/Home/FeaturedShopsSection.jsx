@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
     View,
     Text,
@@ -14,10 +14,12 @@ import { useGetAllShopsQuery } from '../../features/shops/shopApi';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useTranslation } from 'react-i18next';
 import LinearGradient from 'react-native-linear-gradient';
+import FeaturedShopCard from '../../components/FeaturedShopCard';
 
 const FeaturedShopsSection = () => {
     const navigation = useNavigation();
     const { data, isLoading, isError } = useGetAllShopsQuery();
+    const [imageError, setImageError] = useState(false);
     const { t } = useTranslation();
 
     const featuredShops = data?.data?.shops?.filter(shop => shop.featured === true) || [];
@@ -27,31 +29,10 @@ const FeaturedShopsSection = () => {
     };
 
     const renderShopCard = ({ item }) => (
-        <TouchableOpacity
-            style={styles.cardWrapper}
-            activeOpacity={0.9}
+        <FeaturedShopCard
+            item={item}
             onPress={() => navigation.navigate('ShopDetails', { id: item._id })}
-        >
-            <View style={styles.card}>
-                <Image
-                    source={
-                        item.cover
-                            ? { uri: item.cover }
-                            : require('../../../assets/emptyFeaturedImage.png') // adjust path as needed
-                    }
-                    style={styles.image}
-                    resizeMode="cover"
-                />
-                <LinearGradient
-                    colors={['rgba(0,0,0,0.6)', 'transparent']}
-                    style={styles.overlay}
-                />
-                <View style={styles.textContainer}>
-                    <Text style={styles.categoryBadge}>{item.category}</Text>
-                    <Text style={styles.shopName} numberOfLines={1}>{item.name}</Text>
-                </View>
-            </View>
-        </TouchableOpacity>
+        />
     );
 
     const renderSkeletonCard = () => (

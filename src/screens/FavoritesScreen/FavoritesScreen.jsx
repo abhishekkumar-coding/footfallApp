@@ -18,6 +18,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { loadWishlist, removeFromWishlist } from '../../features/wishlistSlice';
 import { navigate } from '../../navigations/NavigationUtil';
 import { useTranslation } from 'react-i18next';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const FavoritesScreen = ({ navigation }) => {
   const { t } = useTranslation();
@@ -71,6 +72,8 @@ const FavoritesScreen = ({ navigation }) => {
 
   return (
     <>
+        <SafeAreaView style={{ flex: 1 }}>
+
       <PageHeader lable={t('favorites')} />
       <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
         <View style={styles.container}>
@@ -90,6 +93,7 @@ const FavoritesScreen = ({ navigation }) => {
           )}
         </View>
       </LinearGradient>
+      </SafeAreaView>
     </>
   );
 };

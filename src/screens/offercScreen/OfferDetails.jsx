@@ -16,6 +16,7 @@ import { useGetOfferByIdQuery, useScanOfferMutation } from '../../features/shops
 import Toast from 'react-native-toast-message';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const fallbackBanner = require('../../../assets/images/fallback-banner.png');
 
@@ -84,6 +85,8 @@ const OfferDetails = ({ route }) => {
      });
 
     return (
+                <SafeAreaView edges={['top']} style={{ flex: 1 }}>
+        
         <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1, paddingBottom: hp(5) }}>
             <BackButton lable={'Offer Details'} back={true} />
 
@@ -131,6 +134,7 @@ const OfferDetails = ({ route }) => {
                 </View>
             </ScrollView>
         </LinearGradient>
+        </SafeAreaView>
     );
 };
 

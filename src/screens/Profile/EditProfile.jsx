@@ -22,6 +22,7 @@ import { setUser } from '../../features/auth/userSlice';
 import Toast from 'react-native-toast-message';
 import Geolocation from 'react-native-geolocation-service';
 import { useTranslation } from 'react-i18next';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const requestLocationPermission = async () => {
   if (Platform.OS === 'ios') return true;
@@ -38,31 +39,16 @@ const EditProfile = () => {
   const user = useSelector(state => state.user.user);
   const navigation = useNavigation();
   const dispatch = useDispatch();
-
   const [updateUser] = useUpdateUserMutation();
 
-  if (!user) return null;
-
-  const {
-    _id: userId,
-    name: userName,
-    email: userEmail,
-    phone: userPhone,
-    location,
-  } = user;
-
-  const [name, setName] = useState(userName || '');
-  const [email, setEmail] = useState(userEmail || '');
-  const [phone, setPhone] = useState(userPhone || '');
+  const [name, setName] = useState(user?.name || '');
+  const [email, setEmail] = useState(user?.email || '');
+  const [phone, setPhone] = useState(user?.phone || '');
+  const [lat, setLat] = useState(user?.location?.coordinates?.[1] || null);
+  const [lng, setLng] = useState(user?.location?.coordinates?.[0] || null);
   const [isSaving, setIsSaving] = useState(false);
   const [isLocLoading, setIsLocLoading] = useState(false);
   const [isAddressLoading, setIsAddressLoading] = useState(false);
-
-  const userLng = location?.coordinates?.[0];
-  const userLat = location?.coordinates?.[1];
-
-  const [lat, setLat] = useState(userLat || null);
-  const [lng, setLng] = useState(userLng || null);
 
   const [addressDetails, setAddressDetails] = useState({
     address: '',
@@ -84,13 +70,13 @@ const EditProfile = () => {
 
       setAddressDetails({
         address: display_name || '',
-        city: address?.county || address?.city || address?.town || address?.village || '',
+        city: address?.city || address?.county || address?.town || address?.village || '',
         state: address?.state || '',
         country: address?.country || '',
         postcode: address?.postcode || '',
       });
     } catch (error) {
-      console.error('Error fetching address:', error);
+      console.error('Reverse geocoding error:', error);
     } finally {
       setIsAddressLoading(false);
     }
@@ -107,24 +93,24 @@ const EditProfile = () => {
     }
 
     Geolocation.getCurrentPosition(
-      async position => {
-        const { latitude, longitude } = position.coords;
-        setLat(latitude);
-        setLng(longitude);
-        await fetchAddressFromCoordinates(latitude, longitude);
+      async ({ coords }) => {
+        setLat(coords.latitude);
+        setLng(coords.longitude);
+        // console.log("Fetched Coords: ", coords)
+        await fetchAddressFromCoordinates(coords.latitude, coords.longitude);
         setIsLocLoading(false);
 
         Toast.show({
           type: 'success',
           text1: t('locationDetected'),
           text2: t('latLng', {
-            lat: latitude.toFixed(5),
-            lng: longitude.toFixed(5),
+            lat: coords.latitude.toFixed(5),
+            lng: coords.longitude.toFixed(5),
           }),
         });
       },
       error => {
-        console.error('Location error:', error);
+        console.error('Geolocation error:', error);
         Toast.show({ type: 'error', text1: t('failedToDetectLocation') });
         setIsLocLoading(false);
       },
@@ -133,7 +119,7 @@ const EditProfile = () => {
   };
 
   const handleSave = async () => {
-    if (lat == null || lng == null) {
+    if (!lat || !lng) {
       Toast.show({
         type: 'error',
         text1: t('locationRequired'),
@@ -144,14 +130,20 @@ const EditProfile = () => {
 
     setIsSaving(true);
     try {
-      const body = { name, email, phone, lat, lng };
-      const res = await updateUser({ id: userId, body }).unwrap();
+      const body = {
+        city: addressDetails.city,
+        state: addressDetails.state,
+        country: addressDetails.country,
+        pincode: addressDetails.postcode,
+      };
 
+      const res = await updateUser({ id: user._id, body }).unwrap();
+      console.log(res)
       dispatch(setUser(res.data));
       Toast.show({ type: 'success', text1: t('profileUpdated') });
       navigation.goBack();
     } catch (error) {
-      console.error('Update failed:', error);
+      console.error('Profile update error:', error);
       Toast.show({
         type: 'error',
         text1: t('updateFailed'),
@@ -163,7 +155,9 @@ const EditProfile = () => {
   };
 
   useEffect(() => {
-    if (lat && lng) fetchAddressFromCoordinates(lat, lng);
+    if (lat && lng) {
+      fetchAddressFromCoordinates(lat, lng);
+    }
   }, [lat, lng]);
 
   if (isAddressLoading) {
@@ -175,38 +169,45 @@ const EditProfile = () => {
   }
 
   return (
+        <SafeAreaView edges={['top']} style={{ flex: 1 }}>
+
     <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
       <BackButton lable={t('editProfile')} back />
       <View style={styles.container}>
         <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
           <View style={{ paddingHorizontal: wp(5) }}>
-            <CustomInput lable={t('name')} placeholder={t('name')} onChangeText={setName} value={name} />
-            <CustomInput lable={t('email')} placeholder={t('email')} onChangeText={setEmail} value={email} />
-            <CustomInput lable={t('phone')} placeholder={t('phone')} onChangeText={setPhone} value={phone} />
-
+            <CustomInput lable={t('name')} value={name} onChangeText={setName} placeholder={t('name')} />
+            <CustomInput lable={t('email')} value={email} onChangeText={setEmail} placeholder={t('email')} />
+            <CustomInput lable={t('phone')} value={phone} onChangeText={setPhone} placeholder={t('phone')} />
             <CustomInput
               lable={t('address')}
-              placeholder={t('address')}
-              onChangeText={(text) => setAddressDetails(prev => ({ ...prev, address: text }))}
               value={addressDetails.address}
+              onChangeText={(text) => setAddressDetails(prev => ({ ...prev, address: text }))}
+              placeholder={t('address')}
             />
             <CustomInput
               lable={t('city')}
-              placeholder={t('city')}
-              onChangeText={(text) => setAddressDetails(prev => ({ ...prev, city: text }))}
               value={addressDetails.city}
+              onChangeText={(text) => setAddressDetails(prev => ({ ...prev, city: text }))}
+              placeholder={t('city')}
             />
             <CustomInput
               lable={t('state')}
-              placeholder={t('state')}
-              onChangeText={(text) => setAddressDetails(prev => ({ ...prev, state: text }))}
               value={addressDetails.state}
+              onChangeText={(text) => setAddressDetails(prev => ({ ...prev, state: text }))}
+              placeholder={t('state')}
+            />
+            <CustomInput
+              lable={t('country')}
+              value={addressDetails.country}
+              onChangeText={(text) => setAddressDetails(prev => ({ ...prev, country: text }))}
+              placeholder={t('country')}
             />
             <CustomInput
               lable={t('pincode')}
-              placeholder={t('pincode')}
-              onChangeText={(text) => setAddressDetails(prev => ({ ...prev, postcode: text }))}
               value={addressDetails.postcode}
+              onChangeText={(text) => setAddressDetails(prev => ({ ...prev, postcode: text }))}
+              placeholder={t('pincode')}
             />
 
             <TouchableOpacity style={styles.locanBtn} onPress={handleAutoDetect}>
@@ -226,6 +227,7 @@ const EditProfile = () => {
         </ScrollView>
       </View>
     </LinearGradient>
+    </SafeAreaView>
   );
 };
 

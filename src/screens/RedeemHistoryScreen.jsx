@@ -6,6 +6,7 @@ import { hp, wp } from '../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import BackButton from '../components/BackButton';
 import { useTranslation } from 'react-i18next';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const RedeemHistoryScreen = () => {
   const { t } = useTranslation();
@@ -23,7 +24,7 @@ const RedeemHistoryScreen = () => {
       })
       : 'N/A';
 
-      return (
+    return (
       <View style={styles.item}>
         <View style={{ width: '75%' }}>
           <Text style={styles.text} numberOfLines={3}>{item?.reason || t('redeem_noReason')}</Text>
@@ -35,7 +36,8 @@ const RedeemHistoryScreen = () => {
   };
 
   return (
-    <>
+    <SafeAreaView style={{ flex: 1 }}>
+
       <BackButton lable={t('redeem_title')} back />
       <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1, paddingHorizontal: 20 }}>
         {isLoading ? (
@@ -61,7 +63,7 @@ const RedeemHistoryScreen = () => {
           />
         )}
       </LinearGradient>
-    </>
+    </SafeAreaView>
 
   );
 };

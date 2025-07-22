@@ -17,18 +17,23 @@ import { useDispatch } from 'react-redux';
 import { loadWishlist } from '../../features/wishlistSlice';
 import ShopCard from '../../components/ShopCard';
 import ShopSkeletonCard from './ShopSkeletonCard';
-import { useGetFilteredShopsQuery } from '../../features/shops/shopApi';
+import { useGetAllShopsQuery, useGetFilteredShopsQuery } from '../../features/shops/shopApi';
 import { useTranslation } from 'react-i18next';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const AllShops = ({ route }) => {
   const { t } = useTranslation();
-  const { shopsData } = route.params;
+  // const { shopsData } = route.params;
   const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [isLoading, setIsLoading] = useState(true);
   const navigation = useNavigation();
   const dispatch = useDispatch();
+    const { data:shops, refetch, isLoading:shopsDataIsLoading } = useGetAllShopsQuery();
+  const shopsData = shops?.data?.shops || []
+  console.log("Shops : ", shopsData)
 
   const { data } = useGetFilteredShopsQuery(selectedCategory);
+
 
   const categories = [
     { key: 'ALL', label: t('all') },
@@ -64,7 +69,8 @@ const AllShops = ({ route }) => {
   );
 
   return (
-    <>
+    <SafeAreaView style={{ flex: 1 }}>
+
       <PageHeader lable={t('shops')} back />
       <LinearGradient colors={['#000337', '#000000']} style={styles.container}>
         {/* Filter Section */}
@@ -133,7 +139,7 @@ const AllShops = ({ route }) => {
           />
         )}
       </LinearGradient>
-    </>
+    </SafeAreaView>
   );
 };
 

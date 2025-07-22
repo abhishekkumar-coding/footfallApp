@@ -20,6 +20,7 @@ import {
 import BackButton from '../../components/BackButton';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 // const filterOptions = [
 //   { label: 'All', value: 'all' },
@@ -79,6 +80,8 @@ const OffersScreen = () => {
     );
   };
   return (
+                    <SafeAreaView style={{ flex: 1 }}>
+    
     <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
       <BackButton lable={t('offers')} back={true} />
 
@@ -150,6 +153,7 @@ const OffersScreen = () => {
         />
       )}
     </LinearGradient>
+    </SafeAreaView>
   );
 };
 

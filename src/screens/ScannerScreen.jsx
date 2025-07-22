@@ -301,12 +301,10 @@ const ScannerScreen = ({ navigation }) => {
 
   return (
     <>
-      {/* Overlay Header */}
       <View style={styles.headerOverlay}>
         <PageHeader lable={t('scanQr')} back />
       </View>
 
-      {/* Fullscreen Camera View */}
       <View style={styles.fullscreen}>
         <Camera
           style={StyleSheet.absoluteFill}
@@ -315,7 +313,6 @@ const ScannerScreen = ({ navigation }) => {
           codeScanner={codeScanner}
         />
 
-        {/* QR Frame UI */}
         <View style={styles.frame}>
           <Animated.View
             style={[
@@ -347,7 +344,6 @@ const ScannerScreen = ({ navigation }) => {
           <View style={[styles.corner, styles.bottomRight]} />
         </View>
 
-        {/* Feedback UI */}
         {showScanSuccess && (
           <View style={[styles.resultContainer, { backgroundColor: '#00C853' }]}>
             <Text style={styles.resultTitle}>✅ {t('scanSuccessful')}</Text>

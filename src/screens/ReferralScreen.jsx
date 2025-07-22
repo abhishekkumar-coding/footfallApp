@@ -19,6 +19,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import BackButton from '../components/BackButton';
 import { hp, wp } from '../utils/dimensions';
 import { useTranslation } from 'react-i18next';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const ReferralScreen = () => {
   const { t } = useTranslation();
@@ -162,7 +163,8 @@ const ReferralScreen = () => {
   ];
 
   return (
-    <>
+
+        <SafeAreaView style={{ flex: 1 }}>
       <BackButton lable={t('referral.title')} back />
       <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
         <View style={styles.container}>
@@ -193,7 +195,7 @@ const ReferralScreen = () => {
 
               <TouchableOpacity onPress={handleOpenLink}>
                 <Text style={styles.shortLinkText}>
-                  {t('referral.testLink')}
+                  {/* {t('referral.testLink')} */}
                 </Text>
               </TouchableOpacity>
             </View>
@@ -264,7 +266,7 @@ const ReferralScreen = () => {
           </ScrollView>
         </View>
       </LinearGradient>
-    </>
+    </SafeAreaView>
   );
 };
 

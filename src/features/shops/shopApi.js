@@ -207,6 +207,14 @@ export const shopApi = createApi({
       }),
       providesTags: ['UserLocation'],
     }),
+    getNearbyShops: builder.query({
+      query: ({ lat, lng }) => ({
+        url: `shop/getNearby?userLat=${lat}&userLng=${lng}`,
+        method: 'GET',
+        
+      }),
+    }),
+
   }),
 });
 
@@ -232,5 +240,6 @@ export const {
   useGetNotificationsQuery,
   useGetOfferByIdQuery,
   useMarkNotificationAsReadMutation,
-  useGetUserLocationQuery
+  useGetUserLocationQuery,
+  useGetNearbyShopsQuery
 } = shopApi;

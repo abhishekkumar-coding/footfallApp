@@ -12,7 +12,7 @@ import { goBack, navigate } from '../navigations/NavigationUtil';
 import LeftArrowIcon from '../utils/icons/LeftArrowIcon';
 import { Fonts } from '../utils/typography';
 import LinearGradient from 'react-native-linear-gradient';
-import { wp } from '../utils/dimensions';
+import { hp, wp } from '../utils/dimensions';
 
 const PageHeader = ({ lable, rightComponent, subTitle, back, bg }) => {
   const handleBack = () => {
@@ -24,16 +24,17 @@ const PageHeader = ({ lable, rightComponent, subTitle, back, bg }) => {
       <LinearGradient colors={['#000337', '#000337']} >
         <StatusBar
           translucent={true}
-          backgroundColor="transparent"
-          barStyle="light-content"
+          backgroundColor="#000"
+          // barStyle="light-content"
         />
         <View
           style={[
             styles.headerContainer,
-            {
-              paddingTop:
-                Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-            },
+            
+            // {
+            //   paddingTop:
+            //     Platform.OS === 'android' ? StatusBar.currentHeight : 0,
+            // },
           ]}
         >
           <View style={styles.leftSection}>
@@ -77,6 +78,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingHorizontal: 8,
+    paddingTop: hp(1.5),
 
     elevation: 2,
     shadowColor: '#000',

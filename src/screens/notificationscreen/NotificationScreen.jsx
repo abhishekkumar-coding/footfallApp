@@ -18,6 +18,7 @@ import {
   useGetOfferByIdQuery,
 } from '../../features/shops/shopApi';
 import { useMarkNotificationAsReadMutation } from '../../features/shops/shopApi';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 const NotificationScreen = () => {
@@ -70,6 +71,8 @@ const NotificationScreen = () => {
   };
 
   return (
+        <SafeAreaView style={{ flex: 1 }}>
+
     <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
       <PageHeader lable="Notifications" back />
       <View style={styles.container}>
@@ -96,6 +99,7 @@ const NotificationScreen = () => {
         )}
       </View>
     </LinearGradient>
+    </SafeAreaView>
   );
 };
 

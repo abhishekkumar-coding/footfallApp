@@ -14,6 +14,7 @@ import PageHeader from '../components/BackButton';
 import { useGetScanHistoryQuery } from '../features/shops/shopApi';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const HistoryScreen = () => {
   const { t } = useTranslation();
@@ -89,10 +90,13 @@ const HistoryScreen = () => {
 
   return (
     <>
+        <SafeAreaView style={{ flex: 1 }}>
+
       <PageHeader lable={t('scan_history')} />
       <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
         {renderContent()}
       </LinearGradient>
+      </SafeAreaView>
     </>
   );
 };

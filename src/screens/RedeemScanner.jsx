@@ -39,11 +39,7 @@ const RedeemScanner = ({ navigation }) => {
     },
   );
 
-useEffect(() => {
-  navigation.setOptions({
-    tabBarStyle: { display: 'none' },
-  });
-}, [navigation]);
+
   useEffect(() => {
     requestPermission();
   }, []);
@@ -185,8 +181,11 @@ useEffect(() => {
 
   return (
     <>
-       <PageHeader lable={t('scanQr')} back />
-      <View style={styles.container}>
+      <View style={styles.headerOverlay}>
+        <PageHeader lable={t('scanQr')} back />
+      </View>
+
+      <View style={styles.fullscreen}>
         <Camera
           style={StyleSheet.absoluteFill}
           device={device}
@@ -255,6 +254,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#000',
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  headerOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    zIndex: 999,
+  },
+
+  fullscreen: {
+    flex: 1,
+    backgroundColor: '#000',
+    justifyContent: "center",
+    alignItems: "center"
   },
   centerView: {
     width: '60%',

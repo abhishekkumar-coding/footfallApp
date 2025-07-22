@@ -2,8 +2,8 @@ import {
   View,
   StyleSheet,
   ScrollView,
-  StatusBar,
   RefreshControl,
+  StatusBar,
 } from 'react-native';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
@@ -15,6 +15,7 @@ import { useSelector } from 'react-redux';
 import Coins from './Home/Coins';
 import QuickActions from './Home/QuickActions';
 import FeaturedShopsSection from './Home/FeaturedShopsSection';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const useDynamicRefs = () => {
   const refs = useRef({});
@@ -42,28 +43,37 @@ const HomeScreen = ({ navigation }) => {
   ), [isLoading, handleRefreshControl]);
 
   return (
-    <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
-      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
+    <>
+      <StatusBar
+        translucent
+        backgroundColor={'#000000'}
+        barStyle="light-content"
+      />
+      <SafeAreaView style={{ flex: 1 }}>
 
-      {/* Fixed header outside ScrollView */}
-      <HeaderHome />
+        <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
 
-      <ScrollView
-        refreshControl={refreshControl}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ flexGrow: 1, paddingBottom: 50, paddingTop: hp(14) }} // ⬅️ Add padding for header
-      >
-        <View style={styles.scrollContainer}>
-          <Coins ref={refs('points')} />
-          <QuickActions />
-          <View style={{ paddingHorizontal: 6 }}>
-            <AutoSlider />
-            <FeaturedShopsSection/>
-          </View>
-          <ShopList navigation={navigation} ref={refs('shopListRef')} />
-        </View>
-      </ScrollView>
-    </LinearGradient>
+          {/* Fixed header outside ScrollView */}
+          <HeaderHome />
+
+          <ScrollView
+            refreshControl={refreshControl}
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ flexGrow: 1, paddingBottom: 50, paddingTop: hp(10) }} // ⬅️ Add padding for header
+          >
+            <View style={styles.scrollContainer}>
+              <Coins ref={refs('points')} />
+              <QuickActions />
+              <View style={{ paddingHorizontal: 6 }}>
+                <AutoSlider />
+                <FeaturedShopsSection />
+              </View>
+              <ShopList navigation={navigation} ref={refs('shopListRef')} />
+            </View>
+          </ScrollView>
+        </LinearGradient>
+      </SafeAreaView>
+    </>
   );
 };
 
