@@ -13,40 +13,49 @@ import {
 import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import LinearGradient from 'react-native-linear-gradient';
-import { useGetAllOffersQuery, useGetSortedOffersQuery } from '../../features/shops/shopApi';
-import BackButton from "../../components/BackButton";
+import {
+  useGetAllOffersQuery,
+  useGetSortedOffersQuery,
+} from '../../features/shops/shopApi';
+import BackButton from '../../components/BackButton';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
 
+// const filterOptions = [
+//   { label: 'All', value: 'all' },
+//   { label: 'Latest', value: 'latest' },
+//   { label: 'Ending soon', value: 'endingSoon' },
+//   { label: 'Distance', value: 'distance' },
+// ];
 
 const filterOptions = [
-  { label: 'All', value: 'all' },
-  { label: 'Latest', value: 'latest' },
-  { label: 'Ending soon', value: 'endingSoon' },
-  { label: 'Distance', value: 'distance' },
+  { label: 'all', value: 'all' },
+  { label: 'latest', value: 'latest' },
+  { label: 'endingSoon', value: 'endingSoon' },
+  { label: 'distance', value: 'distance' },
 ];
 
 const OffersScreen = () => {
+  const { t } = useTranslation();
   const [selectedFilter, setSelectedFilter] = useState('all');
   const navigation = useNavigation();
 
-  const { data: allOffersData, } = useGetAllOffersQuery();
-  const { data: sortedData, isLoading } = useGetSortedOffersQuery(selectedFilter);
-  console.log("Sortetd Offer Data:", sortedData)
-  console.log("All Offer Data:", allOffersData)
+  const { data: allOffersData } = useGetAllOffersQuery();
+  const { data: sortedData, isLoading } =
+    useGetSortedOffersQuery(selectedFilter);
+  console.log('Sortetd Offer Data:', sortedData);
+  console.log('All Offer Data:', allOffersData);
   const offers =
     selectedFilter === 'all'
       ? allOffersData?.data?.offers || []
       : sortedData?.data || [];
 
-
-
-  const handlePress = (offerId) => {
-    navigation.navigate('OfferDetails', {offerId});
+  const handlePress = offerId => {
+    navigation.navigate('OfferDetails', { offerId });
   };
 
-
   const renderOffer = ({ item }) => {
-    console.log(item)
+    console.log(item);
     const formattedDate = new Date(item.endTime).toLocaleString('en-IN', {
       day: '2-digit',
       month: 'short',
@@ -59,20 +68,19 @@ const OffersScreen = () => {
     return (
       <TouchableOpacity
         activeOpacity={0.7}
-        onPress={() =>
-          handlePress(item._id)}>
+        onPress={() => handlePress(item._id)}
+      >
         <ImageBackground
           source={{ uri: item.bannerImage }}
           style={styles.offerCard}
           imageStyle={{ borderRadius: 12 }}
         />
-
       </TouchableOpacity>
     );
   };
   return (
     <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
-      <BackButton lable={"Offers"} back={true} />
+      <BackButton lable={t('offers')} back={true} />
 
       <View style={styles.headerContainer}>
         <ScrollView
@@ -95,7 +103,7 @@ const OffersScreen = () => {
                   selectedFilter === option.value && styles.selectedFilterText,
                 ]}
               >
-                {option.label}
+                {t(option.label)}
               </Text>
             </TouchableOpacity>
           ))}
@@ -103,7 +111,9 @@ const OffersScreen = () => {
       </View>
 
       {isLoading ? (
-        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <View
+          style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}
+        >
           <ActivityIndicator size="large" color="#ff5f6d" />
         </View>
       ) : (
@@ -114,16 +124,33 @@ const OffersScreen = () => {
           contentContainerStyle={styles.listContent}
           showsVerticalScrollIndicator={false}
           ListEmptyComponent={
-            <View style={{ justifyContent: "center", alignItems: "center", paddingVertical: hp(5) }}>
-              <Image source={require('../../../assets/emptyofferBox.png')} style={{ width: wp(50), height: hp(20) }} />
-              <Text style={{ fontSize: RFValue(20), color: "#999", fontFamily: "Poppins-SemiBold", textAlign: "center" }}>No Offers Available</Text>
+            <View
+              style={{
+                justifyContent: 'center',
+                alignItems: 'center',
+                paddingVertical: hp(5),
+              }}
+            >
+              <Image
+                source={require('../../../assets/emptyofferBox.png')}
+                style={{ width: wp(50), height: hp(20) }}
+              />
+              <Text
+                style={{
+                  fontSize: RFValue(20),
+                  color: '#999',
+                  fontFamily: 'Poppins-SemiBold',
+                  textAlign: 'center',
+                }}
+              >
+                {t('noOffersAvailable')}
+              </Text>
             </View>
           }
         />
       )}
     </LinearGradient>
-  )
-
+  );
 };
 
 export default OffersScreen;
@@ -135,7 +162,7 @@ const styles = StyleSheet.create({
     gap: hp(2),
     paddingTop: hp(1),
     paddingBottom: hp(5),
-    justifyContent: "space-between"
+    justifyContent: 'space-between',
   },
   headerContainer: {
     marginTop: hp(2),
@@ -201,7 +228,5 @@ const styles = StyleSheet.create({
     marginTop: hp(10),
     fontSize: RFValue(14),
     fontFamily: 'Poppins-SemiBold',
-  }
-
+  },
 });
-

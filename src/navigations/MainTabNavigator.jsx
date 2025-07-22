@@ -122,9 +122,9 @@ const HomeStack = () => (
       options={{ headerShown: false }}
     />
     <Stack.Screen
-    name='AllFeaturedShops'
-    component={AllFeaturedShops}
-    options={{headerShown:false}}
+      name='AllFeaturedShops'
+      component={AllFeaturedShops}
+      options={{ headerShown: false }}
     />
   </Stack.Navigator>
 );
@@ -201,26 +201,30 @@ const MainTabNavigator = () => {
             'NotificationScreen',
             'ShopDetails',
             'OfferScanner',
-            'AllFeaturedShops'
+            'AllFeaturedShops',
           ];
+
+          const isHidden = hideOnScreens.includes(routeName);
+
           return {
             headerShown: false,
             tabBarLabel: t('tab_home'),
-            tabBarStyle: hideOnScreens.includes(routeName)
+            tabBarStyle: isHidden
               ? { display: 'none' }
               : {
-                  backgroundColor: '#181818',
-                  position: 'absolute',
-                  elevation: 0,
-                  borderTopWidth: 0,
-                  overflow: 'hidden',
-                  height: 70,
-                },
+                backgroundColor: '#181818',
+                position: 'absolute',
+                elevation: 0,
+                borderTopWidth: 0,
+                overflow: 'hidden',
+                height: 70,
+              },
             tabBarIcon: ({ focused }) =>
               focused ? <FilledHome /> : <EmptyHome />,
           };
         }}
       />
+
       {/* <Tab.Screen
         name="Home"
         component={HomeStack}
@@ -266,13 +270,13 @@ const MainTabNavigator = () => {
             tabBarStyle: hideOnScreens.includes(routeName)
               ? { display: 'none' }
               : {
-                  backgroundColor: '#181818',
-                  position: 'absolute',
-                  elevation: 0,
-                  borderTopWidth: 0,
-                  overflow: 'hidden',
-                  height: 70,
-                },
+                backgroundColor: '#181818',
+                position: 'absolute',
+                elevation: 0,
+                borderTopWidth: 0,
+                overflow: 'hidden',
+                height: 70,
+              },
             tabBarIcon: ({ focused }) =>
               focused ? <FilledProfile /> : <EmptyProfile />,
           };

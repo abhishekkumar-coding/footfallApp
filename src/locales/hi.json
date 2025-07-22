@@ -3,6 +3,8 @@
   "select_language": "भाषा चुनें",
   "english": "अंग्रेज़ी",
   "hindi": "हिंदी",
+  "chooseLanguage": "अपनी पसंदीदा भाषा चुनें",
+  "continue": "जारी रखें",
   "points": "अंक",
   "redeemed": "भुनाए गए",
   "quick_actions": {
@@ -11,6 +13,7 @@
     "account": "खाता"
   },
   "top_offers": "शीर्ष ऑफ़र",
+  "all_featured_shop" : "सभी विशेष दुकान",
   "Featured_shops":"फ़ीचर्ड दुकानें",
   "nearby_shops": "नज़दीकी दुकानें",
   "view_all": "सभी देखें",
@@ -30,10 +33,10 @@
   "offerScanned": "ऑफ़र स्कैन किया गया",
   "scanFailed": "स्कैन विफल",
   "offers": "ऑफ़र",
-  "filterAll": "सब",
-  "filterLatest": "ताज़ा",
-  "filterEndingSoon": "जल्द समाप्त होने वाले",
-  "filterDistance": "दूरी",
+  "all": "सभी",
+  "latest": "नवीनतम",
+  "endingSoon": "जल्द समाप्त हो रहा है",
+  "distance": "दूरी",
   "noOffersAvailable": "कोई ऑफ़र उपलब्ध नहीं है",
   "editProfile": "प्रोफ़ाइल संपादित करें",
   "name": "नाम",
@@ -87,6 +90,7 @@
   "shop_name": "दुकान का नाम",
   "address": "पता",
   "city": "शहर",
+  "state" :"राज्य",
   "pincode": "पिनकोड",
   "timing": "समय",
   "location_denied": "स्थान अनुमति अस्वीकृत",
@@ -264,5 +268,10 @@
       "signIn": "साइन इन करें",
       "signUp": "साइन अप करें"
     }
-  }
+  },
+  "scanQR": "क्यूआर स्कैन करें",
+  "pleaseTryAgain": "कृपया पुनः प्रयास करें",
+  "shops": "दुकानें",
+  "noShopsAvailable": "कोई दुकान उपलब्ध नहीं है",
+  "pleaseTryAgainLater": "कृपया बाद में पुनः प्रयास करें"
 }

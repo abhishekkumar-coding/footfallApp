@@ -39,7 +39,11 @@ const RedeemScanner = ({ navigation }) => {
     },
   );
 
-
+useEffect(() => {
+  navigation.setOptions({
+    tabBarStyle: { display: 'none' },
+  });
+}, [navigation]);
   useEffect(() => {
     requestPermission();
   }, []);

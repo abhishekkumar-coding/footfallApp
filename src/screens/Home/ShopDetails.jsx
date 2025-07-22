@@ -39,18 +39,18 @@ const requestLocationPermission = async () => {
   return granted === PermissionsAndroid.RESULTS.GRANTED;
 };
 
-function getDistanceInMeters(lat1, lon1, lat2, lon2) {
-  const R = 6371000; // Earth’s radius in meters
-  const dLat = ((lat2 - lat1) * Math.PI) / 180;
-  const dLon = ((lon2 - lon1) * Math.PI) / 180;
-  const a =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos((lat1 * Math.PI) / 180) *
-    Math.cos((lat2 * Math.PI) / 180) *
-    Math.sin(dLon / 2) ** 2;
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-}
+// function getDistanceInMeters(lat1, lon1, lat2, lon2) {
+//   const R = 6371000; // Earth’s radius in meters
+//   const dLat = ((lat2 - lat1) * Math.PI) / 180;
+//   const dLon = ((lon2 - lon1) * Math.PI) / 180;
+//   const a =
+//     Math.sin(dLat / 2) ** 2 +
+//     Math.cos((lat1 * Math.PI) / 180) *
+//     Math.cos((lat2 * Math.PI) / 180) *
+//     Math.sin(dLon / 2) ** 2;
+//   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+//   return R * c;
+// }
 
 const ShopDetails = ({ route }) => {
   const { t } = useTranslation();
@@ -130,95 +130,158 @@ const ShopDetails = ({ route }) => {
   };
 
 
+  // const handleManualScan = async () => {
+  //   const hasPermission = await requestLocationPermission();
+  //   if (!hasPermission) {
+  //     Toast.show({ type: 'error', text1: t('location_denied') });
+  //     return;
+  //   }
+
+  //   setIsLoadingShop(true);
+
+  //   Geolocation.getCurrentPosition(
+  //     async position => {
+  //       const userLat = position.coords.latitude;
+  //       const userLng = position.coords.longitude;
+  //       console.log('📍 Your Current Location:', {
+  //         latitude: userLat,
+  //         longitude: userLng,
+  //       });
+
+  //       // Extract shop lat/lng
+  //       const [shopLng, shopLat] = shop?.location?.coordinates || [];
+  //       console.log('🏪 Shop Location:', {
+  //         latitude: shopLat,
+  //         longitude: shopLng,
+  //       });
+
+  //       const scanRadius = 50;
+  //       const bufferDistance = 100;
+  //       const effectiveRadius = scanRadius + bufferDistance;
+
+  //       const distance = getDistanceInMeters(
+  //         userLat,
+  //         userLng,
+  //         shopLat,
+  //         shopLng,
+  //       );
+  //       console.log(`🧭 Distance to shop: ${Math.round(distance)}m`);
+
+  //       if (distance > effectiveRadius) {
+  //         Toast.show({
+  //           type: 'error',
+  //           text1: t('distance_away', { distance: Math.round(distance) }),
+  //           text2: t('move_closer', { radius: effectiveRadius }),
+  //         });
+  //         setIsLoadingShop(false);
+  //         return;
+  //       }
+
+  //       try {
+  //         const result = await scanShop({
+  //           shopId: _id,
+  //           latitude: userLat,
+  //           longitude: userLng,
+  //         }).unwrap();
+
+  //         if (result?.success) {
+  //           Toast.show({
+  //             type: 'success',
+  //             text1: 'Scan successful!',
+  //           });
+
+  //           if (result.data?.scanRewardType === 'percentage') {
+  //             navigation.navigate('CashbackScreen', {
+  //               shopId: _id,
+  //               returnPercent: result.data?.rewardPoints,
+  //             });
+  //           } else {
+  //             navigation.goBack();
+  //           }
+  //         } else {
+  //           Toast.show({ type: 'error', text1: t('scan_failed_try') });
+  //         }
+  //       } catch (err) {
+  //         Toast.show({ type: 'error', text1: err?.data?.message || 'Error' });
+  //         console.log('❌ Scan error:', err);
+  //       } finally {
+  //         setIsLoadingShop(false);
+  //       }
+  //     },
+  //     error => {
+  //       Toast.show({
+  //         type: 'error',
+  //         text1: 'Location error',
+  //         text2: error.message,
+  //       });
+  //       setIsLoadingShop(false);
+  //     },
+  //     { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+  //   );
+  // };
+
   const handleManualScan = async () => {
-    const hasPermission = await requestLocationPermission();
-    if (!hasPermission) {
-      Toast.show({ type: 'error', text1: t('location_denied') });
-      return;
-    }
+  const hasPermission = await requestLocationPermission();
+  if (!hasPermission) {
+    Toast.show({ type: 'error', text1: t('location_denied') });
+    return;
+  }
 
-    setIsLoadingShop(true);
+  setIsLoadingShop(true);
 
-    Geolocation.getCurrentPosition(
-      async position => {
-        const userLat = position.coords.latitude;
-        const userLng = position.coords.longitude;
-        console.log('📍 Your Current Location:', {
+  Geolocation.getCurrentPosition(
+    async position => {
+      const userLat = position.coords.latitude;
+      const userLng = position.coords.longitude;
+
+      console.log('📍 User Location:', {
+        latitude: userLat,
+        longitude: userLng,
+      });
+
+      try {
+        const result = await scanShop({
+          shopId: _id,
           latitude: userLat,
           longitude: userLng,
-        });
+        }).unwrap();
 
-        // Extract shop lat/lng
-        const [shopLng, shopLat] = shop?.location?.coordinates || [];
-        console.log('🏪 Shop Location:', {
-          latitude: shopLat,
-          longitude: shopLng,
-        });
-
-        const scanRadius = 50;
-        const bufferDistance = 100;
-        const effectiveRadius = scanRadius + bufferDistance;
-
-        const distance = getDistanceInMeters(
-          userLat,
-          userLng,
-          shopLat,
-          shopLng,
-        );
-        console.log(`🧭 Distance to shop: ${Math.round(distance)}m`);
-
-        if (distance > effectiveRadius) {
+        if (result?.success) {
           Toast.show({
-            type: 'error',
-            text1: t('distance_away', { distance: Math.round(distance) }),
-            text2: t('move_closer', { radius: effectiveRadius }),
+            type: 'success',
+            text1: t('scanSuccessful'),
           });
-          setIsLoadingShop(false);
-          return;
-        }
 
-        try {
-          const result = await scanShop({
-            shopId: _id,
-            latitude: userLat,
-            longitude: userLng,
-          }).unwrap();
-
-          if (result?.success) {
-            Toast.show({
-              type: 'success',
-              text1: 'Scan successful!',
+          if (result.data?.scanRewardType === 'percentage') {
+            navigation.navigate('CashbackScreen', {
+              shopId: _id,
+              returnPercent: result.data?.rewardPoints,
             });
-
-            if (result.data?.scanRewardType === 'percentage') {
-              navigation.navigate('CashbackScreen', {
-                shopId: _id,
-                returnPercent: result.data?.rewardPoints,
-              });
-            } else {
-              navigation.goBack();
-            }
           } else {
-            Toast.show({ type: 'error', text1: t('scan_failed_try') });
+            navigation.goBack();
           }
-        } catch (err) {
-          Toast.show({ type: 'error', text1: err?.data?.message || 'Error' });
-          console.log('❌ Scan error:', err);
-        } finally {
-          setIsLoadingShop(false);
+        } else {
+          Toast.show({ type: 'error', text1: t('scan_failed_try') });
         }
-      },
-      error => {
-        Toast.show({
-          type: 'error',
-          text1: 'Location error',
-          text2: error.message,
-        });
+      } catch (err) {
+        Toast.show({ type: 'error', text1: err?.data?.message || 'Error' });
+        console.log('❌ Scan error:', err);
+      } finally {
         setIsLoadingShop(false);
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
-    );
-  };
+      }
+    },
+    error => {
+      Toast.show({
+        type: 'error',
+        text1: t('locationError'),
+        text2: error.message,
+      });
+      setIsLoadingShop(false);
+    },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+  );
+};
+
 
   if (isShopLoading) {
     return (

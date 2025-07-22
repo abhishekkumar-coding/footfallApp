@@ -35,7 +35,7 @@ const ShopList = forwardRef((props, ref) => {
     }),
     [refetch, isLoading]
   );
-console.log("ShopData on ShopList: ", shopData)
+  console.log("ShopData on ShopList: ", shopData)
   const handleViewAll = () => {
     navigation.navigate('AllShops', { shopsData: shopData });
   };
@@ -43,39 +43,39 @@ console.log("ShopData on ShopList: ", shopData)
   const renderItem = ({ item }) => (
     <ShopCard
       shop={item}
-      onPress={() => navigation.navigate('ShopDetails', { 
-        id: item._id, 
+      onPress={() => navigation.navigate('ShopDetails', {
+        id: item._id,
       })}
     />
   );
 
   return (
-  <>
-    <View style={styles.header}>
-      <Text style={styles.heading}>{t('nearby_shops')}</Text>
-      <TouchableOpacity onPress={handleViewAll}>
-        <Text style={styles.viewAll}>{t('view_all')}</Text>
-      </TouchableOpacity>
-    </View>
-
-    {isLoading ? (
-      <View style={styles.skeletonContainer}>
-        {Array.from({ length: 6 }).map((_, index) => (
-          <ShopSkeletonCard key={index} />
-        ))}
+    <>
+      <View style={styles.header}>
+        <Text style={styles.heading}>{t('nearby_shops')}</Text>
+        <TouchableOpacity onPress={handleViewAll}>
+          <Text style={styles.viewAll}>{t('view_all')}</Text>
+        </TouchableOpacity>
       </View>
-    ) : (
-      <FlatList
-        data={shopData}
-        renderItem={renderItem}
-        keyExtractor={item => item._id}
-        showsVerticalScrollIndicator={false}
-        contentContainerStyle={styles.listContent}
-        numColumns={2}
-      />
-    )}
-  </>
-);
+
+      {isLoading ? (
+        <View style={styles.skeletonContainer}>
+          {Array.from({ length: 6 }).map((_, index) => (
+            <ShopSkeletonCard key={index} />
+          ))}
+        </View>
+      ) : (
+        <FlatList
+          data={shopData.slice(0, 6)}
+          renderItem={renderItem}
+          keyExtractor={item => item._id}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
+          numColumns={2}
+        />
+      )}
+    </>
+  );
 
 });
 
@@ -95,18 +95,18 @@ const styles = StyleSheet.create({
   },
   viewAll: {
     fontFamily: 'Poppins-SemiBold',
-    color: '#fff',
+    color: '#00BFFF',
   },
   listContent: {
     paddingBottom: hp(10.5),
     paddingHorizontal: wp(3),
   },
   skeletonContainer: {
-  flexDirection: 'row',
-  flexWrap: 'wrap',
-  justifyContent: 'space-between',
-  paddingHorizontal: wp(3),
-},
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingHorizontal: wp(3),
+  },
 
 });
 

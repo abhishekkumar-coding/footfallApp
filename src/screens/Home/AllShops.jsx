@@ -18,30 +18,31 @@ import { loadWishlist } from '../../features/wishlistSlice';
 import ShopCard from '../../components/ShopCard';
 import ShopSkeletonCard from './ShopSkeletonCard';
 import { useGetFilteredShopsQuery } from '../../features/shops/shopApi';
+import { useTranslation } from 'react-i18next';
 
 const AllShops = ({ route }) => {
+  const { t } = useTranslation();
   const { shopsData } = route.params;
   const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [isLoading, setIsLoading] = useState(true);
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
-  const { data } = useGetFilteredShopsQuery(selectedCategory)
-  console.log("Filtered Shop: ", data?.data?.shops)
+  const { data } = useGetFilteredShopsQuery(selectedCategory);
 
   const categories = [
-    'ALL',
-    'New Delhi',
-    'Noida',
-    'Gurugram',
-    'Patna',
-    ...new Set(shopsData.map(shop => shop.city)),
+    { key: 'ALL', label: t('all') },
+    { key: 'New Delhi', label: 'New Delhi' },
+    { key: 'Noida', label: 'Noida' },
+    { key: 'Gurugram', label: 'Gurugram' },
+    { key: 'Patna', label: 'Patna' },
+    ...Array.from(new Set(shopsData.map(shop => shop.city))).map(city => ({ key: city, label: city })),
   ];
 
   const filteredShops =
     selectedCategory === 'ALL'
       ? shopsData
-      : data?.data?.shops
+      : data?.data?.shops;
 
   useEffect(() => {
     dispatch(loadWishlist());
@@ -64,7 +65,7 @@ const AllShops = ({ route }) => {
 
   return (
     <>
-      <PageHeader lable={'Shops'} back />
+      <PageHeader lable={t('shops')} back />
       <LinearGradient colors={['#000337', '#000000']} style={styles.container}>
         {/* Filter Section */}
         <View style={styles.filterContainer}>
@@ -73,25 +74,28 @@ const AllShops = ({ route }) => {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.filterScrollContent}
           >
-            {categories.map(category => (
-              <TouchableOpacity
-                key={category}
-                style={[
-                  styles.filterButton,
-                  selectedCategory === category && styles.selectedFilterButton,
-                ]}
-                onPress={() => setSelectedCategory(category)}
-              >
-                <Text
+            {categories.map(category => {
+              const isSelected = selectedCategory === category.key;
+              return (
+                <TouchableOpacity
+                  key={category.key}
                   style={[
-                    styles.filterText,
-                    selectedCategory === category && styles.selectedFilterText,
+                    styles.filterButton,
+                    isSelected && styles.selectedFilterButton,
                   ]}
+                  onPress={() => setSelectedCategory(category.key)}
                 >
-                  {category}
-                </Text>
-              </TouchableOpacity>
-            ))}
+                  <Text
+                    style={[
+                      styles.filterText,
+                      isSelected && styles.selectedFilterText,
+                    ]}
+                  >
+                    {category.label}
+                  </Text>
+                </TouchableOpacity>
+              );
+            })}
           </ScrollView>
         </View>
 
@@ -114,9 +118,16 @@ const AllShops = ({ route }) => {
             numColumns={2}
             ListEmptyComponent={
               <View style={{ marginTop: hp(10) }}>
-                <Text style={{ fontFamily: "Poppins-SemiBold", textAlign: "center", fontSize: RFValue(20), color: "#fff" }}>No shops available</Text>
-                <Text style={{ fontFamily: "Poppins-Regular", textAlign: "center", fontSize: RFValue(15), color: "#999" }}>Please try again later.</Text>
-                <Image source={require('../../../assets/noShop.png')} style={{ width: wp(40), height: hp(30), alignSelf: "center" }} />
+                <Text style={{ fontFamily: "Poppins-SemiBold", textAlign: "center", fontSize: RFValue(20), color: "#fff" }}>
+                  {t('noShopsAvailable')}
+                </Text>
+                <Text style={{ fontFamily: "Poppins-Regular", textAlign: "center", fontSize: RFValue(15), color: "#999" }}>
+                  {t('pleaseTryAgainLater')}
+                </Text>
+                <Image
+                  source={require('../../../assets/noShop.png')}
+                  style={{ width: wp(40), height: hp(30), alignSelf: "center" }}
+                />
               </View>
             }
           />
@@ -125,6 +136,8 @@ const AllShops = ({ route }) => {
     </>
   );
 };
+
+export default AllShops;
 
 const styles = StyleSheet.create({
   container: {
@@ -169,4 +182,3 @@ const styles = StyleSheet.create({
   },
 });
 
-export default AllShops;

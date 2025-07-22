@@ -27,10 +27,10 @@ export const shopApi = createApi({
       }),
     }),
     getShopById: builder.query({
-      query: (id) => ({
+      query: id => ({
         url: `shop/getById/${id}`,
-        method: 'GET'
-      })
+        method: 'GET',
+      }),
     }),
     getShopByScan: builder.mutation({
       query: ({ shopId, latitude, longitude }) => ({
@@ -126,13 +126,29 @@ export const shopApi = createApi({
       }),
     }),
 
+    // scanWithPurchaseAmount: builder.mutation({
+    //   query: data => {
+    //     const { id, purchaseAmount } = data;
+    //     return {
+    //       url: `shop/scanWithPurchaseAmount/${id}`,
+    //       method: 'POST',
+    //       body: { purchaseAmount },
+    //     };
+    //   },
+    //   invalidatesTags: ['Wallet'],
+    // }),
+
     scanWithPurchaseAmount: builder.mutation({
       query: data => {
-        const { id, purchaseAmount } = data;
+        const { id, purchaseAmount, latitude, longitude } = data;
         return {
           url: `shop/scanWithPurchaseAmount/${id}`,
           method: 'POST',
-          body: { purchaseAmount },
+          body: {
+            purchaseAmount,
+            latitude,
+            longitude,
+          },
         };
       },
       invalidatesTags: ['Wallet'],
@@ -158,7 +174,7 @@ export const shopApi = createApi({
       }),
     }),
     scanOffer: builder.mutation({
-      query: (id) => ({
+      query: id => ({
         url: `offer/scan/${id}`,
         method: 'POST',
       }),
@@ -166,19 +182,19 @@ export const shopApi = createApi({
     }),
     getNotifications: builder.query({
       query: () => ({
-        url: "notification/getNotifications",
-        method: "GET"
+        url: 'notification/getNotifications',
+        method: 'GET',
       }),
       providesTags: ['Notifications'],
     }),
     getOfferById: builder.query({
-      query: (id) => ({
+      query: id => ({
         url: `offer/getById/${id}`,
-        method: "GET"
-      })
+        method: 'GET',
+      }),
     }),
     markNotificationAsRead: builder.mutation({
-      query: (notificationId) => ({
+      query: notificationId => ({
         url: `notification/markNotificationAsRead/${notificationId}`,
         method: 'POST',
       }),
