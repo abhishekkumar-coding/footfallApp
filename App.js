@@ -23,7 +23,8 @@ import { createNotificationChannel, setupNotificationListeners, } from './src/fe
 
 
 GoogleSignin.configure({
-  webClientId: '629732782679-ug45qaukimq75elomr99d3ibn1b9fnmn.apps.googleusercontent.com',
+  webClientId: '697884599919-nsi2smlk6h11lfap8jr9lcdp82gndumb.apps.googleusercontent.com',
+  // webClientId: '697884599919-nsi2smlk6h11lfap8jr9lcdp82gndumb.apps.googleusercontent.com',
   offlineAccess: true,
 });
 

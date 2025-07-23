@@ -156,72 +156,89 @@ const LoginScreen = () => {
   };
 
   const handleGoogleLogin = async () => {
-    try {
-      setGoogleLoading(true);
-      await GoogleSignin.hasPlayServices({
-        showPlayServicesUpdateDialog: true,
-      });
+  console.log('[GOOGLE LOGIN] Triggered');
 
-      // 👇 Always sign out first to force account picker
-      await GoogleSignin.signOut();
+  try {
+    setGoogleLoading(true);
+    console.log('[GOOGLE LOGIN] Checking Play Services...');
+    
+    await GoogleSignin.hasPlayServices({
+      showPlayServicesUpdateDialog: true,
+    });
+    console.log('[GOOGLE LOGIN] Play Services available');
 
-      const userInfo = await GoogleSignin.signIn();
-      console.log('User Info', userInfo);
+    console.log('[GOOGLE LOGIN] Signing out to force account picker...');
+    await GoogleSignin.signOut();
 
-      const idToken = userInfo.idToken || userInfo.data?.idToken;
-      if (!idToken) throw new Error('No ID token received from Google');
+    console.log('[GOOGLE LOGIN] Starting sign-in...');
+    const userInfo = await GoogleSignin.signIn();
+    console.log('[GOOGLE LOGIN] User Info:', userInfo);
 
-      // ✅ Send Google ID token to your backend
-      const response = await googleLogin({ token: idToken, fcmToken }).unwrap();
-      console.log('Backend Response:', response);
+    const idToken = userInfo.idToken || userInfo.data?.idToken;
+    console.log('[GOOGLE LOGIN] ID Token:', idToken);
 
-      const appToken = response?.data?.token;
-      const backendUser = response?.data?.user;
-      if (!appToken) throw new Error('App token missing in response');
-
-      const googlePhoto = userInfo.user?.photo || userInfo.data?.user?.photo;
-      const fullUser = {
-        ...backendUser,
-        photo: backendUser?.photo || googlePhoto,
-      };
-
-      console.log('Full User', fullUser);
-
-      // ✅ Save token and user
-      await AsyncStorage.setItem('token', appToken);
-      await AsyncStorage.setItem('user', JSON.stringify(fullUser));
-      dispatch(setUser(fullUser));
-
-      // ✅ FIXED: Use fullUser.name in Toast
-      Toast.show({
-        type: 'success',
-        text1: t('google_success'),
-        text2: t('google_welcome', { name: fullUser?.name || 'User' }),
-      });
-
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Main' }],
-      });
-    } catch (error) {
-      console.log('Google Sign-In Error:', error);
-      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-        Toast.show({ type: 'info', text1: t('google_cancelled') });
-      } else if (error.code === statusCodes.IN_PROGRESS) {
-        Toast.show({ type: 'info', text1: t('google_progress') });
-      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-        Toast.show({ type: 'error', text1: t('google_play_services_error') });
-      } else {
-        Toast.show({
-          type: 'error',
-          text1: t('google_failed'),
-          text2: t('google_default_error'),
-        });
-      }
-    } finally {
-      setGoogleLoading(false);
+    if (!idToken) {
+      throw new Error('No ID token received from Google');
     }
-  };
+
+    console.log('[GOOGLE LOGIN] Sending ID token to backend...');
+    const response = await googleLogin({ token: idToken, fcmToken }).unwrap();
+    console.log('[GOOGLE LOGIN] Backend Response:', response);
+
+    const appToken = response?.data?.token;
+    const backendUser = response?.data?.user;
+
+    if (!appToken) {
+      console.error('[GOOGLE LOGIN] App token missing in response');
+      throw new Error('App token missing in response');
+    }
+
+    const googlePhoto = userInfo.user?.photo || userInfo.data?.user?.photo;
+    const fullUser = {
+      ...backendUser,
+      photo: backendUser?.photo || googlePhoto,
+    };
+
+    console.log('[GOOGLE LOGIN] Final user object:', fullUser);
+
+    console.log('[GOOGLE LOGIN] Saving token and user to AsyncStorage...');
+    await AsyncStorage.setItem('token', appToken);
+    await AsyncStorage.setItem('user', JSON.stringify(fullUser));
+    dispatch(setUser(fullUser));
+
+    Toast.show({
+      type: 'success',
+      text1: t('google_success'),
+      text2: t('google_welcome', { name: fullUser?.name || 'User' }),
+    });
+
+    console.log('[GOOGLE LOGIN] Navigating to Main screen...');
+    navigation.reset({
+      index: 0,
+      routes: [{ name: 'Main' }],
+    });
+
+  } catch (error) {
+    console.log('[GOOGLE LOGIN] Error occurred:', error);
+
+    if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+      Toast.show({ type: 'info', text1: t('google_cancelled') });
+    } else if (error.code === statusCodes.IN_PROGRESS) {
+      Toast.show({ type: 'info', text1: t('google_progress') });
+    } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+      Toast.show({ type: 'error', text1: t('google_play_services_error') });
+    } else {
+      Toast.show({
+        type: 'error',
+        text1: t('google_failed'),
+        text2: t('google_default_error'),
+      });
+    }
+  } finally {
+    setGoogleLoading(false);
+    console.log('[GOOGLE LOGIN] Loading state set to false');
+  }
+};
 
   return (
     <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>

@@ -4,7 +4,7 @@
     "type": "APK",
     "kind": "Directory"
   },
-  "applicationId": "com.footfall",
+  "applicationId": "com.appinlay.footfallapp",
   "variantName": "release",
   "elements": [
     {

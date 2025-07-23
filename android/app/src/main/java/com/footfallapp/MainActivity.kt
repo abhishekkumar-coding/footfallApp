@@ -1,4 +1,4 @@
-package com.footfall
+package com.appinlay.footfallapp
 
 import com.facebook.react.ReactActivity
 import com.facebook.react.ReactActivityDelegate

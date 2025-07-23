@@ -1,4 +1,4 @@
-package com.footfall
+package com.appinlay.footfallapp
 
 import android.app.Application
 import com.facebook.react.PackageList

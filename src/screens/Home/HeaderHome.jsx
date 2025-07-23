@@ -69,7 +69,7 @@ const HeaderHome = () => {
               id: user._id,
               body: {
                 lat: latitude,
-                long: longitude,
+                lng: longitude,
                 city: addressDetails.city,
                 state: addressDetails.state,
                 country: addressDetails.country,

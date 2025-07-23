@@ -46,7 +46,7 @@ const HomeScreen = ({ navigation }) => {
     <>
       <StatusBar
         translucent
-        backgroundColor={'#000000'}
+        backgroundColor={'green'}
         barStyle="light-content"
       />
       <SafeAreaView style={{ flex: 1 }}>

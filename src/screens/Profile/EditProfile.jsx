@@ -131,12 +131,16 @@ const EditProfile = () => {
     setIsSaving(true);
     try {
       const body = {
+        name,
+        email,
+        phone,
+        lat,
+        lng,
+        address: addressDetails.address,
         city: addressDetails.city,
         state: addressDetails.state,
-        country: addressDetails.country,
         pincode: addressDetails.postcode,
       };
-
       const res = await updateUser({ id: user._id, body }).unwrap();
       console.log(res)
       dispatch(setUser(res.data));
@@ -169,64 +173,64 @@ const EditProfile = () => {
   }
 
   return (
-        <SafeAreaView edges={['top']} style={{ flex: 1 }}>
+    <SafeAreaView edges={['top']} style={{ flex: 1 }}>
 
-    <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
-      <BackButton lable={t('editProfile')} back />
-      <View style={styles.container}>
-        <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-          <View style={{ paddingHorizontal: wp(5) }}>
-            <CustomInput lable={t('name')} value={name} onChangeText={setName} placeholder={t('name')} />
-            <CustomInput lable={t('email')} value={email} onChangeText={setEmail} placeholder={t('email')} />
-            <CustomInput lable={t('phone')} value={phone} onChangeText={setPhone} placeholder={t('phone')} />
-            <CustomInput
-              lable={t('address')}
-              value={addressDetails.address}
-              onChangeText={(text) => setAddressDetails(prev => ({ ...prev, address: text }))}
-              placeholder={t('address')}
-            />
-            <CustomInput
-              lable={t('city')}
-              value={addressDetails.city}
-              onChangeText={(text) => setAddressDetails(prev => ({ ...prev, city: text }))}
-              placeholder={t('city')}
-            />
-            <CustomInput
-              lable={t('state')}
-              value={addressDetails.state}
-              onChangeText={(text) => setAddressDetails(prev => ({ ...prev, state: text }))}
-              placeholder={t('state')}
-            />
-            <CustomInput
-              lable={t('country')}
-              value={addressDetails.country}
-              onChangeText={(text) => setAddressDetails(prev => ({ ...prev, country: text }))}
-              placeholder={t('country')}
-            />
-            <CustomInput
-              lable={t('pincode')}
-              value={addressDetails.postcode}
-              onChangeText={(text) => setAddressDetails(prev => ({ ...prev, postcode: text }))}
-              placeholder={t('pincode')}
-            />
+      <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
+        <BackButton lable={t('editProfile')} back />
+        <View style={styles.container}>
+          <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
+            <View style={{ paddingHorizontal: wp(5) }}>
+              <CustomInput lable={t('name')} value={name} onChangeText={setName} placeholder={t('name')} />
+              <CustomInput lable={t('email')} value={email} onChangeText={setEmail} placeholder={t('email')} />
+              <CustomInput lable={t('phone')} value={phone} onChangeText={setPhone} placeholder={t('phone')} />
+              <CustomInput
+                lable={t('address')}
+                value={addressDetails.address}
+                onChangeText={(text) => setAddressDetails(prev => ({ ...prev, address: text }))}
+                placeholder={t('address')}
+              />
+              <CustomInput
+                lable={t('city')}
+                value={addressDetails.city}
+                onChangeText={(text) => setAddressDetails(prev => ({ ...prev, city: text }))}
+                placeholder={t('city')}
+              />
+              <CustomInput
+                lable={t('state')}
+                value={addressDetails.state}
+                onChangeText={(text) => setAddressDetails(prev => ({ ...prev, state: text }))}
+                placeholder={t('state')}
+              />
+              <CustomInput
+                lable={t('country')}
+                value={addressDetails.country}
+                onChangeText={(text) => setAddressDetails(prev => ({ ...prev, country: text }))}
+                placeholder={t('country')}
+              />
+              <CustomInput
+                lable={t('pincode')}
+                value={addressDetails.postcode}
+                onChangeText={(text) => setAddressDetails(prev => ({ ...prev, postcode: text }))}
+                placeholder={t('pincode')}
+              />
 
-            <TouchableOpacity style={styles.locanBtn} onPress={handleAutoDetect}>
-              {isLocLoading ? (
-                <ActivityIndicator size="large" color="#fff" />
-              ) : (
-                <Text style={styles.locanBtnText}>{t('autoDetectLocation')}</Text>
-              )}
-            </TouchableOpacity>
+              <TouchableOpacity style={styles.locanBtn} onPress={handleAutoDetect}>
+                {isLocLoading ? (
+                  <ActivityIndicator size="large" color="#fff" />
+                ) : (
+                  <Text style={styles.locanBtnText}>{t('autoDetectLocation')}</Text>
+                )}
+              </TouchableOpacity>
 
-            <CustomButton
-              title={isSaving ? t('saving') : t('saveChanges')}
-              disabled={isSaving}
-              onPress={handleSave}
-            />
-          </View>
-        </ScrollView>
-      </View>
-    </LinearGradient>
+              <CustomButton
+                title={isSaving ? t('saving') : t('saveChanges')}
+                disabled={isSaving}
+                onPress={handleSave}
+              />
+            </View>
+          </ScrollView>
+        </View>
+      </LinearGradient>
     </SafeAreaView>
   );
 };

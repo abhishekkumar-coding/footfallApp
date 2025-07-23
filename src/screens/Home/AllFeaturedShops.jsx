@@ -16,7 +16,6 @@ import PageHeader from '../../components/BackButton';
 import LinearGradient from 'react-native-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import FeaturedShopCard from '../../components/FeaturedShopCard';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 const AllFeaturedShops = () => {
     const navigation = useNavigation();
