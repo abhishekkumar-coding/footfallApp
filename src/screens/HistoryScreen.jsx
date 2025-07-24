@@ -105,7 +105,9 @@ export default HistoryScreen;
 
 const styles = StyleSheet.create({
   container: {
-    paddingBottom: hp(7)
+    paddingBottom: hp(7),
+    paddingHorizontal: 12,
+
   },
   headerContainer: {
     paddingBottom: hp(),

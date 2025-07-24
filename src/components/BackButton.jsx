@@ -5,7 +5,6 @@ import {
   View,
   TouchableOpacity,
   Platform,
-  StatusBar,
 } from 'react-native';
 
 import { goBack, navigate } from '../navigations/NavigationUtil';
@@ -22,11 +21,6 @@ const PageHeader = ({ lable, rightComponent, subTitle, back, bg }) => {
   return (
     <>
       <LinearGradient colors={['#000337', '#000337']} >
-        <StatusBar
-          translucent={true}
-          backgroundColor="#000"
-          // barStyle="light-content"
-        />
         <View
           style={[
             styles.headerContainer,

@@ -35,6 +35,11 @@ export const authApi = createApi({
         body: credentials,
       }),
     }),
+    getUserById :builder.query({
+      query:(id)=>({
+        url:`user/getById/${id}`
+      })
+    }),
     updateUser: builder.mutation({
       query: data => {
         const { id, body } = data;
@@ -95,6 +100,7 @@ export const authApi = createApi({
 export const {
   useSignupMutation,
   useLoginMutation,
+  useGetUserByIdQuery,
   useRequestOtpMutation,
   useVerifyOtpMutation,
   useResetPasswordMutation,

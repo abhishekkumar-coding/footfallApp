@@ -12,18 +12,27 @@ import React, { useEffect, useState } from 'react';
 import Geolocation from 'react-native-geolocation-service';
 import NotificationIcon from '../../utils/icons/NotificationIcon';
 import { wp, hp } from '../../utils/dimensions';
-import { useNavigation } from '@react-navigation/native';
-import { useSelector } from 'react-redux';
+import { useIsFocused, useNavigation } from '@react-navigation/native';
+import { useDispatch, useSelector } from 'react-redux';
 import { useGetNotificationsQuery } from '../../features/shops/shopApi';
 import { useUpdateUserMutation } from '../../features/auth/authApi';
+import Toast from 'react-native-toast-message';
+import { setUser } from '../../features/auth/userSlice';
+import { RFValue } from 'react-native-responsive-fontsize';
+import { LocatioIcon } from '../../utils/icons/icons';
 
 const HeaderHome = () => {
+    const isFocused = useIsFocused();
   const navigation = useNavigation();
   const notifications = useSelector(state => state.notification.notifications);
   const { data } = useGetNotificationsQuery();
   const user = useSelector(state => state.user.user);
   const badgeCount = data?.data?.length || 0;
   const [updateUser] = useUpdateUserMutation();
+  const dispatch = useDispatch()
+  const [fullAddress, setFullAddress] = useState('');
+  const [loadingCity, setLoadingCity] = useState(true);
+
 
   const requestLocationPermission = async () => {
     if (Platform.OS === 'ios') return true;
@@ -43,6 +52,7 @@ const HeaderHome = () => {
       const address = data.address;
 
       return {
+        fullAddress: data.display_name || '',
         city: address?.city || address?.county || address?.town || address?.village || '',
         state: address?.state || '',
         country: address?.country || '',
@@ -64,21 +74,38 @@ const HeaderHome = () => {
           const { latitude, longitude } = position.coords;
 
           const addressDetails = await fetchAddressFromCoordinates(latitude, longitude);
+          setFullAddress(addressDetails.fullAddress || '');
+          setLoadingCity(false);
+
           try {
             const res = await updateUser({
               id: user._id,
               body: {
                 lat: latitude,
                 lng: longitude,
-                city: addressDetails.city,
-                state: addressDetails.state,
-                country: addressDetails.country,
-                pincode: addressDetails.pincode,
+                // address: addressDetails.fullAddress,
+                // city: addressDetails.city,
+                // state: addressDetails.state,
+                // country: addressDetails.country,
+                // pinCode: addressDetails.pincode,
               },
             }).unwrap();
-            console.log('User updated with address:', res);
+            console.log('User updated with address:', res); 
+            // Toast.show({
+            //   type: 'success',
+            //   text1: 'Location Updated',
+            //   text2: 'Your location has been updated to show nearby shops.',
+            // });
+            dispatch(setUser(res.data));
+
+
           } catch (error) {
             console.error('Error updating user:', error);
+            Toast.show({
+              type: 'error',
+              text1: 'Update Failed',
+              text2: 'Unable to update your location.',
+            });
           }
         },
         error => {
@@ -91,13 +118,22 @@ const HeaderHome = () => {
     getLocationAndUpdate();
   }, []);
 
+  
+
   return (
     <SafeAreaView style={styles.container}>
-      <Image
-        source={require('../../../assets/logo.png')}
-        style={styles.logoImage}
-        resizeMode="contain"
-      />
+      <View style={styles.logoContainer}>
+        <Image
+          source={require('../../../assets/logo.png')}
+          style={styles.logoImage}
+          resizeMode="contain"
+        />
+        <View style={{flexDirection:"row", justifyContent:"center", alignItems:"center", gap:5}}>
+          <LocatioIcon/>
+        <Text style={styles.logoText}>{loadingCity ? '..........' : fullAddress || 'Unknown'}</Text>
+        </View>
+      </View>
+
       <TouchableOpacity onPress={() => navigation.navigate('NotificationScreen', { notifications })}>
         <View style={styles.iconContainer}>
           <NotificationIcon />
@@ -128,7 +164,22 @@ const styles = StyleSheet.create({
   },
   logoImage: {
     width: wp(30),
-    height: hp(5),
+    height: hp(3.5),
+  },
+  logoContainer: {
+    // alignItems: 'center',
+    justifyContent: 'center',
+    marginVertical: hp(0.0),
+  },
+  logoText: {
+    fontSize: RFValue(6.5),
+    fontFamily: 'Poppins-Regular',
+    color: '#fff',
+    textAlign: 'left',
+    letterSpacing: 1,
+    width:wp(80),
+    // borderWidth:1,
+    // borderColor:"#fff"
   },
   iconContainer: {
     position: 'relative',

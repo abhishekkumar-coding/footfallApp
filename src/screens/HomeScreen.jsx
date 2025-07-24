@@ -3,7 +3,6 @@ import {
   StyleSheet,
   ScrollView,
   RefreshControl,
-  StatusBar,
 } from 'react-native';
 import React, { useCallback, useMemo, useRef, useState } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
@@ -44,12 +43,7 @@ const HomeScreen = ({ navigation }) => {
 
   return (
     <>
-      <StatusBar
-        translucent
-        backgroundColor={'green'}
-        barStyle="light-content"
-      />
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView edges={['top']} style={{ flex: 1 }}>
 
         <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
 

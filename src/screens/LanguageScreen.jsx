@@ -183,12 +183,12 @@ const LanguageScreen = ({ route, navigation }) => {
   };
 
   return (
-        <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1 }}>
 
-    <LinearGradient colors={['#000337', '#000337']} style={styles.gradient}>
-      <PageHeader back bg />
-      <View style={styles.content}>
-        {/* <View style={styles.topEmojiContainer}>
+      <LinearGradient colors={['#000337', '#000337']} style={styles.gradient}>
+        {!isInitialSetup && <PageHeader back lable={"Change language"} />}
+        <View style={styles.content}>
+          {/* <View style={styles.topEmojiContainer}>
           <View style={styles.emojiWrapper}>
             <Text style={styles.bubble}>Hello!</Text>
             <Text style={styles.emoji}>😊</Text>
@@ -199,45 +199,45 @@ const LanguageScreen = ({ route, navigation }) => {
           </View>
         </View> */}
 
-        <Text style={styles.title}>{t('chooseLanguage')}</Text>
+          <Text style={styles.title}>{t('chooseLanguage')}</Text>
 
-        <View style={styles.langContainer}>
-          {languages.map(lang => {
-            const isSelected = selectedLang === lang.code;
-            return (
-              <TouchableOpacity
-                key={lang.code}
-                style={[styles.langCard, isSelected && styles.langCardSelected]}
-                onPress={() => setSelectedLang(lang.code)}
-              >
-                <View style={styles.langIcon}>
+          <View style={styles.langContainer}>
+            {languages.map(lang => {
+              const isSelected = selectedLang === lang.code;
+              return (
+                <TouchableOpacity
+                  key={lang.code}
+                  style={[styles.langCard, isSelected && styles.langCardSelected]}
+                  onPress={() => setSelectedLang(lang.code)}
+                >
+                  <View style={styles.langIcon}>
+                    <Text
+                      style={[
+                        styles.nativeText,
+                        isSelected && styles.nativeTextSelected,
+                      ]}
+                    >
+                      {lang.native}
+                    </Text>
+                  </View>
                   <Text
                     style={[
-                      styles.nativeText,
-                      isSelected && styles.nativeTextSelected,
+                      styles.langLabel,
+                      isSelected && styles.langLabelSelected,
                     ]}
                   >
-                    {lang.native}
+                    {t(lang.labelKey)}
                   </Text>
-                </View>
-                <Text
-                  style={[
-                    styles.langLabel,
-                    isSelected && styles.langLabelSelected,
-                  ]}
-                >
-                  {t(lang.labelKey)}
-                </Text>
-                {isSelected && (
-                  <View style={styles.checkmark}>
-                    <Icon name="check-circle" size={20} color="#4CAF50" />
-                  </View>
-                )}
-              </TouchableOpacity>
-            );
-          })}
-        </View>
-        {/* <LinearGradient
+                  {isSelected && (
+                    <View style={styles.checkmark}>
+                      <Icon name="check-circle" size={20} color="#4CAF50" />
+                    </View>
+                  )}
+                </TouchableOpacity>
+              );
+            })}
+          </View>
+          {/* <LinearGradient
           colors={['#FF6BD6', '#FF2DCF']}
           style={styles.continueBtn}
           start={{ x: 0, y: 0 }}
@@ -251,30 +251,30 @@ const LanguageScreen = ({ route, navigation }) => {
             style={{ marginLeft: 8 }}
           />
         </LinearGradient> */}
-        <LinearGradient
-          colors={['#FF6BD6', '#FF2DCF']}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-          style={[styles.continueBtn, { opacity: selectedLang ? 1 : 0.5 }]}
-        >
-          <TouchableOpacity
-            onPress={onContinue}
-            disabled={!selectedLang}
-            style={styles.continueTouchable}
+          <LinearGradient
+            colors={['#FF6BD6', '#FF2DCF']}
+            start={{ x: 0, y: 0 }}
+            end={{ x: 1, y: 0 }}
+            style={[styles.continueBtn, { opacity: selectedLang ? 1 : 0.5 }]}
           >
-            <Text style={styles.continueText}>
-              {t('continue') || 'CONTINUE'}
-            </Text>
-            <Icon
-              name="arrow-forward"
-              size={20}
-              color="white"
-              style={{ marginLeft: 8 }}
-            />
-          </TouchableOpacity>
-        </LinearGradient>
-      </View>
-    </LinearGradient>
+            <TouchableOpacity
+              onPress={onContinue}
+              disabled={!selectedLang}
+              style={styles.continueTouchable}
+            >
+              <Text style={styles.continueText}>
+                {t('continue') || 'CONTINUE'}
+              </Text>
+              <Icon
+                name="arrow-forward"
+                size={20}
+                color="white"
+                style={{ marginLeft: 8 }}
+              />
+            </TouchableOpacity>
+          </LinearGradient>
+        </View>
+      </LinearGradient>
     </SafeAreaView>
   );
 };

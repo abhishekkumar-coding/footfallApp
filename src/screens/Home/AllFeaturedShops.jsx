@@ -6,7 +6,6 @@ import {
     Image,
     StyleSheet,
     TouchableOpacity,
-    StatusBar,
     ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
@@ -16,6 +15,7 @@ import PageHeader from '../../components/BackButton';
 import LinearGradient from 'react-native-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import FeaturedShopCard from '../../components/FeaturedShopCard';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const AllFeaturedShops = () => {
     const navigation = useNavigation();
@@ -68,23 +68,31 @@ const AllFeaturedShops = () => {
 
 
     return (
-                <SafeAreaView style={{ flex: 1 }}>
-        
-        <LinearGradient colors={['#000337', '#000000']} style={styles.container}>
-            <StatusBar barStyle="dark-content" backgroundColor="#fefefe" />
-            <PageHeader lable={t("all_featured_shop")} back />
-            <FlatList
-                data={featuredShops}
-                keyExtractor={(item) => item._id}
-                numColumns={2}
-                columnWrapperStyle={{ justifyContent: 'space-between' }}
-                contentContainerStyle={{ paddingHorizontal: wp(4), paddingBottom: hp(5) }}
-                renderItem={renderShopCard}
-                ListEmptyComponent={
-                    <Text style={styles.emptyText}>No featured shops available.</Text>
-                }
-            />
-        </LinearGradient>
+        <SafeAreaView style={{ flex: 1 }}>
+
+            <LinearGradient colors={['#000337', '#000000']} style={styles.container}>
+                <PageHeader lable={t("all_featured_shop")} back />
+                <FlatList
+                    data={featuredShops}
+                    keyExtractor={(item) => item._id}
+                    numColumns={2}
+                    columnWrapperStyle={{ justifyContent: 'space-between' }}
+                    contentContainerStyle={{ paddingHorizontal: wp(4), paddingBottom: hp(5) }}
+                    renderItem={renderShopCard}
+                    ListEmptyComponent={
+                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop:hp(10) }}>
+                            <Image
+                                source={require('../../../assets/noFeaturedShop.png')}
+                                style={{ width: wp(50), height: wp(50), resizeMode: 'contain' }}
+                            />
+                            <Text style={styles.title}>No Featured Shop</Text>
+
+                            <Text style={styles.subtitle}>Please check back later for updates!</Text>
+                        </View>
+
+                    }
+                />
+            </LinearGradient>
         </SafeAreaView>
     );
 };
@@ -207,5 +215,16 @@ const styles = StyleSheet.create({
         marginTop: hp(5),
         fontSize: 16,
         color: '#ccc',
+    },
+    title: {
+        fontSize: 20,
+        color: '#ccc',
+        fontFamily:"Poppins-Bold"
+    },
+    subtitle: {
+        fontSize: 14,
+        color: '#fff',
+        marginTop: 4,
+        textAlign: 'center',
     },
 });

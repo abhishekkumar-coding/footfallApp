@@ -44,7 +44,7 @@ const FeaturedShopsSection = () => {
     );
 
     return (
-        <View style={styles.container}>
+        <View style={[styles.container, { flex: 1 }]}>
             <View style={styles.headerRow}>
                 <Text style={styles.heading}>{t('Featured_shops')}</Text>
                 <TouchableOpacity onPress={handleViewAll}>
@@ -61,6 +61,15 @@ const FeaturedShopsSection = () => {
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={{ paddingLeft: wp(4) }}
                 />
+            ) : featuredShops.length === 0 ? (
+                <View style={styles.emptyContainer}>
+                    <Image
+                        source={require('../../../assets/noFeaturedShop.png')}
+                        style={styles.emptyImage}
+                    />
+                    <Text style={styles.title}>No Featured Shop</Text>
+                    <Text style={styles.subtitle}>Please check back later for updates!</Text>
+                </View>
             ) : (
                 <FlatList
                     data={featuredShops}
@@ -69,13 +78,11 @@ const FeaturedShopsSection = () => {
                     horizontal
                     showsHorizontalScrollIndicator={false}
                     contentContainerStyle={{ paddingLeft: wp(4), paddingRight: wp(2) }}
-                    ListEmptyComponent={
-                        <Text style={styles.emptyText}>{t('No featured shops available.')}</Text>
-                    }
                 />
             )}
         </View>
     );
+
 };
 
 export default FeaturedShopsSection;
@@ -98,7 +105,7 @@ const styles = StyleSheet.create({
         color: '#fff',
     },
     viewAll: {
-        fontSize: 14,
+        fontSize: RFValue(11),
         color: '#00BFFF',
         fontFamily: 'Poppins-Regular',
     },
@@ -152,10 +159,29 @@ const styles = StyleSheet.create({
         fontSize: 15,
         fontWeight: '700',
     },
-    emptyText: {
+    emptyContainer: {
+        flex: 1,
+        justifyContent: 'center',
+        alignItems: 'center',
         paddingHorizontal: wp(4),
+    },
+    emptyImage: {
+        width: wp(40),
+        height: wp(40),
+        resizeMode: 'contain',
+        // marginBottom: hp(2),
+    },
+
+    title: {
+        fontSize: 20,
+        color: '#ccc',
+        fontFamily: "Poppins-Bold"
+    },
+    subtitle: {
         fontSize: 14,
-        color: '#999',
-        marginTop: hp(1),
+        color: '#fff',
+        marginTop: 4,
+        textAlign: 'center',
+        fontFamily:"Poppins-Regular"
     },
 });

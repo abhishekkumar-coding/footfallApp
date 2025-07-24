@@ -162,7 +162,7 @@ export default OffersScreen;
 const styles = StyleSheet.create({
   listContent: {
     // backgroundColor: '#000',
-    paddingHorizontal: wp(2),
+    paddingHorizontal: wp(3),
     gap: hp(2),
     paddingTop: hp(1),
     paddingBottom: hp(5),

@@ -312,76 +312,76 @@ const ShopDetails = ({ route }) => {
 
 
   return (
-        <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1 }}>
 
-    <LinearGradient
-      colors={['#000337', '#000000']}
-      style={{ flex: 1 }}
-    >
-      <PageHeader back bg />
-      {/* Loading and status indicators */}
-      {(isLoadingShop || isLoadingVendor) && (
-        <View style={styles.loaderContainer}>
-          <Text style={styles.loaderText}>
-            {/* {isLoadingShop ? 'Scanning...' : 'Fetching vendor points...'} */}
-            {isLoadingShop ? t('scanning') : t('fetching_points')}
-          </Text>
-        </View>
-      )}
+      <LinearGradient
+        colors={['#000337', '#000000']}
+        style={{ flex: 1 }}
+      >
+        <PageHeader back bg />
+        {/* Loading and status indicators */}
+        {(isLoadingShop || isLoadingVendor) && (
+          <View style={styles.loaderContainer}>
+            <Text style={styles.loaderText}>
+              {/* {isLoadingShop ? 'Scanning...' : 'Fetching vendor points...'} */}
+              {isLoadingShop ? t('scanning') : t('fetching_points')}
+            </Text>
+          </View>
+        )}
 
-      {showScanSuccess && (
-        <View
-          style={[styles.resultContainer, { backgroundColor: '#28A745' }]}
-        >
-          <Text style={styles.resultTitle}>
-            {t('scanSuccessful')}
-          </Text>
-        </View>
-      )}
-      {showScanError && (
-        <View
-          style={[styles.resultContainer, { backgroundColor: '#B00020' }]}
-        >
-          <Text style={styles.resultTitle}>{t('scan_failed', { message: errorMessage })}</Text>
-        </View>
-      )}
+        {showScanSuccess && (
+          <View
+            style={[styles.resultContainer, { backgroundColor: '#28A745' }]}
+          >
+            <Text style={styles.resultTitle}>
+              {t('scanSuccessful')}
+            </Text>
+          </View>
+        )}
+        {showScanError && (
+          <View
+            style={[styles.resultContainer, { backgroundColor: '#B00020' }]}
+          >
+            <Text style={styles.resultTitle}>{t('scan_failed', { message: errorMessage })}</Text>
+          </View>
+        )}
 
-      <View style={styles.gradientContainer}>
-        <ScrollView
-          contentContainerStyle={styles.scrollContainer}
-          showsVerticalScrollIndicator={false}
-        >
-          {/* QR Code Section */}
-          <View style={styles.qrContainer}>
-            {/* <ShopQRCode
+        <View style={styles.gradientContainer}>
+          <ScrollView
+            contentContainerStyle={styles.scrollContainer}
+            showsVerticalScrollIndicator={false}
+          >
+            {/* QR Code Section */}
+            <View style={styles.qrContainer}>
+              {/* <ShopQRCode
               shopId={_id}
               email={contact?.email ?? 'no-email'}
               ownerId={owner}
               logo={logo}
             /> */}
 
-            <Image
-              source={
-                imageError || !cover
-                  ? require('../../../assets/emptyShop.png')
-                  : { uri: cover }}
-              style={{ width: '100%', height: 350 }}
-              onError={(e) => {
-                console.warn("Image load error for shop:", shop.name, e.nativeEvent.error);
-                setImageError(true);
-              }}
-            />
-            <View style={styles.textWrapper}>
-              <Text style={styles.titleText}>{name}</Text>
-              <Text style={styles.subtitleText}>{category}</Text>
+              <Image
+                source={
+                  imageError || !cover
+                    ? require('../../../assets/emptyShop.png')
+                    : { uri: cover }}
+                style={{ width: '100%', height: 350 }}
+                onError={(e) => {
+                  console.warn("Image load error for shop:", shop.name, e.nativeEvent.error);
+                  setImageError(true);
+                }}
+              />
+              <View style={styles.textWrapper}>
+                <Text style={styles.titleText}>{name}</Text>
+                <Text style={styles.subtitleText}>{category}</Text>
+              </View>
+
+
             </View>
 
-
-          </View>
-
-          {/* Shop Details Section */}
-          <View style={styles.shopDetails}>
-            {/* <View style={styles.detailRow}>
+            {/* Shop Details Section */}
+            <View style={styles.shopDetails}>
+              {/* <View style={styles.detailRow}>
               <Text style={styles.detailLabel}>{t('category')}</Text>
               <Text style={styles.detailValue}>{category}</Text>
             </View>
@@ -391,59 +391,59 @@ const ShopDetails = ({ route }) => {
               <Text style={styles.detailValue}>{name}</Text>
             </View> */}
 
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>{t('address')}</Text>
-              <Text style={styles.detailValue}>{address}</Text>
-            </View>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>{t('address')}</Text>
+                <Text style={styles.detailValue}>{address}</Text>
+              </View>
 
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>{t('city')}</Text>
-              <Text style={styles.detailValue}>
-                {city}
-              </Text>
-            </View>
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>{t('pincode')}</Text>
-              <Text style={styles.detailValue}>
-                {pinCode}
-              </Text>
-            </View>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>{t('city')}</Text>
+                <Text style={styles.detailValue}>
+                  {city}
+                </Text>
+              </View>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>{t('pincode')}</Text>
+                <Text style={styles.detailValue}>
+                  {pinCode}
+                </Text>
+              </View>
 
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>{t('timing')}</Text>
-              <Text style={styles.detailValue}>
-                {startTime} - {endTime}
-              </Text>
-            </View>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>{t('timing')}</Text>
+                <Text style={styles.detailValue}>
+                  {startTime} - {endTime}
+                </Text>
+              </View>
 
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>{t('phone')}</Text>
-              <Text style={styles.detailValue}>{contact?.phone}</Text>
-            </View>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>{t('phone')}</Text>
+                <Text style={styles.detailValue}>{contact?.phone}</Text>
+              </View>
 
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>{t('email')}</Text>
-              <Text style={styles.detailValue}>{contact?.email}</Text>
-            </View>
-            <View style={styles.buttonRow}>
-              <TouchableOpacity
-                style={styles.scanButton}
-                onPress={handleManualScan}
-              >
-                <Text style={styles.buttonText}>{t('scan_me')}</Text>
-              </TouchableOpacity>
+              <View style={styles.detailRow}>
+                <Text style={styles.detailLabel}>{t('email')}</Text>
+                <Text style={styles.detailValue}>{contact?.email}</Text>
+              </View>
+              <View style={styles.buttonRow}>
+                <TouchableOpacity
+                  style={styles.scanButton}
+                  onPress={handleManualScan}
+                >
+                  <Text style={styles.buttonText}>{t('scan_me')}</Text>
+                </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.redeemButton}
-                onPress={() => handleRedeem(owner)}
-              >
-                <Text style={styles.buttonText}>{t('redeem')}</Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.redeemButton}
+                  onPress={() => handleRedeem(owner)}
+                >
+                  <Text style={styles.buttonText}>{t('redeem')}</Text>
+                </TouchableOpacity>
+              </View>
             </View>
-          </View>
-        </ScrollView>
-      </View>
-    </LinearGradient>
+          </ScrollView>
+        </View>
+      </LinearGradient>
     </SafeAreaView>
   );
 };
@@ -460,24 +460,25 @@ const styles = StyleSheet.create({
     paddingBottom: hp(5),
   },
   textWrapper: {
-    paddingVertical: 4,
     position: "absolute",
-    bottom: hp(8),
-    left: wp(5),
+    bottom: hp(15),              // Use a fixed distance from bottom
+    left: wp(5),                 // Keep some padding from left
+    right: wp(5),                // Allow text to stay within screen
+    alignItems: "center",        // Center the text horizontally
+    backgroundColor: "rgba(0, 0, 0, 0.6)", // Add dark overlay behind text for contrast
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+    borderRadius: 8
   },
   titleText: {
     fontSize: RFValue(25),
-fontFamily:"Poppins-SemiBold",
-    color: '#000',
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    paddingHorizontal: wp(2),
-    borderRadius: 50
+    fontFamily: "Poppins-SemiBold",
+    color: '#fff',               // White for better visibility
   },
   subtitleText: {
     fontSize: RFValue(16),
-    color: '#fff',
-    marginTop: 2,
-    marginLeft: 20
+    color: '#f5f5f5',
+    marginTop: 4,
   },
   loaderContainer: {
     position: 'absolute',
@@ -518,7 +519,7 @@ fontFamily:"Poppins-SemiBold",
   },
   buttonRow: {
     position: 'absolute',
-    bottom: hp(12),
+    bottom: hp(20),
     left: 0,
     right: 0,
     flexDirection: 'row',

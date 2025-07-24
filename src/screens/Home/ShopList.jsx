@@ -116,8 +116,9 @@ const styles = StyleSheet.create({
     marginBottom: hp(1),
   },
   viewAll: {
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: 'Poppins-Regular',
     color: '#00BFFF',
+    fontSize: RFValue(11),
   },
   listContent: {
     paddingBottom: hp(10.5),

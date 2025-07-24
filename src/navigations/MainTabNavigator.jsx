@@ -104,7 +104,7 @@ const HomeStack = () => (
     <Stack.Screen
       name="OfferDetails"
       component={OfferDetails}
-      options={{ headerShown: false, statusBarColor: '#000', }}
+      options={{ headerShown: false}}
     />
     <Stack.Screen
       name="CashbackScreen"
@@ -264,7 +264,7 @@ const MainTabNavigator = () => {
         options={({ route }) => {
           const routeName =
             getFocusedRouteNameFromRoute(route) ?? 'ProfileMain';
-          const hideOnScreens = ['EditProfile', 'Referral', 'Language'];
+          const hideOnScreens = ['EditProfile', 'Referral', 'Language', 'RedeemHistoryScreen'];
           return {
             headerShown: false,
             tabBarLabel: t('tab_profile'),

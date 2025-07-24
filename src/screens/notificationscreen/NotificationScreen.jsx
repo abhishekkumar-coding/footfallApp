@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import {
   View,
   Text,
@@ -11,7 +11,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import { hp, wp } from '../../utils/dimensions';
 import PageHeader from '../../components/BackButton';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import {
   useGetNotificationsQuery,
   useGetShopByIdQuery,
@@ -27,17 +27,25 @@ const NotificationScreen = () => {
 
   const navigation = useNavigation();
   const [markAsRead] = useMarkNotificationAsReadMutation();
-  const { data, isLoading } = useGetNotificationsQuery();
+  const { data, isLoading, refetch } = useGetNotificationsQuery();
 
   const notifications = data?.data || []
+
+  useFocusEffect(
+    useCallback(() => {
+      refetch()
+    })
+  )
 
   console.log("Notifications Data: ", notifications)
 
 
   const handleNotificationPress = async (item) => {
     try {
-        const marrkedRes = await markAsRead(item._id);
-        console.log("Marked Res : ", marrkedRes)
+      const marrkedRes = await markAsRead(item._id);
+      refetch()
+
+      console.log("Marked Res : ", marrkedRes)
       if (item.entityType === 'offer') {
         // setOfferId(item.offerId);
         console.log("Offer Data from Notification Screen: ", item.offerId)
@@ -71,34 +79,34 @@ const NotificationScreen = () => {
   };
 
   return (
-        <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1 }}>
 
-    <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
-      <PageHeader lable="Notifications" back />
-      <View style={styles.container}>
-        {isLoading ? (
-          <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-            <ActivityIndicator color="#fff" size="large" />
-          </View>
-        ) : notifications.length === 0 ? (
-          <View style={styles.emptyContainer}>
-            <Image
-              source={require('../../../assets/emptyNotification.png')}
-              style={styles.emptyImage}
-              resizeMode="contain"
+      <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
+        <PageHeader lable="Notifications" back />
+        <View style={styles.container}>
+          {isLoading ? (
+            <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+              <ActivityIndicator color="#fff" size="large" />
+            </View>
+          ) : notifications.length === 0 ? (
+            <View style={styles.emptyContainer}>
+              <Image
+                source={require('../../../assets/emptyNotification.png')}
+                style={styles.emptyImage}
+                resizeMode="contain"
+              />
+              {/* <Text style={styles.emptyText}>No notifications yet</Text> */}
+            </View>
+          ) : (
+            <FlatList
+              data={notifications}
+              renderItem={renderItem}
+              keyExtractor={(item) => item._id}
+              contentContainerStyle={{ paddingBottom: hp(5) }}
             />
-            {/* <Text style={styles.emptyText}>No notifications yet</Text> */}
-          </View>
-        ) : (
-          <FlatList
-            data={notifications}
-            renderItem={renderItem}
-            keyExtractor={(item) => item._id}
-            contentContainerStyle={{ paddingBottom: hp(5) }}
-          />
-        )}
-      </View>
-    </LinearGradient>
+          )}
+        </View>
+      </LinearGradient>
     </SafeAreaView>
   );
 };

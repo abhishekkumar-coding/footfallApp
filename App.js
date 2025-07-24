@@ -20,6 +20,7 @@ import i18n from './src/i18n';
 import { I18nextProvider } from 'react-i18next';
 import notifee, { AndroidImportance } from '@notifee/react-native';
 import { createNotificationChannel, setupNotificationListeners, } from './src/features/notificationHelper';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 
 GoogleSignin.configure({
@@ -63,18 +64,18 @@ const App = () => {
 
     LogBox.ignoreAllLogs();
 
-    if (Platform.OS === 'android') {
-      StatusBar.setTranslucent(true);
-      StatusBar.setBackgroundColor('transparent');
+    // if (Platform.OS === 'android') {
+    //   StatusBar.setTranslucent(true);
+    //   StatusBar.setBackgroundColor('transparent');
 
-      if (UIManager.setLayoutAnimationEnabledExperimental) {
-        UIManager.setLayoutAnimationEnabledExperimental(true);
-      }
-    }
+    //   if (UIManager.setLayoutAnimationEnabledExperimental) {
+    //     UIManager.setLayoutAnimationEnabledExperimental(true);
+    //   }
+    // }
   }, []);
 
 
- 
+
 
 
   return (
@@ -82,14 +83,23 @@ const App = () => {
       <Provider store={store}>
         <AppInitializer>
           <I18nextProvider i18n={i18n}>
-          <NavigationContainer linking={linking} ref={navigationRef}>
-            <AppNavigator />
-            <Toast config={toastConfig} />
-          </NavigationContainer>
+            <NavigationContainer linking={linking} ref={navigationRef}>
+              {/* Use SafeAreaView only for content, not the whole screen */}
+              <StatusBar
+                animated={true}
+                backgroundColor="#000337"
+                barStyle="light-content"
+              />
+              <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: "#000337" }}>
+                <AppNavigator />
+                <Toast config={toastConfig} />
+              </SafeAreaView>
+            </NavigationContainer>
           </I18nextProvider>
         </AppInitializer>
       </Provider>
     </GestureHandlerRootView>
+
   );
 };
 
