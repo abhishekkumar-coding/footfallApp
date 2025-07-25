@@ -7,6 +7,7 @@ import { requestNotificationPermission, getAndStoreFcmToken, setupNotificationLi
 import Geolocation from 'react-native-geolocation-service';
 import { useUpdateUserMutation } from './features/auth/authApi';
 import Toast from 'react-native-toast-message'; // make sure you’ve imported this
+import i18n from './i18n';
 // import i18n from './utils/i18n'; // replace with your i18n path if different
 
 const AppInitializer = ({ children }) => {

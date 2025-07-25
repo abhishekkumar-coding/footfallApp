@@ -183,8 +183,7 @@ const LanguageScreen = ({ route, navigation }) => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-
+    <SafeAreaView style={{ flex: 1, backgroundColor: '#000337' }}>
       <LinearGradient colors={['#000337', '#000337']} style={styles.gradient}>
         {!isInitialSetup && <PageHeader back lable={"Change language"} />}
         <View style={styles.content}>
@@ -251,28 +250,30 @@ const LanguageScreen = ({ route, navigation }) => {
             style={{ marginLeft: 8 }}
           />
         </LinearGradient> */}
-          <LinearGradient
-            colors={['#FF6BD6', '#FF2DCF']}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 1, y: 0 }}
-            style={[styles.continueBtn, { opacity: selectedLang ? 1 : 0.5 }]}
+          <TouchableOpacity
+            onPress={onContinue}
+            disabled={!selectedLang}
+            activeOpacity={0.8}
           >
-            <TouchableOpacity
-              onPress={onContinue}
-              disabled={!selectedLang}
-              style={styles.continueTouchable}
+            <LinearGradient
+              colors={['#FF6BD6', '#FF2DCF']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={{ borderRadius: 30 }}
             >
-              <Text style={styles.continueText}>
-                {t('continue') || 'CONTINUE'}
-              </Text>
-              <Icon
-                name="arrow-forward"
-                size={20}
-                color="white"
-                style={{ marginLeft: 8 }}
-              />
-            </TouchableOpacity>
-          </LinearGradient>
+              <View style={styles.continueTouchable}>
+                <Text style={styles.continueText}>
+                  {t('continue') || 'CONTINUE'}
+                </Text>
+                <Icon
+                  name="arrow-forward"
+                  size={20}
+                  color="white"
+                  style={{ marginLeft: 8 }}
+                />
+              </View>
+            </LinearGradient>
+          </TouchableOpacity>
         </View>
       </LinearGradient>
     </SafeAreaView>
@@ -363,20 +364,17 @@ const styles = StyleSheet.create({
     top: 8,
     right: 8,
   },
-  continueBtn: {
-    width: '80%',
-    alignSelf: 'center',
-    borderRadius: 28,
-    overflow: 'hidden',
-    marginTop: 10,
-  },
+
 
   continueTouchable: {
+    // height: 50,
+    borderRadius: 18,
+    paddingHorizontal: 16,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center', // Center content horizontally inside button
+    justifyContent: 'center',
+    width: '100%',
     paddingVertical: 12,
-    paddingHorizontal: 24,
   },
 
   continueText: {
