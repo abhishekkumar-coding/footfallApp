@@ -4,7 +4,7 @@ import {
   ScrollView,
   RefreshControl,
 } from 'react-native';
-import React, { useCallback, useMemo, useRef, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import HeaderHome from './Home/HeaderHome';
 import ShopList from './Home/ShopList';
@@ -15,6 +15,7 @@ import Coins from './Home/Coins';
 import QuickActions from './Home/QuickActions';
 import FeaturedShopsSection from './Home/FeaturedShopsSection';
 import { SafeAreaView } from 'react-native-safe-area-context';
+
 
 const useDynamicRefs = () => {
   const refs = useRef({});
@@ -29,6 +30,9 @@ const HomeScreen = ({ navigation }) => {
   const user = useSelector(state => state.user.user);
   const refs = useDynamicRefs();
   const [isLoading, setLoading] = useState(false);
+  const referralCode = useSelector(state => state.user.pendingReferral);
+  console.log("Extracted referral code {In Home screen} from REDUX: ", referralCode)
+
 
   const handleRefreshControl = useCallback(() => {
     const refsToFetch = ['points', 'redeem', 'shopListRef'];
@@ -37,6 +41,13 @@ const HomeScreen = ({ navigation }) => {
     setLoading(anyLoading);
   }, []);
 
+
+    if (referralCode) {
+      console.log("Referral detected in HomeScreen, navigating to Signup...");
+      navigation.navigate('Signup', { referralCode })
+    }
+
+    
   const refreshControl = useMemo(() => (
     <RefreshControl refreshing={isLoading} onRefresh={handleRefreshControl} />
   ), [isLoading, handleRefreshControl]);

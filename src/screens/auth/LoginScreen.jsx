@@ -29,12 +29,13 @@ import { z } from 'zod';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from 'react-redux';
-import { setUser } from '../../features/auth/userSlice';
+import { clearPendingReferral, setUser } from '../../features/auth/userSlice';
 import {
   GoogleSignin,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
 import { useTranslation } from 'react-i18next';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 const LoginScreen = () => {
   const { t } = useTranslation();
@@ -48,6 +49,8 @@ const LoginScreen = () => {
   const [googleLoading, setGoogleLoading] = useState(false);
 
   const fcmToken = useSelector(state => state.user.fcmToken);
+  const referralCode = useSelector(state => state.user.pendingReferral);
+  console.log("Extracted referral code {In login screen} from REDUX: ", referralCode)
   console.log('FCM Token from Redux Store', fcmToken);
 
   const dispatch = useDispatch();
@@ -61,6 +64,16 @@ const LoginScreen = () => {
       .string()
       .min(6, { message: 'Password must be at least 6 characters' }),
   });
+
+  useEffect(() => {
+    if (referralCode) {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Signup', params: { referralCode } }],
+      });
+    }
+  }, []);
+
 
   useEffect(() => {
     const loadSavedCredentials = async () => {
@@ -109,7 +122,8 @@ const LoginScreen = () => {
       await AsyncStorage.setItem('user', JSON.stringify(res.data.user));
       dispatch(setUser(res.data.user));
       console.log('Login Response: ', res.data);
-
+      dispatch(clearPendingReferral())
+      
       // 🔐 Save credentials if "Remember Me" is checked
       if (rememberMe) {
         await AsyncStorage.setItem('rememberedEmail', email);
@@ -156,178 +170,180 @@ const LoginScreen = () => {
   };
 
   const handleGoogleLogin = async () => {
-  console.log('[GOOGLE LOGIN] Triggered');
+    console.log('[GOOGLE LOGIN] Triggered');
 
-  try {
-    setGoogleLoading(true);
-    console.log('[GOOGLE LOGIN] Checking Play Services...');
-    
-    await GoogleSignin.hasPlayServices({
-      showPlayServicesUpdateDialog: true,
-    });
-    console.log('[GOOGLE LOGIN] Play Services available');
+    try {
+      setGoogleLoading(true);
+      console.log('[GOOGLE LOGIN] Checking Play Services...');
 
-    console.log('[GOOGLE LOGIN] Signing out to force account picker...');
-    await GoogleSignin.signOut();
-
-    console.log('[GOOGLE LOGIN] Starting sign-in...');
-    const userInfo = await GoogleSignin.signIn();
-    console.log('[GOOGLE LOGIN] User Info:', userInfo);
-
-    const idToken = userInfo.idToken || userInfo.data?.idToken;
-    console.log('[GOOGLE LOGIN] ID Token:', idToken);
-
-    if (!idToken) {
-      throw new Error('No ID token received from Google');
-    }
-
-    console.log('[GOOGLE LOGIN] Sending ID token to backend...');
-    const response = await googleLogin({ token: idToken, fcmToken }).unwrap();
-    console.log('[GOOGLE LOGIN] Backend Response:', response);
-
-    const appToken = response?.data?.token;
-    const backendUser = response?.data?.user;
-
-    if (!appToken) {
-      console.error('[GOOGLE LOGIN] App token missing in response');
-      throw new Error('App token missing in response');
-    }
-
-    const googlePhoto = userInfo.user?.photo || userInfo.data?.user?.photo;
-    const fullUser = {
-      ...backendUser,
-      photo: backendUser?.photo || googlePhoto,
-    };
-
-    console.log('[GOOGLE LOGIN] Final user object:', fullUser);
-
-    console.log('[GOOGLE LOGIN] Saving token and user to AsyncStorage...');
-    await AsyncStorage.setItem('token', appToken);
-    await AsyncStorage.setItem('user', JSON.stringify(fullUser));
-    dispatch(setUser(fullUser));
-
-    Toast.show({
-      type: 'success',
-      text1: t('google_success'),
-      text2: t('google_welcome', { name: fullUser?.name || 'User' }),
-    });
-
-    console.log('[GOOGLE LOGIN] Navigating to Main screen...');
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Main' }],
-    });
-
-  } catch (error) {
-    console.log('[GOOGLE LOGIN] Error occurred:', error);
-
-    if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-      Toast.show({ type: 'info', text1: t('google_cancelled') });
-    } else if (error.code === statusCodes.IN_PROGRESS) {
-      Toast.show({ type: 'info', text1: t('google_progress') });
-    } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-      Toast.show({ type: 'error', text1: t('google_play_services_error') });
-    } else {
-      Toast.show({
-        type: 'error',
-        text1: t('google_failed'),
-        text2: t('google_default_error'),
+      await GoogleSignin.hasPlayServices({
+        showPlayServicesUpdateDialog: true,
       });
+      console.log('[GOOGLE LOGIN] Play Services available');
+
+      console.log('[GOOGLE LOGIN] Signing out to force account picker...');
+      await GoogleSignin.signOut();
+
+      console.log('[GOOGLE LOGIN] Starting sign-in...');
+      const userInfo = await GoogleSignin.signIn();
+      console.log('[GOOGLE LOGIN] User Info:', userInfo);
+
+      const idToken = userInfo.idToken || userInfo.data?.idToken;
+      console.log('[GOOGLE LOGIN] ID Token:', idToken);
+
+      if (!idToken) {
+        throw new Error('No ID token received from Google');
+      }
+
+      console.log('[GOOGLE LOGIN] Sending ID token to backend...');
+      const response = await googleLogin({ token: idToken, fcmToken }).unwrap();
+      console.log('[GOOGLE LOGIN] Backend Response:', response);
+      dispatch(clearPendingReferral())
+      const appToken = response?.data?.token;
+      const backendUser = response?.data?.user;
+
+      if (!appToken) {
+        console.error('[GOOGLE LOGIN] App token missing in response');
+        throw new Error('App token missing in response');
+      }
+
+      const googlePhoto = userInfo.user?.photo || userInfo.data?.user?.photo;
+      const fullUser = {
+        ...backendUser,
+        photo: backendUser?.photo || googlePhoto,
+      };
+
+      console.log('[GOOGLE LOGIN] Final user object:', fullUser);
+
+      console.log('[GOOGLE LOGIN] Saving token and user to AsyncStorage...');
+      await AsyncStorage.setItem('token', appToken);
+      await AsyncStorage.setItem('user', JSON.stringify(fullUser));
+      dispatch(setUser(fullUser));
+
+      Toast.show({
+        type: 'success',
+        text1: t('google_success'),
+        text2: t('google_welcome', { name: fullUser?.name || 'User' }),
+      });
+
+      console.log('[GOOGLE LOGIN] Navigating to Main screen...');
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Main' }],
+      });
+
+    } catch (error) {
+      console.log('[GOOGLE LOGIN] Error occurred:', error);
+
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        Toast.show({ type: 'info', text1: t('google_cancelled') });
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        Toast.show({ type: 'info', text1: t('google_progress') });
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        Toast.show({ type: 'error', text1: t('google_play_services_error') });
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: t('google_failed'),
+          text2: t('google_default_error'),
+        });
+      }
+    } finally {
+      setGoogleLoading(false);
+      console.log('[GOOGLE LOGIN] Loading state set to false');
     }
-  } finally {
-    setGoogleLoading(false);
-    console.log('[GOOGLE LOGIN] Loading state set to false');
-  }
-};
+  };
 
   return (
-    <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
-      {(isLoading || googleLoading) && (
-        <View style={styles.loaderContainer}>
-          <ActivityIndicator size="large" color="#fff" />
-        </View>
-      )}
+    <SafeAreaView style={{ flex: 1 }}>
+      <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
+        {(isLoading || googleLoading) && (
+          <View style={styles.loaderContainer}>
+            <ActivityIndicator size="large" color="#fff" />
+          </View>
+        )}
 
-      <BackButton />
-      <View style={styles.container}>
-        <Text style={styles.heading}>{t('login_title')}</Text>
-        {/* <Text style={styles.subText}>Glad to see you! Please log in</Text> */}
-        <View style={styles.loginTypeContainer}>
-          <TouchableOpacity onPress={() => setLoginType('user')}>
-            <Text
-              style={[
-                styles.loginTypeText,
-                loginType === 'user' && styles.activeLoginType,
-              ]}
-            >
-              {t('login_user')}
-            </Text>
-          </TouchableOpacity>
+        <BackButton />
+        <View style={styles.container}>
+          <Text style={styles.heading}>{t('login_title')}</Text>
+          {/* <Text style={styles.subText}>Glad to see you! Please log in</Text> */}
+          <View style={styles.loginTypeContainer}>
+            <TouchableOpacity onPress={() => setLoginType('user')}>
+              <Text
+                style={[
+                  styles.loginTypeText,
+                  loginType === 'user' && styles.activeLoginType,
+                ]}
+              >
+                {t('login_user')}
+              </Text>
+            </TouchableOpacity>
 
-          <TouchableOpacity onPress={handleVendorClick}>
-            <Text
-              style={[
-                styles.loginTypeText,
-                loginType === 'vendor' && styles.activeLoginType,
-              ]}
-            >
-              {t('login_vendor')}
-            </Text>
-          </TouchableOpacity>
-        </View>
-        <LinearGradient
-          colors={['rgba(255, 255, 255, 0.1)', '#000']}
-          style={styles.formGradient}
-        >
-          <CustomInput
-            placeholder={t('login_email_placeholder')}
-            lable={t('login_email_label')}
-            iconComponent={<EmailIcon />}
-            value={email}
-            onChangeText={setEmail}
-            showError={showError}
-          />
-          <CustomInput
-            placeholder={t('login_password_placeholder')}
-            lable={t('login_password_label')}
-            isPassword={true}
-            iconComponent={<LockIcon />}
-            value={password}
-            onChangeText={setPassword}
-            secureTextEntry={true}
-            showError={showError}
-          />
-
-          <View style={styles.optionsContainer}>
-            <View style={styles.checkboxContainer}>
-              <CheckBox
-                value={rememberMe}
-                onValueChange={setRememberMe}
-                tintColors={{ true: '#fff', false: '#ccc' }}
-              />
-              <Text style={styles.rememberText}>{t('remember_me')}</Text>
-            </View>
-
-            <TouchableOpacity
-              onPress={() => navigation.navigate('ForgotPassword')}
-            >
-              <Text style={styles.forgotText}>{t('forgot_password')}</Text>
+            <TouchableOpacity onPress={handleVendorClick}>
+              <Text
+                style={[
+                  styles.loginTypeText,
+                  loginType === 'vendor' && styles.activeLoginType,
+                ]}
+              >
+                {t('login_vendor')}
+              </Text>
             </TouchableOpacity>
           </View>
+          <LinearGradient
+            colors={['rgba(255, 255, 255, 0.1)', '#000']}
+            style={styles.formGradient}
+          >
+            <CustomInput
+              placeholder={t('login_email_placeholder')}
+              lable={t('login_email_label')}
+              iconComponent={<EmailIcon />}
+              value={email}
+              onChangeText={setEmail}
+              showError={showError}
+            />
+            <CustomInput
+              placeholder={t('login_password_placeholder')}
+              lable={t('login_password_label')}
+              isPassword={true}
+              iconComponent={<LockIcon />}
+              value={password}
+              onChangeText={setPassword}
+              secureTextEntry={true}
+              showError={showError}
+            />
 
-          <CustomButton title={t('login_button')} onPress={handleLogin} />
+            <View style={styles.optionsContainer}>
+              <View style={styles.checkboxContainer}>
+                <CheckBox
+                  value={rememberMe}
+                  onValueChange={setRememberMe}
+                  tintColors={{ true: '#fff', false: '#ccc' }}
+                />
+                <Text style={styles.rememberText}>{t('remember_me')}</Text>
+              </View>
 
-          <SocialLoginOptions onGooglePress={handleGoogleLogin} />
+              <TouchableOpacity
+                onPress={() => navigation.navigate('ForgotPassword')}
+              >
+                <Text style={styles.forgotText}>{t('forgot_password')}</Text>
+              </TouchableOpacity>
+            </View>
 
-          <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-            <Text style={styles.signupText}>
-              {t('no_account')}{' '}
-              <Text style={styles.signupLink}>{t('signup_link')}</Text>
-            </Text>
-          </TouchableOpacity>
-        </LinearGradient>
-      </View>
-    </LinearGradient>
+            <CustomButton title={t('login_button')} onPress={handleLogin} />
+
+            <SocialLoginOptions onGooglePress={handleGoogleLogin} />
+
+            <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
+              <Text style={styles.signupText}>
+                {t('no_account')}{' '}
+                <Text style={styles.signupLink}>{t('signup_link')}</Text>
+              </Text>
+            </TouchableOpacity>
+          </LinearGradient>
+        </View>
+      </LinearGradient>
+    </SafeAreaView>
   );
 };
 
@@ -353,7 +369,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
   },
   heading: {
-    fontSize: RFValue(20),
+    fontSize: RFValue(18),
     fontFamily: 'Poppins-SemiBold',
     color: '#fff',
     textAlign: 'left',
