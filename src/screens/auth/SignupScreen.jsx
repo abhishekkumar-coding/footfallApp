@@ -39,11 +39,11 @@ import {
   statusCodes,
 } from '@react-native-google-signin/google-signin';
 import { useDispatch } from 'react-redux';
-import { setUser } from '../../features/auth/userSlice';
+import { clearPendingReferral, setUser } from '../../features/auth/userSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
 
-const SignupScreen = () => {
+const SignupScreen = ({ route }) => {
   const { t } = useTranslation();
   const navigation = useNavigation();
   const [name, setName] = useState('');
@@ -59,6 +59,12 @@ const SignupScreen = () => {
   // const [googleAuthUser] = useGoogleAuthUserMutation();
   const [googleSignUp] = useGoogleSignUpMutation();
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    if (route.params?.referralCode) {
+      setReferredBy(route.params.referralCode);
+    }
+  }, [route.params]);
 
   const signupSchema = z.object({
     name: z.string().min(3, { message: t('signup.validation.name_min') }),
@@ -99,6 +105,7 @@ const SignupScreen = () => {
         text1: t('signup.messages.success_title'),
         text2: t('signup.messages.success_message'),
       });
+      dispatch(clearPendingReferral())
       setTimeout(() => {
         navigation.navigate('Login');
       }, 1500);
@@ -140,7 +147,7 @@ const SignupScreen = () => {
   }, []);
   4;
 
-  
+
   const onGooglePress = async () => {
     try {
       setGoogleLoading(true);
@@ -157,9 +164,9 @@ const SignupScreen = () => {
       if (!idToken) throw new Error('No ID token received from Google');
 
       // Send token to backend
-      const response = await googleSignUp({ token: idToken }).unwrap();
+      const response = await googleSignUp({ token: idToken, referredBy }).unwrap();
       console.log('Backend Response:', response);
-
+      dispatch(clearPendingReferral())
       // ✅ Fix here: use "newUser" instead of "user"
       const backendUser = response?.data?.newUser || {};
 
@@ -214,7 +221,7 @@ const SignupScreen = () => {
 
   return (
     <>
-      <BackButton lable={t('signup.title')} back />
+      {/* <BackButton lable={t('signup.title')} back /> */}
       <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
         {(isLoading || googleLoading) && (
           <View style={styles.loaderContainer}>
@@ -230,7 +237,7 @@ const SignupScreen = () => {
             keyboardShouldPersistTaps="handled"
           >
             <View style={styles.container}>
-               <Text style={styles.heading}>{t('signup.heading')}</Text>
+              <Text style={styles.heading}>{t('signup.heading')}</Text>
               <Text style={styles.subText}>{t('signup.subheading')}</Text>
 
               <View style={styles.formContainer}>
@@ -242,7 +249,7 @@ const SignupScreen = () => {
                   showError={showError}
                   onChangeText={setName}
                 />
-                 <CustomInput
+                <CustomInput
                   placeholder={t('signup.placeholders.email')}
                   lable={t('signup.labels.email')}
                   iconComponent={<EmailIcon />}
@@ -282,7 +289,10 @@ const SignupScreen = () => {
                 <SocialLoginOptions onGooglePress={onGooglePress} />
 
                 <TouchableOpacity
-                  onPress={() => navigation.navigate('Login')}
+                  onPress={() => {
+                    dispatch(clearPendingReferral())
+                    navigation.navigate('Login')
+                  }}
                   style={styles.loginTextContainer}
                 >
                   <Text style={styles.loginText}>
@@ -320,7 +330,7 @@ const styles = StyleSheet.create({
     paddingBottom: hp(5),
   },
   heading: {
-    fontSize: RFValue(22),
+    fontSize: RFValue(18),
     fontFamily: 'Poppins-SemiBold',
     marginTop: hp(4),
     color: '#fff',
@@ -328,9 +338,9 @@ const styles = StyleSheet.create({
     marginBottom: hp(1),
   },
   subText: {
-    fontSize: RFValue(14),
+    fontSize: RFValue(10),
     color: '#d3d3d3',
-    marginBottom: hp(3),
+    marginBottom: hp(2),
     textAlign: 'left',
     fontFamily: 'Poppins-Regular',
   },
@@ -349,7 +359,7 @@ const styles = StyleSheet.create({
     marginBottom: hp(2),
   },
   loginText: {
-    fontSize: 16,
+    fontSize: RFValue(10),
     color: '#d3d3d3',
     fontFamily: 'Poppins-Regular',
     textAlign: 'center',

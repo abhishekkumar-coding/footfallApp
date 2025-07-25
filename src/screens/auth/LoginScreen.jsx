@@ -29,7 +29,7 @@ import { z } from 'zod';
 import Toast from 'react-native-toast-message';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from 'react-redux';
-import { setUser } from '../../features/auth/userSlice';
+import { clearPendingReferral, setUser } from '../../features/auth/userSlice';
 import {
   GoogleSignin,
   statusCodes,
@@ -49,6 +49,8 @@ const LoginScreen = () => {
   const [googleLoading, setGoogleLoading] = useState(false);
 
   const fcmToken = useSelector(state => state.user.fcmToken);
+  const referralCode = useSelector(state => state.user.pendingReferral);
+  console.log("Extracted referral code {In login screen} from REDUX: ", referralCode)
   console.log('FCM Token from Redux Store', fcmToken);
 
   const dispatch = useDispatch();
@@ -62,6 +64,16 @@ const LoginScreen = () => {
       .string()
       .min(6, { message: 'Password must be at least 6 characters' }),
   });
+
+  useEffect(() => {
+    if (referralCode) {
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Signup', params: { referralCode } }],
+      });
+    }
+  }, []);
+
 
   useEffect(() => {
     const loadSavedCredentials = async () => {
@@ -110,7 +122,8 @@ const LoginScreen = () => {
       await AsyncStorage.setItem('user', JSON.stringify(res.data.user));
       dispatch(setUser(res.data.user));
       console.log('Login Response: ', res.data);
-
+      dispatch(clearPendingReferral())
+      
       // 🔐 Save credentials if "Remember Me" is checked
       if (rememberMe) {
         await AsyncStorage.setItem('rememberedEmail', email);
@@ -185,7 +198,7 @@ const LoginScreen = () => {
       console.log('[GOOGLE LOGIN] Sending ID token to backend...');
       const response = await googleLogin({ token: idToken, fcmToken }).unwrap();
       console.log('[GOOGLE LOGIN] Backend Response:', response);
-
+      dispatch(clearPendingReferral())
       const appToken = response?.data?.token;
       const backendUser = response?.data?.user;
 
@@ -359,7 +372,7 @@ const styles = StyleSheet.create({
     // paddingHorizontal: 14,
   },
   heading: {
-    fontSize: RFValue(20),
+    fontSize: RFValue(18),
     fontFamily: 'Poppins-SemiBold',
     color: '#fff',
     textAlign: 'left',

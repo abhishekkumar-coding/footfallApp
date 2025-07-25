@@ -20,6 +20,7 @@ import BackButton from '../components/BackButton';
 import { hp, wp } from '../utils/dimensions';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import dynamicLinks from '@react-native-firebase/dynamic-links';
 
 const ReferralScreen = () => {
   const { t } = useTranslation();
@@ -33,20 +34,63 @@ const ReferralScreen = () => {
 
   const handleCopyCode = () => {
     Clipboard.setString(referralCode);
-    Alert.alert(t('referral.copiedTitle'), t('referral.copiedMessage'));
+    // Alert.alert(t('referral.copiedTitle'), t('referral.copiedMessage'));
   };
 
-  const generateDeepLink = () => {
-    return `${APP_SCHEME}://${DEEP_LINK_PATH}?referral=${encodeURIComponent(
-      referralCode,
-    )}`;
-  };
+  // const generateDeepLink = () => {
+  //   return `${APP_SCHEME}://${DEEP_LINK_PATH}?referral=${encodeURIComponent(
+  //     referralCode,
+  //   )}`;
+  // };
 
-  const generateLinkTwUrl = () => {
-    // This should be the LinkTw.in URL you've configured to redirect to your deep link
-    // Example: https://linktw.in/ref_ABC123 (configured in LinkTw.in dashboard to redirect to footfall://signup?referral=ABC123)
-    return `https://linktw.in/ref_${referralCode}`;
-  };
+  // const generateLinkTwUrl = () => {
+  //   // This should be the LinkTw.in URL you've configured to redirect to your deep link
+  //   // Example: https://linktw.in/ref_ABC123 (configured in LinkTw.in dashboard to redirect to footfall://signup?referral=ABC123)
+  //   return `https://linktw.in/ref_${referralCode}`;
+  // };
+
+  // const generateDynamicLink = async () => {
+  //   try {
+  //     const link = await dynamicLinks().buildShortLink(
+  //       {
+  //         link: `https://example.com/referral?code=${referralCode}`,
+  //         domainUriPrefix: 'https://footfall.page.link',
+  //         android: {
+  //           packageName: 'com.appinlay.footfallapp',
+  //           minimumVersion: '1',
+  //         },
+  //       },
+  //       dynamicLinks.ShortLinkType.UNGUESSABLE
+  //     );
+  //     console.log("Generated Dynamic Link:", link);
+  //     return link;
+  //   } catch (error) {
+  //     console.log('🔥 Error creating dynamic link:');
+  //     console.log('Message:', error.message);
+  //     console.log('Code:', error.code);
+  //     console.log('Stack:', error.stack);
+  //     console.log('Full Error Object:', JSON.stringify(error, null, 2));
+  //     Alert.alert('Error', 'Unable to generate referral link.');
+  //     return null;
+  //   }
+  // };
+
+  async function buildLink(referralCode) {
+    const link = await dynamicLinks().buildLink({
+      link: `https://footfallapp.com/referral?code=${referralCode}`,
+      domainUriPrefix: 'https://footfall.page.link',
+      android: {
+        packageName: 'com.appinlay.footfallapp',
+        minimumVersion: '1',
+      },
+      analytics: {
+        campaign: 'banner',
+      },
+    });
+    console.log("generatedLink; ", link)
+    return link;
+  }
+
 
   const handleOpenLink = async () => {
     try {
@@ -68,63 +112,44 @@ const ReferralScreen = () => {
     }
   };
 
-  const handleShare = async platform => {
+  const handleShare = async (platform) => {
     try {
-      const linkTwUrl = generateLinkTwUrl();
-      const message = `Join Footfall using my referral link! ${linkTwUrl}\n\nOr use code: ${referralCode}`;
+      const firebaseLink = await buildLink(referralCode);
+      if (!firebaseLink) return;
 
-      const shareOptions = {
-        message: message,
-        url: linkTwUrl, // For platforms that support URL preview
-        title: 'Footfall Referral',
-      };
+      const message = `Join Footfall using my referral link! ${firebaseLink}\n\nOr use code: ${referralCode}`;
 
       switch (platform) {
         case 'whatsapp':
-          await Linking.openURL(
-            `https://wa.me/?text=${encodeURIComponent(message)}`,
-          );
+          await Linking.openURL(`https://wa.me/?text=${encodeURIComponent(message)}`);
           break;
         case 'messenger':
-          await Linking.openURL(
-            `fb-messenger://share/?link=${encodeURIComponent(linkTwUrl)}`,
-          );
+          await Linking.openURL(`fb-messenger://share/?link=${encodeURIComponent(firebaseLink)}`);
           break;
         case 'instagram':
           if (Platform.OS === 'android') {
             await Linking.openURL(
-              `intent://share?text=${encodeURIComponent(
-                message,
-              )}#Intent;package=com.instagram.android;scheme=https;end`,
+              `intent://share?text=${encodeURIComponent(message)}#Intent;package=com.instagram.android;scheme=https;end`
             );
           } else {
-            await Linking.openURL(
-              `instagram://library?AssetPath=${encodeURIComponent(linkTwUrl)}`,
-            );
+            await Linking.openURL(`instagram://library?AssetPath=${encodeURIComponent(firebaseLink)}`);
           }
           break;
         case 'email':
-          await Linking.openURL(
-            `mailto:?subject=Footfall Referral&body=${encodeURIComponent(
-              message,
-            )}`,
-          );
+          await Linking.openURL(`mailto:?subject=Footfall Referral&body=${encodeURIComponent(message)}`);
           break;
         case 'sms':
           await Linking.openURL(`sms:?body=${encodeURIComponent(message)}`);
           break;
-        case 'more':
         default:
-          await Share.share(shareOptions);
+          await Share.share({ message, title: 'Footfall Referral' });
       }
     } catch (error) {
       console.error('Sharing error:', error);
-      Alert.alert(
-        'Error',
-        'Unable to share at this time. Please make sure the app is installed.',
-      );
+      Alert.alert('Error', 'Unable to share at this time. Please make sure the app is installed.');
     }
   };
+
 
   const shareOptions = [
     {
@@ -164,7 +189,7 @@ const ReferralScreen = () => {
 
   return (
 
-        <SafeAreaView style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1 }}>
       <BackButton lable={t('referral.title')} back />
       <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
         <View style={styles.container}>
@@ -199,6 +224,27 @@ const ReferralScreen = () => {
                 </Text>
               </TouchableOpacity>
             </View>
+            {/* <TouchableOpacity
+              style={{
+                backgroundColor: '#4A90E2',
+                paddingVertical: 12,
+                paddingHorizontal: 24,
+                borderRadius: 10,
+                alignItems: 'center',
+                justifyContent: 'center',
+                shadowColor: '#000',
+                shadowOffset: { width: 0, height: 2 },
+                shadowOpacity: 0.2,
+                shadowRadius: 4,
+                elevation: 3, // for Android shadow
+                marginTop: 20,
+              }}
+              onPress={buildLink}
+            >
+              <Text style={{ color: '#fff', fontSize: 16, fontWeight: 'bold' }}>
+                Dynamic Link
+              </Text>
+            </TouchableOpacity> */}
 
             <View style={styles.howItWorks}>
               <Text style={styles.sectionTitle}>
