@@ -4,7 +4,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import BackButton from '../components/BackButton';
 import ProfileHeader from './Profile/ProfileHeader';
@@ -30,17 +30,29 @@ import { store } from '../store';
 import { useTranslation } from 'react-i18next';
 import LanguageIcon from '../utils/icons/LanguageIcon';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import VersionCheck from 'react-native-version-check';
+import PageHeader from '../components/BackButton';
 
 const ProfileScreen = () => {
   const { t } = useTranslation();
   const navigation = useNavigation();
   const [activeTab, setActiveTab] = useState('');
+  const [appVersion, setAppVersion] = useState('');
 
   const user = useSelector(state => state.user.user);
   const { data: userPoints } = useGetWalletSummaryQuery();
   const rewards = userPoints?.data?.rewards?.points ?? 0;
 
   const dispatch = useDispatch();
+
+  useEffect(() => {
+    const fetchVersion = async () => {
+      const version = VersionCheck.getCurrentVersion();
+      const build = VersionCheck.getCurrentBuildNumber();
+      setAppVersion(`${version} (${build})`);
+    };
+    fetchVersion();
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -59,71 +71,46 @@ const ProfileScreen = () => {
   };
 
   return (
-    <>
-        <SafeAreaView style={{ flex: 1 }}>
-
-      <BackButton
-        lable={t('profile')}
+    <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
+      <PageHeader lable={t('profile')}
         rightComponent={
           <TouchableOpacity style={styles.logOut} onPress={handleLogout}>
             <LogOutIcon />
           </TouchableOpacity>
-        }
-      />
-      <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
-        <SafeAreaView style={styles.container}>
-          <ProfileHeader navigation={navigation} user={user} />
-          <Rewards rewardPoints={rewards} />
-          <TabButton
-            Icon={ProfileEditIcon}
-            l
-            label={t('update_profile')}
-            onPress={() => navigation.navigate('EditProfile')}
-          />
-          <TabButton
-            Icon={ScannerIcon}
-            label={t('referral_earn')}
-            onPress={() => navigation.navigate('Referral')}
-          />
-          {/* <TabButton
-            Icon={NotificationIcon}
-            label={t('notifications')}
-            // onPress={() => setActiveTab('Notifications')}
-           onPress={() => navigation.navigate('NotificationScreen')}
-          /> */}
+        } />
+      <SafeAreaView style={styles.container}>
+        <ProfileHeader navigation={navigation} user={user} />
+        <Rewards rewardPoints={rewards} />
+        <TabButton
+          Icon={ProfileEditIcon}
+          label={t('update_profile')}
+          onPress={() => navigation.navigate('EditProfile')}
+        />
+        <TabButton
+          Icon={ScannerIcon}
+          label={t('referral_earn')}
+          onPress={() => navigation.navigate('Referral')}
+        />
+        <TabButton
+          Icon={History}
+          label={t('redeem_history')}
+          onPress={() => navigation.navigate('RedeemHistoryScreen')}
+        />
+        <TabButton
+          Icon={LanguageIcon}
+          label={t('change_language')}
+          onPress={() =>
+            navigation.navigate('Language', { isInitialSetup: false })
+          }
+        />
 
-          {/* <TabButton
-            Icon={WalletIcon}
-            label="Wallet"
-            onPress={() => setActiveTab('Notifications')}
-          /> */}
-          <TabButton
-            Icon={History}
-            label={t('redeem_history')}
-            onPress={() => navigation.navigate('RedeemHistoryScreen')}
-          />
-          <TabButton
-            Icon={LanguageIcon}
-            label={t('change_language')}
-            onPress={() =>
-              navigation.navigate('Language', { isInitialSetup: false })
-            }
-          />
-          {/* <TabButton
-            Icon={LanguageIcon}
-             label={t('change_language')}
-            onPress={() => navigation.navigate('Language', { isInitialSetup: false })}
-          /> */}
-          {/* <TouchableOpacity >
-                <View style={styles.container2}>
-                    <Text style={styles.heading2}>Log out</Text>
-                    <LogOutIcon />
-                </View>
-            </TouchableOpacity> */}
-        </SafeAreaView>
-      </LinearGradient>
+        {/* Version above tab bar */}
+        <View style={styles.versionContainer}>
+          <Text style={styles.versionText}>Version: {appVersion}</Text>
+        </View>
       </SafeAreaView>
-    </>
+    </LinearGradient>
+
   );
 };
 
@@ -132,11 +119,12 @@ export default ProfileScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'flex-start',
+    // alignItems: 'center',
     justifyContent: '',
     paddingHorizontal: wp(4),
     position: 'relative',
     width: '100%',
+    marginTop:hp(2)
   },
   topBar: {
     flexDirection: 'row',
@@ -168,4 +156,20 @@ const styles = StyleSheet.create({
     fontSize: wp(3.5),
     color: '#FF0400',
   },
+  versionWrapper: {
+  alignSelf: 'center', // Only take the width needed
+  borderTopWidth: 0.5,
+  borderTopColor: 'rgba(255,255,255,1)',
+  paddingTop: hp(2),
+  marginTop: hp(2),
+},
+versionText: {
+  color: '#ccc',
+  fontSize: RFValue(12),
+  fontFamily: 'Poppins-Regular',
+  opacity: 0.3,
+  textAlign: 'left',
+  marginTop:hp(8)
+},
+
 });

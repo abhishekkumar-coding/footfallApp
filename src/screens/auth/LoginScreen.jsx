@@ -22,6 +22,7 @@ import LockIcon from '../../utils/icons/LockIcon';
 import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import {
+  useGoogleAuthMutation,
   useGoogleLoginMutation,
   useLoginMutation,
 } from '../../features/auth/authApi';
@@ -56,7 +57,8 @@ const LoginScreen = () => {
   const dispatch = useDispatch();
 
   const [login, { isLoading }] = useLoginMutation();
-  const [googleLogin] = useGoogleLoginMutation();
+  // const [googleLogin] = useGoogleLoginMutation();
+  const [googleAuth] = useGoogleAuthMutation();
 
   const loginSchema = z.object({
     email: z.string().email({ message: 'Invalid email address' }),
@@ -196,7 +198,7 @@ const LoginScreen = () => {
       }
 
       console.log('[GOOGLE LOGIN] Sending ID token to backend...');
-      const response = await googleLogin({ token: idToken, fcmToken }).unwrap();
+      const response = await googleAuth({ token: idToken, fcmToken }).unwrap();
       console.log('[GOOGLE LOGIN] Backend Response:', response);
       dispatch(clearPendingReferral())
       const appToken = response?.data?.token;

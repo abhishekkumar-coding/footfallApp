@@ -35,10 +35,10 @@ export const authApi = createApi({
         body: credentials,
       }),
     }),
-    getUserById :builder.query({
-      query:(id)=>({
-        url:`user/getById/${id}`
-      })
+    getUserById: builder.query({
+      query: id => ({
+        url: `user/getById/${id}`,
+      }),
     }),
     updateUser: builder.mutation({
       query: data => {
@@ -77,21 +77,28 @@ export const authApi = createApi({
     //   query: googleTokenData => ({
     //     url: 'user/googleAuthUser',
     //     method: 'POST',
-    //     body: googleTokenData, 
+    //     body: googleTokenData,
     //   }),
     // }),
-    googleLogin: builder.mutation({
-      query: ({token, fcmToken}) => ({
-        url: 'user/googleLogin',
-        method: 'POST',
-        body: {token, fcmToken}, 
-      }),
-    }),
-    googleSignUp: builder.mutation({
+    // googleLogin: builder.mutation({
+    //   query: ({token, fcmToken}) => ({
+    //     url: 'user/googleLogin',
+    //     method: 'POST',
+    //     body: {token, fcmToken},
+    //   }),
+    // }),
+    // googleSignUp: builder.mutation({
+    //   query: googleTokenData => ({
+    //     url: 'user/googleSignUp',
+    //     method: 'POST',
+    //     body: googleTokenData,
+    //   }),
+    // }),
+    googleAuth: builder.mutation({
       query: googleTokenData => ({
-        url: 'user/googleSignUp',
+        url: 'user/googleAuth',
         method: 'POST',
-        body: googleTokenData, 
+        body: googleTokenData,
       }),
     }),
   }),
@@ -107,6 +114,7 @@ export const {
   // useGetWalletSummaryQuery,
   useUpdateUserMutation,
   // useRedeemVendorPointsMutation,
-  useGoogleLoginMutation,
-  useGoogleSignUpMutation,
+  // useGoogleLoginMutation,
+  // useGoogleSignUpMutation,
+  useGoogleAuthMutation,
 } = authApi;

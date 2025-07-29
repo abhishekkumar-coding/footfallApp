@@ -9,6 +9,7 @@ import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useResetPasswordMutation } from '../../features/auth/authApi';
 import { useRoute } from '@react-navigation/native';
+import Toast from 'react-native-toast-message';
 
 const NewPasswordScreen = ({ navigation }) => {
   const [newPassword, setNewPassword] = useState('');
@@ -19,20 +20,31 @@ const NewPasswordScreen = ({ navigation }) => {
 
   const newPasswordSubmit = async () => {
     if (!newPassword) {
-      return Alert.alert('Enter new password!');
+      return Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Please enter a new password',
+      });
     }
 
     const data = { email, otp, newPassword };
 
     try {
       const res = await resetPassword(data).unwrap();
-      Alert.alert('Success', 'Your password has been reset successfully', [
-        { text: 'OK', onPress: () => navigation.navigate('Login') },
-      ]);
+      Toast.show({
+        type: 'success',
+        text1: 'Success',
+        text2: 'Your password has been reset successfully',
+        onHide: () => navigation.navigate('Login'), // Navigate after toast hides
+      });
     } catch (error) {
       const message = error?.data?.message || 'Password reset failed';
       console.log('Reset Error:', error);
-      Alert.alert('Error', message);
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: message,
+      });
     }
   };
 

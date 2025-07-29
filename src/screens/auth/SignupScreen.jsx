@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   Text,
@@ -27,7 +28,7 @@ import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import PhoneIcon from '../../utils/icons/PhoneIcon';
 import {
-  useGoogleAuthUserMutation,
+  useGoogleAuthMutation,
   useGoogleSignUpMutation,
   useSignupMutation,
 } from '../../features/auth/authApi';
@@ -38,7 +39,7 @@ import {
   GoogleSignin,
   statusCodes,
 } from '@react-native-google-signin/google-signin';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { clearPendingReferral, setUser } from '../../features/auth/userSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
@@ -54,17 +55,40 @@ const SignupScreen = ({ route }) => {
   const [showError, setShowError] = useState(false);
 
   const [googleLoading, setGoogleLoading] = useState(false);
+  const fcmToken = useSelector(state => state.user.fcmToken);
 
   const [signup, { isLoading }] = useSignupMutation();
-  // const [googleAuthUser] = useGoogleAuthUserMutation();
-  const [googleSignUp] = useGoogleSignUpMutation();
+  const [googleAuth] = useGoogleAuthMutation();
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (route.params?.referralCode) {
-      setReferredBy(route.params.referralCode);
-    }
-  }, [route.params]);
+    const handleDeepLink = (url) => {
+      if (!url) return;
+      const query = url.split('?')[1];
+      if (!query) return;
+      const params = new URLSearchParams(query);
+      const referral = params.get('referral') || params.get('referralCode');
+      if (referral) {
+        console.log('Referral from deep link:', referral);
+        setReferredBy(referral);
+      }
+    };
+
+    Linking.getInitialURL().then((url) => {
+      if (url) handleDeepLink(url);
+    });
+
+    const subscription = Linking.addEventListener('url', ({ url }) => {
+      handleDeepLink(url);
+    });
+
+    return () => {
+      subscription?.remove();
+    };
+  }, []);
+
+
+
 
   const signupSchema = z.object({
     name: z.string().min(3, { message: t('signup.validation.name_min') }),
@@ -105,7 +129,7 @@ const SignupScreen = ({ route }) => {
         text1: t('signup.messages.success_title'),
         text2: t('signup.messages.success_message'),
       });
-      dispatch(clearPendingReferral())
+      dispatch(clearPendingReferral());
       setTimeout(() => {
         navigation.navigate('Login');
       }, 1500);
@@ -118,57 +142,43 @@ const SignupScreen = ({ route }) => {
     }
   };
 
-  useEffect(() => {
-    const handleDeepLink = url => {
-      if (!url) return;
-
-      const query = url.split('?')[1];
-      if (!query) return;
-
-      const params = new URLSearchParams(query);
-      const referral = params.get('referralCode');
-
-      if (referral) {
-        setReferredBy(referral);
-      }
-    };
-
-    Linking.getInitialURL().then(url => {
-      if (url) handleDeepLink(url);
-    });
-
-    const subscription = Linking.addEventListener('url', ({ url }) => {
-      handleDeepLink(url);
-    });
-
-    return () => {
-      subscription?.remove();
-    };
-  }, []);
-  4;
-
 
   const onGooglePress = async () => {
     try {
       setGoogleLoading(true);
-      await GoogleSignin.hasPlayServices({
-        showPlayServicesUpdateDialog: true,
-      });
 
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
       await GoogleSignin.signOut();
 
       const userInfo = await GoogleSignin.signIn();
       console.log('Google userInfo:', userInfo);
 
-      const idToken = userInfo.idToken || userInfo.data?.idToken;
+      const idToken = userInfo.idToken || userInfo?.data?.idToken;
       if (!idToken) throw new Error('No ID token received from Google');
 
-      // Send token to backend
-      const response = await googleSignUp({ token: idToken, referredBy }).unwrap();
-      console.log('Backend Response:', response);
-      dispatch(clearPendingReferral())
-      // ✅ Fix here: use "newUser" instead of "user"
-      const backendUser = response?.data?.newUser || {};
+      const payload = {
+        token: idToken,
+        referredBy: referredBy || null,
+        fcmToken: fcmToken || null,
+      };
+
+      const response = await googleAuth(payload).unwrap();
+      console.log('Backend Google Signup Response:', response);
+
+      const isExistingUser = response?.data?.user && !response?.data?.newUser;
+      if (isExistingUser && referredBy) {
+        Toast.show({
+          type: 'info',
+          text1: 'Already Registered',
+          text2: 'You are already registered and cannot sign up again with a referral code.',
+        });
+        return;
+      }
+
+      const appToken = response?.data?.token;
+      if (!appToken) throw new Error('App token missing in response');
+
+      const backendUser = response?.data?.newUser || response?.data?.user || {};
 
       const user = {
         ...backendUser,
@@ -177,12 +187,11 @@ const SignupScreen = ({ route }) => {
         email: backendUser.email || userInfo.user?.email,
       };
 
-      const appToken = response?.data?.token;
-      if (!appToken) throw new Error('App token missing in response');
-
       await AsyncStorage.setItem('token', appToken);
       await AsyncStorage.setItem('user', JSON.stringify(user));
+
       dispatch(setUser(user));
+      dispatch(clearPendingReferral());
 
       Toast.show({
         type: 'success',
@@ -196,8 +205,10 @@ const SignupScreen = ({ route }) => {
         index: 0,
         routes: [{ name: 'Main' }],
       });
+
     } catch (error) {
       console.error('Google Sign-Up Error:', error);
+
       if (error.code === statusCodes.SIGN_IN_CANCELLED) {
         Toast.show({ type: 'info', text1: t('signup.google.cancelled') });
       } else if (error.code === statusCodes.IN_PROGRESS) {
@@ -214,10 +225,12 @@ const SignupScreen = ({ route }) => {
           text2: error?.data?.message || t('signup.google.default_error'),
         });
       }
+
     } finally {
       setGoogleLoading(false);
     }
   };
+
 
   return (
     <>
@@ -283,21 +296,26 @@ const SignupScreen = ({ route }) => {
                 />
 
                 <View style={styles.buttonContainer}>
-                  <CustomButton title={t('signup.button')} onPress={handleSignup} />
+                  <CustomButton
+                    title={t('signup.button')}
+                    onPress={handleSignup}
+                  />
                 </View>
 
                 <SocialLoginOptions onGooglePress={onGooglePress} />
 
                 <TouchableOpacity
                   onPress={() => {
-                    dispatch(clearPendingReferral())
-                    navigation.navigate('Login')
+                    dispatch(clearPendingReferral());
+                    navigation.navigate('Login');
                   }}
                   style={styles.loginTextContainer}
                 >
                   <Text style={styles.loginText}>
                     {t('signup.links.already_account')}{' '}
-                    <Text style={styles.loginLink}>{t('signup.links.login')}</Text>
+                    <Text style={styles.loginLink}>
+                      {t('signup.links.login')}
+                    </Text>
                   </Text>
                 </TouchableOpacity>
               </View>
