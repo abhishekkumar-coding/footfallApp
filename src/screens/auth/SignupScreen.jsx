@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import {
   View,
   Text,
@@ -57,15 +58,37 @@ const SignupScreen = ({ route }) => {
   const fcmToken = useSelector(state => state.user.fcmToken);
 
   const [signup, { isLoading }] = useSignupMutation();
-  // const [googleSignUp] = useGoogleSignUpMutation();
   const [googleAuth] = useGoogleAuthMutation();
   const dispatch = useDispatch();
 
   useEffect(() => {
-    if (route.params?.referralCode) {
-      setReferredBy(route.params.referralCode);
-    }
-  }, [route.params]);
+    const handleDeepLink = (url) => {
+      if (!url) return;
+      const query = url.split('?')[1];
+      if (!query) return;
+      const params = new URLSearchParams(query);
+      const referral = params.get('referral') || params.get('referralCode');
+      if (referral) {
+        console.log('Referral from deep link:', referral);
+        setReferredBy(referral);
+      }
+    };
+
+    Linking.getInitialURL().then((url) => {
+      if (url) handleDeepLink(url);
+    });
+
+    const subscription = Linking.addEventListener('url', ({ url }) => {
+      handleDeepLink(url);
+    });
+
+    return () => {
+      subscription?.remove();
+    };
+  }, []);
+
+
+
 
   const signupSchema = z.object({
     name: z.string().min(3, { message: t('signup.validation.name_min') }),
@@ -119,189 +142,94 @@ const SignupScreen = ({ route }) => {
     }
   };
 
-  useEffect(() => {
-    const handleDeepLink = url => {
-      if (!url) return;
 
-      const query = url.split('?')[1];
-      if (!query) return;
+  const onGooglePress = async () => {
+    try {
+      setGoogleLoading(true);
 
-      const params = new URLSearchParams(query);
-      const referral = params.get('referralCode');
+      await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
+      await GoogleSignin.signOut();
 
-      if (referral) {
-        setReferredBy(referral);
+      const userInfo = await GoogleSignin.signIn();
+      console.log('Google userInfo:', userInfo);
+
+      const idToken = userInfo.idToken || userInfo?.data?.idToken;
+      if (!idToken) throw new Error('No ID token received from Google');
+
+      const payload = {
+        token: idToken,
+        referredBy: referredBy || null,
+        fcmToken: fcmToken || null,
+      };
+
+      const response = await googleAuth(payload).unwrap();
+      console.log('Backend Google Signup Response:', response);
+
+      const isExistingUser = response?.data?.user && !response?.data?.newUser;
+      if (isExistingUser && referredBy) {
+        Toast.show({
+          type: 'info',
+          text1: 'Already Registered',
+          text2: 'You are already registered and cannot sign up again with a referral code.',
+        });
+        return;
       }
-    };
 
-    Linking.getInitialURL().then(url => {
-      if (url) handleDeepLink(url);
-    });
+      const appToken = response?.data?.token;
+      if (!appToken) throw new Error('App token missing in response');
 
-    const subscription = Linking.addEventListener('url', ({ url }) => {
-      handleDeepLink(url);
-    });
+      const backendUser = response?.data?.newUser || response?.data?.user || {};
 
-    return () => {
-      subscription?.remove();
-    };
-  }, []);
-  4;
+      const user = {
+        ...backendUser,
+        photo: backendUser.photo || userInfo.user?.photo,
+        name: backendUser.name || userInfo.user?.name,
+        email: backendUser.email || userInfo.user?.email,
+      };
 
-  // const onGooglePress = async () => {
-  //   try {
-  //     setGoogleLoading(true);
-  //     await GoogleSignin.hasPlayServices({
-  //       showPlayServicesUpdateDialog: true,
-  //     });
+      await AsyncStorage.setItem('token', appToken);
+      await AsyncStorage.setItem('user', JSON.stringify(user));
 
-  //     await GoogleSignin.signOut();
+      dispatch(setUser(user));
+      dispatch(clearPendingReferral());
 
-  //     const userInfo = await GoogleSignin.signIn();
-  //     console.log('Google userInfo:', userInfo);
-
-  //     const idToken = userInfo.idToken || userInfo.data?.idToken;
-  //     if (!idToken) throw new Error('No ID token received from Google');
-
-  //     // Send token to backend
-  //     // const response = await googleAuth({ token: idToken, referredBy }).unwrap();
-  //     const response = await googleAuth({
-  //       token: idToken,
-  //       referredBy,
-  //       fcmToken,
-  //     }).unwrap();
-
-  //     console.log('Backend Response:', response);
-  //     dispatch(clearPendingReferral());
-  //     // ✅ Fix here: use "newUser" instead of "user"
-  //     const backendUser = response?.data?.newUser || {};
-
-  //     const user = {
-  //       ...backendUser,
-  //       photo: backendUser.photo || userInfo.user?.photo,
-  //       name: backendUser.name || userInfo.user?.name,
-  //       email: backendUser.email || userInfo.user?.email,
-  //     };
-
-  //     const appToken = response?.data?.token;
-  //     if (!appToken) throw new Error('App token missing in response');
-
-  //     await AsyncStorage.setItem('token', appToken);
-  //     await AsyncStorage.setItem('user', JSON.stringify(user));
-  //     dispatch(setUser(user));
-
-  //     Toast.show({
-  //       type: 'success',
-  //       text1: t('signup.google.success'),
-  //       text2: t('signup.google.welcome', {
-  //         name: user?.name || t('signup.google.default_name', 'User'),
-  //       }),
-  //     });
-
-  //     navigation.reset({
-  //       index: 0,
-  //       routes: [{ name: 'Main' }],
-  //     });
-  //   } catch (error) {
-  //     console.error('Google Sign-Up Error:', error);
-  //     if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-  //       Toast.show({ type: 'info', text1: t('signup.google.cancelled') });
-  //     } else if (error.code === statusCodes.IN_PROGRESS) {
-  //       Toast.show({ type: 'info', text1: t('signup.google.progress') });
-  //     } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-  //       Toast.show({
-  //         type: 'error',
-  //         text1: t('signup.google.play_services_error'),
-  //       });
-  //     } else {
-  //       Toast.show({
-  //         type: 'error',
-  //         text1: t('signup.google.failed'),
-  //         text2: error?.data?.message || t('signup.google.default_error'),
-  //       });
-  //     }
-  //   } finally {
-  //     setGoogleLoading(false);
-  //   }
-  // };
-
-const onGooglePress = async () => {
-  try {
-    setGoogleLoading(true);
-
-    await GoogleSignin.hasPlayServices({ showPlayServicesUpdateDialog: true });
-    await GoogleSignin.signOut(); // Force fresh login
-
-    const userInfo = await GoogleSignin.signIn();
-    console.log('Google userInfo:', userInfo);
-
-    const idToken = userInfo.idToken || userInfo?.data?.idToken;
-    if (!idToken) throw new Error('No ID token received from Google');
-
-    const payload = {
-      token: idToken,
-      referredBy: referredBy || null,
-      fcmToken: fcmToken || null,
-    };
-
-    const response = await googleAuth(payload).unwrap();
-    console.log('Backend Google Signup Response:', response);
-
-    const appToken = response?.data?.token;
-    if (!appToken) throw new Error('App token missing in response');
-
-    const backendUser = response?.data?.newUser || response?.data?.user || {};
-
-    const user = {
-      ...backendUser,
-      photo: backendUser.photo || userInfo.user?.photo,
-      name: backendUser.name || userInfo.user?.name,
-      email: backendUser.email || userInfo.user?.email,
-    };
-
-    await AsyncStorage.setItem('token', appToken);
-    await AsyncStorage.setItem('user', JSON.stringify(user));
-
-    dispatch(setUser(user));
-    dispatch(clearPendingReferral());
-
-    Toast.show({
-      type: 'success',
-      text1: t('signup.google.success'),
-      text2: t('signup.google.welcome', {
-        name: user?.name || t('signup.google.default_name', 'User'),
-      }),
-    });
-
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Main' }],
-    });
-
-  } catch (error) {
-    console.error('Google Sign-Up Error:', error);
-
-    if (error.code === statusCodes.SIGN_IN_CANCELLED) {
-      Toast.show({ type: 'info', text1: t('signup.google.cancelled') });
-    } else if (error.code === statusCodes.IN_PROGRESS) {
-      Toast.show({ type: 'info', text1: t('signup.google.progress') });
-    } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
       Toast.show({
-        type: 'error',
-        text1: t('signup.google.play_services_error'),
+        type: 'success',
+        text1: t('signup.google.success'),
+        text2: t('signup.google.welcome', {
+          name: user?.name || t('signup.google.default_name', 'User'),
+        }),
       });
-    } else {
-      Toast.show({
-        type: 'error',
-        text1: t('signup.google.failed'),
-        text2: error?.data?.message || t('signup.google.default_error'),
+
+      navigation.reset({
+        index: 0,
+        routes: [{ name: 'Main' }],
       });
+
+    } catch (error) {
+      console.error('Google Sign-Up Error:', error);
+
+      if (error.code === statusCodes.SIGN_IN_CANCELLED) {
+        Toast.show({ type: 'info', text1: t('signup.google.cancelled') });
+      } else if (error.code === statusCodes.IN_PROGRESS) {
+        Toast.show({ type: 'info', text1: t('signup.google.progress') });
+      } else if (error.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+        Toast.show({
+          type: 'error',
+          text1: t('signup.google.play_services_error'),
+        });
+      } else {
+        Toast.show({
+          type: 'error',
+          text1: t('signup.google.failed'),
+          text2: error?.data?.message || t('signup.google.default_error'),
+        });
+      }
+
+    } finally {
+      setGoogleLoading(false);
     }
-
-  } finally {
-    setGoogleLoading(false);
-  }
-};
+  };
 
 
   return (

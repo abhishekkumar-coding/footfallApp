@@ -10,7 +10,6 @@ import { Provider } from 'react-redux';
 import { store } from './src/store';
 import Toast from 'react-native-toast-message';
 import AppInitializer from './src/AppInitializer';
-import linking from './linking';
 import { navigationRef } from './src/navigations/NavigationUtil';
 import { toastConfig } from './src/components/toastConfig';
 import SplashScreen from 'react-native-splash-screen';
@@ -22,6 +21,9 @@ import notifee, { AndroidImportance } from '@notifee/react-native';
 import { createNotificationChannel, setupNotificationListeners, } from './src/features/notificationHelper';
 import DynamicLinkHandler from './src/utils/DynamicLinkHandler';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { linking } from './linking';
+
+
 
 
 
@@ -50,6 +52,7 @@ const App = () => {
     };
 
     initializeApp();
+    // AppVersion()
 
     if (Text.defaultProps == null) Text.defaultProps = {};
     Text.defaultProps.allowFontScaling = false;

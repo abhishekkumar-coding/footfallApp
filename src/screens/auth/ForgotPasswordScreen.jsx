@@ -14,6 +14,7 @@ import EmailIcon from '../../utils/icons/EmailIcon';
 import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useRequestOtpMutation } from '../../features/auth/authApi';
+import Toast from 'react-native-toast-message';
 
 const ForgotPasswordScreen = () => {
   const navigation = useNavigation();
@@ -23,49 +24,60 @@ const ForgotPasswordScreen = () => {
 
   const handleSendOtp = async () => {
     if (!email) {
-      Alert.alert("Enter correct email!");
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: 'Please enter a valid email',
+      });
       return;
     }
 
     try {
       const res = await requestOtp({ email }).unwrap();
-      Alert.alert('OTP Sent', 'Check your email.', [
-        { text: 'OK', onPress: () => navigation.navigate('OtpVerification', {email})}
-      ]);
+      Toast.show({
+        type: 'success',
+        text1: 'OTP Sent',
+        text2: 'Check your email for the OTP',
+        onHide: () => navigation.navigate('OtpVerification', { email }),
+      });
       console.log(res);
     } catch (error) {
       const message = error?.data?.message || 'Failed to send OTP';
-      Alert.alert('Error', message);
+      Toast.show({
+        type: 'error',
+        text1: 'Error',
+        text2: message,
+      });
     }
   };
 
   return (
     <>
       <BackButton lable={'Forgot Password'} back />
-    
-    <LinearGradient colors={['#000337', '#000']} style={{ flex: 1 }}>
-      <BackButton />
-      <View style={styles.container}>
-        <Text style={styles.heading}>Forgot Password 🔑</Text>
-        <Text style={styles.subText}>
-          Enter your email to receive an OTP
-        </Text>
 
-        <LinearGradient
-          colors={['rgba(255, 255, 255, 0.1)', '#000']}
-          style={styles.formGradient}
-        >
-          <CustomInput
-            placeholder={'Email'}
-            lable={'Email'}
-            iconComponent={<EmailIcon />}
-            value={email}
-            onChangeText={setEmail}
-          />
-          <CustomButton title={'Send OTP'} onPress={handleSendOtp} />
-        </LinearGradient>
-      </View>
-    </LinearGradient>
+      <LinearGradient colors={['#000337', '#000']} style={{ flex: 1 }}>
+        <BackButton />
+        <View style={styles.container}>
+          <Text style={styles.heading}>Forgot Password 🔑</Text>
+          <Text style={styles.subText}>
+            Enter your email to receive an OTP
+          </Text>
+
+          <LinearGradient
+            colors={['rgba(255, 255, 255, 0.1)', '#000']}
+            style={styles.formGradient}
+          >
+            <CustomInput
+              placeholder={'Email'}
+              lable={'Email'}
+              iconComponent={<EmailIcon />}
+              value={email}
+              onChangeText={setEmail}
+            />
+            <CustomButton title={'Send OTP'} onPress={handleSendOtp} />
+          </LinearGradient>
+        </View>
+      </LinearGradient>
     </>
 
   );

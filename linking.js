@@ -1,18 +1,8 @@
-
-const config = {
-  screens: {
-    Signup: {
-      path: 'signup',
-      parse: {
-        referralCode: (referralCode) => `${referralCode}`,
-      },
+export const linking = {
+  prefixes: ['https://footfall.onrender.com', 'footfall://'],
+  config: {
+    screens: {
+      Signup: 'signup',
     },
   },
 };
-
-const linking = {
-  prefixes: ['footfall://', 'https://footfallapp.com'],
-  config,
-};
-
-export default linking;
