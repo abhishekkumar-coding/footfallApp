@@ -29,7 +29,6 @@ import { linking } from './linking';
 
 GoogleSignin.configure({
   webClientId: '697884599919-nsi2smlk6h11lfap8jr9lcdp82gndumb.apps.googleusercontent.com',
-  // webClientId: '697884599919-nsi2smlk6h11lfap8jr9lcdp82gndumb.apps.googleusercontent.com',
   offlineAccess: true,
 });
 

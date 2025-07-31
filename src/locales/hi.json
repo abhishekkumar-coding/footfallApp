@@ -19,6 +19,8 @@
   "view_all": "सभी देखें",
   "category": "श्रेणी",
   "location": "स्थान",
+  "Address":"पता",
+  "update_location":"स्थान अद्यतन करें",
   "timings": "{{start}} - {{end}}",
   "scanOption": "स्कैन विकल्प",
   "chooseOption": "एक विकल्प चुनें",

@@ -32,6 +32,7 @@ import LanguageIcon from '../utils/icons/LanguageIcon';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import VersionCheck from 'react-native-version-check';
 import PageHeader from '../components/BackButton';
+import { LocatioIcon } from '../utils/icons/icons';
 
 const ProfileScreen = () => {
   const { t } = useTranslation();
@@ -104,6 +105,13 @@ const ProfileScreen = () => {
           }
         />
 
+          <TabButton
+          Icon={LocatioIcon}
+          label={t('Address')}
+          onPress={() =>
+            navigation.navigate('Address', { isInitialSetup: false })
+          }
+        />
         {/* Version above tab bar */}
         <View style={styles.versionContainer}>
           <Text style={styles.versionText}>Version: {appVersion}</Text>

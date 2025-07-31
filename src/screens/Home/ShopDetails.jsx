@@ -28,17 +28,28 @@ import Geolocation from 'react-native-geolocation-service';
 import { PermissionsAndroid, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 
 
 const requestLocationPermission = async () => {
-  if (Platform.OS === 'ios') return true;
-
-  const granted = await PermissionsAndroid.request(
-    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-  );
-
-  return granted === PermissionsAndroid.RESULTS.GRANTED;
+  if (Platform.OS === 'ios') {
+    const status = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+    return status === RESULTS.GRANTED || status === RESULTS.LIMITED; 
+    // If you also need background tracking, uncomment this:
+    // if (status === RESULTS.GRANTED || status === RESULTS.LIMITED) {
+    //   const alwaysStatus = await request(PERMISSIONS.IOS.LOCATION_ALWAYS);
+    //   return alwaysStatus === RESULTS.GRANTED;
+    // }
+  } else {
+    // ANDROID: Ask for Fine Location
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+    );
+    return granted === PermissionsAndroid.RESULTS.GRANTED;
+  }
 };
+
+
 
 // function getDistanceInMeters(lat1, lon1, lat2, lon2) {
 //   const R = 6371000; // Earth’s radius in meters
@@ -133,96 +144,6 @@ const ShopDetails = ({ route }) => {
   };
 
 
-  // const handleManualScan = async () => {
-  //   const hasPermission = await requestLocationPermission();
-  //   if (!hasPermission) {
-  //     Toast.show({ type: 'error', text1: t('location_denied') });
-  //     return;
-  //   }
-
-  //   setIsLoadingShop(true);
-
-  //   Geolocation.getCurrentPosition(
-  //     async position => {
-  //       const userLat = position.coords.latitude;
-  //       const userLng = position.coords.longitude;
-  //       console.log('📍 Your Current Location:', {
-  //         latitude: userLat,
-  //         longitude: userLng,
-  //       });
-
-  //       // Extract shop lat/lng
-  //       const [shopLng, shopLat] = shop?.location?.coordinates || [];
-  //       console.log('🏪 Shop Location:', {
-  //         latitude: shopLat,
-  //         longitude: shopLng,
-  //       });
-
-  //       const scanRadius = 50;
-  //       const bufferDistance = 100;
-  //       const effectiveRadius = scanRadius + bufferDistance;
-
-  //       const distance = getDistanceInMeters(
-  //         userLat,
-  //         userLng,
-  //         shopLat,
-  //         shopLng,
-  //       );
-  //       console.log(`🧭 Distance to shop: ${Math.round(distance)}m`);
-
-  //       if (distance > effectiveRadius) {
-  //         Toast.show({
-  //           type: 'error',
-  //           text1: t('distance_away', { distance: Math.round(distance) }),
-  //           text2: t('move_closer', { radius: effectiveRadius }),
-  //         });
-  //         setIsLoadingShop(false);
-  //         return;
-  //       }
-
-  //       try {
-  //         const result = await scanShop({
-  //           shopId: _id,
-  //           latitude: userLat,
-  //           longitude: userLng,
-  //         }).unwrap();
-
-  //         if (result?.success) {
-  //           Toast.show({
-  //             type: 'success',
-  //             text1: 'Scan successful!',
-  //           });
-
-  //           if (result.data?.scanRewardType === 'percentage') {
-  //             navigation.navigate('CashbackScreen', {
-  //               shopId: _id,
-  //               returnPercent: result.data?.rewardPoints,
-  //             });
-  //           } else {
-  //             navigation.goBack();
-  //           }
-  //         } else {
-  //           Toast.show({ type: 'error', text1: t('scan_failed_try') });
-  //         }
-  //       } catch (err) {
-  //         Toast.show({ type: 'error', text1: err?.data?.message || 'Error' });
-  //         console.log('❌ Scan error:', err);
-  //       } finally {
-  //         setIsLoadingShop(false);
-  //       }
-  //     },
-  //     error => {
-  //       Toast.show({
-  //         type: 'error',
-  //         text1: 'Location error',
-  //         text2: error.message,
-  //       });
-  //       setIsLoadingShop(false);
-  //     },
-  //     { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
-  //   );
-  // };
-
   const handleManualScan = async () => {
     const hasPermission = await requestLocationPermission();
     if (!hasPermission) {
@@ -313,17 +234,14 @@ const ShopDetails = ({ route }) => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-
       <LinearGradient
         colors={['#000337', '#000000']}
         style={{ flex: 1 }}
       >
         <PageHeader back bg />
-        {/* Loading and status indicators */}
         {(isLoadingShop || isLoadingVendor) && (
           <View style={styles.loaderContainer}>
             <Text style={styles.loaderText}>
-              {/* {isLoadingShop ? 'Scanning...' : 'Fetching vendor points...'} */}
               {isLoadingShop ? t('scanning') : t('fetching_points')}
             </Text>
           </View>
@@ -454,7 +372,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 0,
     right: 0,
-    left: 0
+    left: 0,
   },
   scrollContainer: {
     paddingBottom: hp(5),

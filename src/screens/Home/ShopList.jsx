@@ -44,8 +44,14 @@ const ShopList = forwardRef((props, ref) => {
     [refetch, isLoading]
   );
   console.log("ShopData on ShopList: ", shopData)
+
+
   const handleViewAll = () => {
     navigation.navigate('AllShops', { shopsData: shopData });
+  };
+
+  const handleUpdateProfile = () => {
+    navigation.navigate('EditProfile');
   };
 
   const renderItem = ({ item }) => (
@@ -56,6 +62,8 @@ const ShopList = forwardRef((props, ref) => {
       })}
     />
   );
+
+
 
   return (
     <>
@@ -92,6 +100,10 @@ const ShopList = forwardRef((props, ref) => {
                 source={require('../../../assets/noShop.png')}
                 style={{ width: wp(40), height: hp(30), alignSelf: "center" }}
               />
+              <TouchableOpacity style={styles.updateButton} onPress={handleUpdateProfile} activeOpacity={0.8}>
+                <Text style={styles.updateButtonText}>{t('update_location')}</Text>
+              </TouchableOpacity>
+
             </View>
           }
         />
@@ -130,6 +142,30 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     paddingHorizontal: wp(3),
   },
+  updateButton: {
+    width: wp(60),
+    paddingVertical: hp(1.5),
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.12)', 
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.3)',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 5,
+    alignSelf: 'center',
+  },
+  updateButtonText: {
+    fontFamily: 'Poppins-SemiBold',
+    color: '#fff',
+    fontSize: RFValue(14),
+    textAlign: 'center',
+    letterSpacing: 0.5,
+  },
+
 
 });
 

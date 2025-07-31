@@ -1,12 +1,106 @@
+# # Resolve react_native_pods.rb with node to allow for hoisting
+# def node_require(script)
+# +   # Resolve script with node to allow for hoisting
+# +   require Pod::Executable.execute_command('node', ['-p',
+# +     "require.resolve(
+# +       '#{script}',
+# +       {paths: [process.argv[1]]},
+# +     )", __dir__]).strip
+# + end
+
+# # Use it to require both react-native's and this package's scripts:
+# + node_require('react-native/scripts/react_native_pods.rb')
+# + node_require('react-native-permissions/scripts/setup.rb')
+
+
+# platform :ios, min_ios_version_supported
+# prepare_react_native_project!
+
+# setup_permissions([
+#   # 'AppTrackingTransparency',
+#   # 'Bluetooth',
+#   # 'Calendars',
+#   # 'CalendarsWriteOnly',
+#   'Camera',
+#   # 'Contacts',
+#   # 'FaceID',
+#   # 'LocationAccuracy',
+#   'LocationAlways',
+#   'LocationWhenInUse',
+#   # 'MediaLibrary',
+#   # 'Microphone',
+#   # 'Motion',
+#   # 'Notifications',
+#   # 'PhotoLibrary',
+#   # 'PhotoLibraryAddOnly',
+#   # 'Reminders',
+#   # 'Siri',
+#   # 'SpeechRecognition',
+#   # 'StoreKit',
+# ])
+
+# # Enable static frameworks support for React Native Firebase
+# $RNFirebaseAsStaticFramework = true
+
+# linkage = ENV['USE_FRAMEWORKS']
+# if linkage != nil
+#   Pod::UI.puts "Configuring Pod with #{linkage}ally linked Frameworks".green
+#   use_frameworks! :linkage => linkage.to_sym
+# else
+#   use_frameworks! :linkage => :static
+# end
+
+# target 'footfall' do
+#   config = use_native_modules!
+
+#   # Include core app and Firebase service pods via React Native Firebase modules
+#   pod 'RNFBApp', :path => '../node_modules/@react-native-firebase/app'
+#   pod 'RNFBAuth', :path => '../node_modules/@react-native-firebase/auth'
+#   # Add further Firebase services as needed, e.g. 'RNFBFirestore', 'RNFBMessaging', ...
+
+#   # React Native Permissions (Camera)
+#   # permissions_path = '../node_modules/react-native-permissions/ios'
+#   # pod 'Permission-Camera', :path => "#{permissions_path}/Camera"
+
+#   use_react_native!(
+#     :path => config[:reactNativePath],
+#     :app_path => "#{Pod::Config.instance.installation_root}/.."
+#   )
+
+#   post_install do |installer|
+#     react_native_post_install(
+#       installer,
+#       config[:reactNativePath],
+#       :mac_catalyst_enabled => false,
+#     )
+#   end
+# end
+
+
 # Resolve react_native_pods.rb with node to allow for hoisting
-require Pod::Executable.execute_command('node', ['-p',
-  'require.resolve(
-    "react-native/scripts/react_native_pods.rb",
-    {paths: [process.argv[1]]},
-  )', __dir__]).strip
+def node_require(script)
+  # Resolve script with node to allow for hoisting
+  require Pod::Executable.execute_command('node', ['-p',
+    "require.resolve(
+      '#{script}',
+      {paths: [process.argv[1]]},
+    )", __dir__]).strip
+end
+
+# Use it to require both react-native's and this package's scripts:
+node_require('react-native/scripts/react_native_pods.rb')
+node_require('react-native-permissions/scripts/setup.rb')
 
 platform :ios, min_ios_version_supported
 prepare_react_native_project!
+
+# Setup permissions for react-native-permissions
+setup_permissions([
+  'Camera',
+  'LocationAlways',
+  'LocationWhenInUse',
+  # Add more as needed, e.g. 'PhotoLibrary', 'Microphone'
+])
 
 # Enable static frameworks support for React Native Firebase
 $RNFirebaseAsStaticFramework = true
@@ -31,10 +125,6 @@ target 'footfall' do
     :path => config[:reactNativePath],
     :app_path => "#{Pod::Config.instance.installation_root}/.."
   )
-
-  # If you still need direct Firebase pods (usually only if you have custom native code):
-  # pod 'FirebaseAuth', :modular_headers => true
-  # pod 'FirebaseCoreInternal', :modular_headers => true
 
   post_install do |installer|
     react_native_post_install(

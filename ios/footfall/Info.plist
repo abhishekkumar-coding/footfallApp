@@ -44,7 +44,11 @@
 		<true/>
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
-	<string></string>
+	<string>This app needs your location to scan and verify shop visits.</string>
+	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
+	<string>This app needs your location to scan and verify shop visits.</string>
+	<key>NSCameraUsageDescription</key>
+	<string>This app needs camera access to scan QR codes.</string>
 	<key>RCTNewArchEnabled</key>
 	<true/>
 	<key>UIAppFonts</key>

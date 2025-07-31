@@ -31,6 +31,9 @@ export const requestNotificationPermission = async () => {
 
 export const getAndStoreFcmToken = async (dispatch) => {
   try {
+
+    await messaging().registerDeviceForRemoteMessages();
+
     const fcmToken = await messaging().getToken();
     if (fcmToken) {
       console.log('FCM Token:', fcmToken);
@@ -42,7 +45,6 @@ export const getAndStoreFcmToken = async (dispatch) => {
 };
 
 export const setupNotificationListeners = () => {
-  // Foreground message listener
   const unsubscribe = messaging().onMessage(async (remoteMessage) => {
     const { title, body } = remoteMessage.notification || {};
 
@@ -57,7 +59,6 @@ export const setupNotificationListeners = () => {
     });
   });
 
-  // Background & quit-state messages should be handled in index.js or App.js:
   messaging().setBackgroundMessageHandler(async (remoteMessage) => {
     console.log('Background message received:', remoteMessage);
 

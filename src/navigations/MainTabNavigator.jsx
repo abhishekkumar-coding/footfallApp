@@ -38,6 +38,8 @@ import LanguageSelectionScreen from '../screens/LanguageScreen';
 import LanguageScreen from '../screens/LanguageScreen';
 import { useTranslation } from 'react-i18next';
 import AllFeaturedShops from '../screens/Home/AllFeaturedShops';
+import AddressScreen from '../screens/AddressScreen';
+import MapLocationPicker from '../screens/MapLocationPicker';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -126,6 +128,7 @@ const HomeStack = () => (
       component={AllFeaturedShops}
       options={{ headerShown: false }}
     />
+    
   </Stack.Navigator>
 );
 
@@ -154,6 +157,16 @@ const ProfileStack = () => (
     <Stack.Screen
       name="Language"
       component={LanguageScreen}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+    name='Address'
+    component={AddressScreen}
+    options={{headerShown:false}}
+    />
+    <Stack.Screen
+      name='MapLocationPicker'
+      component={MapLocationPicker}
       options={{ headerShown: false }}
     />
   </Stack.Navigator>

@@ -81,7 +81,7 @@ const AppInitializer = ({ children }) => {
             lng: longitude.toFixed(5),
           }),
         });
-        console.log("Looging Location : ", latitude, loading)
+        // console.log("Looging Location : ", latitude, loading)
 
         try {
           if (!userData?._id) return;
@@ -89,9 +89,9 @@ const AppInitializer = ({ children }) => {
             id: userData._id,
             body: { lat: latitude, lng: longitude },
           }).unwrap();
-          console.log("✅ User location updated:", res);
+          console.log("✅ User location auto updated:", res);
         } catch (err) {
-          console.log('❌ Failed to update user location:', err);
+          console.log('❌ Failed to update user auto location:', err);
         }
       },
       (error) => {

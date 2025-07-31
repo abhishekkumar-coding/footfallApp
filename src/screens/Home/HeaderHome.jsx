@@ -20,6 +20,7 @@ import Toast from 'react-native-toast-message';
 import { setUser } from '../../features/auth/userSlice';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { LocatioIcon } from '../../utils/icons/icons';
+import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 
 const HeaderHome = () => {
     const isFocused = useIsFocused();
@@ -35,12 +36,24 @@ const HeaderHome = () => {
 
 
   const requestLocationPermission = async () => {
-    if (Platform.OS === 'ios') return true;
+  if (Platform.OS === 'ios') {
+    // Request "When In Use" permission first
+    const status = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+    console.log("Permission in IOS: ", RESULTS.GRANTED)
+    return status === RESULTS.GRANTED || status === RESULTS.LIMITED;
+    // If you need background tracking:
+    // if (status === RESULTS.GRANTED || status === RESULTS.LIMITED) {
+    //   const alwaysStatus = await request(PERMISSIONS.IOS.LOCATION_ALWAYS);
+    //   return alwaysStatus === RESULTS.GRANTED;
+    // }
+  } else {
+    // Android
     const granted = await PermissionsAndroid.request(
       PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
     );
     return granted === PermissionsAndroid.RESULTS.GRANTED;
-  };
+  }
+};
 
   const fetchAddressFromCoordinates = async (latitude, longitude) => {
     try {

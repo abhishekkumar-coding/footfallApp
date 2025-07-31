@@ -39,7 +39,7 @@ const RedeemHistoryScreen = () => {
     <SafeAreaView style={{ flex: 1 }}>
 
       <BackButton lable={t('redeem_title')} back />
-      <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1, paddingHorizontal: 20 }}>
+      <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
         {isLoading ? (
           <View style={styles.centered}>
             <ActivityIndicator size="large" color="#fff" />

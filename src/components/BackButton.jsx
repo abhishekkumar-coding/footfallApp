@@ -24,7 +24,7 @@ const PageHeader = ({ lable, rightComponent, subTitle, back, bg }) => {
         <View
           style={[
             styles.headerContainer,
-            
+
             // {
             //   paddingTop:
             //     Platform.OS === 'android' ? StatusBar.currentHeight : 0,
@@ -71,6 +71,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    backgroundColor: 'transparent', 
     paddingHorizontal: 8,
     paddingTop: hp(1.5),
 

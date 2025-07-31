@@ -45,6 +45,28 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
 
 const SignupScreen = ({ route }) => {
+
+  useEffect(() => {
+    const checkIfLoggedIn = async () => {
+      try {
+        const storedUser = await AsyncStorage.getItem('user');
+        const token = await AsyncStorage.getItem('token');
+
+        if (storedUser && token) {
+          navigation.reset({
+            index: 0,
+            routes: [{ name: 'Main' }], // Use your home screen name
+          });
+        }
+      } catch (err) {
+        console.log('Error checking login:', err);
+      }
+    };
+
+    checkIfLoggedIn();
+  }, []);
+
+
   const { t } = useTranslation();
   const navigation = useNavigation();
   const [name, setName] = useState('');
@@ -56,6 +78,7 @@ const SignupScreen = ({ route }) => {
 
   const [googleLoading, setGoogleLoading] = useState(false);
   const fcmToken = useSelector(state => state.user.fcmToken);
+
 
   const [signup, { isLoading }] = useSignupMutation();
   const [googleAuth] = useGoogleAuthMutation();
@@ -389,3 +412,4 @@ const styles = StyleSheet.create({
 });
 
 export default SignupScreen;
+
