@@ -148,12 +148,13 @@ export default AllShops;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    paddingTop: hp(1),
+    justifyContent:"center",
+    // paddingTop: hp(1),
     paddingBottom: hp(4),
-    paddingHorizontal: wp(4),
+    // paddingHorizontal: wp(4),
   },
   filterContainer: {
-    marginBottom: hp(2),
+    marginVertical: hp(2),
   },
   filterScrollContent: {
     paddingHorizontal: wp(1),
@@ -180,6 +181,10 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingBottom: hp(10.5),
+    paddingTop:hp(2),
+    justifyContent:"center",
+    alignItems:"center",
+    paddingHorizontal:wp(1)
   },
   skeletonContainer: {
     flexDirection: 'row',

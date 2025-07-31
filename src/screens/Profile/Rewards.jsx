@@ -51,8 +51,8 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   label: {
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: RFValue(16),
+    fontFamily: 'Poppins-Bold',
+    fontSize: RFValue(20),
     color: '#fff',
     marginBottom: hp(1),
   },
