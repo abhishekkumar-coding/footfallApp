@@ -277,7 +277,7 @@ const MainTabNavigator = () => {
         options={({ route }) => {
           const routeName =
             getFocusedRouteNameFromRoute(route) ?? 'ProfileMain';
-          const hideOnScreens = ['EditProfile', 'Referral', 'Language', 'RedeemHistoryScreen'];
+          const hideOnScreens = ['EditProfile', 'Referral', 'Language', 'RedeemHistoryScreen', 'MapLocationPicker', 'Address'];
           return {
             headerShown: false,
             tabBarLabel: t('tab_profile'),
