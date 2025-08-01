@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
 
@@ -23,15 +23,34 @@ const MapLocationPicker = () => {
   const [fullAddress, setFullAddress] = useState('');
   const [landmark, setLandmark] = useState('');
 
-  // Debounce logic to prevent rapid API calls
-  let searchTimeout = null;
+  // Use useRef to keep the debounce timer between renders
+  const searchTimeout = useRef(null);
 
   const handleSearchChange = text => {
     setSearchQuery(text);
     setShowDropdown(true);
-    clearTimeout(searchTimeout);
-    searchTimeout = setTimeout(() => {
-      fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${text}`)
+
+    if (searchTimeout.current) {
+      clearTimeout(searchTimeout.current);
+    }
+
+    // Only trigger search if text length >= 3 to reduce API calls
+    if (text.length < 3) {
+      setSearchResults([]);
+      return;
+    }
+
+    searchTimeout.current = setTimeout(() => {
+      fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+          text
+        )}`,
+        {
+          headers: {
+            'User-Agent': 'MyReactNativeApp/1.0 (contact@myapp.com)', // Replace with your app info
+          },
+        }
+      )
         .then(res => res.json())
         .then(data => {
           setSearchResults(data);
@@ -40,7 +59,7 @@ const MapLocationPicker = () => {
           console.error('Error fetching location:', err);
           setSearchResults([]);
         });
-    }, 500); // debounce for 500ms
+    }, 500); // debounce 500ms
   };
 
   const handleSelectLocation = item => {
@@ -65,17 +84,7 @@ const MapLocationPicker = () => {
           <Icon name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
         <View style={styles.searchContainer}>
-          <Icon
-            name="search"
-            size={24}
-            color="#000"
-            style={styles.searchIcon}
-          />
-          {/*<TextInput
-            style={styles.input}
-            placeholder="Search location..."
-            placeholderTextColor="#888"
-          /> */}
+          <Icon name="search" size={24} color="#000" style={styles.searchIcon} />
           <TextInput
             style={styles.input}
             placeholder="Search location..."
@@ -108,28 +117,6 @@ const MapLocationPicker = () => {
 
       {confirm && <View style={styles.overlay}></View>}
 
-      {/* Bottom Card (initial confirmation) */}
-      {/* <View style={styles.container}>
-        <Text style={styles.titleText}>Confirm your Address</Text>
-
-        <View style={styles.card}>
-          <View style={styles.addressContainer}>
-            <Text style={styles.cardTitle}>Mathura, Sector 2</Text>
-            <Text style={styles.cardSubtitle}>
-              Jiva sector 21B, Block B, Industrial area{'\n'}
-              Faridabad NIT - 121001
-            </Text>
-          </View>
-        </View>
-
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => setConfirm(!confirm)}
-        >
-          <Text style={styles.buttonText}>Confirm and add details</Text>
-        </TouchableOpacity>
-      </View> */}
-
       {selectedAddress && !confirm && (
         <View style={styles.container}>
           <Text style={styles.titleText}>Confirm your Address</Text>
@@ -137,21 +124,12 @@ const MapLocationPicker = () => {
           <View style={styles.card}>
             <View style={styles.addressContainer}>
               <Text style={styles.cardTitle}>
-                {selectedAddress.display_name?.split(',')[0] ||
-                  'Selected Address'}
+                {selectedAddress.display_name?.split(',')[0] || 'Selected Address'}
               </Text>
-              <Text style={styles.cardSubtitle}>
-                {selectedAddress.display_name}
-              </Text>
+              <Text style={styles.cardSubtitle}>{selectedAddress.display_name}</Text>
             </View>
           </View>
 
-          {/* <TouchableOpacity
-            style={styles.button}
-            onPress={() => setConfirm(true)}
-          >
-            <Text style={styles.buttonText}>Confirm and add details</Text>
-          </TouchableOpacity> */}
           <TouchableOpacity
             style={styles.button}
             onPress={() => {
@@ -179,9 +157,7 @@ const MapLocationPicker = () => {
 
           {/* Address Type Buttons */}
           <View style={styles.addressTypeRow}>
-            <TouchableOpacity
-              style={[styles.addressTypeButton, styles.selected]}
-            >
+            <TouchableOpacity style={[styles.addressTypeButton, styles.selected]}>
               <Icon name="home" size={18} color="#6C63FF" />
               <Text style={styles.addressTypeText}>Home</Text>
             </TouchableOpacity>
@@ -196,22 +172,6 @@ const MapLocationPicker = () => {
           </View>
 
           {/* Form Inputs */}
-          {/* <TextInput
-            style={styles.inputField}
-            placeholder="Receiver's name *"
-            placeholderTextColor="#888"
-          />
-          <TextInput
-            style={styles.inputField}
-            placeholder="Complete address *"
-            placeholderTextColor="#888"
-          />
-          <TextInput
-            style={styles.inputField}
-            placeholder="Nearby Landmark (optional)"
-            placeholderTextColor="#888"
-          /> */}
-
           <TextInput
             style={styles.inputField}
             placeholder="Receiver's name *"
