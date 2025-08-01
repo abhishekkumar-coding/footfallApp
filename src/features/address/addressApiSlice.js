@@ -1,0 +1,78 @@
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+
+const baseQueryWithAuth = async (args, api, extraOptions) => {
+  const token = await AsyncStorage.getItem('token');
+
+  const authenticatedBaseQuery = fetchBaseQuery({
+    baseUrl: 'https://footfall.onrender.com/api/',
+    prepareHeaders: headers => {
+      if (token) headers.set('token', token); // ✅ Use same header key as server expects
+      return headers;
+    },
+  });
+
+  return authenticatedBaseQuery(args, api, extraOptions);
+};
+
+export const addressApi = createApi({
+  reducerPath: 'addressApi',
+  baseQuery: baseQueryWithAuth,
+  tagTypes: ['Address'],
+  endpoints: builder => ({
+    // ✅ Create address
+    createAddress: builder.mutation({
+      query: body => ({
+        url: 'address/create',
+        method: 'POST',
+        body,
+      }),
+      invalidatesTags: ['Address'],
+    }),
+
+    // ✅ Update address
+    updateAddress: builder.mutation({
+      query: ({ id, ...body }) => ({
+        url: `address/update/${id}`,
+        method: 'PUT',
+        body,
+      }),
+      invalidatesTags: ['Address'],
+    }),
+
+    // ✅ Get address by ID
+    getAddressById: builder.query({
+      query: id => ({
+        url: `address/getById/${id}`,
+        method: 'GET',
+      }),
+      providesTags: ['Address'],
+    }),
+
+    // ✅ Get all addresses (with pagination)
+    getAllAddresses: builder.query({
+      query: ({ page = 1, limit = 10 }) => ({
+        url: `address/getAll/?page=${page}&limit=${limit}`,
+        method: 'GET',
+      }),
+      providesTags: ['Address'],
+    }),
+
+    // ✅ Delete address
+    deleteAddress: builder.mutation({
+      query: id => ({
+        url: `address/delete/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Address'],
+    }),
+  }),
+});
+
+export const {
+  useCreateAddressMutation,
+  useUpdateAddressMutation,
+  useGetAddressByIdQuery,
+  useGetAllAddressesQuery,
+  useDeleteAddressMutation,
+} = addressApi;
