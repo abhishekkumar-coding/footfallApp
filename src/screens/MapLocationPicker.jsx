@@ -422,9 +422,6 @@
 //   },
 // });
 
-
-
-
 // import {
 //   ImageBackground,
 //   StyleSheet,
@@ -597,9 +594,9 @@
 //     return null;
 //   }
 
-//   const lat = selectedAddress.lat || 
+//   const lat = selectedAddress.lat ||
 //              (existingAddress && existingAddress.location?.coordinates[1]);
-//   const lng = selectedAddress.lon || 
+//   const lng = selectedAddress.lon ||
 //              (existingAddress && existingAddress.location?.coordinates[0]);
 
 //   if (!lat || !lng) {
@@ -632,7 +629,7 @@
 //         id: existingAddress._id, // Make sure this is the correct ID
 //         ...body  // Spread all body properties
 //       }).unwrap();
-      
+
 //       console.log('Update response:', response); // Debug log
 //       Alert.alert('Success', 'Address updated successfully.');
 //     } else {
@@ -645,7 +642,7 @@
 //   } catch (err) {
 //     console.error('Failed to save address:', err);
 //     let errorMessage = 'Failed to save address. Please try again.';
-    
+
 //     if (err.data) {
 //       if (err.data.errors) {
 //         errorMessage = Object.values(err.data.errors)
@@ -655,7 +652,7 @@
 //         errorMessage = err.data.message;
 //       }
 //     }
-    
+
 //     Alert.alert('Error', errorMessage);
 //   }
 // };
@@ -800,17 +797,6 @@
 
 // export default MapLocationPicker;
 
-
-
-
-
-
-
-
-
-
-
-
 import {
   ImageBackground,
   StyleSheet,
@@ -836,11 +822,14 @@ import {
 const MapLocationPicker = () => {
   const navigation = useNavigation();
   const route = useRoute();
-  const { mode = 'create', address: existingAddress = null } = route.params || {};
+  const { mode = 'create', address: existingAddress = null } =
+    route.params || {};
 
   const [confirm, setConfirm] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState(null);
-  const [searchQuery, setSearchQuery] = useState(existingAddress?.address || '');
+  const [searchQuery, setSearchQuery] = useState(
+    existingAddress?.address || '',
+  );
   const [searchResults, setSearchResults] = useState([]);
   const [showDropdown, setShowDropdown] = useState(false);
 
@@ -874,7 +863,7 @@ const MapLocationPicker = () => {
             state: existingAddress.state,
             country: existingAddress.country,
             postcode: existingAddress.pinCode,
-          }
+          },
         });
       }
     }
@@ -896,7 +885,9 @@ const MapLocationPicker = () => {
 
     searchTimeout.current = setTimeout(() => {
       fetch(
-        `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&q=${encodeURIComponent(text)}`,
+        `https://nominatim.openstreetmap.org/search?format=jsonv2&addressdetails=1&q=${encodeURIComponent(
+          text,
+        )}`,
         {
           headers: {
             'User-Agent': 'MyReactNativeApp/1.0 (contact@myapp.com)',
@@ -923,7 +914,12 @@ const MapLocationPicker = () => {
     // Prefill address fields from selected location details
     setAddress(item.display_name || '');
     const addressDetails = item.address || {};
-    setCity(addressDetails.city || addressDetails.town || addressDetails.village || '');
+    setCity(
+      addressDetails.city ||
+        addressDetails.town ||
+        addressDetails.village ||
+        '',
+    );
     setState(addressDetails.state || '');
     setCountry(addressDetails.country || '');
     setPinCode(addressDetails.postcode || '');
@@ -936,24 +932,24 @@ const MapLocationPicker = () => {
     if (selectedAddress?.lat && selectedAddress?.lon) {
       return {
         lat: parseFloat(selectedAddress.lat),
-        lng: parseFloat(selectedAddress.lon)
+        lng: parseFloat(selectedAddress.lon),
       };
     }
-    
+
     // Priority 2: Existing address in edit mode
     if (mode === 'edit' && existingAddress?.location?.coordinates) {
       return {
         lat: existingAddress.location.coordinates[1],
-        lng: existingAddress.location.coordinates[0]
+        lng: existingAddress.location.coordinates[0],
       };
     }
-    
+
     return null;
   };
 
   const prepareBody = () => {
     const coords = getCoordinates();
-    
+
     // In edit mode, we can proceed without new coordinates if we have existing ones
     if (!coords && mode !== 'edit') {
       Alert.alert('Error', 'Coordinates not found for the selected address.');
@@ -966,17 +962,33 @@ const MapLocationPicker = () => {
       return null;
     }
 
+    // return {
+    //   location: coords ? {
+    //     type: "Point",
+    //     coordinates: [coords.lng, coords.lat]
+    //   } : existingAddress.location,
+    //   address: address,
+    //   city: city,
+    //   state: state,
+    //   country: country,
+    //   pinCode: pinCode,
+    //   landmark: landmark || undefined
+    // };
     return {
-      location: coords ? {
-        type: "Point",
-        coordinates: [coords.lng, coords.lat]
-      } : existingAddress.location,
+      location: coords
+        ? {
+            type: 'Point',
+            coordinates: [coords.lng, coords.lat],
+          }
+        : existingAddress.location,
+      lat: coords?.lat, // ✅ Add this
+      lng: coords?.lng, // ✅ Add this
       address: address,
       city: city,
       state: state,
       country: country,
       pinCode: pinCode,
-      landmark: landmark || undefined
+      landmark: landmark || undefined,
     };
   };
 
@@ -993,7 +1005,7 @@ const MapLocationPicker = () => {
       if (mode === 'edit' && existingAddress?._id) {
         await updateAddress({
           id: existingAddress._id,
-          ...body
+          ...body,
         }).unwrap();
         Alert.alert('Success', 'Address updated successfully.');
       } else {
@@ -1004,7 +1016,7 @@ const MapLocationPicker = () => {
     } catch (err) {
       console.error('Failed to save address:', err);
       let errorMessage = 'Failed to save address. Please try again.';
-      
+
       if (err.data) {
         if (err.data.errors) {
           errorMessage = Object.values(err.data.errors)
@@ -1014,7 +1026,7 @@ const MapLocationPicker = () => {
           errorMessage = err.data.message;
         }
       }
-      
+
       Alert.alert('Error', errorMessage);
     }
   };
@@ -1034,7 +1046,12 @@ const MapLocationPicker = () => {
           <Icon name="arrow-back" size={24} color="#000" />
         </TouchableOpacity>
         <View style={styles.searchContainer}>
-          <Icon name="search" size={24} color="#000" style={styles.searchIcon} />
+          <Icon
+            name="search"
+            size={24}
+            color="#000"
+            style={styles.searchIcon}
+          />
           <TextInput
             style={styles.input}
             placeholder="Search location..."
@@ -1052,7 +1069,11 @@ const MapLocationPicker = () => {
                 onPress={() => handleSelectLocation(item)}
                 style={styles.dropdownItem}
               >
-                <Text style={styles.dropdownText} numberOfLines={2} ellipsizeMode="tail">
+                <Text
+                  style={styles.dropdownText}
+                  numberOfLines={2}
+                  ellipsizeMode="tail"
+                >
                   {item.display_name}
                 </Text>
               </TouchableOpacity>
@@ -1150,8 +1171,6 @@ const MapLocationPicker = () => {
 
 // ... (keep your existing styles)
 export default MapLocationPicker;
-
-
 
 const styles = StyleSheet.create({
   // ... keep your existing styles here
