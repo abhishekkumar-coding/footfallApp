@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
-import BackButton from '../../components/BackButton';
+import BackButton from '../../components/PageHeader';
 import CustomButton from '../../components/CustomButton';
 import CustomInput from '../../components/CustomInput';
 import { hp, wp } from '../../utils/dimensions';

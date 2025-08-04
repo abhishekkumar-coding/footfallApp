@@ -8,7 +8,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
-import BackButton from '../../components/BackButton';
+import BackButton from '../../components/PageHeader';
 import LinearGradient from 'react-native-linear-gradient';
 import EmailIcon from '../../utils/icons/EmailIcon';
 import { hp, wp } from '../../utils/dimensions';

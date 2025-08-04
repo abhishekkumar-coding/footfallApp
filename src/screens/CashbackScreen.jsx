@@ -8,7 +8,7 @@ import {
 } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import LinearGradient from 'react-native-linear-gradient';
-import BackButton from '../components/BackButton';
+import BackButton from '../components/PageHeader';
 import { hp, wp } from '../utils/dimensions';
 import Geolocation from 'react-native-geolocation-service';
 import { PermissionsAndroid, Platform } from 'react-native';

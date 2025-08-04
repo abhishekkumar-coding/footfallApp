@@ -16,7 +16,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import { useGetTotalPointsByVendorQuery } from '../features/shops/shopApi';
 import Toast from 'react-native-toast-message';
-import PageHeader from '../components/BackButton';
+import PageHeader from '../components/PageHeader';
 import { useTranslation } from 'react-i18next';
 
 const RedeemScanner = ({ navigation }) => {

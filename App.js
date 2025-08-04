@@ -20,9 +20,10 @@ import { I18nextProvider } from 'react-i18next';
 import notifee, { AndroidImportance } from '@notifee/react-native';
 import { createNotificationChannel, setupNotificationListeners, } from './src/features/notificationHelper';
 import DynamicLinkHandler from './src/utils/DynamicLinkHandler';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { linking } from './linking';
 
+import { KeyboardProvider } from "react-native-keyboard-controller";
 
 
 
@@ -83,26 +84,28 @@ const App = () => {
 
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <Provider store={store}>
-        <AppInitializer>
-          <I18nextProvider i18n={i18n}>
-            <NavigationContainer linking={linking} ref={navigationRef}>
-              <StatusBar
-                animated={true}
-                backgroundColor="#000337"
-                barStyle="light-content"
-              />
-              <SafeAreaView edges={['top']} style={{ flex: 1, backgroundColor: "#000337" }}>
+    <SafeAreaProvider>
+      <KeyboardProvider>
+      <GestureHandlerRootView style={{ flex: 1 }}>
+        <Provider store={store}>
+          <AppInitializer>
+            <I18nextProvider i18n={i18n}>
+              <NavigationContainer linking={linking} ref={navigationRef}>
+                <StatusBar
+                  animated={true}
+                  backgroundColor="#000337"
+                  barStyle="light-content"
+                />
                 <DynamicLinkHandler />
                 <AppNavigator />
                 <Toast config={toastConfig} />
-              </SafeAreaView>
-            </NavigationContainer>
-          </I18nextProvider>
-        </AppInitializer>
-      </Provider>
-    </GestureHandlerRootView>
+              </NavigationContainer>
+            </I18nextProvider>
+          </AppInitializer>
+          </Provider>
+        </GestureHandlerRootView>
+      </KeyboardProvider>
+    </SafeAreaProvider>
   );
 };
 

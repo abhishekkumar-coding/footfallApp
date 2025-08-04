@@ -11,7 +11,7 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { hp, wp } from '../../utils/dimensions';
 import { useGetAllShopsQuery } from '../../features/shops/shopApi';
-import PageHeader from '../../components/BackButton';
+import PageHeader from '../../components/PageHeader';
 import LinearGradient from 'react-native-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import FeaturedShopCard from '../../components/FeaturedShopCard';

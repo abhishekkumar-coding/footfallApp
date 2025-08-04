@@ -13,7 +13,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { hp, wp } from '../../utils/dimensions';
 import FilledFavIcon from '../../utils/icons/FilledFavIcon';
-import PageHeader from '../../components/BackButton';
+import PageHeader from '../../components/PageHeader';
 import LinearGradient from 'react-native-linear-gradient';
 import { loadWishlist, removeFromWishlist } from '../../features/wishlistSlice';
 import { navigate } from '../../navigations/NavigationUtil';

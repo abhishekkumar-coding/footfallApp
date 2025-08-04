@@ -8,13 +8,17 @@ import {
   View,
   Dimensions,
   ScrollView,
+  FlatList,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomButton from '../../components/CustomButton';
-import { wp, hp } from '../../utils/dimensions';
+import { wp, hp, SCREEN_HEIGHT } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useTranslation } from 'react-i18next';
+import AppLayout from '../../layout/AppLayout';
+import { Fonts } from '../../utils/typography';
+import AppButton from '../../components/AppButton';
 
 const { width } = Dimensions.get('window');
 
@@ -48,133 +52,100 @@ const OnboardingScreen = () => {
   };
 
   return (
-    <LinearGradient colors={['#000337', '#000']} style={{ flex: 1 }}>
-      <SafeAreaView style={styles.container}>
-        <View style={styles.slidesContainer}>
-          {slides.map((slide, index) => (
-            <View
-              key={index}
-              style={[
-                styles.slideContainer,
-                index % 2 !== 0 && styles.slideContainerReverse,
-              ]}
-            >
-              <Image source={slide.image} style={styles.image} />
+    <AppLayout>
+      <View style={{
+        paddingVertical: 25,
+        flex:1
+      }}>
+        <Text style={styles.slogan}>{t('onboarding.slogan')}</Text>
+        <Text style={styles.description}>{t('onboarding.description')}</Text>
+      <FlatList
+        data={slides}
+        bounces={false}
+        contentContainerStyle={{
+          paddingHorizontal:16,          
+          gap: 20,
+          // paddingVertical:25
+        }}
+        renderItem={({ item, index }) => (
+          <View style={[styles.slideContainer, {
+            flexDirection: index % 2 !== 0 ? 'row-reverse' : 'row',
+            paddingLeft: index % 2 !== 0 ? 16 : 10,
+            }]}>
+              <Image source={item.image} style={styles.image} />
               <View style={styles.textContainer}>
-                <Text style={styles.title}>{slide.title}</Text>
-                <Text style={styles.desc}>{slide.desc}</Text>
+                <Text style={styles.title}>{item.title}</Text>
+                <Text style={styles.desc}>{item.desc}</Text>
               </View>
             </View>
-          ))}
+        )}
+      />
+      </View>
+
+
+     
+        <View style={styles.buttonContainer2}>
+          <AppButton
+            title={t('onboarding.buttons.signIn')}
+          onPress={handleSignin}
+          hideRightIcon={true}
+          isOutline={true}
+        />
+        <AppButton
+          title={t('onboarding.buttons.signUp')}
+          onPress={handleSignup}
+          hideRightIcon={true}
+        />
         </View>
-        <View style={styles.buttonContainer}>
-           <Text style={styles.slogan}>{t('onboarding.slogan')}</Text>
-          <Text style={styles.description}>{t('onboarding.description')}</Text>
-          <View style={styles.buttonContainer2}>
-            <CustomButton
-              backgroundColor="transparent"
-              borderWidth={1}
-              title={t('onboarding.buttons.signIn')}
-              onPress={handleSignin}
-            />
-            <CustomButton
-              backgroundColor="#FF4D00"
-              borderWidth={1}
-              title={t('onboarding.buttons.signUp')}
-              onPress={handleSignup}
-            />
-          </View>
-        </View>
-      </SafeAreaView>
-    </LinearGradient>
+       
+    </AppLayout>
+
   );
 };
 
 export default OnboardingScreen;
 
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: hp(5),
-  },
-  // scrollContent: {
-  //   width: "100%",
-  //   alignItems: 'center',
-  //   paddingVertical: 30,
-  //   paddingBottom: 60,
-  //   flex: 1,
-  //   borderWidth: 2,
-  //   borderColor: "red",
-  //   alignItems: "center",
-  //   justifyContent: "space-between",
-  // },
-  slidesContainer: {
-    width: '100%',
-    marginTop: hp(5),
-    paddingHorizontal: wp(2),
-  },
   slideContainer: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderWidth: 0.5,
-    borderColor: 'gray',
-    borderRadius: wp(6),
-    paddingVertical: hp(1),
-    paddingHorizontal: wp(2),
-    marginVertical: hp(1.5),
+    borderRadius: 16,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.15,
-    shadowRadius: wp(2),
-    elevation: 8,
-  },
-  slideContainerReverse: {
-    flexDirection: 'row-reverse',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    paddingVertical: hp(1),
-    paddingHorizontal: wp(4),
-    textAlign: 'right',
+    padding: 10,
+    gap: 15,
+    borderWidth:1,
+    borderColor:  'rgba(255, 255, 255, 0.3)'
+    
   },
   image: {
     width: width * 0.28,
     height: width * 0.28,
-    resizeMode: 'contain',
-    borderRadius: wp(4),
-    marginRight: wp(4),
-    marginLeft: wp(4),
+    resizeMode: 'cover',
+    borderRadius: 12
   },
   textContainer: {
     flex: 1,
   },
   title: {
-    fontSize: RFValue(11),
-    // fontWeight: 'bold',
+    fontSize: RFValue(16, SCREEN_HEIGHT),
     color: '#fff',
-    marginBottom: hp(0.8),
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: Fonts.primary_SemiBold,
   },
   desc: {
-    fontSize: wp(3),
+    fontSize: RFValue(14, SCREEN_HEIGHT),
     color: '#d3d3d3',
-    fontFamily: 'Poppins-Regular',
+    fontFamily: Fonts.primary_Medium,
   },
   buttonContainer: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 0,
+    // alignItems: 'center',
+    // justifyContent: 'center',
+    // marginBottom: 0,
   },
   slogan: {
-    fontSize: RFValue(15),
-    // fontWeight: 'bold',
-    fontFamily: 'Poppins-SemiBold',
+    fontSize: RFValue(25, SCREEN_HEIGHT),
+    fontFamily: Fonts.primary_SemiBold,
     textAlign: 'center',
-    color: '#fff',
-    paddingHorizontal: 20,
-    marginBottom: 0,
+    color: '#fff',        
   },
   description: {
     fontSize: RFValue(12),
@@ -185,8 +156,8 @@ const styles = StyleSheet.create({
     paddingVertical: hp(1.5),
   },
   buttonContainer2: {
-    flexDirection: 'row',
-    paddingHorizontal: wp(28.2),
-    gap: wp(5),
+    paddingHorizontal: 16,
+    paddingBottom: 20,
+    gap: 15
   },
 });

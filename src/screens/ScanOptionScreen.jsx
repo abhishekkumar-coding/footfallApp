@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { hp } from '../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
-import PageHeader from '../components/BackButton';
+import PageHeader from '../components/PageHeader';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 

@@ -13,13 +13,13 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
-import BackButton from '../../components/BackButton';
+import BackButton from '../../components/PageHeader';
 import SocialLoginOptions from '../../components/SocialLoginOptions';
 import LinearGradient from 'react-native-linear-gradient';
 import CheckBox from '@react-native-community/checkbox';
 import EmailIcon from '../../utils/icons/EmailIcon';
 import LockIcon from '../../utils/icons/LockIcon';
-import { hp, wp } from '../../utils/dimensions';
+import { hp, SCREEN_HEIGHT, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import {
   useGoogleAuthMutation,
@@ -37,6 +37,13 @@ import {
 } from '@react-native-google-signin/google-signin';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AppLayout from '../../layout/AppLayout';
+import { AvoidSoftInputView } from 'react-native-avoid-softinput';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
+import AppButton from '../../components/AppButton';
+import AppCheckBox from '../../components/AppCheckBox';
+import Spacer from '../../components/Spacer';
+import { Colors } from '../../utils/Colors';
 
 const LoginScreen = () => {
   const { t } = useTranslation();
@@ -53,10 +60,10 @@ const LoginScreen = () => {
   const referralCode = useSelector(state => state.user.pendingReferral);
   console.log("Extracted referral code {In login screen} from REDUX: ", referralCode)
   console.log('FCM Token from Redux Store', fcmToken);
-
+// const [isLoading, setIsLoading] = useState(false);
   const dispatch = useDispatch();
-
-  const [login, { isLoading }] = useLoginMutation();
+  const isDisabled = !email.trim() || !password.trim();
+  const [login, {isLoading}] = useLoginMutation();
   // const [googleLogin] = useGoogleLoginMutation();
   const [googleAuth] = useGoogleAuthMutation();
 
@@ -104,7 +111,7 @@ const LoginScreen = () => {
       setShowError(true);
       return;
     }
-
+    
     const result = loginSchema.safeParse(formData);
 
     if (!result.success) {
@@ -119,13 +126,14 @@ const LoginScreen = () => {
     }
 
     try {
+      // setIsLoading(true);
       const res = await login(formData).unwrap();
       await AsyncStorage.setItem('token', res.data.token);
       await AsyncStorage.setItem('user', JSON.stringify(res.data.user));
       dispatch(setUser(res.data.user));
       console.log('Login Response: ', res.data);
       dispatch(clearPendingReferral())
-      
+
       // 🔐 Save credentials if "Remember Me" is checked
       if (rememberMe) {
         await AsyncStorage.setItem('rememberedEmail', email);
@@ -153,6 +161,8 @@ const LoginScreen = () => {
         text2: t('login_failed_message'),
       });
       console.log(error);
+    } finally {
+      // setIsLoading(false);
     }
   };
 
@@ -257,99 +267,81 @@ const LoginScreen = () => {
   };
 
   return (
-    <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
-      <SafeAreaView style={{ flex: 1 }}>
-        {(isLoading || googleLoading) && (
-          <View style={styles.loaderContainer}>
-            <ActivityIndicator size="large" color="#fff" />
-          </View>
-        )}
+    <AppLayout>
+      <KeyboardAvoidingView
+        behavior={"padding"}
+        keyboardVerticalOffset={20}
+        style={styles.container}
+      >
 
-        <BackButton />
-        <View style={styles.container}>
-          <Text style={styles.heading}>{t('login_title')}</Text>
-          {/* <Text style={styles.subText}>Glad to see you! Please log in</Text> */}
-          <View style={styles.loginTypeContainer}>
-            <TouchableOpacity onPress={() => setLoginType('user')}>
-              <Text
-                style={[
-                  styles.loginTypeText,
-                  loginType === 'user' && styles.activeLoginType,
-                ]}
-              >
-                {t('login_user')}
-              </Text>
-            </TouchableOpacity>
+        <Text style={styles.heading}>{t('login_title')}</Text>
+        {/* <Text style={styles.subText}>Glad to see you! Please log in</Text> */}
+        <View style={styles.loginTypeContainer}>
+          <TouchableOpacity onPress={() => setLoginType('user')}>
+            <Text
+              style={[
+                styles.loginTypeText,
+                loginType === 'user' && styles.activeLoginType,
+              ]}
+            >
+              {t('login_user')}
+            </Text>
+          </TouchableOpacity>
 
-            <TouchableOpacity onPress={handleVendorClick}>
-              <Text
-                style={[
-                  styles.loginTypeText,
-                  loginType === 'vendor' && styles.activeLoginType,
-                ]}
-              >
-                {t('login_vendor')}
-              </Text>
-            </TouchableOpacity>
-          </View>
-          <LinearGradient
-            colors={['rgba(255, 255, 255, 0.1)', '#000']}
-            style={styles.formGradient}
-            start={{ x: 0, y: 0 }}
-            end={{ x: 0, y: 1 }}
-          >
-            <View style={{ paddingHorizontal: wp(5), paddingVertical: hp(2) }}>
-            <CustomInput
-              placeholder={t('login_email_placeholder')}
-              lable={t('login_email_label')}
-              iconComponent={<EmailIcon />}
-              value={email}
-              onChangeText={setEmail}
-              showError={showError}
-            />
-            <CustomInput
-              placeholder={t('login_password_placeholder')}
-              lable={t('login_password_label')}
-              isPassword={true}
-              iconComponent={<LockIcon />}
-              value={password}
-              onChangeText={setPassword}
-              secureTextEntry={true}
-              showError={showError}
-            />
-
-            <View style={styles.optionsContainer}>
-              <View style={styles.checkboxContainer}>
-                <CheckBox
-                  value={rememberMe}
-                  onValueChange={setRememberMe}
-                  tintColors={{ true: '#fff', false: '#ccc' }}
-                />
-                <Text style={styles.rememberText}>{t('remember_me')}</Text>
-              </View>
-
-              <TouchableOpacity
-                onPress={() => navigation.navigate('ForgotPassword')}
-              >
-                <Text style={styles.forgotText}>{t('forgot_password')}</Text>
-              </TouchableOpacity>
-            </View>
-
-            <CustomButton title={t('login_button')} onPress={handleLogin} />
-
-            <SocialLoginOptions onGooglePress={handleGoogleLogin} />
-
-            <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
-              <Text style={styles.signupText}>
-                {t('no_account')}{' '}
-                <Text style={styles.signupLink}>{t('signup_link')}</Text>
-              </Text>
-              </TouchableOpacity>
-            </View>
-          </LinearGradient>
+          <TouchableOpacity onPress={handleVendorClick}>
+            <Text
+              style={[
+                styles.loginTypeText,
+                loginType === 'vendor' && styles.activeLoginType,
+              ]}
+            >
+              {t('login_vendor')}
+            </Text>
+          </TouchableOpacity>
         </View>
-      </SafeAreaView>
-    </LinearGradient>
+        <View style={styles.inputContainer}>
+          <CustomInput
+            placeholder={t('login_email_placeholder')}
+            lable={t('login_email_label')}
+            iconComponent={<EmailIcon />}
+            value={email}
+            onChangeText={setEmail}
+            showError={showError}
+            keyboardType='email-address'
+          />
+          <CustomInput
+            placeholder={t('login_password_placeholder')}
+            lable={t('login_password_label')}
+            isPassword={true}
+            iconComponent={<LockIcon />}
+            value={password}
+            onChangeText={setPassword}
+            secureTextEntry={true}
+            showError={showError}
+          />
+        </View>
+        <View style={styles.optionsContainer}>
+          <View style={styles.checkboxContainer}>
+            <AppCheckBox value={rememberMe} onValueChange={setRememberMe} />
+            <Text style={styles.rememberText}>{t('remember_me')}</Text>
+          </View>
+          <TouchableOpacity
+            onPress={() => navigation.navigate('ForgotPassword')}>
+            <Text style={styles.forgotText}>{t('forgot_password')}</Text>
+          </TouchableOpacity>
+        </View>
+        <AppButton disabled={isDisabled} title={t('login_button')} onPress={handleLogin} isLoading={isLoading}/>
+        <Spacer height={10}/>
+        <SocialLoginOptions onGooglePress={handleGoogleLogin} />
+        <Spacer height={20} />
+        <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
+          <Text style={styles.signupText}>
+            {t('no_account')}{' '}
+            <Text style={styles.signupLink}>{t('signup_link')}</Text>
+          </Text>
+        </TouchableOpacity>
+      </KeyboardAvoidingView>
+    </AppLayout>
   );
 };
 
@@ -371,7 +363,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
-    // paddingHorizontal: 14,
+    paddingHorizontal: 16
   },
   heading: {
     fontSize: RFValue(18),
@@ -379,13 +371,12 @@ const styles = StyleSheet.create({
     color: '#fff',
     textAlign: 'left',
     width: '100%',
-    paddingHorizontal: wp(5),
+    marginBottom: 20,
   },
   loginTypeContainer: {
     flexDirection: 'row',
-    marginVertical: 20,
     gap: 20,
-    paddingHorizontal: wp(5),
+    marginBottom: 25
   },
 
   loginTypeText: {
@@ -401,7 +392,9 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     borderBottomColor: '#fff',
   },
-
+  inputContainer: {
+    gap: 10,
+  },
   subText: {
     fontSize: RFValue(14),
     fontFamily: 'Poppins-Regular',
@@ -430,24 +423,27 @@ const styles = StyleSheet.create({
   rememberText: {
     color: '#d3d3d3',
     marginLeft: wp(2),
-    fontSize: RFValue(10),
+    fontSize: RFValue(14, SCREEN_HEIGHT),
     fontFamily: 'Poppins-Regular',
   },
   forgotText: {
-    color: '#4068F6',
+    color: Colors.primary,
     marginLeft: wp(2),
-    fontSize: RFValue(10),
+    fontSize: RFValue(14, SCREEN_HEIGHT),
     fontFamily: 'Poppins-Regular',
   },
   signupText: {
     textAlign: 'center',
-    fontSize: RFValue(10),
+    fontSize: RFValue(14, SCREEN_HEIGHT),
     color: '#fff',
     fontFamily: 'Poppins-Regular',
   },
   signupLink: {
-    color: '#4068F6',
+    color: Colors.primary,
     fontFamily: 'Poppins-Regular',
-    fontSize: RFValue(10),
+    fontSize: RFValue(14, SCREEN_HEIGHT),
   },
+  avoidSoftInputView: {
+    flex: 1
+  }
 });

@@ -9,7 +9,7 @@ import {
     TouchableOpacity,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import BackButton from '../../components/BackButton';
+import BackButton from '../../components/PageHeader';
 import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useGetOfferByIdQuery, useScanOfferMutation } from '../../features/shops/shopApi';

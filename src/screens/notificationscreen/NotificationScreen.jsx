@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { hp, wp } from '../../utils/dimensions';
-import PageHeader from '../../components/BackButton';
+import PageHeader from '../../components/PageHeader';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import {
   useGetNotificationsQuery,

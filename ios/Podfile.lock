@@ -1788,9 +1788,7 @@ PODS:
     - React-Core
   - react-native-geolocation-service (5.3.1):
     - React
-  - react-native-maps (1.24.13):
-    - react-native-maps/Maps (= 1.24.13)
-  - react-native-maps/Generated (1.24.13):
+  - react-native-keyboard-controller (1.18.2):
     - boost
     - DoubleConversion
     - fast_float
@@ -1809,6 +1807,7 @@ PODS:
     - React-hermes
     - React-ImageManager
     - React-jsi
+    - react-native-keyboard-controller/common (= 1.18.2)
     - React-NativeModulesApple
     - React-RCTFabric
     - React-renderercss
@@ -1819,7 +1818,7 @@ PODS:
     - ReactCommon/turbomodule/core
     - SocketRocket
     - Yoga
-  - react-native-maps/Maps (1.24.13):
+  - react-native-keyboard-controller/common (1.18.2):
     - boost
     - DoubleConversion
     - fast_float
@@ -1838,7 +1837,6 @@ PODS:
     - React-hermes
     - React-ImageManager
     - React-jsi
-    - react-native-maps/Generated
     - React-NativeModulesApple
     - React-RCTFabric
     - React-renderercss
@@ -3030,7 +3028,7 @@ DEPENDENCIES:
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - react-native-camera (from `../node_modules/react-native-camera`)
   - react-native-geolocation-service (from `../node_modules/react-native-geolocation-service`)
-  - react-native-maps (from `../node_modules/react-native-maps`)
+  - react-native-keyboard-controller (from `../node_modules/react-native-keyboard-controller`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - react-native-splash-screen (from `../node_modules/react-native-splash-screen`)
   - react-native-version-check (from `../node_modules/react-native-version-check`)
@@ -3202,8 +3200,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-camera"
   react-native-geolocation-service:
     :path: "../node_modules/react-native-geolocation-service"
-  react-native-maps:
-    :path: "../node_modules/react-native-maps"
+  react-native-keyboard-controller:
+    :path: "../node_modules/react-native-keyboard-controller"
   react-native-safe-area-context:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-splash-screen:
@@ -3342,7 +3340,7 @@ SPEC CHECKSUMS:
   hermes-engine: 7068e976238b29e97b3bafd09a994542af7d5c0b
   nanopb: fad817b59e0457d11a5dfbde799381cd727c1275
   PromisesObjC: f5707f49cb48b9636751c5b2e7d227e43fba9f47
-  RCT-Folly: 846fda9475e61ec7bcbf8a3fe81edfcaeb090669
+  RCT-Folly: 59ec0ac1f2f39672a0c6e6cecdd39383b764646f
   RCTDeprecation: ff787f6c860a1b97dd1bc27264b61d23ad1994da
   RCTRequired: 664eb8399ed8a83e26ab65af7c2ad390f7e61696
   RCTTypeSafety: a5cf7a7e80baf972e331dc028e5d5c19bb2535a4
@@ -3378,7 +3376,7 @@ SPEC CHECKSUMS:
   react-native-blur: ecdc987ab8d8fba95abef14551f033376872d0a6
   react-native-camera: 079d80421f0572d6b4e836908114d614d0adb553
   react-native-geolocation-service: 32b2c2a3b91e70ce2a8d0c684801aaeb0a07e0ec
-  react-native-maps: d9019b3667461cb246dd2e826d07f7250f8c7c46
+  react-native-keyboard-controller: 135293785904d151bae4da1d17498a3763e67397
   react-native-safe-area-context: 6f490fdd05ab39fa7e8091daea6437546c301b51
   react-native-splash-screen: 95994222cc95c236bd3cdc59fe45ed5f27969594
   react-native-version-check: 842a3b0e7221798cbe8c6abaf24aab3ed0b485ce
@@ -3438,4 +3436,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 1ddd9a0ec60cb28d14bec059e31f3cc23a9b6668
 
-COCOAPODS: 1.16.2
+COCOAPODS: 1.15.2

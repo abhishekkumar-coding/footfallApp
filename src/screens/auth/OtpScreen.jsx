@@ -1,7 +1,7 @@
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
 import React, { useState, useRef, useEffect } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
-import BackButton from '../../components/BackButton';
+import BackButton from '../../components/PageHeader';
 import PencilIcon from '../../utils/icons/PencilIcon';
 import CustomButton from '../../components/CustomButton';
 import { hp, wp } from '../../utils/dimensions';

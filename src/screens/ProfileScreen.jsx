@@ -6,7 +6,7 @@ import {
 } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
-import BackButton from '../components/BackButton';
+import BackButton from '../components/PageHeader';
 import ProfileHeader from './Profile/ProfileHeader';
 import Rewards from './Profile/Rewards';
 import NotificationIcon from '../utils/icons/NotificationIcon';
@@ -31,7 +31,7 @@ import { useTranslation } from 'react-i18next';
 import LanguageIcon from '../utils/icons/LanguageIcon';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import VersionCheck from 'react-native-version-check';
-import PageHeader from '../components/BackButton';
+import PageHeader from '../components/PageHeader';
 import { LocatioIcon } from '../utils/icons/icons';
 
 const ProfileScreen = () => {

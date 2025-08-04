@@ -12,7 +12,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
-import PageHeader from '../../components/BackButton';
+import PageHeader from '../../components/PageHeader';
 import { useDispatch } from 'react-redux';
 import { loadWishlist } from '../../features/wishlistSlice';
 import ShopCard from '../../components/ShopCard';

@@ -12,7 +12,7 @@ import {
 } from 'react-native-vision-camera';
 import { useScanOfferMutation } from '../../features/shops/shopApi';
 import LinearGradient from 'react-native-linear-gradient';
-import PageHeader from '../../components/BackButton';
+import PageHeader from '../../components/PageHeader';
 import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
 

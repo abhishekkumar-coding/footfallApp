@@ -4,7 +4,7 @@ import { useGetRedeemHistoryQuery } from '../features/shops/shopApi';
 import LinearGradient from 'react-native-linear-gradient';
 import { hp, wp } from '../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
-import BackButton from '../components/BackButton';
+import BackButton from '../components/PageHeader';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 

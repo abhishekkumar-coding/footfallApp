@@ -10,7 +10,7 @@ import {
 import { RFValue } from 'react-native-responsive-fontsize';
 import LinearGradient from 'react-native-linear-gradient';
 import { hp, wp } from '../utils/dimensions';
-import PageHeader from '../components/BackButton';
+import PageHeader from '../components/PageHeader';
 import { useGetScanHistoryQuery } from '../features/shops/shopApi';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';

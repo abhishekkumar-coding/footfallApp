@@ -11,7 +11,7 @@ import {
 import LinearGradient from 'react-native-linear-gradient';
 import { hp, wp } from '../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
-import BackButton from '../components/BackButton';
+import BackButton from '../components/PageHeader';
 import {
   useGetRedeemHistoryByVendorQuery,
   useGetWalletSummaryQuery,
