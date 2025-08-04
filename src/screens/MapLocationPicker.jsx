@@ -981,8 +981,8 @@ const MapLocationPicker = () => {
             coordinates: [coords.lng, coords.lat],
           }
         : existingAddress.location,
-      lat: coords?.lat, // ✅ Add this
-      lng: coords?.lng, // ✅ Add this
+      lat: coords?.lat, 
+      lng: coords?.lng, 
       address: address,
       city: city,
       state: state,

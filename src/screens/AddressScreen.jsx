@@ -13,7 +13,9 @@ import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import PageHeader from '../components/PageHeader';
 import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { useUpdateUserMutation } from '../features/auth/authApi'; // adjust path if needed
+import { useSelector } from 'react-redux';
 // API Hooks
 import {
   useGetAllAddressesQuery,
@@ -25,6 +27,10 @@ export default function AddressScreen() {
   const [selectedId, setSelectedId] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
+const userInfo = useSelector((state) => state.user.user);
+const userId = userInfo?._id;
+console.log('User ID:', userId); // Debugging line to check user ID
+
   const {
     data: addressData,
     isLoading,
@@ -35,27 +41,39 @@ export default function AddressScreen() {
 
   const [deleteAddress] = useDeleteAddressMutation();
 
-  //   const handleDelete = id => {
-  //     Alert.alert(
-  //       'Confirm Delete',
-  //       'Are you sure you want to delete this address?',
-  //       [
-  //         { text: 'Cancel', style: 'cancel' },
-  //         {
-  //           text: 'Delete',
-  //           style: 'destructive',
-  //           onPress: async () => {
-  //             try {
-  //               await deleteAddress(id).unwrap();
-  //               refetch(); // Refresh list
-  //             } catch (err) {
-  //               console.error('Failed to delete address:', err);
-  //             }
-  //           },
-  //         },
-  //       ],
-  //     );
-  //   };
+const [updateUser] = useUpdateUserMutation();
+
+const handleSelect = async (id) => {
+  setSelectedId(id);
+
+  // Find selected address object
+  const selectedAddress = addressData?.data?.addresses?.find(addr => addr._id === id);
+
+  if (selectedAddress) {
+    try {
+      // 1. Store in AsyncStorage
+      await AsyncStorage.setItem('selectedAddress', JSON.stringify(selectedAddress));
+      console.log('✅ Address stored in AsyncStorage');
+
+      // 2. Update user profile
+      const body = {
+        address: selectedAddress.address,
+        city: selectedAddress.city,
+        state: selectedAddress.state,
+        country: selectedAddress.country,
+        pinCode: selectedAddress.pinCode,
+        latitude: selectedAddress.latitude,
+        longitude: selectedAddress.longitude,
+      };
+
+      const res = await updateUser({ id: userId, body }).unwrap();
+      console.log('✅ User updated successfully:', res);
+    } catch (error) {
+      console.error('❌ Error in handleSelect:', error);
+    }
+  }
+};
+
 
   const handleDelete = id => {
     Alert.alert(
@@ -82,9 +100,24 @@ export default function AddressScreen() {
     );
   };
 
-  const handleSelect = id => {
-    setSelectedId(id);
+useEffect(() => {
+  const loadSelectedAddress = async () => {
+    try {
+      const savedAddress = await AsyncStorage.getItem('selectedAddress');
+      if (savedAddress) {
+        const parsed = JSON.parse(savedAddress);
+        setSelectedId(parsed._id);
+      }
+    } catch (error) {
+      console.error('Error loading saved address:', error);
+    }
   };
+
+  loadSelectedAddress();
+}, []);
+
+
+  // Removed duplicate handleSelect to fix redeclaration error
 
   const renderAddress = ({ item }) => {
     const isSelected = selectedId === item._id;
@@ -99,7 +132,7 @@ export default function AddressScreen() {
           <Icon name="map-marker" size={22} color="#5A67D8" />
           <View style={{ marginLeft: 10, flex: 1 }}>
             {/* Main Address */}
-            <Text style={styles.title}>{item.address || 'No address'}</Text>
+            <Text numberOfLines={2} ellipsizeMode="tail" style={styles.title}>{item.address || 'No address'}</Text>
 
             {/* Sub details */}
             <Text style={styles.subText}>
@@ -165,7 +198,7 @@ export default function AddressScreen() {
             </Text>
           ) : (
             <FlatList
-              data={addressData?.data?.addresses || []} // <-- Use correct path here
+              data={addressData?.data?.addresses || []}
               renderItem={renderAddress}
               keyExtractor={item => item._id}
               contentContainerStyle={{ paddingBottom: 20 }}
