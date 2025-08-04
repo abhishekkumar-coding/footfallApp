@@ -132,7 +132,7 @@ useEffect(() => {
           <Icon name="map-marker" size={22} color="#5A67D8" />
           <View style={{ marginLeft: 10, flex: 1 }}>
             {/* Main Address */}
-            <Text style={styles.title}>{item.address || 'No address'}</Text>
+            <Text numberOfLines={2} ellipsizeMode="tail" style={styles.title}>{item.address || 'No address'}</Text>
 
             {/* Sub details */}
             <Text style={styles.subText}>
