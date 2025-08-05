@@ -11,7 +11,7 @@ import {
 import React, { useEffect, useState } from 'react';
 import Geolocation from 'react-native-geolocation-service';
 import NotificationIcon from '../../utils/icons/NotificationIcon';
-import { wp, hp } from '../../utils/dimensions';
+import { wp, hp, SCREEN_HEIGHT } from '../../utils/dimensions';
 import { useIsFocused, useNavigation } from '@react-navigation/native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useGetNotificationsQuery } from '../../features/shops/shopApi';
@@ -21,9 +21,10 @@ import { setUser } from '../../features/auth/userSlice';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { LocatioIcon } from '../../utils/icons/icons';
 import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
-
+import { Fonts } from '../../utils/typography';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 const HeaderHome = () => {
-    const isFocused = useIsFocused();
+  const isFocused = useIsFocused();
   const navigation = useNavigation();
   const notifications = useSelector(state => state.notification.notifications);
   const { data } = useGetNotificationsQuery();
@@ -36,24 +37,24 @@ const HeaderHome = () => {
 
 
   const requestLocationPermission = async () => {
-  if (Platform.OS === 'ios') {
-    // Request "When In Use" permission first
-    const status = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
-    console.log("Permission in IOS: ", RESULTS.GRANTED)
-    return status === RESULTS.GRANTED || status === RESULTS.LIMITED;
-    // If you need background tracking:
-    // if (status === RESULTS.GRANTED || status === RESULTS.LIMITED) {
-    //   const alwaysStatus = await request(PERMISSIONS.IOS.LOCATION_ALWAYS);
-    //   return alwaysStatus === RESULTS.GRANTED;
-    // }
-  } else {
-    // Android
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-    );
-    return granted === PermissionsAndroid.RESULTS.GRANTED;
-  }
-};
+    if (Platform.OS === 'ios') {
+      // Request "When In Use" permission first
+      const status = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+      console.log("Permission in IOS: ", RESULTS.GRANTED)
+      return status === RESULTS.GRANTED || status === RESULTS.LIMITED;
+      // If you need background tracking:
+      // if (status === RESULTS.GRANTED || status === RESULTS.LIMITED) {
+      //   const alwaysStatus = await request(PERMISSIONS.IOS.LOCATION_ALWAYS);
+      //   return alwaysStatus === RESULTS.GRANTED;
+      // }
+    } else {
+      // Android
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    }
+  };
 
   const fetchAddressFromCoordinates = async (latitude, longitude) => {
     try {
@@ -103,7 +104,7 @@ const HeaderHome = () => {
                 // pinCode: addressDetails.pincode,
               },
             }).unwrap();
-            console.log('User updated with address:', res); 
+            console.log('User updated with address:', res);
             // Toast.show({
             //   type: 'success',
             //   text1: 'Location Updated',
@@ -131,19 +132,19 @@ const HeaderHome = () => {
     getLocationAndUpdate();
   }, []);
 
-  
+
 
   return (
-    <SafeAreaView style={styles.container}>
+    <View style={styles.container}>
       <View style={styles.logoContainer}>
         <Image
           source={require('../../../assets/logo.png')}
           style={styles.logoImage}
           resizeMode="contain"
         />
-        <View style={{flexDirection:"row", justifyContent:"center", alignItems:"center", gap:5}}>
-          <LocatioIcon/>
-        <Text style={styles.logoText}>{loadingCity ? '..........' : fullAddress || 'Unknown'}</Text>
+        <View style={{ flexDirection: "row", justifyContent: "center", gap: 5, marginLeft: 12 }}>
+          <MaterialIcons name="location-on" size={20} color="white" style={{ marginTop: 0 }} />
+          <Text style={styles.logoText}>{loadingCity ? '..........' : fullAddress || 'Unknown'}</Text>
         </View>
       </View>
 
@@ -157,7 +158,7 @@ const HeaderHome = () => {
           )}
         </View>
       </TouchableOpacity>
-    </SafeAreaView>
+    </View>
   );
 };
 
@@ -165,38 +166,36 @@ export default HeaderHome;
 
 const styles = StyleSheet.create({
   container: {
-    position: 'absolute',
-    width: '100%',
-    paddingHorizontal: wp(4),
-    paddingTop: hp(2),
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    zIndex: 10,
-    backgroundColor: '#000337',
+    paddingHorizontal: 16,
+    paddingTop: Platform.OS === 'ios' ? 0 : 10,
   },
   logoImage: {
-    width: wp(30),
-    height: hp(3.5),
+    aspectRatio: 428 / 116,
+    height: hp(3),    
   },
   logoContainer: {
-    // alignItems: 'center',
-    justifyContent: 'center',
-    marginVertical: hp(0.0),
+    flex:1
   },
   logoText: {
-    fontSize: RFValue(6.5),
-    fontFamily: 'Poppins-Regular',
+    fontSize: RFValue(11, SCREEN_HEIGHT),
+    fontFamily: Fonts.primary_Regular,
     color: '#fff',
     textAlign: 'left',
     letterSpacing: 1,
-    width:wp(80),
-    // borderWidth:1,
-    // borderColor:"#fff"
+    width: wp(80),    
   },
   iconContainer: {
     position: 'relative',
     padding: 5,
+    backgroundColor: 'rgba(200, 200, 200, 0.3)',
+    borderRadius: 100,
+    width: 40,
+    height: 40,
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   notificationBadge: {
     position: 'absolute',

@@ -25,19 +25,22 @@ const Circle = () => {
         </>
     )
 }
-const AppLayout = ({ children, statusBarColor, barStyle }) => {
+const AppLayout = ({ children, statusBarColor, barStyle, bgImage }) => {
     let statusBar = statusBarColor ? statusBarColor : 'transparent';
-
+    const WrapperComponent = bgImage ? ImageBackground : LinearGradient;
     return (
         <>
-            <LinearGradient colors={['#080042', '#080042', '#080042', '#5b018c',]}
-                angle={35} useAngle={true} style={{ flex: 1, }}>
+            <WrapperComponent
+                colors={['#080042', '#080042', '#080042', '#5b018c',]}
+                angle={35} useAngle={true} style={{ flex: 1, }}
+                source={require('../../assets/BG.jpg')}
+            >
                 <StatusBar statusBarColor={statusBar} barStyle={barStyle} />
                 <SafeAreaView style={{ flex: 1, }}>
                     <Circle />
                     {children}
                 </SafeAreaView>
-            </LinearGradient>
+            </WrapperComponent>
         </>
     )
 }

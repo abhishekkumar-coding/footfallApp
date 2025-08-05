@@ -9,12 +9,14 @@ import {
     ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { hp, wp } from '../../utils/dimensions';
+import { hp, SCREEN_HEIGHT, wp } from '../../utils/dimensions';
 import { useGetAllShopsQuery } from '../../features/shops/shopApi';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useTranslation } from 'react-i18next';
 import LinearGradient from 'react-native-linear-gradient';
 import FeaturedShopCard from '../../components/FeaturedShopCard';
+import { Fonts } from '../../utils/typography';
+import ViewAllButton from '../../components/ViewAllButton';
 
 const FeaturedShopsSection = () => {
     const navigation = useNavigation();
@@ -47,9 +49,7 @@ const FeaturedShopsSection = () => {
         <View style={[styles.container, { flex: 1 }]}>
             <View style={styles.headerRow}>
                 <Text style={styles.heading}>{t('Featured_shops')}</Text>
-                <TouchableOpacity onPress={handleViewAll}>
-                    <Text style={styles.viewAll}>{t('view_all')}</Text>
-                </TouchableOpacity>
+                <ViewAllButton onPress={handleViewAll} />
             </View>
 
             {isLoading ? (
@@ -100,8 +100,8 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     heading: {
-        fontSize: RFValue(16),
-        fontFamily: 'Poppins-SemiBold',
+        fontSize: RFValue(16, SCREEN_HEIGHT),
+        fontFamily: Fonts.primary_SemiBold,
         color: '#fff',
     },
     viewAll: {
@@ -164,24 +164,28 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: wp(4),
+        paddingVertical: hp(3),
     },
     emptyImage: {
-        width: wp(40),
-        height: wp(40),
+        width: wp(20),
+        height: wp(20),
         resizeMode: 'contain',
-        // marginBottom: hp(2),
+        opacity: 0.5,
     },
 
     title: {
-        fontSize: 20,
-        color: '#ccc',
-        fontFamily: "Poppins-Bold"
+        fontSize: RFValue(16,SCREEN_HEIGHT),
+        color: '#fff',
+        fontFamily: Fonts.primary_Bold,
+        textAlign: 'center',
+        opacity: 0.5,
     },
     subtitle: {
-        fontSize: 14,
+        fontSize: RFValue(12, SCREEN_HEIGHT),
         color: '#fff',
         marginTop: 4,
         textAlign: 'center',
-        fontFamily:"Poppins-Regular"
+        fontFamily: Fonts.primary_Regular,
+        opacity: 0.4,
     },
 });
