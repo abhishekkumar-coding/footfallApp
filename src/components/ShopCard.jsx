@@ -24,14 +24,17 @@ import {
   GestureDetector,
   Gesture,
 } from 'react-native-gesture-handler';
-import { useTranslation } from 'react-i18next'; 
+import { useTranslation } from 'react-i18next';
+import Toast from 'react-native-toast-message';
 
 const ShopCard = ({ shop, onPress }) => {
   const dispatch = useDispatch();
   const wishlist = useSelector(state => state.wishlist.items);
   const favoriteShops = wishlist.shops || [];
   const [imageError, setImageError] = useState(false);
-const { t } = useTranslation();
+  const { t } = useTranslation();
+  const isDisabled = shop?.vendor?.rechargePoints < 100;
+  // console.log("Recharge Points: ",shop?.vendor?.rechargePoints)
 
   let galleryImages = [];
   try {
@@ -87,21 +90,37 @@ const { t } = useTranslation();
     };
   });
 
+  const handlePress = () => {
+    if (isDisabled) {
+      Toast.show({
+        type: 'error',
+        text1: 'Shop Setup Incomplete',
+        text2: 'This shop is not fully set up yet.',
+      });
+    } else {
+      onPress();
+    }
+  };
+
   return (
-    <TouchableOpacity style={styles.card} onPress={onPress}>
+    <TouchableOpacity
+      style={[styles.card, isDisabled && styles.disabledCard]}
+      onPress={handlePress}
+      activeOpacity={0.8}
+    >
       <Image
         source={
           imageError || !mainImage
             ? require('../../assets/emptyShop.png')
             : { uri: mainImage }
-
         }
         style={styles.cardImage}
         resizeMode="cover"
         onError={(e) => {
           console.warn("Image load error for shop:", shop.name, e.nativeEvent.error);
           setImageError(true);
-        }} />
+        }}
+      />
       <View style={styles.cardContent}>
         <Text style={styles.category}>{shop.category}</Text>
         <View style={styles.nameContainer}>
@@ -113,12 +132,7 @@ const { t } = useTranslation();
             {t('timings', { start: shop.startTime, end: shop.endTime })}
           </Text>
 
-          {/* Ripple Effect on Heart Icon */}
-          <Pressable
-            onPress={() => { }}
-            android_disableSound
-            hitSlop={10}
-          >
+          <Pressable onPress={() => { }} android_disableSound hitSlop={10}>
             <GestureDetector gesture={rippleGesture}>
               <View style={styles.rippleWrapper}>
                 <Animated.View style={rippleStyle} />
@@ -126,11 +140,10 @@ const { t } = useTranslation();
               </View>
             </GestureDetector>
           </Pressable>
-
-
         </View>
       </View>
     </TouchableOpacity>
+
   );
 };
 
@@ -147,6 +160,9 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1,
     shadowRadius: 8,
     elevation: 3,
+  },
+  disabledCard: {
+    opacity: 0.4,
   },
   cardImage: {
     width: '100%',

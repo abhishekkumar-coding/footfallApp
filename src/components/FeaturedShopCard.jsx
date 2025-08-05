@@ -1,20 +1,31 @@
-// components/FeaturedShopCard.js
-
 import React, { useState } from 'react';
 import { View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { hp, wp } from '../utils/dimensions';
 import LinearGradient from 'react-native-linear-gradient';
+import Toast from 'react-native-toast-message'; // Make sure Toast is properly configured in your app
 
 const FeaturedShopCard = ({ item, onPress }) => {
   const [imageError, setImageError] = useState(false);
-
   const isValidCover = item.cover && item.cover.trim() !== '';
+  const isDisabled = item?.vendor?.rechargePoints < 100;
+
+  const handlePress = () => {
+    if (isDisabled) {
+      Toast.show({
+        type: 'error',
+        text1: 'Shop Setup Incomplete',
+        text2: 'This shop is not fully set up yet.',
+      });
+    } else {
+      onPress();
+    }
+  };
 
   return (
     <TouchableOpacity
-      style={styles.cardWrapper}
+      style={[styles.cardWrapper, isDisabled && styles.disabledCardWrapper]}
       activeOpacity={0.9}
-      onPress={onPress}
+      onPress={handlePress}
     >
       <View style={styles.card}>
         <Image
@@ -23,7 +34,7 @@ const FeaturedShopCard = ({ item, onPress }) => {
               ? require('../../assets/emptyFeaturedImage.png')
               : { uri: item.cover }
           }
-          style={styles.image}
+          style={[styles.image, isDisabled && { opacity: 0.4 }]}
           resizeMode="cover"
           onError={() => setImageError(true)}
         />
@@ -57,7 +68,21 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 5 },
     shadowOpacity: 0.15,
     shadowRadius: 10,
-    marginHorizontal:wp(1)
+    marginHorizontal: wp(1),
+  },
+  disabledCardWrapper: {
+    opacity: 0.5,
+  },
+  categoryBadge: {
+    alignSelf: 'flex-start',
+    backgroundColor: '#ffffffcc',
+    color: '#333',
+    fontSize: 11,
+    fontWeight: '500',
+    paddingVertical: 2,
+    paddingHorizontal: 8,
+    borderRadius: 12,
+    marginBottom: 5,
   },
   card: {
     position: 'relative',
@@ -79,17 +104,6 @@ const styles = StyleSheet.create({
     bottom: 10,
     left: 10,
     right: 10,
-  },
-  categoryBadge: {
-    alignSelf: 'flex-start',
-    backgroundColor: '#ffffffcc',
-    color: '#333',
-    fontSize: 11,
-    fontWeight: '500',
-    paddingVertical: 2,
-    paddingHorizontal: 8,
-    borderRadius: 12,
-    marginBottom: 5,
   },
   shopName: {
     color: '#fff',

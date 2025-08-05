@@ -19,7 +19,7 @@ import {
   useGetTotalPointsByVendorQuery,
   useGetShopByIdQuery,
 } from '../../features/shops/shopApi';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { triggerWalletRefresh } from '../../features/auth/walletSlice';
 import { useNavigation } from '@react-navigation/native';
 import PageHeader from '../../components/BackButton';
@@ -34,7 +34,7 @@ import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 const requestLocationPermission = async () => {
   if (Platform.OS === 'ios') {
     const status = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
-    return status === RESULTS.GRANTED || status === RESULTS.LIMITED; 
+    return status === RESULTS.GRANTED || status === RESULTS.LIMITED;
     // If you also need background tracking, uncomment this:
     // if (status === RESULTS.GRANTED || status === RESULTS.LIMITED) {
     //   const alwaysStatus = await request(PERMISSIONS.IOS.LOCATION_ALWAYS);
@@ -83,6 +83,7 @@ const ShopDetails = ({ route }) => {
   const { data: shopData, isLoading: isShopLoading, error: shopError } = useGetShopByIdQuery(id);
 
   const shop = shopData?.data;
+  // console.log("ShopDetails  Data: ", data)
 
 
   const {
@@ -93,7 +94,11 @@ const ShopDetails = ({ route }) => {
     { vendorId, redeemTrigger },
     { skip: !vendorId },
   );
+  console.log("Vendor Data: ", data)
   const [scanShop] = useGetShopByScanMutation();
+
+  const userPoints = useSelector(state => state.user.user)
+  console.log("User points: ", userPoints)
 
 
   // console.log('Shop Data : ', shop.cover);
@@ -110,38 +115,58 @@ const ShopDetails = ({ route }) => {
     city,
     state,
     pinCode,
-    owner,
   } = shop || {};
+  const owner = shop?.owner?._id
 
   console.log('Shop Details', shop);
 
   useEffect(() => {
     if (data) {
       console.log('Fetched vendor points:', data);
-      setShowScanSuccess(true);
+
+      Toast.show({
+        type: 'success',
+        text1: t('scanSuccessful'),
+      });
 
       setTimeout(() => {
-        setShowScanSuccess(false);
         navigation.navigate('RedeemSummaryScreen', {
           vendorDetails: data.data,
         });
       }, 1000);
+
     } else if (error) {
-      console.log('Error fetching vendor points:', error);
-      setErrorMessage(error?.data?.message || 'Something went wrong');
-      setShowScanError(true);
+      const message = error?.data?.message || 'Something went wrong';
+
+      Toast.show({
+        type: 'error',
+        text1: t('scan_failed'),
+        text2: message,
+      });
+
       setTimeout(() => {
-        setShowScanError(false);
         navigation.goBack();
       }, 1000);
     }
-  }, [data, error, navigation]);
+  }, [data, error, navigation, t]);
 
   const handleRedeem = ownerId => {
+    const points = userPoints?.rewards?.points || 0;
+
+    if (points < 100) {
+      Toast.show({
+        type: 'error',
+        text1: 'Not enough points',
+        text2: 'You need at least 100 points to redeem.',
+      });
+      return;
+    }
+
     console.log('Setting vendor ID for redeem:', ownerId);
     setVendorId(ownerId);
     setRedeemTrigger(prev => prev + 1);
   };
+
 
 
   const handleManualScan = async () => {

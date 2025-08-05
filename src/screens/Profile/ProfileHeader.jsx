@@ -6,19 +6,19 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { useSelector } from 'react-redux';
 
 const ProfileHeader = ({ navigation, user }) => {
-  // console.log("ProfileHeader user prop:", user);
+  console.log("ProfileHeader user prop:", user);
 
-  const { email, name, photo } = user || {};
-  // console.log("Profile Photo: ", photo)
+  const { email, name, photo, image } = user || {};
+  console.log("Profile Photo: ", image)
 
   return (
     <View style={styles.container}>
       <View style={styles.profileDetails}>
         <View style={styles.profileIcon}>
-          {photo ? (
+          {photo || image ? (
             <Image
               style={styles.profileImage}
-              source={{ uri: photo }}
+              source={{ uri: photo || image }}
             />
           ) : (
             <Text style={styles.profileInitial}>

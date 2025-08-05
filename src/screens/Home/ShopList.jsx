@@ -8,28 +8,66 @@ import {
 } from 'react-native';
 import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { forwardRef, useEffect, useImperativeHandle } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { useGetAllShopsQuery, useGetNearbyShopsQuery } from '../../features/shops/shopApi';
 import { loadWishlist } from '../../features/wishlistSlice';
 import ShopCard from '../../components/ShopCard';
 import ShopSkeletonCard from "./ShopSkeletonCard"
 import { useTranslation } from 'react-i18next';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const ShopList = forwardRef((props, ref) => {
   const user = useSelector(state => state.user.user);
-
-  const lat = user?.location?.coordinates?.[1] || null
-  const lng = user?.location?.coordinates?.[0] || null
-  console.log("User lat and long: ", lat, lng)
-
-  const { navigation } = props;
   const dispatch = useDispatch();
-  // const { data, refetch, isLoading } = useGetAllShopsQuery();
+  const { navigation } = props;
   const { t } = useTranslation();
-  const { data, refetch, error, isLoading } = useGetNearbyShopsQuery({ lat, lng });
+
+  const [coordinates, setCoordinates] = useState({
+    lat: null,
+    lng: null
+  });
+
+  useEffect(() => {
+    const fetchLatLng = async () => {
+      let lat = null;
+      let lng = null;
+
+      try {
+        const selectedAddress = await AsyncStorage.getItem('selectedAddress');
+        const parsed = selectedAddress ? JSON.parse(selectedAddress) : null;
+          // console.log('Using selectedAddress coordinates:', parsed.location.coordinates);
+
+        if (parsed) {
+          lat = parsed.location.coordinates[1]
+          lng = parsed.location.coordinates[0]
+          console.log('Using selectedAddress coordinates:', lat, lng);
+        } else if (user?.location?.coordinates?.length === 2) {
+          lat = user.location.coordinates[1];
+          lng = user.location.coordinates[0];
+          console.log('Using user coordinates:', lat, lng);
+        } else {
+          // Default coordinates (India Gate)
+          lat = 28.6129;
+          lng = 77.2295;
+          console.log('Using default coordinates (India Gate):', lat, lng);
+        }
+
+        setCoordinates({ lat, lng });
+      } catch (err) {
+        console.error('Error fetching coordinates:', err);
+      }
+    };
+
+    fetchLatLng();
+  }, [user]);
+
+  const { data, refetch, error, isLoading } = useGetNearbyShopsQuery({
+    lat: coordinates.lat,
+    lng: coordinates.lng,
+  });
+
   const shopData = data?.data || [];
-  console.log("NearBy Shops: ", data)
 
   useEffect(() => {
     dispatch(loadWishlist());
@@ -148,7 +186,7 @@ const styles = StyleSheet.create({
     borderRadius: 25,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.12)', 
+    backgroundColor: 'rgba(255, 255, 255, 0.12)',
     borderWidth: 1,
     borderColor: 'rgba(255, 255, 255, 0.3)',
     shadowColor: '#000',

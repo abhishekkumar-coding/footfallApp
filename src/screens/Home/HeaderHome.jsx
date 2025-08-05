@@ -21,9 +21,11 @@ import { setUser } from '../../features/auth/userSlice';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { LocatioIcon } from '../../utils/icons/icons';
 import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 const HeaderHome = () => {
-    const isFocused = useIsFocused();
+  const isFocused = useIsFocused();
   const navigation = useNavigation();
   const notifications = useSelector(state => state.notification.notifications);
   const { data } = useGetNotificationsQuery();
@@ -33,27 +35,27 @@ const HeaderHome = () => {
   const dispatch = useDispatch()
   const [fullAddress, setFullAddress] = useState('');
   const [loadingCity, setLoadingCity] = useState(true);
-
+  const [savedAddress, setSavedAddress] = useState(null)
 
   const requestLocationPermission = async () => {
-  if (Platform.OS === 'ios') {
-    // Request "When In Use" permission first
-    const status = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
-    console.log("Permission in IOS: ", RESULTS.GRANTED)
-    return status === RESULTS.GRANTED || status === RESULTS.LIMITED;
-    // If you need background tracking:
-    // if (status === RESULTS.GRANTED || status === RESULTS.LIMITED) {
-    //   const alwaysStatus = await request(PERMISSIONS.IOS.LOCATION_ALWAYS);
-    //   return alwaysStatus === RESULTS.GRANTED;
-    // }
-  } else {
-    // Android
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-    );
-    return granted === PermissionsAndroid.RESULTS.GRANTED;
-  }
-};
+    if (Platform.OS === 'ios') {
+      // Request "When In Use" permission first
+      const status = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+      console.log("Permission in IOS: ", RESULTS.GRANTED)
+      return status === RESULTS.GRANTED || status === RESULTS.LIMITED;
+      // If you need background tracking:
+      // if (status === RESULTS.GRANTED || status === RESULTS.LIMITED) {
+      //   const alwaysStatus = await request(PERMISSIONS.IOS.LOCATION_ALWAYS);
+      //   return alwaysStatus === RESULTS.GRANTED;
+      // }
+    } else {
+      // Android
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    }
+  };
 
   const fetchAddressFromCoordinates = async (latitude, longitude) => {
     try {
@@ -77,61 +79,181 @@ const HeaderHome = () => {
     }
   };
 
+  // useEffect(() => {
+  //   const getLocationAndUpdate = async () => {
+  //     const savedAsyncAddress = await AsyncStorage.getItem('selectedAddress');
+  //     const parsedSavedAddress = savedAsyncAddress ? JSON.parse(savedAsyncAddress) : null;
+  //     setSavedAddress(parsedSavedAddress);
+  //     console.log("Saved Address In Local:", parsedSavedAddress);
+
+  //     const hasPermission = await requestLocationPermission();
+  //     if (!hasPermission) return;
+
+  //     Geolocation.getCurrentPosition(
+  //       async position => {
+  //         const { latitude, longitude } = position.coords;
+
+  //         const addressDetails = await fetchAddressFromCoordinates(latitude, longitude);
+  //         setFullAddress(addressDetails.fullAddress || '');
+  //         setLoadingCity(false);
+
+  //         try {
+  //           const res = await updateUser({
+  //             id: user._id,
+  //             body: {
+  //               lat: latitude,
+  //               lng: longitude,
+  //               // Optional: Update address in DB if needed
+  //             },
+  //           }).unwrap();
+
+  //           dispatch(setUser(res.data));
+  //         } catch (error) {
+  //           console.error('Error updating user:', error);
+  //           Toast.show({
+  //             type: 'error',
+  //             text1: 'Update Failed',
+  //             text2: 'Unable to update your location.',
+  //           });
+  //         }
+  //       },
+  //       error => {
+  //         console.error('Location error:', error);
+  //       },
+  //       { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+  //     );
+  //   };
+
+  //   getLocationAndUpdate();
+  // }, []);
+
+  //  useEffect(() => {
+  //   const getLocationAndUpdate = async () => {
+  //     try {
+  //       // 1. Check for user-selected address
+  //       const savedAsyncAddress = await AsyncStorage.getItem('selectedAddress');
+  //       const parsedSavedAddress = savedAsyncAddress ? JSON.parse(savedAsyncAddress) : null;
+  //       console.log("Selected Address: ", parsedSavedAddress.address)
+  //       if (parsedSavedAddress?.address) {
+  //         setFullAddress(parsedSavedAddress.address);
+  //         setLoadingCity(false);
+  //         return; // Use saved address and skip rest
+  //       }
+
+  //       // 2. Request location permission
+  //       const hasPermission = await requestLocationPermission();
+  //       if (!hasPermission) {
+  //         throw new Error('Location permission denied');
+  //       }
+
+  //       // 3. Get current location
+  //       Geolocation.getCurrentPosition(
+  //         async position => {
+  //           const { latitude, longitude } = position.coords;
+
+  //           const addressDetails = await fetchAddressFromCoordinates(latitude, longitude);
+  //           setFullAddress(addressDetails.fullAddress || '');
+  //           setLoadingCity(false);
+
+  //           try {
+  //             const res = await updateUser({
+  //               id: user._id,
+  //               body: {
+  //                 lat: latitude,
+  //                 lng: longitude,
+  //               },
+  //             }).unwrap();
+
+  //             dispatch(setUser(res.data));
+  //           } catch (error) {
+  //             console.error('Error updating user location:', error);
+  //           }
+  //         },
+  //         error => {
+  //           console.error('Geolocation failed:', error);
+  //           setFullAddress("India Gate, Shahjahan Road, नई दिल्ली, India");
+  //           setLoadingCity(false);
+  //         },
+  //         { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+  //       );
+  //     } catch (err) {
+  //       console.error('Location fallback:', err);
+  //       // setFullAddress("India Gate, Shahjahan Road, नई दिल्ली, India");
+  //       setLoadingCity(false);
+  //     }
+  //   };
+
+  //   getLocationAndUpdate();
+  // }, []);
+
+
   useEffect(() => {
     const getLocationAndUpdate = async () => {
-      const hasPermission = await requestLocationPermission();
-      if (!hasPermission) return;
+      try {
+        const savedAsyncAddress = await AsyncStorage.getItem('selectedAddress');
+        const parsedSavedAddress = savedAsyncAddress ? JSON.parse(savedAsyncAddress) : null;
 
-      Geolocation.getCurrentPosition(
-        async position => {
-          const { latitude, longitude } = position.coords;
-
-          const addressDetails = await fetchAddressFromCoordinates(latitude, longitude);
-          setFullAddress(addressDetails.fullAddress || '');
+        if (parsedSavedAddress?.address) {
+          setFullAddress(parsedSavedAddress.address);
           setLoadingCity(false);
+          return;
+        }
 
-          try {
-            const res = await updateUser({
-              id: user._id,
-              body: {
-                lat: latitude,
-                lng: longitude,
-                // address: addressDetails.fullAddress,
-                // city: addressDetails.city,
-                // state: addressDetails.state,
-                // country: addressDetails.country,
-                // pinCode: addressDetails.pincode,
-              },
-            }).unwrap();
-            console.log('User updated with address:', res); 
-            // Toast.show({
-            //   type: 'success',
-            //   text1: 'Location Updated',
-            //   text2: 'Your location has been updated to show nearby shops.',
-            // });
-            dispatch(setUser(res.data));
+        const hasPermission = await requestLocationPermission();
+        if (!hasPermission) {
+          throw new Error('Location permission denied');
+        }
 
+        Geolocation.getCurrentPosition(
+          async position => {
+            const { latitude, longitude } = position.coords;
 
-          } catch (error) {
-            console.error('Error updating user:', error);
-            Toast.show({
-              type: 'error',
-              text1: 'Update Failed',
-              text2: 'Unable to update your location.',
-            });
-          }
-        },
-        error => {
-          console.error('Location error:', error);
-        },
-        { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-      );
+            const addressDetails = await fetchAddressFromCoordinates(latitude, longitude);
+            if (addressDetails.fullAddress) {
+              setFullAddress(addressDetails.fullAddress);
+            } else {
+              setFullAddress("India Gate, Shahjahan Road, नई दिल्ली, India");
+            }
+            setLoadingCity(false);
+
+            try {
+              const res = await updateUser({
+                id: user._id,
+                body: {
+                  lat: latitude,
+                  lng: longitude,
+                },
+              }).unwrap();
+              dispatch(setUser(res.data));
+            } catch (error) {
+              console.error('Error updating user:', error);
+              Toast.show({
+                type: 'error',
+                text1: 'Update Failed',
+                text2: 'Unable to update your location.',
+              });
+            }
+          },
+          error => {
+            console.error('Location error:', error);
+            setFullAddress("India Gate, Shahjahan Road, नई दिल्ली, India");
+            setLoadingCity(false);
+          },
+          { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
+        );
+      } catch (err) {
+        console.error('Fallback error:', err);
+        setFullAddress("India Gate, Shahjahan Road, नई दिल्ली, India");
+        setLoadingCity(false);
+      }
     };
 
     getLocationAndUpdate();
   }, []);
 
-  
+
+
+
 
   return (
     <SafeAreaView style={styles.container}>
@@ -141,9 +263,12 @@ const HeaderHome = () => {
           style={styles.logoImage}
           resizeMode="contain"
         />
-        <View style={{flexDirection:"row", justifyContent:"center", alignItems:"center", gap:5}}>
-          <LocatioIcon/>
-        <Text style={styles.logoText}>{loadingCity ? '..........' : fullAddress || 'Unknown'}</Text>
+        <View style={{ flexDirection: "row", justifyContent: "center", alignItems: "center", gap: 5 }}>
+          <LocatioIcon />
+          <Text style={styles.logoText}>
+            {loadingCity ? 'Loading Address...' : fullAddress}
+          </Text>
+
         </View>
       </View>
 
@@ -190,7 +315,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     textAlign: 'left',
     letterSpacing: 1,
-    width:wp(80),
+    width: wp(80),
     // borderWidth:1,
     // borderColor:"#fff"
   },

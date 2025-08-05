@@ -15,6 +15,7 @@ import Coins from './Home/Coins';
 import QuickActions from './Home/QuickActions';
 import FeaturedShopsSection from './Home/FeaturedShopsSection';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 
 const useDynamicRefs = () => {
@@ -42,12 +43,16 @@ const HomeScreen = ({ navigation }) => {
   }, []);
 
 
-    if (referralCode) {
-      console.log("Referral detected in HomeScreen, navigating to Signup...");
-      navigation.navigate('Signup', { referralCode })
-    }
+  if (referralCode) {
+    console.log("Referral detected in HomeScreen, navigating to Signup...");
+    navigation.navigate('Signup', { referralCode })
+  }
 
-    
+  const savedUserDetails = async()=>{
+    const userId = await AsyncStorage.getItem('user')
+    console.log("User. Details: ", userId)
+  }
+
   const refreshControl = useMemo(() => (
     <RefreshControl refreshing={isLoading} onRefresh={handleRefreshControl} />
   ), [isLoading, handleRefreshControl]);

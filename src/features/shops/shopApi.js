@@ -211,7 +211,31 @@ export const shopApi = createApi({
       query: ({ lat, lng }) => ({
         url: `shop/getNearby?userLat=${lat}&userLng=${lng}`,
         method: 'GET',
-        
+
+      }),
+    }),
+    getFeaturedShops: builder.query({
+      query: () => ({
+        url: "shop/getFeaturedShops"
+      })
+    }),
+    uploadFile: builder.mutation({
+      query: (file) => ({
+        url: 'file/upload',
+        method: 'POST',
+        body: file,
+      }),
+    }),
+    deleteFile: builder.mutation({
+      query: ({ model, fieldPath, id, fileUrl }) => ({
+        url: 'file/deleteFile',
+        method: 'DELETE',
+        body: {
+          model,
+          fieldPath,
+          id,
+          fileUrl,
+        },
       }),
     }),
 
@@ -241,5 +265,8 @@ export const {
   useGetOfferByIdQuery,
   useMarkNotificationAsReadMutation,
   useGetUserLocationQuery,
-  useGetNearbyShopsQuery
+  useGetNearbyShopsQuery,
+  useGetFeaturedShopsQuery,
+  useUploadFileMutation,
+  useDeleteFileMutation
 } = shopApi;

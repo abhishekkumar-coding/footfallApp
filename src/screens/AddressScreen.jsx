@@ -16,6 +16,11 @@ import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUpdateUserMutation } from '../features/auth/authApi'; // adjust path if needed
 import { useSelector } from 'react-redux';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
+
+
+
 // API Hooks
 import {
   useGetAllAddressesQuery,
@@ -27,9 +32,9 @@ export default function AddressScreen() {
   const [selectedId, setSelectedId] = useState(null);
   const [deleting, setDeleting] = useState(false);
 
-const userInfo = useSelector((state) => state.user.user);
-const userId = userInfo?._id;
-console.log('User ID:', userId); // Debugging line to check user ID
+  const userInfo = useSelector((state) => state.user.user);
+  const userId = userInfo?._id;
+  console.log('User ID:', userId); // Debugging line to check user ID
 
   const {
     data: addressData,
@@ -37,42 +42,77 @@ console.log('User ID:', userId); // Debugging line to check user ID
     isError,
     error,
     refetch,
-  } = useGetAllAddressesQuery({ page: 1, limit: 10 });
+  } = useGetAllAddressesQuery(
+  { page: 1, limit: 10 },
+  {
+    skip: !userId,
+    refetchOnMountOrArgChange: true, // <== this is important!
+  }
+);
 
   const [deleteAddress] = useDeleteAddressMutation();
 
-const [updateUser] = useUpdateUserMutation();
+  const [updateUser] = useUpdateUserMutation();
 
-const handleSelect = async (id) => {
-  setSelectedId(id);
+  const handleSelect = async (id) => {
+    setSelectedId(id);
 
-  // Find selected address object
-  const selectedAddress = addressData?.data?.addresses?.find(addr => addr._id === id);
 
-  if (selectedAddress) {
-    try {
-      // 1. Store in AsyncStorage
-      await AsyncStorage.setItem('selectedAddress', JSON.stringify(selectedAddress));
-      console.log('✅ Address stored in AsyncStorage');
+    useFocusEffect(
+      useCallback(() => {
+        refetch();
+      }, [])
+    );
 
-      // 2. Update user profile
-      const body = {
-        address: selectedAddress.address,
-        city: selectedAddress.city,
-        state: selectedAddress.state,
-        country: selectedAddress.country,
-        pinCode: selectedAddress.pinCode,
-        latitude: selectedAddress.latitude,
-        longitude: selectedAddress.longitude,
+    useEffect(() => {
+      const init = async () => {
+        // Always refetch when userId changes
+        await refetch();
+
+        // Clear selectedAddress if no user or address mismatch
+        const savedAddress = await AsyncStorage.getItem('selectedAddress');
+        if (savedAddress) {
+          const parsed = JSON.parse(savedAddress);
+          if (parsed.userId !== userId) {
+            await AsyncStorage.removeItem('selectedAddress');
+            setSelectedId(null);
+          } else {
+            setSelectedId(parsed._id);
+          }
+        }
       };
 
-      const res = await updateUser({ id: userId, body }).unwrap();
-      console.log('✅ User updated successfully:', res);
-    } catch (error) {
-      console.error('❌ Error in handleSelect:', error);
+      init();
+    }, []);
+
+
+    // Find selected address object
+    const selectedAddress = addressData?.data?.addresses?.find(addr => addr._id === id);
+
+    if (selectedAddress) {
+      try {
+        // 1. Store in AsyncStorage
+        await AsyncStorage.setItem('selectedAddress', JSON.stringify(selectedAddress));
+        console.log('✅ Address stored in AsyncStorage');
+
+        // 2. Update user profile
+        const body = {
+          address: selectedAddress.address,
+          city: selectedAddress.city,
+          state: selectedAddress.state,
+          country: selectedAddress.country,
+          pinCode: selectedAddress.pinCode,
+          latitude: selectedAddress.latitude,
+          longitude: selectedAddress.longitude,
+        };
+
+        const res = await updateUser({ id: userId, body }).unwrap();
+        console.log('✅ User updated successfully:', res);
+      } catch (error) {
+        console.error('❌ Error in handleSelect:', error);
+      }
     }
-  }
-};
+  };
 
 
   const handleDelete = id => {
@@ -88,6 +128,16 @@ const handleSelect = async (id) => {
             try {
               setDeleting(true); // 👈 Show loader
               await deleteAddress(id).unwrap();
+              const savedAddress = await AsyncStorage.getItem('selectedAddress');
+              if (savedAddress) {
+                const parsed = JSON.parse(savedAddress);
+                console.log("Parsed Address fron Local: ", parsed)
+                if (parsed._id === id) {
+                  await AsyncStorage.removeItem('selectedAddress');
+                  setSelectedId(null); // Also reset local state
+                  console.log('✅ Removed selectedAddress from AsyncStorage');
+                }
+              }
               await refetch(); // Refresh list
             } catch (err) {
               console.error('Failed to delete address:', err);
@@ -100,21 +150,21 @@ const handleSelect = async (id) => {
     );
   };
 
-useEffect(() => {
-  const loadSelectedAddress = async () => {
-    try {
-      const savedAddress = await AsyncStorage.getItem('selectedAddress');
-      if (savedAddress) {
-        const parsed = JSON.parse(savedAddress);
-        setSelectedId(parsed._id);
+  useEffect(() => {
+    const loadSelectedAddress = async () => {
+      try {
+        const savedAddress = await AsyncStorage.getItem('selectedAddress');
+        if (savedAddress) {
+          const parsed = JSON.parse(savedAddress);
+          setSelectedId(parsed._id);
+        }
+      } catch (error) {
+        console.error('Error loading saved address:', error);
       }
-    } catch (error) {
-      console.error('Error loading saved address:', error);
-    }
-  };
+    };
 
-  loadSelectedAddress();
-}, []);
+    loadSelectedAddress();
+  }, []);
 
 
   // Removed duplicate handleSelect to fix redeclaration error
@@ -235,15 +285,6 @@ const styles = StyleSheet.create({
     marginBottom: 16,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.3)',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowOffset: { width: 0, height: 3 },
-        shadowRadius: 5,
-      },
-      android: { elevation: 3 },
-    }),
   },
   addBtnText: { color: '#fff', fontWeight: '600', marginLeft: 8, fontSize: 16 },
 
@@ -254,15 +295,6 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.2)',
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOpacity: 0.1,
-        shadowOffset: { width: 0, height: 3 },
-        shadowRadius: 6,
-      },
-      android: { elevation: 2 },
-    }),
     position: 'relative',
   },
   selectedCard: {
@@ -312,20 +344,20 @@ const styles = StyleSheet.create({
     backgroundColor: '#5A67D8',
   },
   overlay: {
-  position: 'absolute',
-  top: 0,
-  left: 0,
-  right: 0,
-  bottom: 0,
-  backgroundColor: 'rgba(0,0,0,0.6)',
-  justifyContent: 'center',
-  alignItems: 'center',
-  zIndex: 999,
-},
-loadingText: {
-  color: '#fff',
-  marginTop: 10,
-  fontSize: 16,
-},
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 999,
+  },
+  loadingText: {
+    color: '#fff',
+    marginTop: 10,
+    fontSize: 16,
+  },
 
 });

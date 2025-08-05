@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { hp, wp } from '../../utils/dimensions';
-import { useGetAllShopsQuery } from '../../features/shops/shopApi';
+import { useGetAllShopsQuery, useGetFeaturedShopsQuery } from '../../features/shops/shopApi';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useTranslation } from 'react-i18next';
 import LinearGradient from 'react-native-linear-gradient';
@@ -18,11 +18,12 @@ import FeaturedShopCard from '../../components/FeaturedShopCard';
 
 const FeaturedShopsSection = () => {
     const navigation = useNavigation();
-    const { data, isLoading, isError } = useGetAllShopsQuery();
+    const {data, isLoading } = useGetFeaturedShopsQuery()
+    console.log("Featured Shops: ", data)
     const [imageError, setImageError] = useState(false);
     const { t } = useTranslation();
 
-    const featuredShops = data?.data?.shops?.filter(shop => shop.featured === true) || [];
+    const featuredShops = data?.data || [];
 
     const handleViewAll = () => {
         navigation.navigate('AllFeaturedShops');
