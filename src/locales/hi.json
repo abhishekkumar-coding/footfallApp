@@ -275,5 +275,10 @@
   "pleaseTryAgain": "कृपया पुनः प्रयास करें",
   "shops": "दुकानें",
   "noShopsAvailable": "कोई दुकान उपलब्ध नहीं है",
-  "pleaseTryAgainLater": "कृपया बाद में पुनः प्रयास करें"
+  "pleaseTryAgainLater": "कृपया बाद में पुनः प्रयास करें",
+  "edit": "संपादित करें",
+  "settings": "सेटिंग्स",
+  "logout": "लॉग आउट",
+  "delete_account": "खाता हटाएं",
+  "cash_back": "कैशबैक"
 }

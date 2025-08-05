@@ -21,6 +21,7 @@ import {
   useGetAllAddressesQuery,
   useDeleteAddressMutation,
 } from '../features/address/addressApiSlice';
+import AppLayout from '../layout/AppLayout';
 
 export default function AddressScreen() {
   const navigation = useNavigation();
@@ -174,8 +175,8 @@ useEffect(() => {
   };
 
   return (
-    <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
-      <View style={styles.screen}>
+    <AppLayout >
+      
         <PageHeader back lable={'Address'} />
         <View style={styles.container}>
           <TouchableOpacity
@@ -212,8 +213,8 @@ useEffect(() => {
             <Text style={styles.loadingText}>Deleting address...</Text>
           </View>
         )}
-      </View>
-    </LinearGradient>
+     
+    </AppLayout>
   );
 }
 

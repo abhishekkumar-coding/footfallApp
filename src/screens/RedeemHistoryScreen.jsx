@@ -7,6 +7,7 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import BackButton from '../components/PageHeader';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AppLayout from '../layout/AppLayout';
 
 const RedeemHistoryScreen = () => {
   const { t } = useTranslation();
@@ -36,10 +37,10 @@ const RedeemHistoryScreen = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <AppLayout showCircle={false} style={{ flex: 1 }}>
 
       <BackButton lable={t('redeem_title')} back />
-      <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
+      
         {isLoading ? (
           <View style={styles.centered}>
             <ActivityIndicator size="large" color="#fff" />
@@ -62,8 +63,8 @@ const RedeemHistoryScreen = () => {
             showsVerticalScrollIndicator={false}
           />
         )}
-      </LinearGradient>
-    </SafeAreaView>
+      
+    </AppLayout>
 
   );
 };

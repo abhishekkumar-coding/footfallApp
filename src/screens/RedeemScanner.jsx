@@ -18,6 +18,7 @@ import { useGetTotalPointsByVendorQuery } from '../features/shops/shopApi';
 import Toast from 'react-native-toast-message';
 import PageHeader from '../components/PageHeader';
 import { useTranslation } from 'react-i18next';
+import AppLayout from '../layout/AppLayout';
 
 const RedeemScanner = ({ navigation }) => {
   const { t } = useTranslation();
@@ -166,7 +167,7 @@ const RedeemScanner = ({ navigation }) => {
   if (!device) {
     return (
       <View style={styles.container}>
-        <Text>{t('deviceNotFound')}</Text>
+        <Text style={{color:'#fff'}}>{t('deviceNotFound')}</Text>
       </View>
     );
   }
@@ -174,13 +175,13 @@ const RedeemScanner = ({ navigation }) => {
   if (!hasPermission) {
     return (
       <View style={styles.container}>
-        <Text>{t('requestingCameraPermission')}</Text>
+        <Text style={{color:'#fff'}}>{t('requestingCameraPermission')}</Text>
       </View>
     );
   }
 
   return (
-    <>
+    <AppLayout>
       <View style={styles.headerOverlay}>
         <PageHeader lable={t('scanQr')} back />
       </View>
@@ -241,7 +242,7 @@ const RedeemScanner = ({ navigation }) => {
           </View>
         )}
       </View>
-    </>
+    </AppLayout>
 
   );
 };

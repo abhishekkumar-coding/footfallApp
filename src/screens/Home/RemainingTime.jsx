@@ -7,8 +7,10 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { Fonts } from '../../utils/typography';
 import Spacer from '../../components/Spacer';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { useNavigation } from '@react-navigation/native';
 const PROGRESS_BAR_WIDTH = SCREEN_WIDTH * 0.85;
 const RemainingTime = () => {
+    const navigation = useNavigation();
     return (
         <View style={styles.container}>
             <LinearGradient colors={['#147472', '#4638ae',]} angle={30} useAngle={true}
@@ -23,7 +25,9 @@ const RemainingTime = () => {
                     </View>
                     <Progress.Bar progress={0.7} width={PROGRESS_BAR_WIDTH} color="#21DAD7" height={10} borderRadius={10} />
                     <Spacer height={12} />
-                    <TouchableOpacity style={styles.button} activeOpacity={0.9}>
+                    <TouchableOpacity style={styles.button} activeOpacity={0.9}
+                        onPress={() => navigation.navigate('ScanOptions')}
+                    >
                         <MaterialIcons name="qr-code-scanner" size={20} color="#000" />
                         <Text style={styles.buttonText}>Scan</Text>
                     </TouchableOpacity>

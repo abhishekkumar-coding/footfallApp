@@ -1,38 +1,32 @@
 import {
+  ScrollView,
   StyleSheet,
   Text,
   TouchableOpacity,
   View,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import LinearGradient from 'react-native-linear-gradient';
-import BackButton from '../components/PageHeader';
+import { useEffect, useState } from 'react';
 import ProfileHeader from './Profile/ProfileHeader';
 import Rewards from './Profile/Rewards';
-import NotificationIcon from '../utils/icons/NotificationIcon';
 import TabButton from './Profile/TabButton';
-import PencilIcon from '../utils/icons/PencilIcon';
-import WalletIcon from '../utils/icons/WalletIcon';
 import ScannerIcon from '../utils/icons/ScannerIcon';
 import ProfileEditIcon from '../utils/icons/ProfileEditIcon';
-import LogOutIcon from '../utils/icons/LogOutIcon';
-import { hp, wp } from '../utils/dimensions';
+import { hp, SCREEN_HEIGHT, wp } from '../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
-import LeftArrowIcon from '../utils/icons/LeftArrowIcon';
 import { useDispatch, useSelector } from 'react-redux';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useNavigation } from '@react-navigation/native';
 import { clearUser } from '../features/auth/userSlice';
 import { shopApi, useGetWalletSummaryQuery } from '../features/shops/shopApi';
 import History from '../utils/icons/History';
-// import LanguageIcon  from '../utils/icons/LanguageIcon ';
-import { store } from '../store';
 import { useTranslation } from 'react-i18next';
 import LanguageIcon from '../utils/icons/LanguageIcon';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import VersionCheck from 'react-native-version-check';
 import PageHeader from '../components/PageHeader';
-import { LocatioIcon } from '../utils/icons/icons';
+import { LocatioIcon, SettingIcon } from '../utils/icons/icons';
+import AppLayout from '../layout/AppLayout';
+import Spacer from '../components/Spacer';
+import { Colors } from '../utils/Colors';
 
 const ProfileScreen = () => {
   const { t } = useTranslation();
@@ -55,38 +49,24 @@ const ProfileScreen = () => {
     fetchVersion();
   }, []);
 
-  const handleLogout = async () => {
-    try {
-      console.log('Logout is working');
-      await AsyncStorage.multiRemove(['token', 'user', 'wishlist']);
-      dispatch(clearUser());
-      dispatch(shopApi.util.resetApiState());
-
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Login' }],
-      });
-    } catch (e) {
-      console.error('Logout failed:', e);
-    }
-  };
-
+ 
   return (
-    <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
+    <AppLayout>
       <PageHeader lable={t('profile')}
         rightComponent={
-          <TouchableOpacity style={styles.logOut} onPress={handleLogout}>
-            <LogOutIcon />
+          <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('EditProfile')} >
+            <ProfileEditIcon color={Colors.splash}/>
+            <Text style={styles.editText}>{t('edit')}</Text>
           </TouchableOpacity>
         } />
-      <SafeAreaView style={styles.container}>
+      <ScrollView contentContainerStyle={styles.container}>
         <ProfileHeader navigation={navigation} user={user} />
-        <Rewards rewardPoints={rewards} />
-        <TabButton
-          Icon={ProfileEditIcon}
-          label={t('update_profile')}
-          onPress={() => navigation.navigate('EditProfile')}
-        />
+        <Spacer height={hp(2)} />
+        <View style={styles.rewardsContainer}>
+          <Rewards rewardPoints={rewards} title={t('total_rewards')} color={[Colors.secondary, Colors.quinary]}/>       
+          <Rewards rewardPoints={rewards} title={t('cash_back')} color={[Colors.splash, Colors.splash_light]}/>       
+        </View>
+        
         <TabButton
           Icon={ScannerIcon}
           label={t('referral_earn')}
@@ -98,26 +78,25 @@ const ProfileScreen = () => {
           onPress={() => navigation.navigate('RedeemHistoryScreen')}
         />
         <TabButton
-          Icon={LanguageIcon}
-          label={t('change_language')}
-          onPress={() =>
-            navigation.navigate('Language', { isInitialSetup: false })
-          }
-        />
-
-          <TabButton
           Icon={LocatioIcon}
           label={t('Address')}
           onPress={() =>
             navigation.navigate('Address', { isInitialSetup: false })
           }
         />
+        <TabButton
+          Icon={SettingIcon}
+          label={t('Settings')}
+          onPress={() =>
+            navigation.navigate('Settings', { isInitialSetup: false })
+          }
+        />
         {/* Version above tab bar */}
         <View style={styles.versionContainer}>
           <Text style={styles.versionText}>Version: {appVersion}</Text>
         </View>
-      </SafeAreaView>
-    </LinearGradient>
+      </ScrollView>
+    </AppLayout>
 
   );
 };
@@ -126,13 +105,10 @@ export default ProfileScreen;
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    // alignItems: 'center',
-    justifyContent: '',
+ 
     paddingHorizontal: wp(4),
     position: 'relative',
-    width: '100%',
-    marginTop:hp(2)
+    width: '100%'    
   },
   topBar: {
     flexDirection: 'row',
@@ -165,19 +141,50 @@ const styles = StyleSheet.create({
     color: '#FF0400',
   },
   versionWrapper: {
-  alignSelf: 'center', // Only take the width needed
-  borderTopWidth: 0.5,
-  borderTopColor: 'rgba(255,255,255,1)',
-  paddingTop: hp(2),
-  marginTop: hp(2),
-},
-versionText: {
-  color: '#ccc',
-  fontSize: RFValue(12),
-  fontFamily: 'Poppins-Regular',
-  opacity: 0.3,
-  textAlign: 'left',
-  marginTop:hp(8)
-},
-
+    alignSelf: 'center', // Only take the width needed
+    borderTopWidth: 0.5,
+    borderTopColor: 'rgba(255,255,255,1)',
+    paddingTop: hp(2),
+    marginTop: hp(2),
+  },
+  versionText: {
+    color: '#fff',
+    fontSize: RFValue(16, SCREEN_HEIGHT),
+    fontFamily: 'Poppins-Regular',
+    opacity: 0.3,
+ 
+  
+  },
+  editButton: {
+    borderRadius: 9,
+    paddingHorizontal: 10,
+    paddingVertical: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: wp(2),
+    borderWidth: 1,
+    borderColor: Colors.splash_light,
+  },
+  editText: {
+    color: Colors.splash,
+    fontSize: RFValue(14, SCREEN_HEIGHT),
+    fontFamily: 'Poppins-Regular',
+    textAlign: 'left',
+  },
+  versionContainer: {
+    alignSelf: 'center',
+    borderTopWidth: 1,
+    borderTopColor: 'rgba(255,255,255,0.5)',
+    paddingTop: hp(1),
+    marginTop: hp(5),
+    paddingHorizontal:10
+  },
+  rewardsContainer: {
+    flexDirection: 'row',
+    gap: wp(4),
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: hp(1),
+    marginBottom: hp(1),
+  }
 });

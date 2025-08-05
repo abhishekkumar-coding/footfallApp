@@ -11,7 +11,9 @@ import { goBack, navigate } from '../navigations/NavigationUtil';
 import LeftArrowIcon from '../utils/icons/LeftArrowIcon';
 import { Fonts } from '../utils/typography';
 import LinearGradient from 'react-native-linear-gradient';
-import { hp, wp } from '../utils/dimensions';
+import { hp, SCREEN_HEIGHT, SCREEN_WIDTH, wp } from '../utils/dimensions';
+import { RFValue } from 'react-native-responsive-fontsize';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 const PageHeader = ({ lable, rightComponent, subTitle, back, bg }) => {
   const handleBack = () => {
@@ -19,48 +21,29 @@ const PageHeader = ({ lable, rightComponent, subTitle, back, bg }) => {
   };
 
   return (
-    <>
-      <LinearGradient colors={['#000337', '#000337']} >
-        <View
-          style={[
-            styles.headerContainer,
-
-            // {
-            //   paddingTop:
-            //     Platform.OS === 'android' ? StatusBar.currentHeight : 0,
-            // },
-          ]}
-        >
-          <View style={styles.leftSection}>
-            {
-              back &&
-
-              <TouchableOpacity onPress={handleBack} style={[bg ? styles.iconButtonBg : null, styles.iconButton]}>
-                <LeftArrowIcon
-                  name="chevron-left"
-                  type="feather"
-                  width={24}
-                  height={30}
-                />
-              </TouchableOpacity>
-            }
-            <View>
-              <Text style={[styles.title, { color: '#fff' }]}>{lable}</Text>
-              {subTitle && (
-                <View style={styles.subTitleBox}>
-                  <Text style={[styles.subTitle, { color: '#fff' }]}>
-                    {subTitle}
-                  </Text>
-                </View>
-              )}
+    <View style={[styles.headerContainer]}>
+      <View style={styles.leftSection}>
+        {
+          back &&
+          <TouchableOpacity onPress={handleBack} style={styles.backButton}>
+           <MaterialIcons name="arrow-back" size={22} color={'#fff'}/>
+          </TouchableOpacity>
+        }
+        <View>
+          <Text style={[styles.title, { color: '#fff' }]}>{lable}</Text>
+          {subTitle && (
+            <View style={styles.subTitleBox}>
+              <Text style={[styles.subTitle, { color: '#fff' }]}>
+                {subTitle}
+              </Text>
             </View>
-          </View>
-          {rightComponent && (
-            <View style={styles.rightSection}>{rightComponent}</View>
           )}
         </View>
-      </LinearGradient>
-    </>
+      </View>
+      {rightComponent && (
+        <View style={styles.rightSection}>{rightComponent}</View>
+      )}
+    </View>
   );
 };
 
@@ -72,20 +55,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     backgroundColor: 'transparent', 
-    paddingHorizontal: 8,
-    paddingTop: hp(1.5),
-
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    paddingHorizontal: 16,
+    paddingTop: Platform.OS === 'ios' ? 0 : 10,
     zIndex: 999,
+    paddingBottom: 14,
   },
   leftSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: "center"
+    justifyContent: "center",
+    gap: 12,
   },
   iconButton: {
     padding: 6,
@@ -98,11 +77,8 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(2)
   },
   title: {
-    fontSize: 14,
+    fontSize: RFValue(20, SCREEN_HEIGHT),
     fontFamily: Fonts.primary_SemiBold,
-    marginLeft: 10,
-    marginTop: 2,
-
   },
   subTitleBox: {
     marginTop: 4,

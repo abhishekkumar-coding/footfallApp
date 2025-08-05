@@ -16,6 +16,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import FeaturedShopCard from '../../components/FeaturedShopCard';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AppLayout from '../../layout/AppLayout';
 
 const AllFeaturedShops = () => {
     const navigation = useNavigation();
@@ -68,9 +69,9 @@ const AllFeaturedShops = () => {
 
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <AppLayout showCircle={false} style={{ flex: 1 }}>
 
-            <LinearGradient colors={['#000337', '#000000']} style={styles.container}>
+     
                 <PageHeader lable={t("all_featured_shop")} back />
                 <FlatList
                     data={featuredShops}
@@ -92,8 +93,8 @@ const AllFeaturedShops = () => {
 
                     }
                 />
-            </LinearGradient>
-        </SafeAreaView>
+            
+        </AppLayout>
     );
 };
 

@@ -1,14 +1,15 @@
 import { Image, StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import ProfileEditIcon from '../../utils/icons/ProfileEditIcon';
-import { hp, wp } from '../../utils/dimensions';
+import { hp, SCREEN_HEIGHT, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useSelector } from 'react-redux';
+import { Fonts } from '../../utils/typography';
 
 const ProfileHeader = ({ navigation, user }) => {
   // console.log("ProfileHeader user prop:", user);
 
-  const { email, name, photo } = user || {};
+  const { email, name, photo, accountId } = user || {};
   // console.log("Profile Photo: ", photo)
 
   return (
@@ -29,10 +30,11 @@ const ProfileHeader = ({ navigation, user }) => {
         </View>
         <View style={styles.details}>
           <Text style={styles.userName}>{name || 'No Name'}</Text>
+          <Text style={styles.userGmail}>Account ID: {accountId}</Text>
           <Text style={styles.userGmail}>{email || 'No Email'}</Text>
         </View>
-      </View>
-      <ProfileEditIcon onPress={() => navigation.navigate('EditProfile')} />
+      </View>    
+      {/* <ProfileEditIcon color="#fff" onPress={() => navigation.navigate('EditProfile')} /> */}
     </View>
   );
 };
@@ -41,50 +43,52 @@ export default ProfileHeader;
 
 const styles = StyleSheet.create({
   container: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    // marginTop: hp(2),
-    width: "100%",
+        
   },
   profileDetails: {
-    flexDirection: "row",
+    // flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
     gap: wp(6),
   },
   profileIcon: {
-    backgroundColor: "#FFD180", // light orange, or generate randomly
+    backgroundColor: "#6300d3", // light orange, or generate randomly
     justifyContent: "center",
     alignItems: "center",
-    width: wp(15),
-    height: hp(7),
+    width: wp(26),
+    height: wp(26),
     borderRadius: 50,
     overflow: "hidden",
   },
 
   profileInitial: {
-    fontSize: RFValue(22),
+    fontSize: RFValue(50, SCREEN_HEIGHT),
     color: '#fff',
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: Fonts.primary_SemiBold,
   },
 
   profileImage: {
-    width: wp(15),
-    height: hp(7),
+    width: wp(25),
+    height: wp(25),
     resizeMode: "cover",
+    borderRadius: 50,
     // marginTop: hp(1),
   },
   details: {},
   userName: {
-    fontFamily: "Poppins-SemiBold",
-    fontSize: RFValue(14),
+    fontFamily: Fonts.primary_SemiBold,
+    fontSize: RFValue(22, SCREEN_HEIGHT),
     color: "#fff",
+    textAlign: "center",
+    marginBottom: 5
   },
   userGmail: {
-    fontFamily: "Poppins-Regular",
-    fontSize: RFValue(10),
-    color: "#d3d3d3",
+    fontFamily: Fonts.primary_SemiBold,
+    fontSize: RFValue(16, SCREEN_HEIGHT),
+    color: "#fff",
+    textAlign: "center",
+    opacity: 0.6,
+    marginBottom:5
   },
 });
 

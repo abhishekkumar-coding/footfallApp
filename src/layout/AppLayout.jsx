@@ -25,7 +25,7 @@ const Circle = () => {
         </>
     )
 }
-const AppLayout = ({ children, statusBarColor, barStyle, bgImage }) => {
+const AppLayout = ({ children, statusBarColor, barStyle, bgImage, showCircle = true }) => {
     let statusBar = statusBarColor ? statusBarColor : 'transparent';
     const WrapperComponent = bgImage ? ImageBackground : LinearGradient;
     return (
@@ -37,7 +37,7 @@ const AppLayout = ({ children, statusBarColor, barStyle, bgImage }) => {
             >
                 <StatusBar statusBarColor={statusBar} barStyle={barStyle} />
                 <SafeAreaView style={{ flex: 1, }}>
-                    <Circle />
+                    {showCircle && <Circle />}
                     {children}
                 </SafeAreaView>
             </WrapperComponent>

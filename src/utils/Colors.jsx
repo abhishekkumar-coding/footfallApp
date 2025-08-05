@@ -8,4 +8,9 @@ export const Colors = {
     septenary: '#a9a9a9',
     octonary: '#808080',
     nonary: '#666666',
+    tabBar: '#080042',
+    activeTabBar: '#21DAD7',
+    inactiveTabBar: '#d3d3d3',
+    splash: '#21DAD7',
+    splash_light: "rgba(33,218,215,0.35)",
 }
