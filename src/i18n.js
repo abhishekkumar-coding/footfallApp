@@ -88,7 +88,7 @@ export const changeAppLanguage = async (lang) => {
     await AsyncStorage.setItem(LANG_KEY, lang);
     await i18n.changeLanguage(lang);
   } catch (err) {
-    console.log('Language change error:', err);
+    // console.log('Language change error:', err);
   }
 };
 

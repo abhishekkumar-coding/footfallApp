@@ -37,26 +37,28 @@ const HeaderHome = () => {
   const dispatch = useDispatch()
   const [fullAddress, setFullAddress] = useState('');
   const [loadingCity, setLoadingCity] = useState(true);
-  const [savedAddress, setSavedAddress] = useState(null)
+  const savedAddress = useSelector((state) => state.user.savedAddress);
+
+  let hasAskedForPermission = false;
 
   const requestLocationPermission = async () => {
     if (Platform.OS === 'ios') {
-      // Request "When In Use" permission first
       const status = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
-      console.log("Permission in IOS: ", RESULTS.GRANTED)
+      console.log('iOS Location Permission Status:', status);
       return status === RESULTS.GRANTED || status === RESULTS.LIMITED;
-      // If you need background tracking:
-      // if (status === RESULTS.GRANTED || status === RESULTS.LIMITED) {
-      //   const alwaysStatus = await request(PERMISSIONS.IOS.LOCATION_ALWAYS);
-      //   return alwaysStatus === RESULTS.GRANTED;
-      // }
-    } else {
-      // Android
-      const granted = await PermissionsAndroid.request(
-        PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
-      );
-      return granted === PermissionsAndroid.RESULTS.GRANTED;
     }
+
+    if (hasAskedForPermission) {
+      return false;
+    }
+
+    hasAskedForPermission = true;
+
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+    );
+
+    return granted === PermissionsAndroid.RESULTS.GRANTED;
   };
 
   const fetchAddressFromCoordinates = async (latitude, longitude) => {
@@ -81,130 +83,31 @@ const HeaderHome = () => {
     }
   };
 
-  // useEffect(() => {
-  //   const getLocationAndUpdate = async () => {
-  //     const savedAsyncAddress = await AsyncStorage.getItem('selectedAddress');
-  //     const parsedSavedAddress = savedAsyncAddress ? JSON.parse(savedAsyncAddress) : null;
-  //     setSavedAddress(parsedSavedAddress);
-  //     console.log("Saved Address In Local:", parsedSavedAddress);
-
-  //     const hasPermission = await requestLocationPermission();
-  //     if (!hasPermission) return;
-
-  //     Geolocation.getCurrentPosition(
-  //       async position => {
-  //         const { latitude, longitude } = position.coords;
-
-  //         const addressDetails = await fetchAddressFromCoordinates(latitude, longitude);
-  //         setFullAddress(addressDetails.fullAddress || '');
-  //         setLoadingCity(false);
-
-  //         try {
-  //           const res = await updateUser({
-  //             id: user._id,
-  //             body: {
-  //               lat: latitude,
-  //               lng: longitude,
-  //               // Optional: Update address in DB if needed
-  //             },
-  //           }).unwrap();
-
-  //           dispatch(setUser(res.data));
-  //         } catch (error) {
-  //           console.error('Error updating user:', error);
-  //           Toast.show({
-  //             type: 'error',
-  //             text1: 'Update Failed',
-  //             text2: 'Unable to update your location.',
-  //           });
-  //         }
-  //       },
-  //       error => {
-  //         console.error('Location error:', error);
-  //       },
-  //       { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-  //     );
-  //   };
-
-  //   getLocationAndUpdate();
-  // }, []);
-
-  //  useEffect(() => {
-  //   const getLocationAndUpdate = async () => {
-  //     try {
-  //       // 1. Check for user-selected address
-  //       const savedAsyncAddress = await AsyncStorage.getItem('selectedAddress');
-  //       const parsedSavedAddress = savedAsyncAddress ? JSON.parse(savedAsyncAddress) : null;
-  //       console.log("Selected Address: ", parsedSavedAddress.address)
-  //       if (parsedSavedAddress?.address) {
-  //         setFullAddress(parsedSavedAddress.address);
-  //         setLoadingCity(false);
-  //         return; // Use saved address and skip rest
-  //       }
-
-  //       // 2. Request location permission
-  //       const hasPermission = await requestLocationPermission();
-  //       if (!hasPermission) {
-  //         throw new Error('Location permission denied');
-  //       }
-
-  //       // 3. Get current location
-  //       Geolocation.getCurrentPosition(
-  //         async position => {
-  //           const { latitude, longitude } = position.coords;
-
-  //           const addressDetails = await fetchAddressFromCoordinates(latitude, longitude);
-  //           setFullAddress(addressDetails.fullAddress || '');
-  //           setLoadingCity(false);
-
-  //           try {
-  //             const res = await updateUser({
-  //               id: user._id,
-  //               body: {
-  //                 lat: latitude,
-  //                 lng: longitude,
-  //               },
-  //             }).unwrap();
-
-  //             dispatch(setUser(res.data));
-  //           } catch (error) {
-  //             console.error('Error updating user location:', error);
-  //           }
-  //         },
-  //         error => {
-  //           console.error('Geolocation failed:', error);
-  //           setFullAddress("India Gate, Shahjahan Road, नई दिल्ली, India");
-  //           setLoadingCity(false);
-  //         },
-  //         { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
-  //       );
-  //     } catch (err) {
-  //       console.error('Location fallback:', err);
-  //       // setFullAddress("India Gate, Shahjahan Road, नई दिल्ली, India");
-  //       setLoadingCity(false);
-  //     }
-  //   };
-
-  //   getLocationAndUpdate();
-  // }, []);
-
 
   useEffect(() => {
     const getLocationAndUpdate = async () => {
       try {
-        const savedAsyncAddress = await AsyncStorage.getItem('selectedAddress');
-        const parsedSavedAddress = savedAsyncAddress ? JSON.parse(savedAsyncAddress) : null;
+        const saved = await AsyncStorage.getItem('selectedAddress');
+        const parsedSaved = saved ? JSON.parse(saved) : null;
 
-        if (parsedSavedAddress?.address) {
-          setFullAddress(parsedSavedAddress.address);
+
+        if (savedAddress?.address) {
+          console.log("Saved Address in Redux Storage: ", savedAddress)
+          setFullAddress(savedAddress.address);
+          setLoadingCity(false);
+          return;
+        }
+
+
+        if (parsedSaved?.address) {
+          console.log("Saved Address in AsyncStorage: ", parsedSaved)
+          setFullAddress(parsedSaved.address);
           setLoadingCity(false);
           return;
         }
 
         const hasPermission = await requestLocationPermission();
-        if (!hasPermission) {
-          throw new Error('Location permission denied');
-        }
+        if (!hasPermission) throw new Error('Location permission denied');
 
         Geolocation.getCurrentPosition(
           async position => {
@@ -213,11 +116,18 @@ const HeaderHome = () => {
             const addressDetails = await fetchAddressFromCoordinates(latitude, longitude);
             if (addressDetails.fullAddress) {
               setFullAddress(addressDetails.fullAddress);
+              console.log("Fetched Address fromAPI: ", addressDetails.fullAddress)
+              // ✅ Save to AsyncStorage
+              await AsyncStorage.setItem('selectedAddress', JSON.stringify(addressDetails));
             } else {
-              setFullAddress("India Gate, Shahjahan Road, नई दिल्ली, India");
+              const defaultAddress = "India Gate, Shahjahan Road, नई दिल्ली, India";
+              setFullAddress(defaultAddress);
+              await AsyncStorage.setItem('selectedAddress', JSON.stringify({ fullAddress: defaultAddress }));
             }
+
             setLoadingCity(false);
 
+            // ✅ Update Redux store
             try {
               const res = await updateUser({
                 id: user._id,
@@ -238,20 +148,24 @@ const HeaderHome = () => {
           },
           error => {
             console.error('Location error:', error);
-            setFullAddress("India Gate, Shahjahan Road, नई दिल्ली, India");
+            const fallback = "India Gate, Shahjahan Road, नई दिल्ली, India";
+            setFullAddress(fallback);
+            AsyncStorage.setItem('selectedAddress', JSON.stringify({ fullAddress: fallback }));
             setLoadingCity(false);
           },
           { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 }
         );
       } catch (err) {
         console.error('Fallback error:', err);
-        setFullAddress("India Gate, Shahjahan Road, नई दिल्ली, India");
+        const fallback = "India Gate, Shahjahan Road, नई दिल्ली, India";
+        setFullAddress(fallback);
+        AsyncStorage.setItem('selectedAddress', JSON.stringify({ fullAddress: fallback }));
         setLoadingCity(false);
       }
     };
 
     getLocationAndUpdate();
-  }, []);
+  }, [isFocused]);
 
 
 
@@ -297,10 +211,10 @@ const styles = StyleSheet.create({
   },
   logoImage: {
     aspectRatio: 428 / 116,
-    height: hp(3),    
+    height: hp(3),
   },
   logoContainer: {
-    flex:1
+    flex: 1
   },
   logoText: {
     fontSize: RFValue(11, SCREEN_HEIGHT),
@@ -308,7 +222,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     textAlign: 'left',
     letterSpacing: 1,
-    width: wp(80),    
+    width: wp(80),
   },
   iconContainer: {
     position: 'relative',

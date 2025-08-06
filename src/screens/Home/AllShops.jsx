@@ -7,8 +7,7 @@ import {
   ScrollView,
   Image,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import LinearGradient from 'react-native-linear-gradient';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
@@ -17,38 +16,38 @@ import { useDispatch } from 'react-redux';
 import { loadWishlist } from '../../features/wishlistSlice';
 import ShopCard from '../../components/ShopCard';
 import ShopSkeletonCard from './ShopSkeletonCard';
-import { useGetAllShopsQuery, useGetFilteredShopsQuery } from '../../features/shops/shopApi';
+import {
+  useGetAllShopsQuery,
+  useGetFilteredShopsQuery,
+} from '../../features/shops/shopApi';
 import { useTranslation } from 'react-i18next';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import AppLayout from '../../layout/AppLayout';
 
-const AllShops = ({ route }) => {
+const AllShops = () => {
   const { t } = useTranslation();
-  // const { shopsData } = route.params;
-  const [selectedCategory, setSelectedCategory] = useState('ALL');
-  const [isLoading, setIsLoading] = useState(true);
   const navigation = useNavigation();
   const dispatch = useDispatch();
-    const { data:shops, refetch, isLoading:shopsDataIsLoading } = useGetAllShopsQuery();
-  const shopsData = shops?.data?.shops || []
-  console.log("Shops : ", shopsData)
 
-  const { data } = useGetFilteredShopsQuery(selectedCategory);
+  const [selectedCategory, setSelectedCategory] = useState('ALL');
+  const [isLoading, setIsLoading] = useState(true);
 
+  const { data: allShopsData } = useGetAllShopsQuery();
+  const { data: filteredData } = useGetFilteredShopsQuery(selectedCategory);
 
-  const categories = [
-    { key: 'ALL', label: t('all') },
-    { key: 'New Delhi', label: 'New Delhi' },
-    { key: 'Noida', label: 'Noida' },
-    { key: 'Gurugram', label: 'Gurugram' },
-    { key: 'Patna', label: 'Patna' },
-    ...Array.from(new Set(shopsData.map(shop => shop.city))).map(city => ({ key: city, label: city })),
-  ];
+  const shopsData = allShopsData?.data?.shops || [];
+
+  const categories = useMemo(() => {
+    const uniqueCities = Array.from(new Set(shopsData.map(shop => shop.city))).filter(Boolean);
+    return [
+      { key: 'ALL', label: t('all') },
+      ...uniqueCities.map(city => ({ key: city, label: city })),
+    ];
+  }, [shopsData, t]);
 
   const filteredShops =
     selectedCategory === 'ALL'
       ? shopsData
-      : data?.data?.shops;
+      : filteredData?.data?.shops || [];
 
   useEffect(() => {
     dispatch(loadWishlist());
@@ -56,90 +55,87 @@ const AllShops = ({ route }) => {
 
   useEffect(() => {
     setIsLoading(true);
-    const timer = setTimeout(() => setIsLoading(false), 1000); // simulate 1s loading
+    const timer = setTimeout(() => setIsLoading(false), 1000);
     return () => clearTimeout(timer);
   }, [selectedCategory]);
 
   const renderItem = ({ item }) => (
     <ShopCard
       shop={item}
-      onPress={() => navigation.navigate('ShopDetails', {
-        id: item._id,
-      })}
+      onPress={() =>
+        navigation.navigate('ShopDetails', {
+          id: item._id,
+        })
+      }
     />
   );
 
   return (
-    <AppLayout style={{ flex: 1 }}>
-
+    <AppLayout style={styles.container}>
       <PageHeader lable={t('shops')} back />
-      
-        {/* Filter Section */}
-        <View style={styles.filterContainer}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.filterScrollContent}
-          >
-            {categories.map(category => {
-              const isSelected = selectedCategory === category.key;
-              return (
-                <TouchableOpacity
-                  key={category.key}
-                  style={[
-                    styles.filterButton,
-                    isSelected && styles.selectedFilterButton,
-                  ]}
-                  onPress={() => setSelectedCategory(category.key)}
-                >
-                  <Text
-                    style={[
-                      styles.filterText,
-                      isSelected && styles.selectedFilterText,
-                    ]}
-                  >
-                    {category.label}
-                  </Text>
-                </TouchableOpacity>
-              );
-            })}
-          </ScrollView>
-        </View>
 
-        {isLoading ? (
-          <FlatList
-            data={Array.from({ length: 6 })}
-            keyExtractor={(_, index) => `skeleton-${index}`}
-            renderItem={() => <ShopSkeletonCard />}
-            numColumns={2}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.listContent}
-          />
-        ) : (
-          <FlatList
-            data={filteredShops}
-            renderItem={renderItem}
-            keyExtractor={item => item._id}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={styles.listContent}
-            numColumns={2}
-            ListEmptyComponent={
-              <View style={{ marginTop: hp(10) }}>
-                <Text style={{ fontFamily: "Poppins-SemiBold", textAlign: "center", fontSize: RFValue(20), color: "#fff" }}>
-                  {t('noShopsAvailable')}
+      {/* Filter Buttons */}
+      <View style={styles.filterContainer}>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filterScrollContent}
+        >
+          {categories.map(category => {
+            const isSelected = selectedCategory === category.key;
+            return (
+              <TouchableOpacity
+                key={category.key}
+                style={[
+                  styles.filterButton,
+                  isSelected && styles.selectedFilterButton,
+                ]}
+                onPress={() => setSelectedCategory(category.key)}
+              >
+                <Text
+                  style={[
+                    styles.filterText,
+                    isSelected && styles.selectedFilterText,
+                  ]}
+                >
+                  {category.label}
                 </Text>
-                <Text style={{ fontFamily: "Poppins-Regular", textAlign: "center", fontSize: RFValue(15), color: "#999" }}>
-                  {t('pleaseTryAgainLater')}
-                </Text>
-                <Image
-                  source={require('../../../assets/noShop.png')}
-                  style={{ width: wp(40), height: hp(30), alignSelf: "center" }}
-                />
-              </View>
-            }
-          />
-        )}
-      
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </View>
+
+      {/* Shop List */}
+      {isLoading ? (
+        <FlatList
+          data={Array.from({ length: 6 })}
+          keyExtractor={(_, index) => `skeleton-${index}`}
+          renderItem={() => <ShopSkeletonCard />}
+          numColumns={2}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
+        />
+      ) : (
+        <FlatList
+          data={filteredShops}
+          renderItem={renderItem}
+          keyExtractor={item => item._id}
+          numColumns={2}
+          showsVerticalScrollIndicator={false}
+          contentContainerStyle={styles.listContent}
+          ListEmptyComponent={
+            <View style={styles.emptyContainer}>
+              <Text style={styles.emptyTitle}>{t('noShopsAvailable')}</Text>
+              <Text style={styles.emptySubtitle}>{t('pleaseTryAgainLater')}</Text>
+              <Image
+                source={require('../../../assets/noShop.png')}
+                style={styles.emptyImage}
+              />
+            </View>
+          }
+        />
+      )}
     </AppLayout>
   );
 };
@@ -149,10 +145,7 @@ export default AllShops;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent:"center",
-    // paddingTop: hp(1),
     paddingBottom: hp(4),
-    // paddingHorizontal: wp(4),
   },
   filterContainer: {
     marginVertical: hp(2),
@@ -182,15 +175,32 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingBottom: hp(10.5),
-    paddingTop:hp(2),
-    justifyContent:"center",
-    alignItems:"center",
-    paddingHorizontal:wp(1)
+    paddingTop: hp(2),
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: wp(1),
   },
-  skeletonContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'space-between',
+  emptyContainer: {
+    marginTop: hp(10),
+    alignItems: 'center',
+  },
+  emptyTitle: {
+    fontFamily: 'Poppins-SemiBold',
+    fontSize: RFValue(20),
+    color: '#fff',
+    textAlign: 'center',
+  },
+  emptySubtitle: {
+    fontFamily: 'Poppins-Regular',
+    fontSize: RFValue(15),
+    color: '#999',
+    textAlign: 'center',
+  },
+  emptyImage: {
+    width: wp(40),
+    height: hp(30),
+    marginTop: hp(2),
+    alignSelf: 'center',
+    resizeMode: 'contain',
   },
 });
-

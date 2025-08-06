@@ -30,39 +30,125 @@ import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 
+// let hasAskedForPermission = false;
 
 const requestLocationPermission = async () => {
   if (Platform.OS === 'ios') {
     const status = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+    console.log('iOS Location Permission Status:', status);
     return status === RESULTS.GRANTED || status === RESULTS.LIMITED;
-    // If you also need background tracking, uncomment this:
-    // if (status === RESULTS.GRANTED || status === RESULTS.LIMITED) {
-    //   const alwaysStatus = await request(PERMISSIONS.IOS.LOCATION_ALWAYS);
-    //   return alwaysStatus === RESULTS.GRANTED;
-    // }
-  } else {
-    // ANDROID: Ask for Fine Location
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
-    );
-    return granted === PermissionsAndroid.RESULTS.GRANTED;
   }
+
+  // if (hasAskedForPermission) {
+  //   return false;
+  // }
+
+  // hasAskedForPermission = true;
+
+  const granted = await PermissionsAndroid.request(
+    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
+  );
+
+  return granted === PermissionsAndroid.RESULTS.GRANTED;
 };
 
 
 
-// function getDistanceInMeters(lat1, lon1, lat2, lon2) {
-//   const R = 6371000; // Earth’s radius in meters
-//   const dLat = ((lat2 - lat1) * Math.PI) / 180;
-//   const dLon = ((lon2 - lon1) * Math.PI) / 180;
-//   const a =
-//     Math.sin(dLat / 2) ** 2 +
-//     Math.cos((lat1 * Math.PI) / 180) *
-//     Math.cos((lat2 * Math.PI) / 180) *
-//     Math.sin(dLon / 2) ** 2;
-//   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-//   return R * c;
-// }
+const getDistanceInMeters = (lat1, lon1, lat2, lon2) => {
+  const R = 6371000; // Earth’s radius in meters
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos((lat1 * Math.PI) / 180) *
+    Math.cos((lat2 * Math.PI) / 180) *
+    Math.sin(dLon / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+};
+
+// const handleManualScan = async () => {
+//   const hasPermission = await requestLocationPermission();
+//   if (!hasPermission) {
+//     Toast.show({ type: 'error', text1: t('location_denied') });
+//     return;
+//   }
+
+//   setIsLoadingShop(true);
+
+//   Geolocation.getCurrentPosition(
+//     async position => {
+//       const userLat = position.coords.latitude;
+//       const userLng = position.coords.longitude;
+
+//       const shopLat = shop?.latitude;
+//       const shopLng = shop?.longitude;
+
+//       if (!shopLat || !shopLng) {
+//         Toast.show({
+//           type: 'error',
+//           text1: 'Shop location not available',
+//         });
+//         setIsLoadingShop(false);
+//         return;
+//       }
+
+//       const distance = getDistanceInMeters(userLat, userLng, shopLat, shopLng);
+//       console.log(`📏 Distance: ${distance} meters`);
+
+//       // Show toast if user is too far
+//       if (distance > 200) {
+//         Toast.show({
+//           type: 'error',
+//           text1: 'Too far from the shop',
+//           text2: `Distance: ${Math.floor(distance)}m\nYour Location: ${userLat.toFixed(4)}, ${userLng.toFixed(4)}\nShop Location: ${shopLat.toFixed(4)}, ${shopLng.toFixed(4)}`
+//         });
+//         setIsLoadingShop(false);
+//         return;
+//       }
+
+//       try {
+//         const result = await scanShop({
+//           shopId: _id,
+//           latitude: userLat,
+//           longitude: userLng,
+//         }).unwrap();
+
+//         if (result?.success) {
+//           Toast.show({
+//             type: 'success',
+//             text1: t('scanSuccessful'),
+//           });
+
+//           if (result.data?.scanRewardType === 'percentage') {
+//             navigation.navigate('CashbackScreen', {
+//               shopId: _id,
+//               returnPercent: result.data?.rewardPoints,
+//             });
+//           } else {
+//             navigation.goBack();
+//           }
+//         } else {
+//           Toast.show({ type: 'error', text1: t('scan_failed_try') });
+//         }
+//       } catch (err) {
+//         Toast.show({ type: 'error', text1: err?.data?.message || 'Error' });
+//         console.log('❌ Scan error:', err);
+//       } finally {
+//         setIsLoadingShop(false);
+//       }
+//     },
+//     error => {
+//       Toast.show({
+//         type: 'error',
+//         text1: t('locationError'),
+//         text2: error.message,
+//       });
+//       setIsLoadingShop(false);
+//     },
+//     { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+//   );
+// };
 
 const ShopDetails = ({ route }) => {
   const { t } = useTranslation();

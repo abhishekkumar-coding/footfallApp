@@ -12,9 +12,9 @@ export const requestNotificationPermission = async () => {
       );
 
       if (granted === PermissionsAndroid.RESULTS.GRANTED) {
-        console.log('Notification permission granted');
+        // console.log('Notification permission granted');
       } else {
-        console.log(' Notification permission denied');
+        // console.log(' Notification permission denied');
       }
     } else {
       const authStatus = await messaging().requestPermission();
@@ -22,10 +22,10 @@ export const requestNotificationPermission = async () => {
         authStatus === messaging.AuthorizationStatus.AUTHORIZED ||
         authStatus === messaging.AuthorizationStatus.PROVISIONAL;
 
-      console.log('iOS Notification permission:', enabled ? 'Granted' : 'Denied');
+      // console.log('iOS Notification permission:', enabled ? 'Granted' : 'Denied');
     }
   } catch (error) {
-    console.warn('Notification permission error:', error);
+    // console.warn('Notification permission error:', error);
   }
 };
 
@@ -36,11 +36,11 @@ export const getAndStoreFcmToken = async (dispatch) => {
 
     const fcmToken = await messaging().getToken();
     if (fcmToken) {
-      console.log('FCM Token:', fcmToken);
+      // console.log('FCM Token:', fcmToken);
       dispatch(setFcmToken(fcmToken));
     }
   } catch (error) {
-    console.error('Error getting FCM token:', error);
+    // console.error('Error getting FCM token:', error);
   }
 };
 
@@ -60,7 +60,7 @@ export const setupNotificationListeners = () => {
   });
 
   messaging().setBackgroundMessageHandler(async (remoteMessage) => {
-    console.log('Background message received:', remoteMessage);
+    // console.log('Background message received:', remoteMessage);
 
     const { title, body } = remoteMessage.notification || {};
 
