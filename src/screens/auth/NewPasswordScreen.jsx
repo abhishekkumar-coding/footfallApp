@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomInput from '../../components/CustomInput';
 import LockIcon from '../../utils/icons/LockIcon';
-import BackButton from '../../components/BackButton';
+import BackButton from '../../components/PageHeader';
 import CustomButton from '../../components/CustomButton';
 import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';

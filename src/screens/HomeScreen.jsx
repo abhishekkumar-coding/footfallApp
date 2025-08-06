@@ -3,12 +3,15 @@ import {
   StyleSheet,
   ScrollView,
   RefreshControl,
+  ImageBackground,
+  Animated,
+  Easing,
 } from 'react-native';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import HeaderHome from './Home/HeaderHome';
 import ShopList from './Home/ShopList';
-import { hp, wp } from '../utils/dimensions';
+import { hp, SCREEN_HEIGHT, wp } from '../utils/dimensions';
 import AutoSlider from './Home/AutoSlider';
 import { useSelector } from 'react-redux';
 import Coins from './Home/Coins';
@@ -16,6 +19,9 @@ import QuickActions from './Home/QuickActions';
 import FeaturedShopsSection from './Home/FeaturedShopsSection';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import AppLayout from '../layout/AppLayout';
+import Spacer from '../components/Spacer';
+import RemainingTime from './Home/RemainingTime';
 
 
 const useDynamicRefs = () => {
@@ -32,6 +38,7 @@ const HomeScreen = ({ navigation }) => {
   const refs = useDynamicRefs();
   const [isLoading, setLoading] = useState(false);
   const referralCode = useSelector(state => state.user.pendingReferral);
+  const [translateY, setTranslateY] = useState(new Animated.Value(0));
   console.log("Extracted referral code {In Home screen} from REDUX: ", referralCode)
 
 
@@ -56,34 +63,39 @@ const HomeScreen = ({ navigation }) => {
   const refreshControl = useMemo(() => (
     <RefreshControl refreshing={isLoading} onRefresh={handleRefreshControl} />
   ), [isLoading, handleRefreshControl]);
-
+  const _translateY = translateY.interpolate({
+    inputRange: [0, 100],
+    outputRange: [0, -50],    
+    easing: Easing.bezier(0.25, 0.1, 0.25, 1.0),
+  });
   return (
-    <>
-      <SafeAreaView edges={['top']} style={{ flex: 1 }}>
 
-        <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
+    <AppLayout>
+      <Animated.View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, transform: [{ translateY: _translateY }] }}>
+        <ImageBackground source={require('../../assets/home-bg-1.png')}
+          imageStyle={{ opacity: 0.2,  }}
+          style={styles.imageBackground} />
+      </Animated.View>
+      <Animated.ScrollView refreshControl={refreshControl} showsVerticalScrollIndicator={false}
+        scrollEventThrottle={5}
+        onScroll={Animated.event([{ nativeEvent: { contentOffset: { y: translateY } } }], { useNativeDriver: true })}
+      >
+        <HeaderHome />
+        <Spacer height={10} />
+        <View style={styles.scrollContainer}>
+          <Coins ref={refs('points')} />
+          <RemainingTime />
+          {/* <QuickActions /> */}
+          <View style={{ paddingHorizontal: 6 }}>
+            <AutoSlider />
+            <FeaturedShopsSection />
+          </View>
+          <ShopList navigation={navigation} ref={refs('shopListRef')} />
+        </View>
+      </Animated.ScrollView>
+    </AppLayout>
 
-          {/* Fixed header outside ScrollView */}
-          <HeaderHome />
 
-          <ScrollView
-            refreshControl={refreshControl}
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ flexGrow: 1, paddingBottom: 50, paddingTop: hp(10) }} // ⬅️ Add padding for header
-          >
-            <View style={styles.scrollContainer}>
-              <Coins ref={refs('points')} />
-              <QuickActions />
-              <View style={{ paddingHorizontal: 6 }}>
-                <AutoSlider />
-                <FeaturedShopsSection />
-              </View>
-              <ShopList navigation={navigation} ref={refs('shopListRef')} />
-            </View>
-          </ScrollView>
-        </LinearGradient>
-      </SafeAreaView>
-    </>
   );
 };
 
@@ -94,4 +106,14 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingHorizontal: wp(0),
   },
+  imageBackground: {
+    resizeMode: 'cover',
+    width: '100%',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 0,
+  }
 });

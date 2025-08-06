@@ -4,22 +4,21 @@ import {
     Text,
     FlatList,
     Image,
-    TouchableOpacity,
     StyleSheet,
     ActivityIndicator,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
-import { hp, wp } from '../../utils/dimensions';
-import { useGetAllShopsQuery, useGetFeaturedShopsQuery } from '../../features/shops/shopApi';
+import { hp, SCREEN_HEIGHT, wp } from '../../utils/dimensions';
+import { useGetFeaturedShopsQuery } from '../../features/shops/shopApi'; // ✅ Corrected this import
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useTranslation } from 'react-i18next';
-import LinearGradient from 'react-native-linear-gradient';
 import FeaturedShopCard from '../../components/FeaturedShopCard';
+import ViewAllButton from '../../components/ViewAllButton';
+import { Fonts } from '../../utils/typography';
 
 const FeaturedShopsSection = () => {
     const navigation = useNavigation();
-    const {data, isLoading } = useGetFeaturedShopsQuery()
-    console.log("Featured Shops: ", data)
+    const { data, isLoading } = useGetFeaturedShopsQuery(); // ✅ Corrected hook name
     const [imageError, setImageError] = useState(false);
     const { t } = useTranslation();
 
@@ -45,12 +44,10 @@ const FeaturedShopsSection = () => {
     );
 
     return (
-        <View style={[styles.container, { flex: 1 }]}>
+        <View style={[styles.container]}>
             <View style={styles.headerRow}>
                 <Text style={styles.heading}>{t('Featured_shops')}</Text>
-                <TouchableOpacity onPress={handleViewAll}>
-                    <Text style={styles.viewAll}>{t('view_all')}</Text>
-                </TouchableOpacity>
+                <ViewAllButton onPress={handleViewAll} />
             </View>
 
             {isLoading ? (
@@ -78,16 +75,17 @@ const FeaturedShopsSection = () => {
                     keyExtractor={(item) => item._id}
                     horizontal
                     showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{ paddingLeft: wp(4), paddingRight: wp(2) }}
+                    contentContainerStyle={{
+                        paddingLeft: wp(4),
+                        paddingRight: wp(2),
+                    }}
                 />
             )}
         </View>
     );
-
 };
 
 export default FeaturedShopsSection;
-
 
 const styles = StyleSheet.create({
     container: {
@@ -101,14 +99,9 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     heading: {
-        fontSize: RFValue(16),
-        fontFamily: 'Poppins-SemiBold',
+        fontSize: RFValue(16, SCREEN_HEIGHT),
+        fontFamily: Fonts.primary_SemiBold,
         color: '#fff',
-    },
-    viewAll: {
-        fontSize: RFValue(11),
-        color: '#00BFFF',
-        fontFamily: 'Poppins-Regular',
     },
     cardWrapper: {
         width: wp(44),
@@ -130,59 +123,32 @@ const styles = StyleSheet.create({
         overflow: 'hidden',
         position: 'relative',
     },
-    image: {
-        width: '100%',
-        height: '100%',
-    },
-    overlay: {
-        ...StyleSheet.absoluteFillObject,
-        borderRadius: 16,
-    },
-    textContainer: {
-        position: 'absolute',
-        bottom: 10,
-        left: 10,
-        right: 10,
-    },
-    categoryBadge: {
-        alignSelf: 'flex-start',
-        backgroundColor: '#ffffffcc',
-        color: '#333',
-        fontSize: 11,
-        fontWeight: '500',
-        paddingVertical: 2,
-        paddingHorizontal: 8,
-        borderRadius: 12,
-        marginBottom: 5,
-    },
-    shopName: {
-        color: '#fff',
-        fontSize: 15,
-        fontWeight: '700',
-    },
     emptyContainer: {
         flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
         paddingHorizontal: wp(4),
+        paddingVertical: hp(3),
     },
     emptyImage: {
-        width: wp(40),
-        height: wp(40),
+        width: wp(20),
+        height: wp(20),
         resizeMode: 'contain',
-        // marginBottom: hp(2),
+        opacity: 0.5,
     },
-
     title: {
-        fontSize: 20,
-        color: '#ccc',
-        fontFamily: "Poppins-Bold"
+        fontSize: RFValue(16, SCREEN_HEIGHT),
+        color: '#fff',
+        fontFamily: Fonts.primary_Bold,
+        textAlign: 'center',
+        opacity: 0.5,
     },
     subtitle: {
-        fontSize: 14,
+        fontSize: RFValue(12, SCREEN_HEIGHT),
         color: '#fff',
         marginTop: 4,
         textAlign: 'center',
-        fontFamily:"Poppins-Regular"
+        fontFamily: Fonts.primary_Regular,
+        opacity: 0.4,
     },
 });

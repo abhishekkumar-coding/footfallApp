@@ -11,16 +11,18 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import { hp, wp } from '../../utils/dimensions';
 import { useGetAllShopsQuery, useGetFeaturedShopsQuery } from '../../features/shops/shopApi';
-import PageHeader from '../../components/BackButton';
+import PageHeader from '../../components/PageHeader';
 import LinearGradient from 'react-native-linear-gradient';
 import { useTranslation } from 'react-i18next';
 import FeaturedShopCard from '../../components/FeaturedShopCard';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AppLayout from '../../layout/AppLayout';
 
 const AllFeaturedShops = () => {
     const navigation = useNavigation();
     const { data, isLoading } = useGetFeaturedShopsQuery();
     const [imageError, setImageError] = useState(false);
+    console.log("Featured Shops: ",data)
 
     const { t } = useTranslation()
     // console.log("Featured Shops: ", data.data.shop)
@@ -68,93 +70,37 @@ const AllFeaturedShops = () => {
 
 
     return (
-        <SafeAreaView style={{ flex: 1 }}>
+        <AppLayout showCircle={false} style={{ flex: 1 }}>
 
-            <LinearGradient colors={['#000337', '#000000']} style={styles.container}>
-                <PageHeader lable={t("all_featured_shop")} back />
-                <FlatList
-                    data={featuredShops}
-                    keyExtractor={(item) => item._id}
-                    numColumns={2}
-                    columnWrapperStyle={{ justifyContent: 'space-between' }}
-                    contentContainerStyle={{ paddingHorizontal: wp(4), paddingBottom: hp(5) }}
-                    renderItem={renderShopCard}
-                    ListEmptyComponent={
-                        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop:hp(10) }}>
-                            <Image
-                                source={require('../../../assets/noFeaturedShop.png')}
-                                style={{ width: wp(50), height: wp(50), resizeMode: 'contain' }}
-                            />
-                            <Text style={styles.title}>No Featured Shop</Text>
 
-                            <Text style={styles.subtitle}>Please check back later for updates!</Text>
-                        </View>
+            <PageHeader lable={t("all_featured_shop")} back />
+            <FlatList
+                data={featuredShops}
+                keyExtractor={(item) => item._id}
+                numColumns={2}
+                columnWrapperStyle={{ justifyContent: 'space-between' }}
+                contentContainerStyle={{ paddingHorizontal: wp(4), paddingBottom: hp(5) }}
+                renderItem={renderShopCard}
+                ListEmptyComponent={
+                    <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: hp(10) }}>
+                        <Image
+                            source={require('../../../assets/noFeaturedShop.png')}
+                            style={{ width: wp(50), height: wp(50), resizeMode: 'contain' }}
+                        />
+                        <Text style={styles.title}>No Featured Shop</Text>
 
-                    }
-                />
-            </LinearGradient>
-        </SafeAreaView>
+                        <Text style={styles.subtitle}>Please check back later for updates!</Text>
+                    </View>
+
+                }
+            />
+
+        </AppLayout>
     );
 };
 
 
 export default AllFeaturedShops;
-
-// const styles = StyleSheet.create({
-//     container: {
-//         flex: 1,
-//         backgroundColor: '#fefefe',
-//         // paddingTop: hp(2),
-//     },
-//     header: {
-//         fontSize: 22,
-//         fontWeight: '700',
-//         paddingHorizontal: wp(4),
-//         marginBottom: hp(2),
-//         color: '#111',
-//     },
-//     card: {
-//         backgroundColor: '#fff',
-//         borderRadius: 12,
-//         overflow: 'hidden',
-//         marginBottom: hp(2.5),
-//         width: wp(44),
-//         elevation: 4,
-//         shadowColor: '#000',
-//         shadowOffset: { width: 0, height: 2 },
-//         shadowOpacity: 0.1,
-//         shadowRadius: 5,
-//     },
-//     image: {
-//         width: '100%',
-//         height: hp(16),
-//     },
-//     shopInfo: {
-//         padding: hp(0),
-//     },
-//     category: {
-//         paddingHorizontal: wp(2),
-//         paddingTop: hp(1),
-//         fontFamily: "Poppins-Regular"
-//     },
-//     shopName: {
-//         paddingHorizontal: wp(2),
-//         paddingVertical: hp(0.2),
-//         fontSize: 14,
-//         fontFamily: "Poppins-SemiBold"
-//     },
-//     shopLocation: {
-//         fontSize: 13,
-//         color: '#777',
-//         marginTop: 2,
-//     },
-//     emptyText: {
-//         textAlign: 'center',
-//         marginTop: hp(5),
-//         fontSize: 16,
-//         color: '#888',
-//     },
-// });
 
 const styles = StyleSheet.create({
     container: {
@@ -219,7 +165,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 20,
         color: '#ccc',
-        fontFamily:"Poppins-Bold"
+        fontFamily: "Poppins-Bold"
     },
     subtitle: {
         fontSize: 14,

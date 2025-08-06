@@ -3,9 +3,10 @@ import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { hp } from '../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
-import PageHeader from '../components/BackButton';
+import PageHeader from '../components/PageHeader';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import AppLayout from '../layout/AppLayout';
 
 const ScanOptionScreen = ({ navigation }) => {
   const parentNav = useNavigation();
@@ -25,9 +26,9 @@ const ScanOptionScreen = ({ navigation }) => {
   //     };
   //   }, [parentNav]);
   return (
-    <>
+    <AppLayout showCircle={false}>
       <PageHeader lable={t('scanOption')} back />
-      <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
+      
         <View style={styles.container}>
           <Text style={styles.title}>{t('chooseOption')}</Text>
 
@@ -45,8 +46,8 @@ const ScanOptionScreen = ({ navigation }) => {
             <Text style={styles.optionText}>{t('redeem')}</Text>
           </TouchableOpacity>
         </View>
-      </LinearGradient>
-    </>
+       
+    </AppLayout>
   );
 };
 

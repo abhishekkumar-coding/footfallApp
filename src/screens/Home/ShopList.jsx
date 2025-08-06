@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
   Image,
 } from 'react-native';
-import { hp, wp } from '../../utils/dimensions';
+import { hp, SCREEN_HEIGHT, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { forwardRef, useEffect, useImperativeHandle, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
@@ -16,6 +16,8 @@ import ShopCard from '../../components/ShopCard';
 import ShopSkeletonCard from "./ShopSkeletonCard"
 import { useTranslation } from 'react-i18next';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Fonts } from '../../utils/typography';
+import ViewAllButton from '../../components/ViewAllButton';
 
 const ShopList = forwardRef((props, ref) => {
   const user = useSelector(state => state.user.user);
@@ -100,16 +102,39 @@ const ShopList = forwardRef((props, ref) => {
       })}
     />
   );
+const EmptyComponent = () => {
+  return (
+    <View style={{ minHeight: SCREEN_HEIGHT * 0.45, justifyContent: 'center', alignItems: 'center' }}>
+      <Text style={{
+        fontFamily: Fonts.primary_Bold, textAlign: "center",
+        fontSize: RFValue(16, SCREEN_HEIGHT), color: "#fff", opacity: 0.5
+      }}>
+        {t('noShopsAvailable')}
+      </Text>
+      <Text style={{
+        fontFamily: Fonts.primary_Regular, textAlign: "center",
+        fontSize: RFValue(12, SCREEN_HEIGHT), color: "#fff", opacity: 0.4
+      }}>
+        {t('pleaseTryAgainLater')}
+      </Text>
+      <Image
+        source={require('../../../assets/noShop.png')}
+        style={{ width: 160, height: 160, alignSelf: "center", resizeMode: "cover", opacity: 0.5 }}
+      />
+      <TouchableOpacity style={styles.updateButton} onPress={handleUpdateProfile} activeOpacity={0.9}>
+        <Text style={styles.updateButtonText}>{t('update_location')}</Text>
+      </TouchableOpacity>
 
+    </View>
+  )
+}
 
 
   return (
     <>
       <View style={styles.header}>
         <Text style={styles.heading}>{t('nearby_shops')}</Text>
-        <TouchableOpacity onPress={handleViewAll}>
-          <Text style={styles.viewAll}>{t('view_all')}</Text>
-        </TouchableOpacity>
+        <ViewAllButton onPress={handleViewAll} />
       </View>
 
       {isLoading ? (
@@ -126,24 +151,7 @@ const ShopList = forwardRef((props, ref) => {
           showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.listContent}
           numColumns={2}
-          ListEmptyComponent={
-            <View style={{ marginTop: hp(10) }}>
-              <Text style={{ fontFamily: "Poppins-SemiBold", textAlign: "center", fontSize: RFValue(20), color: "#fff" }}>
-                {t('noShopsAvailable')}
-              </Text>
-              <Text style={{ fontFamily: "Poppins-Regular", textAlign: "center", fontSize: RFValue(15), color: "#999" }}>
-                {t('pleaseTryAgainLater')}
-              </Text>
-              <Image
-                source={require('../../../assets/noShop.png')}
-                style={{ width: wp(40), height: hp(30), alignSelf: "center" }}
-              />
-              <TouchableOpacity style={styles.updateButton} onPress={handleUpdateProfile} activeOpacity={0.8}>
-                <Text style={styles.updateButtonText}>{t('update_location')}</Text>
-              </TouchableOpacity>
-
-            </View>
-          }
+          ListEmptyComponent={EmptyComponent}
         />
       )}
     </>
@@ -160,10 +168,9 @@ const styles = StyleSheet.create({
     marginBottom: hp(1),
   },
   heading: {
-    fontSize: RFValue(16),
-    fontFamily: 'Poppins-SemiBold',
+    fontSize: RFValue(16, SCREEN_HEIGHT),
+    fontFamily: Fonts.primary_SemiBold,
     color: '#fff',
-    marginBottom: hp(1),
   },
   viewAll: {
     fontFamily: 'Poppins-Regular',
@@ -182,24 +189,17 @@ const styles = StyleSheet.create({
   },
   updateButton: {
     width: wp(60),
-    paddingVertical: hp(1.5),
-    borderRadius: 25,
+    height:45,
+    borderRadius: 100,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.12)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.3)',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-    elevation: 5,
+    backgroundColor: 'rgba(255, 255, 255, 0.2)', 
     alignSelf: 'center',
   },
   updateButtonText: {
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: Fonts.primary_SemiBold,
     color: '#fff',
-    fontSize: RFValue(14),
+    fontSize: RFValue(14, SCREEN_HEIGHT),
     textAlign: 'center',
     letterSpacing: 0.5,
   },

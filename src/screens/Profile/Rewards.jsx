@@ -8,10 +8,13 @@ import {
   Image,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { hp, wp } from '../../utils/dimensions';
+import { hp, SCREEN_HEIGHT, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
+import { useTranslation } from 'react-i18next';
+import { Fonts } from '../../utils/typography';
+import { Colors } from '../../utils/Colors';
 
-const Rewards = ({ rewardPoints = 0, onPress }) => {
+const Rewards = ({ rewardPoints = 0, onPress, title, color=[Colors.secondary, Colors.quinary] }) => {
   const [points, setPoints] = useState(0);
   const level = Math.floor(points / 50);
   const maxPoints = 100;
@@ -24,33 +27,18 @@ const Rewards = ({ rewardPoints = 0, onPress }) => {
   const Wrapper = onPress ? TouchableOpacity : View;
 
   return (
-    <Wrapper onPress={onPress} activeOpacity={0.8}>
+    <Wrapper onPress={onPress} activeOpacity={0.8} style={{
+      width:'47%'
+    }}>
       <LinearGradient
-        colors={['#1C1247', '#2B195D']} // similar dark purple gradient
+        colors={color}
         start={{ x: 0, y: 0 }}
         end={{ x: 1, y: 1 }}
-        style={styles.container}
+        style={{borderRadius: 16}}
       >
-        {/* Badge Icon */}
-        <View style={styles.badgeContainer}>
-          <Image
-            source={require('../../../assets/badge.png')} // Use your actual badge icon here
-            style={styles.badge}
-            resizeMode="contain"
-          />
-        </View>
-
-        {/* Title and Level */}
-        <Text style={styles.title}>Scan & Earn</Text>
-        <Text style={styles.level}>You've earned rewards by scanning shops & offers</Text>
-
-        {/* XP Bar */}
-        <View style={styles.progressContainer}>
-          <Text style={styles.xpLabel}>XP</Text>
-          <View style={styles.barBackground}>
-            <View style={[styles.barFill, { width: `${progress * 100}%` }]} />
-          </View>
-          <Text style={styles.xpPoints}>{points}/{maxPoints}</Text>
+        <View style={styles.content}>
+          <Text style={styles.label}>{title}</Text>
+          <Text style={styles.points}>{points}</Text>
         </View>
       </LinearGradient>
     </Wrapper>
@@ -60,32 +48,21 @@ const Rewards = ({ rewardPoints = 0, onPress }) => {
 export default Rewards;
 
 const styles = StyleSheet.create({
-  container: {
-    width: Platform.OS === 'ios' ? wp(95) : wp(92),
-    height: hp(20),
-    borderRadius: 20,
-    paddingHorizontal: wp(5),
-    paddingVertical: hp(2),
-    marginTop: hp(3),
-    marginBottom: hp(1),
-    justifyContent: 'center',
+  content: {
+    flexDirection: 'column',
     alignItems: 'center',
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+  
   },
-  badgeContainer: {
-    alignItems: 'center',
-    marginBottom: hp(1),
+  label: {
+    fontFamily: Fonts.primary_SemiBold,
+    fontSize: RFValue(14, SCREEN_HEIGHT),
+    color: '#fff',
   },
-  badge: {
-    width: wp(20),
-    height: wp(20),
-    position: "absolute",
-    top: hp(-3),
-    // left:0,
-    // right:0
-  },
-  title: {
-    fontFamily: 'Poppins-Bold',
-    fontSize: RFValue(16),
+  points: {
+    fontFamily: Fonts.primary_Bold,
+    fontSize: RFValue(25, SCREEN_HEIGHT),
     color: '#fff',
     marginTop: hp(5),
   },

@@ -17,7 +17,7 @@ import {
   useGetAllOffersQuery,
   useGetSortedOffersQuery,
 } from '../../features/shops/shopApi';
-import BackButton from '../../components/BackButton';
+import BackButton from '../../components/PageHeader';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';

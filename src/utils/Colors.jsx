@@ -1,0 +1,16 @@
+export const Colors = {
+    primary: '#ff4faa',
+    secondary: '#ff5fb2',
+    tertiary: '#4068F6',
+    quaternary: '#ff2696',
+    quinary: '#ff0084',
+    senary: '#b2b2b2',
+    septenary: '#a9a9a9',
+    octonary: '#808080',
+    nonary: '#666666',
+    tabBar: '#080042',
+    activeTabBar: '#21DAD7',
+    inactiveTabBar: '#d3d3d3',
+    splash: '#21DAD7',
+    splash_light: "rgba(33,218,215,0.35)",
+}

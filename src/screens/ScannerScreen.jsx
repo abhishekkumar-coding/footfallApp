@@ -15,7 +15,7 @@ import {
   useGetShopByScanMutation,
 } from '../features/shops/shopApi';
 import LinearGradient from 'react-native-linear-gradient';
-import PageHeader from '../components/BackButton';
+import PageHeader from '../components/PageHeader';
 import Geolocation from 'react-native-geolocation-service';
 import { PermissionsAndroid, Platform } from 'react-native';
 import Toast from 'react-native-toast-message';

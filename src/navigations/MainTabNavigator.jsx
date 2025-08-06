@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import HomeScreen from '../screens/HomeScreen';
@@ -40,6 +40,8 @@ import { useTranslation } from 'react-i18next';
 import AllFeaturedShops from '../screens/Home/AllFeaturedShops';
 import AddressScreen from '../screens/AddressScreen';
 import MapLocationPicker from '../screens/MapLocationPicker';
+import { Colors } from '../utils/Colors';
+import SettingScreen from '../screens/SettingScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -169,21 +171,32 @@ const ProfileStack = () => (
       component={MapLocationPicker}
       options={{ headerShown: false }}
     />
+    <Stack.Screen
+      name='Settings'
+      component={SettingScreen}
+      options={{ headerShown: false }}
+    />
   </Stack.Navigator>
 );
-
+const TabItem = ({children, focused, color}) => {
+  return (
+    <View style={{position: 'relative', justifyContent:'center', alignItems:'center'}}>
+      {children}
+      {focused && (
+        <Image source={require('./tab-bg.png')} style={{   position: 'absolute',  width:80, height:80, bottom: -40,  borderRadius: 100, }}
+        />
+      )}
+    </View>
+  )
+}
 const MainTabNavigator = () => {
   const { t } = useTranslation();
   return (
+    
     <Tab.Navigator
       screenOptions={{
         tabBarStyle: {
-          backgroundColor: '#181818',
-          position: 'absolute',
-          elevation: 0,
-          borderTopWidth: 0,
-          overflow: 'hidden',
-          height: 70,
+          overflow: 'visible',
         },
         tabBarIconStyle: {
           marginTop: 2,
@@ -196,9 +209,19 @@ const MainTabNavigator = () => {
           fontSize: 9,
           // marginTop: 5
         },
-        tabBarActiveTintColor: '#fff',
+        tabBarActiveTintColor: Colors.activeTabBar,
         tabBarInactiveTintColor: '#d3d3d3',
+        tabBarStyle: {
+          backgroundColor: Colors.tabBar,
+          // position: 'absolute',
+          elevation: 0,
+          borderTopWidth: 0,
+          overflow: 'hidden',
+          // height: 70,
+        },
+        tabBarShowLabel: false,
       }}
+    
     >
       <Tab.Screen
         name="Home"
@@ -219,35 +242,16 @@ const MainTabNavigator = () => {
           ];
 
           const isHidden = hideOnScreens.includes(routeName);
-
           return {
             headerShown: false,
             tabBarLabel: t('tab_home'),
-            tabBarStyle: isHidden
-              ? { display: 'none' }
-              : {
-                backgroundColor: '#181818',
-                position: 'absolute',
-                elevation: 0,
-                borderTopWidth: 0,
-                overflow: 'hidden',
-                height: 70,
-              },
-            tabBarIcon: ({ focused }) =>
-              focused ? <FilledHome /> : <EmptyHome />,
+            tabBarIcon: ({ focused, color }) =>
+              <TabItem focused={focused} color={color}>
+                <FilledHome color={color} />
+              </TabItem>,
           };
         }}
       />
-
-      {/* <Tab.Screen
-        name="Home"
-        component={HomeStack}
-        options={{
-          headerShown: false,
-          tabBarIcon: ({ focused }) => {
-            return focused ? <FilledHome /> : <EmptyHome />;
-          },
-        }}/> */}
 
       <Tab.Screen
         name="Favorites"
@@ -255,9 +259,9 @@ const MainTabNavigator = () => {
         options={{
           headerShown: false,
           tabBarLabel: t('tab_favorites'),
-          tabBarIcon: ({ focused }) => {
-            return focused ? <FilledHeart /> : <EmptyHeart />;
-          },
+          tabBarIcon: ({ focused, color }) => <TabItem focused={focused} color={color}>
+            <FilledHeart color={color} />
+          </TabItem>
         }}
       />
       <Tab.Screen
@@ -266,9 +270,9 @@ const MainTabNavigator = () => {
         options={{
           headerShown: false,
           tabBarLabel: t('tab_history'),
-          tabBarIcon: ({ focused }) => {
-            return focused ? <FilledHistoryIcon /> : <History />;
-          },
+          tabBarIcon: ({ focused, color }) => <TabItem focused={focused} color={color}>
+            <FilledHistoryIcon color={color} />
+          </TabItem>
         }}
       />
       <Tab.Screen
@@ -281,22 +285,16 @@ const MainTabNavigator = () => {
           return {
             headerShown: false,
             tabBarLabel: t('tab_profile'),
-            tabBarStyle: hideOnScreens.includes(routeName)
-              ? { display: 'none' }
-              : {
-                backgroundColor: '#181818',
-                position: 'absolute',
-                elevation: 0,
-                borderTopWidth: 0,
-                overflow: 'hidden',
-                height: 70,
-              },
-            tabBarIcon: ({ focused }) =>
-              focused ? <FilledProfile /> : <EmptyProfile />,
+            tabBarIcon: ({ focused, color }) => <TabItem focused={focused} color={color}>
+              <FilledProfile color={color} />
+            </TabItem>
+              
           };
         }}
       />
-    </Tab.Navigator>
+      </Tab.Navigator>
+     
+   
   );
 };
 const FavoritesStack = () => (

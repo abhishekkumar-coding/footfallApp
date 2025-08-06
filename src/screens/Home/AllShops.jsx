@@ -12,7 +12,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
-import PageHeader from '../../components/BackButton';
+import PageHeader from '../../components/PageHeader';
 import { useDispatch } from 'react-redux';
 import { loadWishlist } from '../../features/wishlistSlice';
 import ShopCard from '../../components/ShopCard';
@@ -20,6 +20,7 @@ import ShopSkeletonCard from './ShopSkeletonCard';
 import { useGetAllShopsQuery, useGetFilteredShopsQuery } from '../../features/shops/shopApi';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AppLayout from '../../layout/AppLayout';
 
 const AllShops = ({ route }) => {
   const { t } = useTranslation();
@@ -69,10 +70,10 @@ const AllShops = ({ route }) => {
   );
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <AppLayout style={{ flex: 1 }}>
 
       <PageHeader lable={t('shops')} back />
-      <LinearGradient colors={['#000337', '#000000']} style={styles.container}>
+      
         {/* Filter Section */}
         <View style={styles.filterContainer}>
           <ScrollView
@@ -138,8 +139,8 @@ const AllShops = ({ route }) => {
             }
           />
         )}
-      </LinearGradient>
-    </SafeAreaView>
+      
+    </AppLayout>
   );
 };
 

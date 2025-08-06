@@ -19,15 +19,23 @@ import Toast from 'react-native-toast-message';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
-
 import BackButton from '../../components/BackButton';
-import CustomButton from '../../components/CustomButton';
 import CustomInput from '../../components/CustomInput';
-import { wp, hp } from '../../utils/dimensions';
+import CustomButton from '../../components/CustomButton';
+import { hp, wp } from '../../utils/dimensions';
 import { setUser } from '../../features/auth/userSlice';
 import { useUpdateUserMutation } from '../../features/auth/authApi';
-import { useUploadFileMutation, useDeleteFileMutation } from '../../features/shops/shopApi';
+import { useDeleteFileMutation, useUploadFileMutation } from '../../features/shops/shopApi';
 import { UploadIcon } from '../../utils/icons/icons';
+
+// import BackButton from '../../components/PageHeader';
+// import CustomButton from '../../components/CustomButton';
+// import CustomInput from '../../components/CustomInput';
+// import { wp, hp } from '../../utils/dimensions';
+// import { setUser } from '../../features/auth/userSlice';
+// import { useUpdateUserMutation } from '../../features/auth/authApi';
+// import { useUploadFileMutation, useDeleteFileMutation } from '../../features/shops/shopApi';
+// import { UploadIcon } from '../../utils/icons/icons';
 
 const requestLocationPermission = async () => {
   if (Platform.OS === 'ios') return true;
@@ -248,18 +256,22 @@ const EditProfile = () => {
   return (
     <SafeAreaView edges={['top']} style={{ flex: 1 }}>
       <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
-        <BackButton lable={t('editProfile')} back />
+        <BackButton label={t('editProfile')} back />
         <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
           <View style={styles.imageWrapper}>
             {profileImage ? (
               <>
                 <Image source={{ uri: profileImage || image }} style={styles.profileImage} />
-                <TouchableOpacity onPress={handleImagePick} style={styles.uploadIcon}><UploadIcon /></TouchableOpacity>
+                <TouchableOpacity onPress={handleImagePick} style={styles.uploadIcon} activeOpacity={0.7}>
+                  <View pointerEvents="box-none">
+                    <UploadIcon />
+                  </View>
+                </TouchableOpacity>
               </>
             ) : (
               <TouchableOpacity onPress={handleImagePick} style={styles.fallbackAvatar}>
                 <Text style={styles.fallbackInitial}>{name ? name[0].toUpperCase() : '?'}</Text>
-                <View style={styles.uploadIconOverlay}><UploadIcon /></View>
+                <View onPress={handleImagePick} style={styles.uploadIconOverlay}><UploadIcon /></View>
               </TouchableOpacity>
             )}
           </View>

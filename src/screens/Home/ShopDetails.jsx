@@ -22,7 +22,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { triggerWalletRefresh } from '../../features/auth/walletSlice';
 import { useNavigation } from '@react-navigation/native';
-import PageHeader from '../../components/BackButton';
+import PageHeader from '../../components/PageHeader';
 import Toast from 'react-native-toast-message';
 import Geolocation from 'react-native-geolocation-service';
 import { PermissionsAndroid, Platform } from 'react-native';

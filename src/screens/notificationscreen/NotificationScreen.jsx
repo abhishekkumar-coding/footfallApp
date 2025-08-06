@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { hp, wp } from '../../utils/dimensions';
-import PageHeader from '../../components/BackButton';
+import PageHeader from '../../components/PageHeader';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import {
   useGetNotificationsQuery,
@@ -19,6 +19,7 @@ import {
 } from '../../features/shops/shopApi';
 import { useMarkNotificationAsReadMutation } from '../../features/shops/shopApi';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AppLayout from '../../layout/AppLayout';
 
 
 const NotificationScreen = () => {
@@ -79,9 +80,9 @@ const NotificationScreen = () => {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <AppLayout showCircle={false} style={{ flex: 1 }}>
 
-      <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
+    
         <PageHeader lable="Notifications" back />
         <View style={styles.container}>
           {isLoading ? (
@@ -106,8 +107,8 @@ const NotificationScreen = () => {
             />
           )}
         </View>
-      </LinearGradient>
-    </SafeAreaView>
+   
+    </AppLayout>
   );
 };
 

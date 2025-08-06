@@ -13,12 +13,13 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { hp, wp } from '../../utils/dimensions';
 import FilledFavIcon from '../../utils/icons/FilledFavIcon';
-import PageHeader from '../../components/BackButton';
+import PageHeader from '../../components/PageHeader';
 import LinearGradient from 'react-native-linear-gradient';
 import { loadWishlist, removeFromWishlist } from '../../features/wishlistSlice';
 import { navigate } from '../../navigations/NavigationUtil';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AppLayout from '../../layout/AppLayout';
 
 const FavoritesScreen = ({ navigation }) => {
   const { t } = useTranslation();
@@ -71,30 +72,30 @@ const FavoritesScreen = ({ navigation }) => {
   };
 
   return (
-    <>
-        <SafeAreaView style={{ flex: 1 }}>
-
+    <AppLayout>
       <PageHeader lable={t('favorites')} />
-      <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
-        <View style={styles.container}>
-          {favoriteShops.length === 0 ? (
-            <View style={styles.emptyContainer}>
-              <Image source={require('../../../assets/emptyfavorite.png')} style={{ width: wp(50), height: hp(20) }} />
-              {/* <Text style={styles.emptyText}>No favorites yet</Text> */}
-               {t('favorites_empty_subtext')}
-            </View>
-          ) : (
-            <FlatList
-              data={favoriteShops}
-              renderItem={renderShopItem}
-              keyExtractor={item => item._id}
-              contentContainerStyle={styles.listContent}
-            />
-          )}
-        </View>
-      </LinearGradient>
-      </SafeAreaView>
-    </>
+      <View style={styles.container}>
+        {favoriteShops.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Image source={require('../../../assets/emptyfavorite.png')} style={{
+              width: wp(30),
+              height: hp(20),
+              opacity:0.5,
+              marginBottom: hp(2)
+            }} />
+            {/* <Text style={styles.emptyText}>No favorites yet</Text> */}
+            {t('favorites_empty_subtext')}
+          </View>
+        ) : (
+          <FlatList
+            data={favoriteShops}
+            renderItem={renderShopItem}
+            keyExtractor={item => item._id}
+            contentContainerStyle={styles.listContent}
+          />
+        )}
+      </View>
+    </AppLayout>
   );
 };
 

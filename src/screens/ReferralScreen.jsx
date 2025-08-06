@@ -16,10 +16,12 @@ import Icon from 'react-native-vector-icons/FontAwesome';
 import Ionicon from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
 import { RFValue } from 'react-native-responsive-fontsize';
-import BackButton from '../components/BackButton';
+import BackButton from '../components/PageHeader';
 import { hp, wp } from '../utils/dimensions';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AppLayout from '../layout/AppLayout';
+import PageHeader from '../components/PageHeader';
 
 const APP_SCHEME = 'footfall://signup';
 const WEB_LINK = 'https://footfall.onrender.com/signup'; 
@@ -106,9 +108,9 @@ const ReferralScreen = () => {
   ];
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <BackButton lable={t('referral.title')} back />
-      <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
+    <AppLayout style={{ flex: 1 }} showCircle={false}>
+      <PageHeader lable={t('referral.title')} back />
+      
         <View style={styles.container}>
           <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
             <View style={styles.header}>
@@ -147,8 +149,8 @@ const ReferralScreen = () => {
             </View>
           </ScrollView>
         </View>
-      </LinearGradient>
-    </SafeAreaView>
+       
+    </AppLayout>
   );
 };
 

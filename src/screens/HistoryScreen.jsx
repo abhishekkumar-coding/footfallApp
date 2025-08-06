@@ -10,11 +10,12 @@ import {
 import { RFValue } from 'react-native-responsive-fontsize';
 import LinearGradient from 'react-native-linear-gradient';
 import { hp, wp } from '../utils/dimensions';
-import PageHeader from '../components/BackButton';
+import PageHeader from '../components/PageHeader';
 import { useGetScanHistoryQuery } from '../features/shops/shopApi';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AppLayout from '../layout/AppLayout';
 
 const HistoryScreen = () => {
   const { t } = useTranslation();
@@ -40,7 +41,7 @@ const HistoryScreen = () => {
       return (
         <View style={styles.centered}>
           <Text style={styles.empty}>
-           {t('fetch_error')}
+            {t('fetch_error')}
           </Text>
         </View>
       );
@@ -49,7 +50,7 @@ const HistoryScreen = () => {
     if (history.length === 0) {
       return (
         <View style={styles.centered}>
-          <Image source={require('../../assets/emptyScanHistory.png')} style={{width:wp(50), height:hp(20)}}/>
+          <Image source={require('../../assets/emptyScanHistory.png')} style={{ width: wp(50), height: hp(20), opacity:0.5, marginBottom: hp(2) }} />
           {/* <Text style={styles.empty}>{t('no_scans')}</Text> */}
         </View>
       );
@@ -69,12 +70,12 @@ const HistoryScreen = () => {
   const renderItem = ({ item }) => {
     const formattedDate = item?.scannedAt
       ? new Date(item.scannedAt).toLocaleString('en-IN', {
-          day: '2-digit',
-          month: 'short',
-          year: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit',
-        })
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+      })
       : 'N/A';
 
     return (
@@ -89,15 +90,10 @@ const HistoryScreen = () => {
   };
 
   return (
-    <>
-        <SafeAreaView style={{ flex: 1 }}>
-
+    <AppLayout>
       <PageHeader lable={t('scan_history')} />
-      <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
-        {renderContent()}
-      </LinearGradient>
-      </SafeAreaView>
-    </>
+      {renderContent()}
+    </AppLayout>
   );
 };
 

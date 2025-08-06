@@ -5,21 +5,27 @@ import { useTranslation } from 'react-i18next';
 import i18n, { changeAppLanguage } from '../i18n';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
-import PageHeader from '../components/BackButton';
+import PageHeader from '../components/PageHeader';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useSelector } from 'react-redux';
+import AppLayout from '../layout/AppLayout';
+import AppButton from '../components/AppButton';
+import { delay, hp, wp } from '../utils/dimensions';
+import { Fonts } from '../utils/typography';
 
 
 const languages = [
   { code: 'en', labelKey: 'english', native: 'A' },
-  { code: 'hi', labelKey: 'hindi', native: 'अ' },
+  { code: 'hi', labelKey: 'हिन्दी', native: 'अ' },
 ];
+
+
 
 const LanguageScreen = ({ route, navigation }) => {
   const { isInitialSetup = true } = route.params || {};
   const { t } = useTranslation();
   const [selectedLang, setSelectedLang] = useState(null);
-
+  const [isLoading, setIsLoading] = useState(false);
   useEffect(() => {
     const initLang = async () => {
       const storedLang = await AsyncStorage.getItem('appLanguage');
@@ -45,7 +51,9 @@ const LanguageScreen = ({ route, navigation }) => {
   // };
 
   const onContinue = async () => {
-  if (!selectedLang) return;
+    if (!selectedLang) return;
+    setIsLoading(true);
+    await delay(1500);
   await changeAppLanguage(selectedLang);
   await AsyncStorage.setItem('appLanguage', selectedLang);
 
@@ -63,27 +71,19 @@ const LanguageScreen = ({ route, navigation }) => {
   } else {
     navigation.goBack();
   }
+  setIsLoading(false);
 };
 
 
   return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: '#000337' }}>
-      <LinearGradient colors={['#000337', '#000337']} style={styles.gradient}>
+    <AppLayout >
         {!isInitialSetup && <PageHeader back lable={"Change language"} />}
-        <View style={styles.content}>
-          {/* <View style={styles.topEmojiContainer}>
-          <View style={styles.emojiWrapper}>
-            <Text style={styles.bubble}>Hello!</Text>
-            <Text style={styles.emoji}>😊</Text>
-          </View>
-          <View style={styles.emojiWrapper}>
-            <Text style={[styles.bubble, { backgroundColor: '#FF4D6D' }]}>नमस्ते</Text>
-            <Text style={styles.emoji}>😊</Text>
-          </View>
-        </View> */}
-
+      <View style={styles.content}>
+        <View style={styles.langIconContainer}>
+          <Text style={[styles.langSymbol, { top: 10, left: 0 }]}>अ</Text>
+          <Text style={[styles.langSymbol, { top: 0, left: -5 }]}>A</Text>
+        </View>
           <Text style={styles.title}>{t('chooseLanguage')}</Text>
-
           <View style={styles.langContainer}>
             {languages.map(lang => {
               const isSelected = selectedLang === lang.code;
@@ -119,101 +119,40 @@ const LanguageScreen = ({ route, navigation }) => {
                 </TouchableOpacity>
               );
             })}
-          </View>
-          {/* <LinearGradient
-          colors={['#FF6BD6', '#FF2DCF']}
-          style={styles.continueBtn}
-          start={{ x: 0, y: 0 }}
-          end={{ x: 1, y: 0 }}
-        >
-          <Text style={styles.continueText}>{t('continue') || 'CONTINUE'}</Text>
-          <Icon
-            name="arrow-forward"
-            size={20}
-            color="white"
-            style={{ marginLeft: 8 }}
-          />
-        </LinearGradient> */}
-          <TouchableOpacity
-            onPress={onContinue}
-            disabled={!selectedLang}
-            activeOpacity={0.8}
-          >
-            <LinearGradient
-              colors={['#FF6BD6', '#FF2DCF']}
-              start={{ x: 0, y: 0 }}
-              end={{ x: 1, y: 0 }}
-              style={{ borderRadius: 30 }}
-            >
-              <View style={styles.continueTouchable}>
-                <Text style={styles.continueText}>
-                  {t('continue') || 'CONTINUE'}
-                </Text>
-                <Icon
-                  name="arrow-forward"
-                  size={20}
-                  color="white"
-                  style={{ marginLeft: 8 }}
-                />
-              </View>
-            </LinearGradient>
-          </TouchableOpacity>
         </View>
-      </LinearGradient>
-    </SafeAreaView>
+        <AppButton title={t('continue') || 'CONTINUE'} onPress={onContinue} isLoading={isLoading} />
+        </View>       
+    </AppLayout>
   );
 };
 
 export default LanguageScreen;
 
 const styles = StyleSheet.create({
-  gradient: {
-    flex: 1,
-  },
   content: {
     flex: 1,
     padding: 24,
     justifyContent: 'center',
     alignItems: 'center',
   },
-  topEmojiContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    marginBottom: 32,
-  },
-  emojiWrapper: {
-    alignItems: 'center',
-    marginHorizontal: 16,
-  },
-  bubble: {
-    backgroundColor: '#FF6B6B',
-    color: 'white',
-    paddingVertical: 4,
-    paddingHorizontal: 12,
-    borderRadius: 12,
-    marginBottom: 8,
-    fontSize: 14,
-  },
-  emoji: {
-    fontSize: 32,
-  },
   title: {
-    fontSize: 20,
-    fontWeight: '600',
+    fontSize: 18,
     textAlign: 'center',
     color: '#FFFFFF',
-    marginBottom: 24,
+    marginBottom: 30,
+    fontFamily: Fonts.primary_Medium,
   },
   langContainer: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     marginBottom: 40,
     width: '100%',
+
   },
   langCard: {
     width: 120,
     height: 120,
-    backgroundColor: '#F3F3F3',
+    backgroundColor: '#fff',
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'center',
@@ -225,10 +164,10 @@ const styles = StyleSheet.create({
     borderWidth: 2,
   },
   langIcon: {
-    marginBottom: 8,
+    marginBottom: 10,
   },
   nativeText: {
-    fontSize: 28,
+    fontSize: 30,
     color: '#555',
   },
   nativeTextSelected: {
@@ -266,4 +205,19 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
+  langIconContainer:{
+    flexDirection: 'row',
+    justifyContent: 'center',
+    width: '100%',
+    alignItems: 'center',
+    height: 100,
+    marginBottom: 22,
+  },
+  langSymbol: {
+    fontSize: wp(20),
+    color: '#fff',
+    fontWeight: 'semibold',
+    opacity: 0.5,
+  }
+  
 });

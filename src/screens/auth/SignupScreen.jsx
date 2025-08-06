@@ -24,7 +24,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import UserIcon from '../../utils/icons/UserIcon';
 import EmailIcon from '../../utils/icons/EmailIcon';
 import LockIcon from '../../utils/icons/LockIcon';
-import { hp, wp } from '../../utils/dimensions';
+import { hp, SCREEN_HEIGHT, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import PhoneIcon from '../../utils/icons/PhoneIcon';
 import {
@@ -34,7 +34,6 @@ import {
 } from '../../features/auth/authApi';
 import { z } from 'zod';
 import Toast from 'react-native-toast-message';
-import SendIntentAndroid from 'react-native-send-intent';
 import {
   GoogleSignin,
   statusCodes,
@@ -43,7 +42,12 @@ import { useDispatch, useSelector } from 'react-redux';
 import { clearPendingReferral, setUser } from '../../features/auth/userSlice';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
-
+import AppLayout from '../../layout/AppLayout';
+import { KeyboardAwareScrollView } from "react-native-keyboard-controller";
+import AppButton from '../../components/AppButton';
+import Spacer from '../../components/Spacer';
+import { Fonts } from '../../utils/typography';
+import { Colors } from '../../utils/Colors';
 const SignupScreen = ({ route }) => {
 
   useEffect(() => {
@@ -83,7 +87,7 @@ const SignupScreen = ({ route }) => {
   const [signup, { isLoading }] = useSignupMutation();
   const [googleAuth] = useGoogleAuthMutation();
   const dispatch = useDispatch();
-
+  const disabled = !name.trim() || !email.trim() || !phone.trim() || !password.trim()
   useEffect(() => {
     const handleDeepLink = (url) => {
       if (!url) return;
@@ -256,97 +260,73 @@ const SignupScreen = ({ route }) => {
 
 
   return (
-    <>
-      {/* <BackButton lable={t('signup.title')} back /> */}
-      <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
-        {(isLoading || googleLoading) && (
-          <View style={styles.loaderContainer}>
-            <ActivityIndicator size="large" color="#fff" />
-          </View>
-        )}
-        <KeyboardAvoidingView
-          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-          style={{ flex: 1 }}
-        >
-          <ScrollView
-            contentContainerStyle={styles.scrollContainer}
-            keyboardShouldPersistTaps="handled"
+    <AppLayout>
+      <BackButton />
+      <KeyboardAwareScrollView style={styles.container} bottomOffset={50}>
+        <Text style={styles.heading}>{t('signup.heading')}</Text>
+        <Text style={styles.subText}>{t('signup.subheading')}</Text>
+        <View style={styles.formContainer}>
+          <CustomInput
+            placeholder={t('signup.placeholders.name')}
+            lable={t('signup.labels.name')}
+            iconComponent={<UserIcon />}
+            value={name}
+            showError={showError}
+            onChangeText={setName}
+          />
+          <CustomInput
+            placeholder={t('signup.placeholders.email')}
+            lable={t('signup.labels.email')}
+            iconComponent={<EmailIcon />}
+            value={email}
+            showError={showError}
+            onChangeText={setEmail}
+          />
+          <CustomInput
+            placeholder={t('signup.placeholders.phone')}
+            lable={t('signup.labels.phone')}
+            iconComponent={<PhoneIcon />}
+            value={phone}
+            showError={showError}
+            onChangeText={setPhone}
+          />
+          <CustomInput
+            placeholder={t('signup.placeholders.password')}
+            lable={t('signup.labels.password')}
+            iconComponent={<LockIcon />}
+            value={password}
+            onChangeText={setPassword}
+            showError={showError}
+            isPassword={true}
+          />
+          <CustomInput
+            lable={t('signup.labels.referral')}
+            placeholder={t('signup.placeholders.referral')}
+            required={false}
+            value={referredBy}
+            onChangeText={setReferredBy}
+          />
+          <Spacer height={0} />
+          <AppButton title={t('signup.button')} onPress={handleSignup} isLoading={isLoading} disabled={disabled} />
+          <SocialLoginOptions onGooglePress={onGooglePress} />
+          <TouchableOpacity
+            onPress={() => {
+              dispatch(clearPendingReferral());
+              navigation.navigate('Login');
+            }}
+            style={styles.loginTextContainer}
           >
-            <View style={styles.container}>
-              <Text style={styles.heading}>{t('signup.heading')}</Text>
-              <Text style={styles.subText}>{t('signup.subheading')}</Text>
+            <Text style={styles.loginText}>
+              {t('signup.links.already_account')}{' '}
+              <Text style={styles.loginLink}>
+                {t('signup.links.login')}
+              </Text>
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </KeyboardAwareScrollView>
+    </AppLayout>
 
-              <View style={styles.formContainer}>
-                <CustomInput
-                  placeholder={t('signup.placeholders.name')}
-                  lable={t('signup.labels.name')}
-                  iconComponent={<UserIcon />}
-                  value={name}
-                  showError={showError}
-                  onChangeText={setName}
-                />
-                <CustomInput
-                  placeholder={t('signup.placeholders.email')}
-                  lable={t('signup.labels.email')}
-                  iconComponent={<EmailIcon />}
-                  value={email}
-                  showError={showError}
-                  onChangeText={setEmail}
-                />
-                <CustomInput
-                  placeholder={t('signup.placeholders.phone')}
-                  lable={t('signup.labels.phone')}
-                  iconComponent={<PhoneIcon />}
-                  value={phone}
-                  showError={showError}
-                  onChangeText={setPhone}
-                />
-                <CustomInput
-                  placeholder={t('signup.placeholders.password')}
-                  lable={t('signup.labels.password')}
-                  iconComponent={<LockIcon />}
-                  value={password}
-                  onChangeText={setPassword}
-                  showError={showError}
-                  isPassword={true}
-                />
-                <CustomInput
-                  lable={t('signup.labels.referral')}
-                  placeholder={t('signup.placeholders.referral')}
-                  required={false}
-                  value={referredBy}
-                  onChangeText={setReferredBy}
-                />
-
-                <View style={styles.buttonContainer}>
-                  <CustomButton
-                    title={t('signup.button')}
-                    onPress={handleSignup}
-                  />
-                </View>
-
-                <SocialLoginOptions onGooglePress={onGooglePress} />
-
-                <TouchableOpacity
-                  onPress={() => {
-                    dispatch(clearPendingReferral());
-                    navigation.navigate('Login');
-                  }}
-                  style={styles.loginTextContainer}
-                >
-                  <Text style={styles.loginText}>
-                    {t('signup.links.already_account')}{' '}
-                    <Text style={styles.loginLink}>
-                      {t('signup.links.login')}
-                    </Text>
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
-      </LinearGradient>
-    </>
   );
 };
 
@@ -367,19 +347,17 @@ const styles = StyleSheet.create({
   },
   container: {
     flex: 1,
-    paddingHorizontal: wp(5),
-    paddingBottom: hp(5),
+    paddingHorizontal: 16,
+    marginTop: 16
   },
   heading: {
-    fontSize: RFValue(18),
+    fontSize: RFValue(18, SCREEN_HEIGHT),
     fontFamily: 'Poppins-SemiBold',
-    marginTop: hp(4),
     color: '#fff',
     textAlign: 'left',
-    marginBottom: hp(1),
   },
   subText: {
-    fontSize: RFValue(10),
+    fontSize: RFValue(14, SCREEN_HEIGHT),
     color: '#d3d3d3',
     marginBottom: hp(2),
     textAlign: 'left',
@@ -387,27 +365,26 @@ const styles = StyleSheet.create({
   },
   formContainer: {
     width: '100%',
-    padding: wp(0),
-    borderRadius: 12,
-    marginBottom: hp(2),
+    gap: 10,
   },
   buttonContainer: {
     marginTop: hp(2),
     marginBottom: hp(3),
   },
   loginTextContainer: {
-    marginTop: hp(1),
-    marginBottom: hp(2),
+    marginTop: 10,
+    marginBottom: 10,
   },
   loginText: {
-    fontSize: RFValue(10),
+    fontSize: RFValue(14, SCREEN_HEIGHT),
     color: '#d3d3d3',
-    fontFamily: 'Poppins-Regular',
+    fontFamily: Fonts.primary_Regular,
     textAlign: 'center',
   },
   loginLink: {
-    color: '#4068F6',
-    fontFamily: 'Poppins-Regular',
+    fontSize: RFValue(14, SCREEN_HEIGHT),
+    color: Colors.primary,
+    fontFamily: Fonts.primary_Regular,
   },
 });
 

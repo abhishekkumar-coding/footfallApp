@@ -3,7 +3,8 @@ import { View, TextInput, StyleSheet, Text } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import CloseEyeIcon from '../utils/icons/CloseEyeIcon';
 import EyeIcon from '../utils/icons/EyeIcon';
-import { hp, wp } from '../utils/dimensions';
+import { hp, SCREEN_HEIGHT, wp } from '../utils/dimensions';
+import { Fonts } from '../utils/typography';
 
 const CustomInput = ({
   iconComponent,
@@ -36,11 +37,13 @@ const CustomInput = ({
           <TextInput
             style={styles.input}
             placeholder={placeholder}
-            placeholderTextColor="#e0e0e0"
+            placeholderTextColor="#cbcbcb"
             value={value}
             onChangeText={onChangeText}
             secureTextEntry={isPassword ? isPassVisible : false}
             keyboardType={keyboardType}
+            caretHidden={false}
+            cursorColor={'#fff'}
           />
           {isPassword && (
             <View onTouchEnd={togglePasswordVisibility}>
@@ -64,7 +67,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: wp(1.5),
+    borderRadius: 100,
     paddingHorizontal: wp(3),
     paddingVertical: hp(1),
     marginBottom: hp(1),
@@ -78,10 +81,10 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   label: {
-    color: '#d3d3d3',
-    fontSize: RFValue(11),
-    fontFamily: 'Poppins-SemiBold',
-    marginBottom: hp(0),
+    color: '#fff',
+    fontSize: RFValue(14, SCREEN_HEIGHT),
+    fontFamily: Fonts.primary_SemiBold,
+    marginBottom: 5
   },
   requiredAsterisk: {
     color: 'red',
@@ -93,10 +96,11 @@ const styles = StyleSheet.create({
   },
   input: {
     flex: 1,
-    fontSize: RFValue(10),
+    fontSize: RFValue(12, SCREEN_HEIGHT),
     fontFamily: 'Poppins-Regular',
     color: '#fff',
-    paddingVertical: 6,
+    height: 30,
+    textAlignVertical: 'center',
 
   },
   errorText: {
