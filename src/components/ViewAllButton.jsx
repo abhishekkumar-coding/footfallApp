@@ -31,6 +31,7 @@ const styles = StyleSheet.create({
     text: {
         fontFamily: Fonts.primary_SemiBold,
         fontSize: RFValue(14, SCREEN_HEIGHT),
-        color: '#21DAD7',
+        color: '#fff',
+        lineHeight: RFValue(15, SCREEN_HEIGHT),
     },
 })

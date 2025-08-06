@@ -9,7 +9,7 @@ import {
 } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useDispatch, useSelector } from 'react-redux';
-import { hp, wp } from '../utils/dimensions';
+import { hp, SCREEN_HEIGHT, wp } from '../utils/dimensions';
 import FilledFavIcon from '../utils/icons/FilledFavIcon';
 import EmptyHeart from '../utils/icons/EmptyHeart';
 import { addToWishlist, removeFromWishlist } from '../features/wishlistSlice';
@@ -26,6 +26,8 @@ import {
 } from 'react-native-gesture-handler';
 import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
+import { Colors } from '../utils/Colors';
+import { Fonts } from '../utils/typography';
 
 const ShopCard = ({ shop, onPress }) => {
   const dispatch = useDispatch();
@@ -121,8 +123,9 @@ const ShopCard = ({ shop, onPress }) => {
           setImageError(true);
         }}
       />
+      <Text style={styles.category}>{shop.category}</Text>
       <View style={styles.cardContent}>
-        <Text style={styles.category}>{shop.category}</Text>
+
         <View style={styles.nameContainer}>
           <Text style={styles.name}>{shop.name}</Text>
         </View>
@@ -151,10 +154,10 @@ export default ShopCard;
 
 const styles = StyleSheet.create({
   card: {
-    width: '47%',
-    backgroundColor: '#1f1f1f',
+    width: wp(45),
+    backgroundColor: Colors.white_light,
     borderRadius: 12,
-    marginBottom: hp(2),
+    marginBottom: hp(1),
     marginHorizontal: wp(1),
     shadowColor: '#000',
     shadowOpacity: 0.1,
@@ -165,8 +168,8 @@ const styles = StyleSheet.create({
     opacity: 0.4,
   },
   cardImage: {
-    width: '100%',
-    height: hp(14),
+    width: wp(45),
+    height: hp(20),
     borderTopLeftRadius: 10,
     borderTopRightRadius: 10,
   },
@@ -177,25 +180,39 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   name: {
-    fontSize: wp(3),
+    fontSize: RFValue(14, SCREEN_HEIGHT),
     color: '#fff',
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: Fonts.primary_SemiBold,
+    lineHeight: RFValue(15, SCREEN_HEIGHT),
+    textTransform: 'capitalize',
   },
   nameContainer: {
     flexDirection: 'row',
     alignItems: 'center',
     width: '100%',
     justifyContent: 'space-between',
+    marginBottom:5
   },
   location: {
     color: '#d3d3d3',
-    fontSize: wp(3),
-    fontFamily: 'Poppins-Regular',
+    fontSize: RFValue(12, SCREEN_HEIGHT),
+    fontFamily: Fonts.primary_Regular,
+    lineHeight: RFValue(15, SCREEN_HEIGHT),
   },
   category: {
-    color: '#A9CEFF',
-    fontSize: wp(2.5),
-    fontFamily: 'Poppins-Regular',
+    color: '#fff',
+    fontSize:   RFValue(10, SCREEN_HEIGHT),
+    fontFamily: Fonts.primary_SemiBold,
+    position: 'absolute',
+    top: 10,
+    left: 10,
+    backgroundColor: Colors.secondary,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
+    textTransform: 'uppercase',
+    lineHeight: RFValue(15, SCREEN_HEIGHT),
+
   },
   favTimeContainer: {
     width: '100%',
@@ -204,9 +221,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   timings: {
-    fontSize: wp(2.2),
+    fontSize: RFValue(10, SCREEN_HEIGHT),
     color: '#bbb',
-    fontFamily: 'Poppins-Regular',
+    fontFamily: Fonts.primary_Regular,
+    lineHeight: RFValue(15, SCREEN_HEIGHT),
   },
   rippleWrapper: {
     position: 'relative',

@@ -265,9 +265,9 @@ const HeaderHome = () => {
           style={styles.logoImage}
           resizeMode="contain"
         />
-        <View style={{ flexDirection: "row", justifyContent: "center", gap: 5, marginLeft: 12 }}>
-          <MaterialIcons name="location-on" size={20} color="white" style={{ marginTop: 0 }} />
-          <Text style={styles.logoText}>{loadingCity ? '..........' : fullAddress || 'Unknown'}</Text>
+        <View style={{ flexDirection: "row", justifyContent: "center", gap: 5, marginLeft: 12, }}>
+          <MaterialIcons name="location-on" size={20} color="white" style={{ marginTop: 2 }} />
+          <Text   style={styles.logoText}>{loadingCity ? '..........' : fullAddress || 'Unknown'}</Text>
         </View>
       </View>
 
@@ -308,7 +308,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     textAlign: 'left',
     letterSpacing: 1,
-    width: wp(80),    
+    paddingRight: 20
   },
   iconContainer: {
     position: 'relative',

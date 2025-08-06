@@ -255,9 +255,11 @@ const EditProfile = () => {
 
   if (isAddressLoading) {
     return (
-      <LinearGradient colors={['#000337', '#000000']} style={styles.loaderScreen}>
-        <ActivityIndicator size="large" color="#fff" />
-      </LinearGradient>
+      <AppLayout >
+        <View style={styles.loaderScreen}>
+          <ActivityIndicator size="large" color="#fff" />
+        </View>
+      </AppLayout>
     );
   }
 
@@ -283,7 +285,7 @@ const EditProfile = () => {
           ) : (
             <TouchableOpacity onPress={handleImagePick} style={styles.fallbackAvatar} activeOpacity={0.9}>
               <Text style={styles.fallbackInitial}>{name ? name[0].toUpperCase() : '?'}</Text>
-                <View onPress={handleImagePick} style={styles.uploadIcon}>
+              <View onPress={handleImagePick} style={styles.uploadIcon}>
                 <MaterialIcons name="camera-alt" size={20} color="white" />
               </View>
             </TouchableOpacity>

@@ -20,6 +20,7 @@ import Geolocation from 'react-native-geolocation-service';
 import { PermissionsAndroid, Platform } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
+import AppLayout from '../layout/AppLayout';
 
 const requestLocationPermission = async () => {
   if (Platform.OS === 'ios') return true;
@@ -300,11 +301,8 @@ const ScannerScreen = ({ navigation }) => {
   }
 
   return (
-    <>
-      <View style={styles.headerOverlay}>
-        <PageHeader lable={t('scanQr')} back />
-      </View>
-
+    <AppLayout showCircle={false}>
+      <PageHeader lable={t('scanQr')} back />
       <View style={styles.fullscreen}>
         <Camera
           style={StyleSheet.absoluteFill}
@@ -364,7 +362,7 @@ const ScannerScreen = ({ navigation }) => {
           </View>
         )}
       </View>
-    </>
+    </AppLayout>
 
   );
 };

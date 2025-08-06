@@ -10,19 +10,23 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import BackButton from '../../components/PageHeader';
-import { hp, wp } from '../../utils/dimensions';
+import { hp, SCREEN_HEIGHT, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useGetOfferByIdQuery, useScanOfferMutation } from '../../features/shops/shopApi';
 import Toast from 'react-native-toast-message';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AppLayout from '../../layout/AppLayout';
+import PageHeader from '../../components/PageHeader';
+import { Fonts } from '../../utils/typography';
+import { Colors } from '../../utils/Colors';
 
 const fallbackBanner = require('../../../assets/images/fallback-banner.png');
 
 const OfferDetails = ({ route }) => {
     const navigation = useNavigation();
-        const { t } = useTranslation();
+    const { t } = useTranslation();
 
     const [error, setError] = useState(false);
 
@@ -58,13 +62,16 @@ const OfferDetails = ({ route }) => {
 
     if (isLoading) {
         return (
-            <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: '#000' }}>
-                <ActivityIndicator size="large" color="#fff" />
-            </LinearGradient>
+            <AppLayout showCircle={false}>
+                <PageHeader lable={'Offer Details'} back={true} />
+                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    <ActivityIndicator size="large" color="#fff" />
+                </View>
+            </AppLayout>
         );
     }
 
-    
+
 
     const {
         title = 'No Title Available',
@@ -76,20 +83,17 @@ const OfferDetails = ({ route }) => {
 
     const shopName = shopId?.name || 'Shop not available';
 
-     const formattedDate = new Date(offer.endTime).toLocaleString('en-IN', {
-      day: '2-digit',
-      month: 'short',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit',
-     });
+    const formattedDate = new Date(offer.endTime).toLocaleString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+    });
 
     return (
-                <SafeAreaView edges={['top']} style={{ flex: 1 }}>
-        
-        <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1, paddingBottom: hp(5) }}>
-            <BackButton lable={'Offer Details'} back={true} />
-
+        <AppLayout showCircle={false}>
+            <PageHeader lable={'Offer Details'} back={true} />
             <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
                 <Text style={styles.title}>{title}</Text>
                 <Text style={styles.description}>{description}</Text>
@@ -133,8 +137,7 @@ const OfferDetails = ({ route }) => {
                     </View>
                 </View>
             </ScrollView>
-        </LinearGradient>
-        </SafeAreaView>
+        </AppLayout>
     );
 };
 
@@ -153,40 +156,41 @@ const styles = StyleSheet.create({
     },
     title: {
         color: '#fff',
-        fontSize: RFValue(22),
-        fontFamily: 'Poppins-SemiBold',
+        fontSize: RFValue(24, SCREEN_HEIGHT),
+        fontFamily: Fonts.primary_SemiBold,
         textAlign: 'center',
+        textTransform: 'uppercase',
     },
     description: {
-        fontFamily: 'Poppins-Regular',
+        fontFamily: Fonts.primary_Regular,
         color: '#fff',
-        fontSize: RFValue(13),
+        fontSize: RFValue(13, SCREEN_HEIGHT),
         textAlign: 'center',
         marginBottom: hp(1),
+        textTransform: 'capitalize',
     },
     infoCard: {
-        padding: hp(2),
-        marginBottom: hp(0.5),
+        paddingHorizontal: 15,
+        paddingVertical:10
     },
     infoRow: {
         flexDirection: 'row',
-        justifyContent: 'space-between',
-        marginBottom: hp(1),
+        justifyContent: 'space-between'        
     },
     label: {
-        fontSize: RFValue(12),
+        fontSize: RFValue(14, SCREEN_HEIGHT),
         color: '#EBEAED',
-        fontFamily: 'Poppins-Regular',
+        fontFamily: Fonts.primary_Regular,
     },
     value: {
-        fontSize: RFValue(12),
+        fontSize: RFValue(16, SCREEN_HEIGHT),
         color: '#fff',
-        fontFamily: 'Poppins-SemiBold',
+        fontFamily: Fonts.primary_SemiBold,
     },
     card: {
-        backgroundColor: '#7926E4',
+        backgroundColor: Colors.purple,
         borderWidth: 4,
-        borderColor: '#9335E5',
+        borderColor: Colors.purple,
         borderRadius: 20,
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 3 },
@@ -201,27 +205,28 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
     scanText: {
-        fontSize: RFValue(12),
+        fontSize: RFValue(12, SCREEN_HEIGHT),
         color: '#EBEAED',
-        fontFamily: 'Poppins-SemiBold',
+        fontFamily: Fonts.primary_SemiBold,
         textAlign: 'center',
         marginBottom: hp(0.5),
     },
     validityText: {
-        fontSize: RFValue(12),
+        fontSize: RFValue(12, SCREEN_HEIGHT),
         color: '#fff',
-        fontFamily: 'Poppins-Light',
+        fontFamily: Fonts.primary_Regular,
         marginBottom: hp(1),
     },
     scanButton: {
         color: '#FFF',
-        backgroundColor: '#000337',
+        backgroundColor: Colors.quinary,
         paddingHorizontal: wp(5),
         paddingVertical: hp(1),
         borderRadius: 30,
-        fontSize: RFValue(15),
+        fontSize: RFValue(15, SCREEN_HEIGHT),
         marginTop: hp(2),
-        fontFamily: 'Poppins-Regular',
+        fontFamily: Fonts.primary_Regular,
+        lineHeight: RFValue(19, SCREEN_HEIGHT),
     },
 });
 

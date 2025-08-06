@@ -181,11 +181,8 @@ const RedeemScanner = ({ navigation }) => {
   }
 
   return (
-    <AppLayout>
-      <View style={styles.headerOverlay}>
-        <PageHeader lable={t('scanQr')} back />
-      </View>
-
+    <AppLayout showCircle={false}>
+      <PageHeader lable={t('scanQr')} back />
       <View style={styles.fullscreen}>
         <Camera
           style={StyleSheet.absoluteFill}

@@ -13,4 +13,8 @@ export const Colors = {
     inactiveTabBar: '#d3d3d3',
     splash: '#21DAD7',
     splash_light: "rgba(33,218,215,0.35)",
+    white_light: "rgba(255,255,255,0.2)",
+    purple_light: "rgba(139,5,235,0.2)",
+    purple: "#8b05eb",
+
 }

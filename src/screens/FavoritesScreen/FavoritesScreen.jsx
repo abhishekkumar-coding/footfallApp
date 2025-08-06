@@ -11,7 +11,7 @@ import {
 import { useSelector, useDispatch } from 'react-redux';
 
 import { RFValue } from 'react-native-responsive-fontsize';
-import { hp, wp } from '../../utils/dimensions';
+import { hp, SCREEN_HEIGHT, wp } from '../../utils/dimensions';
 import FilledFavIcon from '../../utils/icons/FilledFavIcon';
 import PageHeader from '../../components/PageHeader';
 import LinearGradient from 'react-native-linear-gradient';
@@ -20,6 +20,8 @@ import { navigate } from '../../navigations/NavigationUtil';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppLayout from '../../layout/AppLayout';
+import { Colors } from '../../utils/Colors';
+import { Fonts } from '../../utils/typography';
 
 const FavoritesScreen = ({ navigation }) => {
   const { t } = useTranslation();
@@ -54,9 +56,12 @@ const FavoritesScreen = ({ navigation }) => {
         })}
       >
         <Image style={styles.cardImage} source={{ uri: mainImage }} />
+
         <View style={styles.cardContent}>
-          <Text style={styles.category}>{item.category}</Text>
-          <Text style={styles.name}>{item.name}</Text>
+          <View style={styles.nameContainer}>
+            <Text style={styles.name}>{item.name}</Text>
+            <Text style={styles.category}>{item.category}</Text>
+          </View>
           <Text style={styles.location}>{item.city}</Text>
           <View style={styles.favTimeContainer}>
             <Text style={styles.timings}>
@@ -80,7 +85,7 @@ const FavoritesScreen = ({ navigation }) => {
             <Image source={require('../../../assets/emptyfavorite.png')} style={{
               width: wp(30),
               height: hp(20),
-              opacity:0.5,
+              opacity: 0.5,
               marginBottom: hp(2)
             }} />
             {/* <Text style={styles.emptyText}>No favorites yet</Text> */}
@@ -125,13 +130,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: wp(10),
   },
   card: {
-    backgroundColor: '#1f1f1f',
+    backgroundColor: Colors.white_light,
     borderRadius: 12,
     marginBottom: hp(2),
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 3,
     flexDirection: 'row',
   },
   cardImage: {
@@ -145,20 +146,35 @@ const styles = StyleSheet.create({
     padding: wp(3),
     justifyContent: 'space-between',
   },
+  nameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom:5
+  },
   name: {
-    fontSize: RFValue(14),
+    fontSize: RFValue(14, SCREEN_HEIGHT),
     color: '#fff',
-    fontFamily: 'Poppins-SemiBold',
+    fontFamily: Fonts.primary_SemiBold,
+    lineHeight: RFValue(15, SCREEN_HEIGHT),
+    textTransform: 'capitalize',
   },
   location: {
     color: '#d3d3d3',
-    fontSize: RFValue(12),
-    fontFamily: 'Poppins-Regular',
+    fontSize: RFValue(13, SCREEN_HEIGHT),
+    fontFamily: Fonts.primary_Regular,
+    lineHeight: RFValue(15, SCREEN_HEIGHT),
   },
   category: {
-    color: '#A9CEFF',
-    fontSize: RFValue(12),
-    fontFamily: 'Poppins-Regular',
+    color: '#fff',
+    fontSize: RFValue(10, SCREEN_HEIGHT),
+    fontFamily: Fonts.primary_SemiBold,
+    lineHeight: RFValue(15, SCREEN_HEIGHT),
+    textTransform: 'uppercase',
+    backgroundColor: Colors.white_light,
+    paddingHorizontal: 8,
+    paddingVertical: 3,
+    borderRadius: 10,
   },
   favTimeContainer: {
     flexDirection: 'row',
@@ -166,9 +182,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   timings: {
-    fontSize: RFValue(12),
+    fontSize: RFValue(10, SCREEN_HEIGHT),
     color: '#bbb',
-    fontFamily: 'Poppins-Regular',
+    fontFamily: Fonts.primary_Regular,
+    lineHeight: RFValue(15, SCREEN_HEIGHT),
   },
   listContent: {
     paddingBottom: hp(10),

@@ -1,12 +1,13 @@
 import React, { useLayoutEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { hp } from '../utils/dimensions';
+import { hp, SCREEN_HEIGHT } from '../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import PageHeader from '../components/PageHeader';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import AppLayout from '../layout/AppLayout';
+import { Fonts } from '../utils/typography';
 
 const ScanOptionScreen = ({ navigation }) => {
   const parentNav = useNavigation();
@@ -69,7 +70,7 @@ const styles = StyleSheet.create({
   },
   optionButton: {
     backgroundColor: 'rgba(255,255,255,0.12)',
-    paddingVertical: hp(2.5),
+    paddingVertical: 20,
     paddingHorizontal: 40,
     borderRadius: 10,
     marginVertical: 10,
@@ -78,7 +79,7 @@ const styles = StyleSheet.create({
   },
   optionText: {
     color: '#fff',
-    fontSize: RFValue(11),
-    fontWeight: '600',
+    fontSize: RFValue(16, SCREEN_HEIGHT),
+    fontFamily: Fonts.primary_SemiBold,
   },
 });
