@@ -35,34 +35,28 @@ import { Fonts } from '../../utils/typography';
 import { Colors } from '../../utils/Colors';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 
-// import BackButton from '../../components/PageHeader';
-// import CustomButton from '../../components/CustomButton';
-// import CustomInput from '../../components/CustomInput';
-// import { wp, hp } from '../../utils/dimensions';
-// import { setUser } from '../../features/auth/userSlice';
-// import { useUpdateUserMutation } from '../../features/auth/authApi';
-// import { useUploadFileMutation, useDeleteFileMutation } from '../../features/shops/shopApi';
-// import { UploadIcon } from '../../utils/icons/icons';
+let hasAskedForPermission = false;
 
 const requestLocationPermission = async () => {
-  if (Platform.OS === 'ios') return true;
+  if (Platform.OS === 'ios') {
+    const status = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+    console.log('iOS Location Permission Status:', status);
+    return status === RESULTS.GRANTED || status === RESULTS.LIMITED;
+  }
+
+  if (hasAskedForPermission) {
+    return false; 
+  }
+
+  hasAskedForPermission = true;
+
   const granted = await PermissionsAndroid.request(
     PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
   );
+
   return granted === PermissionsAndroid.RESULTS.GRANTED;
-};
-
-const requestGalleryPermission = async () => {
-  if (Platform.OS === 'android') {
-    const permission = Platform.Version >= 33
-      ? PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES
-      : PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE;
-
-    const granted = await PermissionsAndroid.request(permission);
-    return granted === PermissionsAndroid.RESULTS.GRANTED;
-  }
-  return true;
 };
 
 const EditProfile = () => {

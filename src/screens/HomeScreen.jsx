@@ -39,6 +39,7 @@ const HomeScreen = ({ navigation }) => {
   const [isLoading, setLoading] = useState(false);
   const referralCode = useSelector(state => state.user.pendingReferral);
   const [translateY, setTranslateY] = useState(new Animated.Value(0));
+  const savedAddress = useSelector((state) => state.user.savedAddress); // Adjust the slice name if needed
   console.log("Extracted referral code {In Home screen} from REDUX: ", referralCode)
 
 
@@ -54,18 +55,22 @@ const HomeScreen = ({ navigation }) => {
     console.log("Referral detected in HomeScreen, navigating to Signup...");
     navigation.navigate('Signup', { referralCode })
   }
+  console.log('Saved Address from Redux:', savedAddress);
 
-  const savedUserDetails = async()=>{
-    const userId = await AsyncStorage.getItem('user')
-    console.log("User. Details: ", userId)
-  }
+ useEffect(() => {
+
+}, []);
+
+
+
+
 
   const refreshControl = useMemo(() => (
     <RefreshControl refreshing={isLoading} onRefresh={handleRefreshControl} />
   ), [isLoading, handleRefreshControl]);
   const _translateY = translateY.interpolate({
     inputRange: [0, 100],
-    outputRange: [0, -50],    
+    outputRange: [0, -50],
     easing: Easing.bezier(0.25, 0.1, 0.25, 1.0),
   });
   return (
@@ -73,7 +78,7 @@ const HomeScreen = ({ navigation }) => {
     <AppLayout>
       <Animated.View style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 0, transform: [{ translateY: _translateY }] }}>
         <ImageBackground source={require('../../assets/home-bg-1.png')}
-          imageStyle={{ opacity: 0.2,  }}
+          imageStyle={{ opacity: 0.2, }}
           style={styles.imageBackground} />
       </Animated.View>
       <Animated.ScrollView refreshControl={refreshControl} showsVerticalScrollIndicator={false}

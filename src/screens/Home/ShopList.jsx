@@ -24,6 +24,7 @@ const ShopList = forwardRef((props, ref) => {
   const dispatch = useDispatch();
   const { navigation } = props;
   const { t } = useTranslation();
+  const savedAddress = useSelector((state) => state.user.savedAddress);
 
   const [coordinates, setCoordinates] = useState({
     lat: null,
@@ -32,27 +33,32 @@ const ShopList = forwardRef((props, ref) => {
 
   useEffect(() => {
     const fetchLatLng = async () => {
-      let lat = null;
-      let lng = null;
-
       try {
-        const selectedAddress = await AsyncStorage.getItem('selectedAddress');
-        const parsed = selectedAddress ? JSON.parse(selectedAddress) : null;
-          // console.log('Using selectedAddress coordinates:', parsed.location.coordinates);
+        let lat = null;
+        let lng = null;
 
-        if (parsed) {
-          lat = parsed.location.coordinates[1]
-          lng = parsed.location.coordinates[0]
-          console.log('Using selectedAddress coordinates:', lat, lng);
-        } else if (user?.location?.coordinates?.length === 2) {
-          lat = user.location.coordinates[1];
-          lng = user.location.coordinates[0];
-          console.log('Using user coordinates:', lat, lng);
+        if (savedAddress?.location?.coordinates?.length === 2) {
+          lat = savedAddress.location.coordinates[1];
+          lng = savedAddress.location.coordinates[0];
+          console.log('Using savedAddress coordinates from Redux:', lat, lng);
         } else {
-          // Default coordinates (India Gate)
-          lat = 28.6129;
-          lng = 77.2295;
-          console.log('Using default coordinates (India Gate):', lat, lng);
+          const selectedAddress = await AsyncStorage.getItem('selectedAddress');
+          const parsed = selectedAddress ? JSON.parse(selectedAddress) : null;
+
+          if (parsed?.location?.coordinates?.length === 2) {
+            lat = parsed.location.coordinates[1];
+            lng = parsed.location.coordinates[0];
+            console.log('Using selectedAddress coordinates from AsyncStorage:', lat, lng);
+          } else if (user?.location?.coordinates?.length === 2) {
+            lat = user.location.coordinates[1];
+            lng = user.location.coordinates[0];
+            console.log('Using user coordinates:', lat, lng);
+          } else {
+            // Fallback to default coordinates (India Gate)
+            lat = 28.6129;
+            lng = 77.2295;
+            console.log('Using default coordinates (India Gate):', lat, lng);
+          }
         }
 
         setCoordinates({ lat, lng });
@@ -62,7 +68,8 @@ const ShopList = forwardRef((props, ref) => {
     };
 
     fetchLatLng();
-  }, [user]);
+  }, [user, savedAddress]);
+  ;
 
   const { data, refetch, error, isLoading } = useGetNearbyShopsQuery({
     lat: coordinates.lat,
@@ -83,7 +90,7 @@ const ShopList = forwardRef((props, ref) => {
     }),
     [refetch, isLoading]
   );
-  console.log("ShopData on ShopList: ", shopData)
+  // console.log("ShopData on ShopList: ", shopData)
 
 
   const handleViewAll = () => {
@@ -102,32 +109,32 @@ const ShopList = forwardRef((props, ref) => {
       })}
     />
   );
-const EmptyComponent = () => {
-  return (
-    <View style={{ minHeight: SCREEN_HEIGHT * 0.45, justifyContent: 'center', alignItems: 'center' }}>
-      <Text style={{
-        fontFamily: Fonts.primary_Bold, textAlign: "center",
-        fontSize: RFValue(16, SCREEN_HEIGHT), color: "#fff", opacity: 0.5
-      }}>
-        {t('noShopsAvailable')}
-      </Text>
-      <Text style={{
-        fontFamily: Fonts.primary_Regular, textAlign: "center",
-        fontSize: RFValue(12, SCREEN_HEIGHT), color: "#fff", opacity: 0.4
-      }}>
-        {t('pleaseTryAgainLater')}
-      </Text>
-      <Image
-        source={require('../../../assets/noShop.png')}
-        style={{ width: 160, height: 160, alignSelf: "center", resizeMode: "cover", opacity: 0.5 }}
-      />
-      <TouchableOpacity style={styles.updateButton} onPress={handleUpdateProfile} activeOpacity={0.9}>
-        <Text style={styles.updateButtonText}>{t('update_location')}</Text>
-      </TouchableOpacity>
+  const EmptyComponent = () => {
+    return (
+      <View style={{ minHeight: SCREEN_HEIGHT * 0.45, justifyContent: 'center', alignItems: 'center' }}>
+        <Text style={{
+          fontFamily: Fonts.primary_Bold, textAlign: "center",
+          fontSize: RFValue(16, SCREEN_HEIGHT), color: "#fff", opacity: 0.5
+        }}>
+          {t('noShopsAvailable')}
+        </Text>
+        <Text style={{
+          fontFamily: Fonts.primary_Regular, textAlign: "center",
+          fontSize: RFValue(12, SCREEN_HEIGHT), color: "#fff", opacity: 0.4
+        }}>
+          {t('pleaseTryAgainLater')}
+        </Text>
+        <Image
+          source={require('../../../assets/noShop.png')}
+          style={{ width: 160, height: 160, alignSelf: "center", resizeMode: "cover", opacity: 0.5 }}
+        />
+        <TouchableOpacity style={styles.updateButton} onPress={handleUpdateProfile} activeOpacity={0.9}>
+          <Text style={styles.updateButtonText}>{t('update_location')}</Text>
+        </TouchableOpacity>
 
-    </View>
-  )
-}
+      </View>
+    )
+  }
 
 
   return (
@@ -189,11 +196,11 @@ const styles = StyleSheet.create({
   },
   updateButton: {
     width: wp(60),
-    height:45,
+    height: 45,
     borderRadius: 100,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)', 
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
     alignSelf: 'center',
   },
   updateButtonText: {

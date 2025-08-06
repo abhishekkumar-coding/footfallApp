@@ -95,7 +95,7 @@ const CashbackScreen = ({ navigation, route }) => {
             longitude,
           }).unwrap();
 
-          console.log('Claim cashback Response: ', response);
+          // console.log('Claim cashback Response: ', response);
           setMessageType('success');
           setMessage(t('points_awarded'));
           setTimeout(() => {
@@ -110,7 +110,7 @@ const CashbackScreen = ({ navigation, route }) => {
         }
       },
       error => {
-        console.log('Location Error:', error);
+        // console.log('Location Error:', error);
         setMessageType('error');
         setMessage(t('location_fetch_error'));
         setTimeout(() => setMessage(null), 1000);

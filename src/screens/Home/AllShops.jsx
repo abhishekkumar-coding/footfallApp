@@ -7,8 +7,7 @@ import {
   ScrollView,
   Image,
 } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import LinearGradient from 'react-native-linear-gradient';
+import React, { useEffect, useState, useMemo } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import { hp, SCREEN_HEIGHT, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
@@ -17,16 +16,20 @@ import { useDispatch } from 'react-redux';
 import { loadWishlist } from '../../features/wishlistSlice';
 import ShopCard from '../../components/ShopCard';
 import ShopSkeletonCard from './ShopSkeletonCard';
-import { useGetAllShopsQuery, useGetFilteredShopsQuery } from '../../features/shops/shopApi';
+import {
+  useGetAllShopsQuery,
+  useGetFilteredShopsQuery,
+} from '../../features/shops/shopApi';
 import { useTranslation } from 'react-i18next';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import AppLayout from '../../layout/AppLayout';
 import { Colors } from '../../utils/Colors';
 import { Fonts } from '../../utils/typography';
 
-const AllShops = ({ route }) => {
+const AllShops = () => {
   const { t } = useTranslation();
-  // const { shopsData } = route.params;
+  const navigation = useNavigation();
+  const dispatch = useDispatch();
+
   const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [isLoading, setIsLoading] = useState(true);
   const navigation = useNavigation();
@@ -35,22 +38,23 @@ const AllShops = ({ route }) => {
   const shopsData = shops?.data?.shops || []
   console.log("Shops : ", shopsData)
 
-  const { data } = useGetFilteredShopsQuery(selectedCategory);
+  const { data: allShopsData } = useGetAllShopsQuery();
+  const { data: filteredData } = useGetFilteredShopsQuery(selectedCategory);
 
+  const shopsData = allShopsData?.data?.shops || [];
 
-  const categories = [
-    { key: 'ALL', label: t('all') },
-    { key: 'New Delhi', label: 'New Delhi' },
-    { key: 'Noida', label: 'Noida' },
-    { key: 'Gurugram', label: 'Gurugram' },
-    { key: 'Patna', label: 'Patna' },
-    ...Array.from(new Set(shopsData.map(shop => shop.city))).map(city => ({ key: city, label: city })),
-  ];
+  const categories = useMemo(() => {
+    const uniqueCities = Array.from(new Set(shopsData.map(shop => shop.city))).filter(Boolean);
+    return [
+      { key: 'ALL', label: t('all') },
+      ...uniqueCities.map(city => ({ key: city, label: city })),
+    ];
+  }, [shopsData, t]);
 
   const filteredShops =
     selectedCategory === 'ALL'
       ? shopsData
-      : data?.data?.shops;
+      : filteredData?.data?.shops || [];
 
   useEffect(() => {
     dispatch(loadWishlist());
@@ -58,22 +62,23 @@ const AllShops = ({ route }) => {
 
   useEffect(() => {
     setIsLoading(true);
-    const timer = setTimeout(() => setIsLoading(false), 1000); // simulate 1s loading
+    const timer = setTimeout(() => setIsLoading(false), 1000);
     return () => clearTimeout(timer);
   }, [selectedCategory]);
 
   const renderItem = ({ item }) => (
     <ShopCard
       shop={item}
-      onPress={() => navigation.navigate('ShopDetails', {
-        id: item._id,
-      })}
+      onPress={() =>
+        navigation.navigate('ShopDetails', {
+          id: item._id,
+        })
+      }
     />
   );
 
   return (
-    <AppLayout style={{ flex: 1 }}>
-
+    <AppLayout style={styles.container}>
       <PageHeader lable={t('shops')} back />
 
       {/* Filter Section */}
@@ -212,4 +217,3 @@ const styles = StyleSheet.create({
     opacity: 0.4
   }
 });
-

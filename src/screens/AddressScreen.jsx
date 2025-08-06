@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import {
   View,
   Text,
@@ -15,7 +16,6 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useUpdateUserMutation } from '../features/auth/authApi'; // adjust path if needed
-import { useSelector } from 'react-redux';
 import { useFocusEffect } from '@react-navigation/native';
 import { useCallback } from 'react';
 
@@ -27,15 +27,17 @@ import {
   useDeleteAddressMutation,
 } from '../features/address/addressApiSlice';
 import AppLayout from '../layout/AppLayout';
+import { clearSavedAddress, setSavedAddress } from '../features/auth/userSlice';
 
 export default function AddressScreen() {
   const navigation = useNavigation();
   const [selectedId, setSelectedId] = useState(null);
   const [deleting, setDeleting] = useState(false);
+  const dispatch = useDispatch();
 
   const userInfo = useSelector((state) => state.user.user);
   const userId = userInfo?._id;
-  console.log('User ID:', userId); // Debugging line to check user ID
+  // console.log('User ID:', userId); // Debugging line to check user ID
 
   const {
     data: addressData,
@@ -44,12 +46,12 @@ export default function AddressScreen() {
     error,
     refetch,
   } = useGetAllAddressesQuery(
-  { page: 1, limit: 10 },
-  {
-    skip: !userId,
-    refetchOnMountOrArgChange: true, // <== this is important!
-  }
-);
+    { page: 1, limit: 10 },
+    {
+      skip: !userId,
+      refetchOnMountOrArgChange: true, // <== this is important!
+    }
+  );
 
   const [deleteAddress] = useDeleteAddressMutation();
 
@@ -58,45 +60,23 @@ export default function AddressScreen() {
   const handleSelect = async (id) => {
     setSelectedId(id);
 
-
-    useFocusEffect(
-      useCallback(() => {
-        refetch();
-      }, [])
-    );
-
-    useEffect(() => {
-      const init = async () => {
-        // Always refetch when userId changes
-        await refetch();
-
-        // Clear selectedAddress if no user or address mismatch
-        const savedAddress = await AsyncStorage.getItem('selectedAddress');
-        if (savedAddress) {
-          const parsed = JSON.parse(savedAddress);
-          if (parsed.userId !== userId) {
-            await AsyncStorage.removeItem('selectedAddress');
-            setSelectedId(null);
-          } else {
-            setSelectedId(parsed._id);
-          }
-        }
-      };
-
-      init();
-    }, []);
-
-
-    // Find selected address object
     const selectedAddress = addressData?.data?.addresses?.find(addr => addr._id === id);
 
     if (selectedAddress) {
       try {
-        // 1. Store in AsyncStorage
-        await AsyncStorage.setItem('selectedAddress', JSON.stringify(selectedAddress));
-        console.log('✅ Address stored in AsyncStorage');
+        const payload = {
+          ...selectedAddress,
+          userId: userId,
+        };
 
-        // 2. Update user profile
+        // Save to AsyncStorage
+        await AsyncStorage.setItem('selectedAddress', JSON.stringify(payload));
+        // console.log('✅ Address stored in AsyncStorage');
+
+        // ✅ Dispatch to Redux
+        dispatch(setSavedAddress(payload));
+
+        // Update backend
         const body = {
           address: selectedAddress.address,
           city: selectedAddress.city,
@@ -108,12 +88,13 @@ export default function AddressScreen() {
         };
 
         const res = await updateUser({ id: userId, body }).unwrap();
-        console.log('✅ User updated successfully:', res);
+        // console.log('✅ User updated successfully:', res);
       } catch (error) {
-        console.error('❌ Error in handleSelect:', error);
+        console.error('❌ Error selecting address:', error);
       }
     }
   };
+
 
 
   const handleDelete = id => {
@@ -132,11 +113,12 @@ export default function AddressScreen() {
               const savedAddress = await AsyncStorage.getItem('selectedAddress');
               if (savedAddress) {
                 const parsed = JSON.parse(savedAddress);
-                console.log("Parsed Address fron Local: ", parsed)
+                // console.log("Parsed Address fron Local: ", parsed)
                 if (parsed._id === id) {
                   await AsyncStorage.removeItem('selectedAddress');
+                  dispatch(clearSavedAddress()); // ⬅️ clear Redux
                   setSelectedId(null); // Also reset local state
-                  console.log('✅ Removed selectedAddress from AsyncStorage');
+                  // console.log('✅ Removed selectedAddress from AsyncStorage');
                 }
               }
               await refetch(); // Refresh list
@@ -151,21 +133,37 @@ export default function AddressScreen() {
     );
   };
 
+  // Refetch addresses when screen is focused
+  useFocusEffect(
+    useCallback(() => {
+      refetch();
+    }, [refetch])
+  );
+
+  // Load selected address from AsyncStorage on first mount
   useEffect(() => {
     const loadSelectedAddress = async () => {
       try {
         const savedAddress = await AsyncStorage.getItem('selectedAddress');
         if (savedAddress) {
           const parsed = JSON.parse(savedAddress);
-          setSelectedId(parsed._id);
+          if (parsed.userId === userId) {
+            setSelectedId(parsed._id);
+            dispatch(setSavedAddress(parsed)); // ⬅️ sync to Redux
+          } else {
+            await AsyncStorage.removeItem('selectedAddress');
+            setSelectedId(null);
+          }
         }
       } catch (error) {
         console.error('Error loading saved address:', error);
       }
     };
 
-    loadSelectedAddress();
-  }, []);
+    if (userId) {
+      loadSelectedAddress();
+    }
+  }, [userId]);
 
 
   // Removed duplicate handleSelect to fix redeclaration error
@@ -226,44 +224,44 @@ export default function AddressScreen() {
 
   return (
     <AppLayout >
-      
-        <PageHeader back lable={'Address'} />
-        <View style={styles.container}>
-          <TouchableOpacity
-            style={styles.addBtn}
-            onPress={() =>
-              navigation.navigate('MapLocationPicker', { mode: 'create' })
-            }
-          >
-            <Icon name="plus" size={20} color="#fff" />
-            <Text style={styles.addBtnText}>Add New Address</Text>
-          </TouchableOpacity>
 
-          {isLoading ? (
-            <Text style={{ color: '#fff', textAlign: 'center' }}>
-              Loading addresses...
-            </Text>
-          ) : isError ? (
-            <Text style={{ color: 'red', textAlign: 'center' }}>
-              Failed to load addresses
-            </Text>
-          ) : (
-            <FlatList
-              data={addressData?.data?.addresses || []}
-              renderItem={renderAddress}
-              keyExtractor={item => item._id}
-              contentContainerStyle={{ paddingBottom: 20 }}
-              showsVerticalScrollIndicator={false}
-            />
-          )}
-        </View>
-        {deleting && (
-          <View style={styles.overlay}>
-            <ActivityIndicator size="large" color="#ffffff" />
-            <Text style={styles.loadingText}>Deleting address...</Text>
-          </View>
+      <PageHeader back lable={'Address'} />
+      <View style={styles.container}>
+        <TouchableOpacity
+          style={styles.addBtn}
+          onPress={() =>
+            navigation.navigate('MapLocationPicker', { mode: 'create' })
+          }
+        >
+          <Icon name="plus" size={20} color="#fff" />
+          <Text style={styles.addBtnText}>Add New Address</Text>
+        </TouchableOpacity>
+
+        {isLoading ? (
+          <Text style={{ color: '#fff', textAlign: 'center' }}>
+            Loading addresses...
+          </Text>
+        ) : isError ? (
+          <Text style={{ color: 'red', textAlign: 'center' }}>
+            Failed to load addresses
+          </Text>
+        ) : (
+          <FlatList
+            data={addressData?.data?.addresses || []}
+            renderItem={renderAddress}
+            keyExtractor={item => item._id}
+            contentContainerStyle={{ paddingBottom: 20 }}
+            showsVerticalScrollIndicator={false}
+          />
         )}
-     
+      </View>
+      {deleting && (
+        <View style={styles.overlay}>
+          <ActivityIndicator size="large" color="#ffffff" />
+          <Text style={styles.loadingText}>Deleting address...</Text>
+        </View>
+      )}
+
     </AppLayout>
   );
 }

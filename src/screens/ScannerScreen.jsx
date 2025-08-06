@@ -21,12 +21,25 @@ import { PermissionsAndroid, Platform } from 'react-native';
 import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
 import AppLayout from '../layout/AppLayout';
+import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+
+// let hasAskedForPermission = false;
 
 const requestLocationPermission = async () => {
-  if (Platform.OS === 'ios') return true;
+  if (Platform.OS === 'ios') {
+    const status = await request(PERMISSIONS.IOS.LOCATION_WHEN_IN_USE);
+    console.log('iOS Location Permission Status:', status);
+    return status === RESULTS.GRANTED || status === RESULTS.LIMITED;
+  }
+
+  // if (hasAskedForPermission) {
+  //   return false; 
+  // }
+
+  // hasAskedForPermission = true;
 
   const granted = await PermissionsAndroid.request(
-    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION,
+    PermissionsAndroid.PERMISSIONS.ACCESS_FINE_LOCATION
   );
 
   return granted === PermissionsAndroid.RESULTS.GRANTED;

@@ -28,7 +28,7 @@ const SettingScreen = () => {
     const handleLogout = async () => {
         try {
             console.log('Logout is working');
-            await AsyncStorage.multiRemove(['token', 'user', 'wishlist']);
+            await AsyncStorage.multiRemove(['token', 'user', 'wishlist', 'selectedAddress']);
             dispatch(clearUser());
             dispatch(shopApi.util.resetApiState());
 

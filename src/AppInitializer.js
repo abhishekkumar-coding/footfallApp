@@ -89,13 +89,13 @@ const AppInitializer = ({ children }) => {
             id: userData._id,
             body: { lat: latitude, lng: longitude },
           }).unwrap();
-          console.log("✅ User location auto updated:", res);
+          // console.log("✅ User location auto updated:", res);
         } catch (err) {
-          console.log('❌ Failed to update user auto location:', err);
+          // console.log('❌ Failed to update user auto location:', err);
         }
       },
       (error) => {
-        console.error('Location error:', error);
+        // console.error('Location error:', error);
         Toast.show({
           type: 'error',
           text1: i18n.t('failedToDetectLocation'),

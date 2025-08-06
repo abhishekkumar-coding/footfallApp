@@ -13,17 +13,13 @@ import { hp, SCREEN_HEIGHT, wp } from '../utils/dimensions';
 import FilledFavIcon from '../utils/icons/FilledFavIcon';
 import EmptyHeart from '../utils/icons/EmptyHeart';
 import { addToWishlist, removeFromWishlist } from '../features/wishlistSlice';
-
 import Animated, {
   useSharedValue,
   useAnimatedStyle,
   withTiming,
   runOnJS,
 } from 'react-native-reanimated';
-import {
-  GestureDetector,
-  Gesture,
-} from 'react-native-gesture-handler';
+import { GestureDetector, Gesture } from 'react-native-gesture-handler';
 import { useTranslation } from 'react-i18next';
 import Toast from 'react-native-toast-message';
 import { Colors } from '../utils/Colors';
@@ -35,24 +31,22 @@ const ShopCard = ({ shop, onPress }) => {
   const favoriteShops = wishlist.shops || [];
   const [imageError, setImageError] = useState(false);
   const { t } = useTranslation();
+
   const isDisabled = shop?.vendor?.rechargePoints < 100;
-  // console.log("Recharge Points: ",shop?.vendor?.rechargePoints)
 
   let galleryImages = [];
   try {
     galleryImages = JSON.parse(shop.gallery[0] || '[]');
-    // galleryImages = shop?.gallery[0]
   } catch (error) {
     console.warn('Failed to parse gallery JSON:', error);
   }
+
   const mainImage = galleryImages[0] || shop.cover;
-  console.log("Gallery Image: ", galleryImages)
-  // const mainImage = galleryImages[0] || shop.cover || shop.logo;
+
   const isFavorite = favoriteShops.some(fav => fav._id === shop._id);
 
   const toggleFavShop = () => {
-    const isFav = favoriteShops.some(item => item._id === shop._id);
-    if (isFav) {
+    if (isFavorite) {
       dispatch(removeFromWishlist({ removeId: shop._id, type: 'shops' }));
     } else {
       dispatch(addToWishlist({ data: shop, type: 'shops' }));
@@ -96,8 +90,8 @@ const ShopCard = ({ shop, onPress }) => {
     if (isDisabled) {
       Toast.show({
         type: 'error',
-        text1: 'Shop Setup Incomplete',
-        text2: 'This shop is not fully set up yet.',
+        text1: t('shopSetupIncomplete'),
+        text2: t('shopNotFullySetup'),
       });
     } else {
       onPress();
@@ -118,10 +112,7 @@ const ShopCard = ({ shop, onPress }) => {
         }
         style={styles.cardImage}
         resizeMode="cover"
-        onError={(e) => {
-          console.warn("Image load error for shop:", shop.name, e.nativeEvent.error);
-          setImageError(true);
-        }}
+        onError={() => setImageError(true)}
       />
       <Text style={styles.category}>{shop.category}</Text>
       <View style={styles.cardContent}>
@@ -134,7 +125,6 @@ const ShopCard = ({ shop, onPress }) => {
           <Text style={styles.timings}>
             {t('timings', { start: shop.startTime, end: shop.endTime })}
           </Text>
-
           <Pressable onPress={() => { }} android_disableSound hitSlop={10}>
             <GestureDetector gesture={rippleGesture}>
               <View style={styles.rippleWrapper}>
@@ -146,7 +136,6 @@ const ShopCard = ({ shop, onPress }) => {
         </View>
       </View>
     </TouchableOpacity>
-
   );
 };
 
@@ -175,7 +164,6 @@ const styles = StyleSheet.create({
   },
   cardContent: {
     padding: 10,
-    alignItems: 'flex-start',
     flex: 1,
     justifyContent: 'space-between',
   },

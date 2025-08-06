@@ -34,7 +34,7 @@ const AppNavigator = () => {
           setInitialRoute('Language');
         }
       } catch (e) {
-        console.log('Error reading appLanguage from storage', e);
+        // console.log('Error reading appLanguage from storage', e);
         // fallback route
         setInitialRoute(user ? 'Main' : 'Onboarding');
       } finally {
