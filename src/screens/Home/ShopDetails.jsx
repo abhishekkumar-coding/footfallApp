@@ -10,7 +10,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { hp, wp } from '../../utils/dimensions';
+import { hp, SCREEN_HEIGHT, wp } from '../../utils/dimensions';
 import ShopQRCode from './ShopQRCode';
 import { RFValue } from 'react-native-responsive-fontsize';
 import {
@@ -27,8 +27,11 @@ import Toast from 'react-native-toast-message';
 import Geolocation from 'react-native-geolocation-service';
 import { PermissionsAndroid, Platform } from 'react-native';
 import { useTranslation } from 'react-i18next';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import AppLayout from '../../layout/AppLayout';
+import { Fonts } from '../../utils/typography';
+import { Colors } from '../../utils/Colors';
 
 
 const requestLocationPermission = async () => {
@@ -67,7 +70,7 @@ const requestLocationPermission = async () => {
 const ShopDetails = ({ route }) => {
   const { t } = useTranslation();
   const navigation = useNavigation();
-
+  const insets = useSafeAreaInsets();
   const { id } = route.params
 
   const [sortBy, setSortBy] = useState('Latest');
@@ -234,184 +237,181 @@ const ShopDetails = ({ route }) => {
 
   if (isShopLoading) {
     return (
-      <LinearGradient
-        colors={['#000337', '#000000']}
-        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-      >
-        <ActivityIndicator size="large" color="#fff" />
-      </LinearGradient>
+      <AppLayout>
+        <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+          <ActivityIndicator size="large" color="#fff" />
+        </View>
+      </AppLayout>
     );
   }
 
   if (!shop) {
     return (
-      <LinearGradient
-        colors={['#000337', '#000000']}
-        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
-      >
+      <AppLayout>
         <Text style={{ color: '#fff', fontSize: 16 }}>
           {t('shop_data_missing')}
         </Text>
-      </LinearGradient>
+      </AppLayout>
     );
   }
 
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
-      <LinearGradient
-        colors={['#000337', '#000000']}
-        style={{ flex: 1 }}
-      >
+    <View style={{ flex: 1, backgroundColor: '#080042' }}>
+      <View style={[styles.headerContainer, { paddingTop: insets.top }]}>
         <PageHeader back bg />
-        {(isLoadingShop || isLoadingVendor) && (
-          <View style={styles.loaderContainer}>
-            <Text style={styles.loaderText}>
-              {isLoadingShop ? t('scanning') : t('fetching_points')}
-            </Text>
-          </View>
-        )}
+      </View>
+      {(isLoadingShop || isLoadingVendor) && (
+        <View style={styles.loaderContainer}>
+          <Text style={styles.loaderText}>
+            {isLoadingShop ? t('scanning') : t('fetching_points')}
+          </Text>
+        </View>
+      )}
 
-        {showScanSuccess && (
-          <View
-            style={[styles.resultContainer, { backgroundColor: '#28A745' }]}
-          >
-            <Text style={styles.resultTitle}>
-              {t('scanSuccessful')}
-            </Text>
-          </View>
-        )}
-        {showScanError && (
-          <View
-            style={[styles.resultContainer, { backgroundColor: '#B00020' }]}
-          >
-            <Text style={styles.resultTitle}>{t('scan_failed', { message: errorMessage })}</Text>
-          </View>
-        )}
+      {showScanSuccess && (
+        <View
+          style={[styles.resultContainer, { backgroundColor: '#28A745' }]}
+        >
+          <Text style={styles.resultTitle}>
+            {t('scanSuccessful')}
+          </Text>
+        </View>
+      )}
+      {showScanError && (
+        <View
+          style={[styles.resultContainer, { backgroundColor: '#B00020' }]}
+        >
+          <Text style={styles.resultTitle}>{t('scan_failed', { message: errorMessage })}</Text>
+        </View>
+      )}
 
-        <View style={styles.gradientContainer}>
-          <ScrollView
-            contentContainerStyle={styles.scrollContainer}
-            showsVerticalScrollIndicator={false}
-          >
-            {/* QR Code Section */}
-            <View style={styles.qrContainer}>
-              {/* <ShopQRCode
+
+      <ScrollView
+        contentContainerStyle={styles.scrollContainer}
+        showsVerticalScrollIndicator={false}
+        stickyHeaderIndices={[0]}
+        style={{
+          backgroundColor: '#080042',
+        }}
+      >
+        {/* QR Code Section */}
+        <View style={styles.qrContainer}>
+          {/* <ShopQRCode
               shopId={_id}
               email={contact?.email ?? 'no-email'}
               ownerId={owner}
               logo={logo}
             /> */}
 
-              <Image
-                source={
-                  imageError || !cover
-                    ? require('../../../assets/emptyShop.png')
-                    : { uri: cover }}
-                style={{ width: '100%', height: 350 }}
-                onError={(e) => {
-                  console.warn("Image load error for shop:", shop.name, e.nativeEvent.error);
-                  setImageError(true);
-                }}
-              />
-              <View style={styles.textWrapper}>
-                <Text style={styles.titleText}>{name}</Text>
-                <Text style={styles.subtitleText}>{category}</Text>
-              </View>
-
-
+          <Image
+            source={
+              imageError || !cover
+                ? require('../../../assets/emptyShop.png')
+                : { uri: cover }}
+            style={{ width: '100%', height: 350 }}
+            onError={(e) => {
+              console.warn("Image load error for shop:", shop.name, e.nativeEvent.error);
+              setImageError(true);
+            }}
+          />
+          <LinearGradient
+            colors={['transparent', 'rgba(0, 0, 0, 0.4)', 'rgba(0, 0, 0, 0.8)',]}
+            style={styles.textWrapper}
+          >
+            <View style={styles.textContainer}>
+              <Text style={styles.titleText}>{name}</Text>
+              <Text style={styles.subtitleText}>{category}</Text>
             </View>
-
-            {/* Shop Details Section */}
-            <View style={styles.shopDetails}>
-              {/* <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>{t('category')}</Text>
-              <Text style={styles.detailValue}>{category}</Text>
-            </View>
-
-            <View style={styles.detailRow}>
-              <Text style={styles.detailLabel}>{t('shop_name')}</Text>
-              <Text style={styles.detailValue}>{name}</Text>
-            </View> */}
-
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>{t('address')}</Text>
-                <Text style={styles.detailValue}>{address}</Text>
-              </View>
-
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>{t('city')}</Text>
-                <Text style={styles.detailValue}>
-                  {city}
-                </Text>
-              </View>
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>{t('pincode')}</Text>
-                <Text style={styles.detailValue}>
-                  {pinCode}
-                </Text>
-              </View>
-
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>{t('timing')}</Text>
-                <Text style={styles.detailValue}>
-                  {startTime} - {endTime}
-                </Text>
-              </View>
-
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>{t('phone')}</Text>
-                <Text style={styles.detailValue}>{contact?.phone}</Text>
-              </View>
-
-              <View style={styles.detailRow}>
-                <Text style={styles.detailLabel}>{t('email')}</Text>
-                <Text style={styles.detailValue}>{contact?.email}</Text>
-              </View>
-              <View style={styles.buttonRow}>
-                <TouchableOpacity
-                  style={styles.scanButton}
-                  onPress={handleManualScan}
-                >
-                  <Text style={styles.buttonText}>{t('scan_me')}</Text>
-                </TouchableOpacity>
-
-                <TouchableOpacity
-                  style={styles.redeemButton}
-                  onPress={() => handleRedeem(owner)}
-                >
-                  <Text style={styles.buttonText}>{t('redeem')}</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </ScrollView>
+          </LinearGradient>
         </View>
-      </LinearGradient>
-    </SafeAreaView>
+        {/* Shop Details Section */}
+        <View style={styles.shopDetails}>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>{t('address')}</Text>
+            <Text style={styles.detailValue}>{address}</Text>
+          </View>
+
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>{t('city')}</Text>
+            <Text style={styles.detailValue}>
+              {city}
+            </Text>
+          </View>
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>{t('pincode')}</Text>
+            <Text style={styles.detailValue}>
+              {pinCode}
+            </Text>
+          </View>
+
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>{t('timing')}</Text>
+            <Text style={styles.detailValue}>
+              {startTime} - {endTime}
+            </Text>
+          </View>
+
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>{t('phone')}</Text>
+            <Text style={styles.detailValue}>{contact?.phone}</Text>
+          </View>
+
+          <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>{t('email')}</Text>
+            <Text style={styles.detailValue}>{contact?.email}</Text>
+          </View>
+
+        </View>
+
+      </ScrollView>
+
+      <View style={styles.buttonRow}>
+        <TouchableOpacity
+          style={styles.scanButton}
+          onPress={handleManualScan}
+        >
+          <Text style={styles.buttonText}>{t('scan_me')}</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          style={styles.redeemButton}
+          onPress={() => handleRedeem(owner)}
+        >
+          <Text style={styles.buttonText}>{t('redeem')}</Text>
+        </TouchableOpacity>
+      </View>
+
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
-  gradientContainer: {
-    flex: 1,
-    position: "absolute",
+  headerContainer: {
+    position: 'absolute',
     top: 0,
-    right: 0,
     left: 0,
+    right: 0,
+    zIndex: 1000,
   },
   scrollContainer: {
-    paddingBottom: hp(5),
+    zIndex: 1000,
+    flexGrow: 1,
+    backgroundColor: '#080042',
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+
   },
   textWrapper: {
     position: "absolute",
-    bottom: hp(15),              // Use a fixed distance from bottom
-    left: wp(5),                 // Keep some padding from left
-    right: wp(5),                // Allow text to stay within screen
-    alignItems: "center",        // Center the text horizontally
-    backgroundColor: "rgba(0, 0, 0, 0.6)", // Add dark overlay behind text for contrast
-    paddingVertical: 8,
-    paddingHorizontal: 12,
-    borderRadius: 8
+    borderRadius: 8,
+    width: '100%',
+    height: '100%',
+    justifyContent: 'flex-end',
+  },
+  textContainer: {
+    paddingBottom: RFValue(90, SCREEN_HEIGHT),
+    paddingHorizontal: wp(5),
   },
   titleText: {
     fontSize: RFValue(25),
@@ -456,53 +456,43 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   qrContainer: {
-    alignItems: 'center',
-    // paddingTop: hp(2),
-    // paddingBottom: hp(2),
+
   },
   buttonRow: {
-    position: 'absolute',
-    bottom: hp(20),
-    left: 0,
-    right: 0,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    // marginTop: hp(2),
-    gap: wp(10),
   },
   scanButton: {
-    backgroundColor: '#1E88E5',
-    paddingVertical: hp(1.4),
-    paddingHorizontal: wp(10),
-    borderRadius: 50,
+    backgroundColor: Colors.tertiary,
+    flex: 1,
+    padding: wp(5),
   },
   redeemButton: {
-    backgroundColor: '#FF7043',
-    paddingVertical: hp(1.4),
-    paddingHorizontal: wp(10),
-    borderRadius: 50,
+    backgroundColor: Colors.quinary,
+    flex: 1,
+    padding: wp(5),
   },
   buttonText: {
     color: '#fff',
-    fontSize: RFValue(14),
-    fontWeight: '600',
+    fontSize: RFValue(16, SCREEN_HEIGHT),
     textAlign: 'center',
+    fontFamily: Fonts.primary_SemiBold,
+    lineHeight: RFValue(24, SCREEN_HEIGHT),
   },
   shopDetails: {
     flex: 1,
-    backgroundColor: '#ffffff',
+    backgroundColor: '#080042',
     paddingHorizontal: wp(3),
-    paddingTop: hp(5),
-    paddingBottom: hp(30),
+    marginTop: -70,
     borderTopLeftRadius: 40,
     borderTopRightRadius: 40,
-    marginTop: -70,
+    paddingTop: hp(5),
+    zIndex: 1000,
   },
   detailRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    // alignItems: 'center',
     marginBottom: hp(1.5),
     flexWrap: 'wrap',
   },
@@ -513,60 +503,13 @@ const styles = StyleSheet.create({
     maxWidth: '45%',
   },
   detailValue: {
-    color: '#000',
-    fontFamily: 'Poppins-SemiBold',
-    fontSize: wp(3.4),
+    color: '#fff',
+    fontFamily: Fonts.primary_Regular,
+    fontSize: RFValue(14, SCREEN_HEIGHT),
     textAlign: 'right',
     maxWidth: '50%',
   },
 
-  offerSection: {
-    marginTop: hp(2),
-  },
-  offerHeader: {
-    fontSize: wp(5.5),
-    fontFamily: 'Poppins-SemiBold',
-    color: '#000',
-    marginBottom: hp(0.5),
-  },
-  offerSubtext: {
-    fontSize: wp(3.8),
-    color: '#555',
-    marginBottom: hp(1.5),
-    fontFamily: 'Poppins-Regular',
-  },
-  sortContainer: {
-    flexDirection: 'row',
-    gap: wp(4),
-    marginBottom: hp(2),
-  },
-  sortOption: {
-    fontSize: wp(3.8),
-    color: '#3B63EF',
-    fontFamily: 'Poppins-Regular',
-  },
-  activeSortOption: {
-    fontFamily: 'Poppins-SemiBold',
-    textDecorationLine: 'underline',
-  },
-  offerCard: {
-    backgroundColor: '#F2F3F5',
-    borderRadius: 12,
-    padding: wp(4),
-    marginBottom: hp(1.5),
-  },
-  offerTitle: {
-    fontSize: wp(4.2),
-    color: '#000',
-    fontFamily: 'Poppins-SemiBold',
-    marginBottom: hp(0.5),
-  },
-  offerDetails: {
-    fontSize: wp(3.8),
-    color: '#555',
-    fontFamily: 'Poppins-Regular',
-    marginBottom: hp(0.3),
-  },
 });
 
 export default ShopDetails;

@@ -108,7 +108,7 @@ const HomeStack = () => (
     <Stack.Screen
       name="OfferDetails"
       component={OfferDetails}
-      options={{ headerShown: false}}
+      options={{ headerShown: false }}
     />
     <Stack.Screen
       name="CashbackScreen"
@@ -130,7 +130,7 @@ const HomeStack = () => (
       component={AllFeaturedShops}
       options={{ headerShown: false }}
     />
-    
+
   </Stack.Navigator>
 );
 
@@ -162,9 +162,9 @@ const ProfileStack = () => (
       options={{ headerShown: false }}
     />
     <Stack.Screen
-    name='Address'
-    component={AddressScreen}
-    options={{headerShown:false}}
+      name='Address'
+      component={AddressScreen}
+      options={{ headerShown: false }}
     />
     <Stack.Screen
       name='MapLocationPicker'
@@ -178,12 +178,12 @@ const ProfileStack = () => (
     />
   </Stack.Navigator>
 );
-const TabItem = ({children, focused, color}) => {
+const TabItem = ({ children, focused, color }) => {
   return (
-    <View style={{position: 'relative', justifyContent:'center', alignItems:'center'}}>
+    <View style={{ position: 'relative', justifyContent: 'center', alignItems: 'center' }}>
       {children}
       {focused && (
-        <Image source={require('./tab-bg.png')} style={{   position: 'absolute',  width:80, height:80, bottom: -40,  borderRadius: 100, }}
+        <Image source={require('./tab-bg.png')} style={{ position: 'absolute', width: 80, height: 80, bottom: -40, borderRadius: 100, }}
         />
       )}
     </View>
@@ -192,7 +192,7 @@ const TabItem = ({children, focused, color}) => {
 const MainTabNavigator = () => {
   const { t } = useTranslation();
   return (
-    
+
     <Tab.Navigator
       screenOptions={{
         tabBarStyle: {
@@ -221,7 +221,7 @@ const MainTabNavigator = () => {
         },
         tabBarShowLabel: false,
       }}
-    
+
     >
       <Tab.Screen
         name="Home"
@@ -242,9 +242,15 @@ const MainTabNavigator = () => {
           ];
 
           const isHidden = hideOnScreens.includes(routeName);
+          const hideTabBar = isHidden && {
+            tabBarStyle: {
+              display: 'none',
+            }
+          };
           return {
             headerShown: false,
             tabBarLabel: t('tab_home'),
+            ...hideTabBar,
             tabBarIcon: ({ focused, color }) =>
               <TabItem focused={focused} color={color}>
                 <FilledHome color={color} />
@@ -288,13 +294,13 @@ const MainTabNavigator = () => {
             tabBarIcon: ({ focused, color }) => <TabItem focused={focused} color={color}>
               <FilledProfile color={color} />
             </TabItem>
-              
+
           };
         }}
       />
-      </Tab.Navigator>
-     
-   
+    </Tab.Navigator>
+
+
   );
 };
 const FavoritesStack = () => (
