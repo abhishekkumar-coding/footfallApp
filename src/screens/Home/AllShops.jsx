@@ -27,15 +27,14 @@ import { Fonts } from '../../utils/typography';
 
 const AllShops = () => {
   const { t } = useTranslation();
-  const navigation = useNavigation();
-  const dispatch = useDispatch();
+ 
 
   const [selectedCategory, setSelectedCategory] = useState('ALL');
   const [isLoading, setIsLoading] = useState(true);
   const navigation = useNavigation();
   const dispatch = useDispatch();
   const { data: shops, refetch, isLoading: shopsDataIsLoading } = useGetAllShopsQuery();
-  const shopsData = shops?.data?.shops || []
+ 
   console.log("Shops : ", shopsData)
 
   const { data: allShopsData } = useGetAllShopsQuery();
