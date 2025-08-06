@@ -4,8 +4,8 @@ import { hp, wp } from "../dimensions";
 const ScannerIcon = (props) => (
   <Svg
     fill="#fff"
-    width={wp(6)}
-        height={hp(3)}
+    width={25}
+    height={25}
     viewBox="0 0 24 24"
     id="qr-code-scan-2"
     data-name="Flat Line"

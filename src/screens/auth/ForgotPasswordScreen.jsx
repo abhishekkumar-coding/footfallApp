@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   View,
   Text,
@@ -8,20 +8,27 @@ import {
 import { useNavigation } from '@react-navigation/native';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
-import BackButton from '../../components/PageHeader';
+
 import LinearGradient from 'react-native-linear-gradient';
 import EmailIcon from '../../utils/icons/EmailIcon';
 import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useRequestOtpMutation } from '../../features/auth/authApi';
 import Toast from 'react-native-toast-message';
+import AppLayout from '../../layout/AppLayout';
+import BackButton from '../../components/BackButton';
+import AppButton from '../../components/AppButton';
+import Spacer from '../../components/Spacer';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 
 const ForgotPasswordScreen = () => {
   const navigation = useNavigation();
   const [email, setEmail] = useState('');
 
-  const [requestOtp] = useRequestOtpMutation()
-
+  const [requestOtp, { isLoading }] = useRequestOtpMutation()
+  const isDisabled = useMemo(() => {
+    return !email
+  }, [email]);
   const handleSendOtp = async () => {
     if (!email) {
       Toast.show({
@@ -52,33 +59,30 @@ const ForgotPasswordScreen = () => {
   };
 
   return (
-    <>
-      <BackButton lable={'Forgot Password'} back />
+    <AppLayout>
+      <BackButton />
+      <KeyboardAvoidingView behavior='padding' style={{ flex: 1 }} keyboardVerticalOffset={100}>
+      <View style={styles.container}>
+        <Text style={styles.heading}>Forgot Password 🔑</Text>
+        <Text style={styles.subText}>
+          Enter your email to receive an OTP
+        </Text>
 
-      <LinearGradient colors={['#000337', '#000']} style={{ flex: 1 }}>
-        <BackButton />
-        <View style={styles.container}>
-          <Text style={styles.heading}>Forgot Password 🔑</Text>
-          <Text style={styles.subText}>
-            Enter your email to receive an OTP
-          </Text>
 
-          <LinearGradient
-            colors={['rgba(255, 255, 255, 0.1)', '#000']}
-            style={styles.formGradient}
-          >
-            <CustomInput
-              placeholder={'Email'}
-              lable={'Email'}
-              iconComponent={<EmailIcon />}
-              value={email}
-              onChangeText={setEmail}
-            />
-            <CustomButton title={'Send OTP'} onPress={handleSendOtp} />
-          </LinearGradient>
+        <CustomInput
+          placeholder={'Email'}
+          lable={'Email'}
+          iconComponent={<EmailIcon />}
+          value={email}
+          onChangeText={setEmail}
+        />
+        <Spacer  />
+        <AppButton title={'Send OTP'} onPress={handleSendOtp} isLoading={isLoading} disabled={isDisabled} />
+
+
         </View>
-      </LinearGradient>
-    </>
+      </KeyboardAvoidingView>
+    </AppLayout>
 
   );
 };
@@ -89,18 +93,16 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'flex-start',
-    paddingHorizontal: 0,
+    paddingHorizontal: 20,
     marginTop: hp(10),
   },
   heading: {
     fontSize: RFValue(20),
     fontFamily: 'Poppins-SemiBold',
     color: '#fff',
-    paddingHorizontal: wp(5),
   },
   subText: {
     fontSize: RFValue(12),
-    paddingHorizontal: wp(5),
     color: '#d3d3d3',
     marginBottom: 15,
     textAlign: 'center',

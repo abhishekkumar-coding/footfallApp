@@ -234,8 +234,8 @@ export const FilledHeart = (props) => (
 
 export const FilledHistoryIcon = (props) => (
   <Svg
-    width={wp(5.5)}
-    height={wp(5.5)}
+    width={20}
+    height={20}
     viewBox="0 0 16 16"
     xmlns="http://www.w3.org/2000/svg"
     {...props}

@@ -10,8 +10,7 @@ const AppButton = ({ title, onPress, isLoading, hideRightIcon = false, isOutline
     const loaderOpacity = useSharedValue(0);
 
     const handlePress = () => {
-        
-        
+        if(disabled || isLoading) return;
         onPress && onPress();
     }
 

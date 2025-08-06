@@ -23,7 +23,7 @@ import { useTranslation } from 'react-i18next';
 import LanguageIcon from '../utils/icons/LanguageIcon';
 import VersionCheck from 'react-native-version-check';
 import PageHeader from '../components/PageHeader';
-import { LocatioIcon, SettingIcon } from '../utils/icons/icons';
+import { FilledHistoryIcon, LocatioIcon, SettingIcon } from '../utils/icons/icons';
 import AppLayout from '../layout/AppLayout';
 import Spacer from '../components/Spacer';
 import { Colors } from '../utils/Colors';
@@ -35,8 +35,12 @@ const ProfileScreen = () => {
   const [appVersion, setAppVersion] = useState('');
 
   const user = useSelector(state => state.user.user);
-  const { data: userPoints } = useGetWalletSummaryQuery();
+  const { data: userPoints } = useGetWalletSummaryQuery({  
+    refetchOnFocus: true,
+    pollingInterval: 10000,
+  });
   const rewards = userPoints?.data?.rewards?.points ?? 0;
+  console.log(userPoints);
 
   const dispatch = useDispatch();
 
@@ -66,14 +70,14 @@ const ProfileScreen = () => {
           <Rewards rewardPoints={rewards} title={t('total_rewards')} color={[Colors.secondary, Colors.quinary]}/>       
           <Rewards rewardPoints={rewards} title={t('cash_back')} color={[Colors.splash, Colors.splash_light]}/>       
         </View>
-        
+        <Spacer height={hp(3)} />
         <TabButton
           Icon={ScannerIcon}
           label={t('referral_earn')}
           onPress={() => navigation.navigate('Referral')}
         />
         <TabButton
-          Icon={History}
+          Icon={FilledHistoryIcon}
           label={t('redeem_history')}
           onPress={() => navigation.navigate('RedeemHistoryScreen')}
         />

@@ -2,12 +2,13 @@ import { FlatList, ActivityIndicator, StyleSheet, Text, View, Image } from 'reac
 import React from 'react';
 import { useGetRedeemHistoryQuery } from '../features/shops/shopApi';
 import LinearGradient from 'react-native-linear-gradient';
-import { hp, wp } from '../utils/dimensions';
+import { hp, SCREEN_HEIGHT, wp } from '../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import BackButton from '../components/PageHeader';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppLayout from '../layout/AppLayout';
+import { Fonts } from '../utils/typography';
 
 const RedeemHistoryScreen = () => {
   const { t } = useTranslation();
@@ -51,15 +52,19 @@ const RedeemHistoryScreen = () => {
           </View>
         ) : redeemHistory.length === 0 ? (
           <View style={styles.centered}>
-            <Image source={require('../../assets/emptyRedeemHistory.png')} style={{ width: wp(50), height: hp(20) }} />
-            {/* <Text style={styles.empty}>{t('redeem_empty')}</Text> */}
+            <Image source={require('../../assets/emptyRedeemHistory.png')} style={{
+              width: wp(20), height: hp(10),
+                resizeMode: 'contain',
+              opacity: 0.5
+            }} />
+            <Text style={styles.empty}>{t('redeem_empty')}</Text>
           </View>
         ) : (
           <FlatList
             data={redeemHistory}
             renderItem={renderItem}
             keyExtractor={(item, index) => item._id || index.toString()}
-            contentContainerStyle={{ paddingBottom: hp(10) }}
+            contentContainerStyle={{ paddingBottom: hp(10), paddingHorizontal: 20 }}
             showsVerticalScrollIndicator={false}
           />
         )}
@@ -78,10 +83,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   empty: {
-    color: '#999',
-    fontSize: RFValue(18),
+    color: '#ffffff71',
+    fontSize: RFValue(16, SCREEN_HEIGHT),
     textAlign: 'center',
     marginHorizontal: 20,
+    fontFamily: Fonts.primary_SemiBold
   },
   item: {
     flexDirection: 'row',
@@ -94,21 +100,20 @@ const styles = StyleSheet.create({
   },
   text: {
     color: '#fff',
-    fontSize: RFValue(14),
-    fontFamily: 'Poppins-SemiBold',
-    width: 200,
+    fontSize: RFValue(14, SCREEN_HEIGHT),
+    fontFamily: Fonts.primary_SemiBold,    
     flexWrap: 'wrap',
     numberOfLines: 2,
   },
   date: {
-    color: '#ccc',
-    fontSize: 12,
-    marginTop: 4,
-    fontFamily: 'Poppins-Regular',
+    color: '#ffffff71',
+    fontSize: RFValue(12, SCREEN_HEIGHT),
+    marginTop: 5,
+    fontFamily: Fonts.primary_Regular,
   },
   points: {
-    color: '#ff5555',
-    fontSize: RFValue(16),
+    color: '#ff4d4d',
+    fontSize: RFValue(16, SCREEN_HEIGHT),
     fontFamily: 'Poppins-Bold',
   },
 });

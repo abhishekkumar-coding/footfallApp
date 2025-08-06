@@ -22,11 +22,19 @@ import { useTranslation } from 'react-i18next';
 import BackButton from '../../components/BackButton';
 import CustomInput from '../../components/CustomInput';
 import CustomButton from '../../components/CustomButton';
-import { hp, wp } from '../../utils/dimensions';
+import { hp, SCREEN_HEIGHT, wp } from '../../utils/dimensions';
 import { setUser } from '../../features/auth/userSlice';
 import { useUpdateUserMutation } from '../../features/auth/authApi';
 import { useDeleteFileMutation, useUploadFileMutation } from '../../features/shops/shopApi';
 import { UploadIcon } from '../../utils/icons/icons';
+import AppLayout from '../../layout/AppLayout';
+import PageHeader from '../../components/PageHeader';
+import AppButton from '../../components/AppButton';
+import Spacer from '../../components/Spacer';
+import { Fonts } from '../../utils/typography';
+import { Colors } from '../../utils/Colors';
+import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 // import BackButton from '../../components/PageHeader';
 // import CustomButton from '../../components/CustomButton';
@@ -254,47 +262,53 @@ const EditProfile = () => {
   }
 
   return (
-    <SafeAreaView edges={['top']} style={{ flex: 1 }}>
-      <LinearGradient colors={['#000337', '#000000']} style={{ flex: 1 }}>
-        <BackButton label={t('editProfile')} back />
-        <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-          <View style={styles.imageWrapper}>
-            {profileImage ? (
-              <>
-                <Image source={{ uri: profileImage || image }} style={styles.profileImage} />
-                <TouchableOpacity onPress={handleImagePick} style={styles.uploadIcon} activeOpacity={0.7}>
-                  <View pointerEvents="box-none">
-                    <UploadIcon />
-                  </View>
-                </TouchableOpacity>
-              </>
-            ) : (
-              <TouchableOpacity onPress={handleImagePick} style={styles.fallbackAvatar}>
-                <Text style={styles.fallbackInitial}>{name ? name[0].toUpperCase() : '?'}</Text>
-                <View onPress={handleImagePick} style={styles.uploadIconOverlay}><UploadIcon /></View>
+    <AppLayout>
+      <PageHeader lable={t('editProfile')} back />
+      <KeyboardAwareScrollView
+        keyboardShouldPersistTaps="handled" showsVerticalScrollIndicator={false}
+        bottomOffset={25}
+        automaticallyAdjustKeyboardInsets={true}
+        automaticallyAdjustContentInsets={true}
+        contentContainerStyle={{ paddingBottom: 20 }}
+        shouldRasterizeIOS={false}
+      >
+        <View style={styles.imageWrapper}>
+          {profileImage ? (
+            <>
+              <Image source={{ uri: profileImage || image }} style={styles.profileImage} />
+              <TouchableOpacity onPress={handleImagePick} style={styles.uploadIcon} activeOpacity={0.9}>
+                <MaterialIcons name="camera-alt" size={20} color="white" />
               </TouchableOpacity>
-            )}
-          </View>
-
-          <View style={{ paddingHorizontal: wp(5) }}>
-            <CustomInput lable={t('name')} value={name} onChangeText={setName} placeholder={t('name')} />
-            <CustomInput lable={t('email')} value={email} onChangeText={setEmail} placeholder={t('email')} />
-            <CustomInput lable={t('phone')} value={phone} onChangeText={setPhone} placeholder={t('phone')} />
-            <CustomInput lable={t('address')} value={addressDetails.address} onChangeText={(text) => setAddressDetails(prev => ({ ...prev, address: text }))} />
-            <CustomInput lable={t('city')} value={addressDetails.city} onChangeText={(text) => setAddressDetails(prev => ({ ...prev, city: text }))} />
-            <CustomInput lable={t('state')} value={addressDetails.state} onChangeText={(text) => setAddressDetails(prev => ({ ...prev, state: text }))} />
-            <CustomInput lable={t('country')} value={addressDetails.country} onChangeText={(text) => setAddressDetails(prev => ({ ...prev, country: text }))} />
-            <CustomInput lable={t('pincode')} value={addressDetails.postcode} onChangeText={(text) => setAddressDetails(prev => ({ ...prev, postcode: text }))} />
-
-            <TouchableOpacity style={styles.locanBtn} onPress={handleAutoDetect}>
-              {isLocLoading ? <ActivityIndicator color="#fff" /> : <Text style={styles.locanBtnText}>{t('autoDetectLocation')}</Text>}
+            </>
+          ) : (
+            <TouchableOpacity onPress={handleImagePick} style={styles.fallbackAvatar} activeOpacity={0.9}>
+              <Text style={styles.fallbackInitial}>{name ? name[0].toUpperCase() : '?'}</Text>
+                <View onPress={handleImagePick} style={styles.uploadIcon}>
+                <MaterialIcons name="camera-alt" size={20} color="white" />
+              </View>
             </TouchableOpacity>
-
-            <CustomButton title={isSaving ? t('saving') : t('saveChanges')} disabled={isSaving} onPress={handleSave} />
+          )}
+        </View>
+        <View style={{ paddingHorizontal: wp(5) }}>
+          <CustomInput lable={t('name')} value={name} onChangeText={setName} placeholder={t('name')} />
+          <CustomInput lable={t('email')} value={email} onChangeText={setEmail} placeholder={t('email')} />
+          <CustomInput lable={t('phone')} value={phone} onChangeText={setPhone} placeholder={t('phone')} />
+          <Spacer height={hp(2)} />
+          <View style={styles.addressContainer}>
+            <TouchableOpacity onPress={handleAutoDetect} style={styles.autoDetectBtn}>
+              <Text style={styles.addressLable}>{isLocLoading ? <ActivityIndicator size="small" color={Colors.activeTabBar} /> : t('autoDetectLocation')}</Text>
+            </TouchableOpacity>
+            <CustomInput lable={t('address')} value={addressDetails.address} onChangeText={(text) => setAddressDetails(prev => ({ ...prev, address: text }))} />
           </View>
-        </ScrollView>
-      </LinearGradient>
-    </SafeAreaView>
+          <CustomInput lable={t('city')} value={addressDetails.city} onChangeText={(text) => setAddressDetails(prev => ({ ...prev, city: text }))} />
+          <CustomInput lable={t('state')} value={addressDetails.state} onChangeText={(text) => setAddressDetails(prev => ({ ...prev, state: text }))} />
+          <CustomInput lable={t('country')} value={addressDetails.country} onChangeText={(text) => setAddressDetails(prev => ({ ...prev, country: text }))} />
+          <CustomInput lable={t('pincode')} value={addressDetails.postcode} onChangeText={(text) => setAddressDetails(prev => ({ ...prev, postcode: text }))} />
+          <Spacer height={hp(4)} />
+          <AppButton title={isSaving ? t('saving') : t('saveChanges')} isLoading={isSaving} onPress={handleSave} />
+        </View>
+      </KeyboardAwareScrollView>
+    </AppLayout>
   );
 };
 
@@ -330,30 +344,22 @@ const styles = StyleSheet.create({
     width: 100,
     height: 100,
     borderRadius: 50,
-    backgroundColor: '#EEE',
+    backgroundColor: "#6300d3",
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
   },
   fallbackInitial: {
     fontSize: 36,
-    color: '#555',
+    color: '#fff',
     fontWeight: 'bold',
   },
   uploadIcon: {
     position: 'absolute',
     bottom: 0,
     right: 0,
-    backgroundColor: 'rgba(117, 255, 143, 0.9)',
-    padding: 5,
-    borderRadius: 50,
-  },
-  uploadIconOverlay: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    backgroundColor: 'rgba(117, 255, 143, 0.9)',
-    padding: 5,
+    backgroundColor: Colors.quaternary,
+    padding: 4,
     borderRadius: 50,
   },
   locanBtn: {
@@ -368,4 +374,18 @@ const styles = StyleSheet.create({
     fontSize: RFValue(14),
     fontFamily: 'Poppins-Medium',
   },
+  addressContainer: {
+
+  },
+  autoDetectBtn: {
+    position: 'absolute',
+    right: 0,
+    zIndex: 99
+
+  },
+  addressLable: {
+    fontSize: RFValue(14, SCREEN_HEIGHT),
+    fontFamily: Fonts.primary_SemiBold,
+    color: Colors.activeTabBar,
+  }
 });

@@ -52,7 +52,7 @@ const styles = StyleSheet.create({
     flexDirection: 'column',
     alignItems: 'center',
     paddingHorizontal: 10,
-    paddingVertical: 10,
+    paddingVertical: 8,
   
   },
   label: {
@@ -64,7 +64,6 @@ const styles = StyleSheet.create({
     fontFamily: Fonts.primary_Bold,
     fontSize: RFValue(25, SCREEN_HEIGHT),
     color: '#fff',
-    marginTop: hp(5),
   },
   level: {
     fontFamily: 'Poppins-Regular',

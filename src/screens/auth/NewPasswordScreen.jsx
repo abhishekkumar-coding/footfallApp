@@ -1,22 +1,28 @@
 import { Alert, StyleSheet, Text, View } from 'react-native';
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
 import CustomInput from '../../components/CustomInput';
 import LockIcon from '../../utils/icons/LockIcon';
-import BackButton from '../../components/PageHeader';
+import BackButton from '../../components/BackButton';
 import CustomButton from '../../components/CustomButton';
 import { hp, wp } from '../../utils/dimensions';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useResetPasswordMutation } from '../../features/auth/authApi';
 import { useRoute } from '@react-navigation/native';
 import Toast from 'react-native-toast-message';
+import AppLayout from '../../layout/AppLayout';
+import AppButton from '../../components/AppButton';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 
 const NewPasswordScreen = ({ navigation }) => {
   const [newPassword, setNewPassword] = useState('');
   const route = useRoute();
   const { email, otp } = route.params;
 
-  const [resetPassword] = useResetPasswordMutation();
+  const [resetPassword, { isLoading }] = useResetPasswordMutation();
+  const isDisabled = useMemo(() => {
+    return !newPassword;
+  }, [newPassword]);
 
   const newPasswordSubmit = async () => {
     if (!newPassword) {
@@ -49,9 +55,9 @@ const NewPasswordScreen = ({ navigation }) => {
   };
 
   return (
-    <LinearGradient colors={['#000337', '#000']} style={{ flex: 1 }}>
-      <BackButton lable={'Set New Password'} back />
-
+    <AppLayout>
+      <BackButton  />
+      <KeyboardAvoidingView behavior='padding' style={{ flex: 1 }} keyboardVerticalOffset={100}>
       <View style={styles.container}>
         <Text style={styles.title}>Set your new password</Text>
         <View style={styles.inputContainer}>
@@ -66,9 +72,10 @@ const NewPasswordScreen = ({ navigation }) => {
             onChangeText={setNewPassword}
           />
         </View>
-        <CustomButton title={'Continue'} onPress={newPasswordSubmit} />
-      </View>
-    </LinearGradient>
+          <AppButton title={'Continue'} onPress={newPasswordSubmit} isLoading={isLoading} disabled={isDisabled}/>
+        </View>
+      </KeyboardAvoidingView>
+    </AppLayout>
   );
 };
 

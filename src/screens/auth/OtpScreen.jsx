@@ -1,7 +1,7 @@
 import { StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import LinearGradient from 'react-native-linear-gradient';
-import BackButton from '../../components/PageHeader';
+import BackButton from '../../components/BackButton';
 import PencilIcon from '../../utils/icons/PencilIcon';
 import CustomButton from '../../components/CustomButton';
 import { hp, wp } from '../../utils/dimensions';
@@ -9,18 +9,26 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { useNavigation, useRoute } from '@react-navigation/native';
 import { useRequestOtpMutation, useVerifyOtpMutation, } from '../../features/auth/authApi';
 import Toast from 'react-native-toast-message';
+import AppLayout from '../../layout/AppLayout';
+import AppButton from '../../components/AppButton';
+import { ProfileEditIcon } from '../../utils/icons/icons';
+import { Colors } from '../../utils/Colors';
+import { Fonts } from '../../utils/typography';
+import { KeyboardAvoidingView } from 'react-native-keyboard-controller';
 
 const OtpScreen = () => {
   const [otp, setOtp] = useState(['', '', '', '']);
-  const [timer, setTimer] = useState(30); // Timer in seconds
+  const [timer, setTimer] = useState(60); // Timer in seconds
   const inputRefs = useRef([]);
   const navigation = useNavigation();
   const route = useRoute();
   const { email } = route.params;
 
-  const [verifyOtp] = useVerifyOtpMutation();
-  const [requestOtp] = useRequestOtpMutation();
-
+  const [verifyOtp, { isLoading: isVerifyLoading }] = useVerifyOtpMutation();
+  const [requestOtp, { isLoading: isRequestLoading }] = useRequestOtpMutation();
+  const isDisabled = useMemo(() => {
+    return otp.some(digit => !digit);
+  }, [otp, isVerifyLoading, isRequestLoading]);
   // Start & manage timer
   useEffect(() => {
     if (timer === 0) return; 
@@ -71,7 +79,7 @@ const OtpScreen = () => {
       console.log("Fetched Gmail: ", email)
        const res = await requestOtp({ email }).unwrap();
        console.log("Fetched Data: ", res)
-      setTimer(30);
+      setTimer(60);
       Toast.show({ type: 'success', text1: 'OTP Sent', text2: 'A new OTP has been sent to your email.' });
     } catch (error) {
       const message = error?.data?.message || 'Failed to resend OTP';
@@ -80,15 +88,16 @@ const OtpScreen = () => {
   };
 
   return (
-    <LinearGradient colors={['#000337', '#000']} style={{ flex: 1 }}>
+    <AppLayout>
       <BackButton lable={'Verify OTP'} back />
+      <KeyboardAvoidingView behavior='padding' style={{ flex: 1 }} keyboardVerticalOffset={100}>
       <View style={styles.container}>
         <View style={styles.textContainer}>
           <Text style={styles.textContainerText1}>We just sent an SMS</Text>
           <Text style={styles.textContainerText2}>Enter The One Time Password we sent to</Text>
           <View style={styles.textContainerText3}>
             <Text style={styles.userEmail}>{email}</Text>
-            <PencilIcon />
+            <ProfileEditIcon width={18} height={18} />
           </View>
         </View>
 
@@ -108,15 +117,13 @@ const OtpScreen = () => {
         </View>
 
         <View style={styles.buttonContainer}>
-          <CustomButton title="Verify" onPress={handleOtp} />
-          <Text style={styles.buttonContainerText}>Didn't receive code?</Text>
-          <TouchableOpacity style={styles.resendContainer} onPress={timer === 0 ? handleResend : null} disabled={timer > 0}>
-            <Text style={[styles.resend, { opacity: timer === 0 ? 1 : 0.5 }]}>Resend</Text>
-            <Text style={styles.timer}>- 00 : {timer < 10 ? `0${timer}` : timer}</Text>
-          </TouchableOpacity>
+          <AppButton title="Verify" onPress={handleOtp} isLoading={isVerifyLoading} disabled={isDisabled} />
+          <Text style={styles.buttonContainerText}>Request code again {timer === 0 ? <Text onPress={handleResend} style={[styles.resend,styles.resendLink]}>Click here</Text> : <Text  style={styles.resend}>00:{timer < 10 ? `0${timer}` : timer} seconds</Text>}</Text>
+          
         </View>
       </View>
-    </LinearGradient>
+      </KeyboardAvoidingView>
+    </AppLayout>
   );
 };
 
@@ -134,6 +141,7 @@ const styles = StyleSheet.create({
   buttonContainer: { marginTop: hp(1), alignItems: 'center', gap: 12 },
   buttonContainerText: { color: '#fff', fontFamily: 'Poppins-Regular', fontSize: RFValue(14) },
   resendContainer: { flexDirection: 'row', alignItems: 'center', gap: wp(3) },
-  resend: { color: '#4068F6', fontFamily: 'Poppins-SemiBold', fontSize: RFValue(14) },
+  resend: { color: Colors.primary, fontFamily: Fonts.primary_SemiBold, fontSize: RFValue(14) },
   timer: { color: '#fff', fontFamily: 'Poppins-Regular', fontSize: RFValue(14) },
+  resendLink: { textDecorationLine: 'underline' },
 });

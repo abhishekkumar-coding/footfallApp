@@ -44,7 +44,7 @@
   "name": "Name",
   "email": "Email",
   "phone": "Phone",
-  "autoDetectLocation": "Auto Detect Location",
+  "autoDetectLocation": "Auto Detect",
   "saveChanges": "Save Changes",
   "saving": "Saving...",
   "locationRequired": "Location Required",
@@ -140,7 +140,7 @@
   "referral": {
     "title": "Refer and Earn",
     "inviteFriends": "Invite Your Friends",
-    "shareMessage": "Share your referral link and earn rewards when they sign up",
+    "shareMessage": "Invite your friends and earn 100 points for yourself, plus 50 points for each friend who joins using your referral code.",
     "yourCode": "Your Referral Code",
     "copy": "Copy",
     "copiedTitle": "Copied",

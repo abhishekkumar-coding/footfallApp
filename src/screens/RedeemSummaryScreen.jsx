@@ -53,7 +53,7 @@ const RedeemSummaryScreen = ({ route }) => {
       setIsDisabled(false);
 
       setMessageType('success');
-       setMessage(t('redeemScreen.successMessage'));
+      setMessage(t('redeemScreen.successMessage'));
       setTimeout(() => setMessage(null), 2000);
     } catch (error) {
       console.error('Error redeeming points:', error);
@@ -99,7 +99,7 @@ const RedeemSummaryScreen = ({ route }) => {
               style={styles.actionButton}
               onPress={handleClaimPress}
             >
-               <Text style={styles.actionText}>{t('redeemScreen.claimButton')}</Text>
+              <Text style={styles.actionText}>{t('redeemScreen.claimButton')}</Text>
             </TouchableOpacity>
           </View>
         </LinearGradient>
@@ -119,7 +119,7 @@ const RedeemSummaryScreen = ({ route }) => {
               </View>
             ))
           ) : (
-             <Text style={styles.transactionDate}>
+            <Text style={styles.transactionDate}>
               {t('redeemScreen.noRedeemHistory')}
             </Text>
           )}
