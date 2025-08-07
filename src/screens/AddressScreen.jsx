@@ -28,6 +28,10 @@ import {
 } from '../features/address/addressApiSlice';
 import AppLayout from '../layout/AppLayout';
 import { clearSavedAddress, setSavedAddress } from '../features/auth/userSlice';
+import { RFValue } from 'react-native-responsive-fontsize';
+import { SCREEN_HEIGHT } from '../utils/dimensions';
+import { Fonts } from '../utils/typography';
+import { Colors } from '../utils/Colors';
 
 export default function AddressScreen() {
   const navigation = useNavigation();
@@ -178,7 +182,9 @@ export default function AddressScreen() {
         activeOpacity={0.8}
       >
         <View style={styles.row}>
-          <Icon name="map-marker" size={22} color="#5A67D8" />
+          <View style={styles.iconContainer}>
+            <Icon name="map-marker" size={22} color="#fff" />
+          </View>
           <View style={{ marginLeft: 10, flex: 1 }}>
             {/* Main Address */}
             <Text numberOfLines={2} ellipsizeMode="tail" style={styles.title}>{item.address || 'No address'}</Text>
@@ -212,19 +218,13 @@ export default function AddressScreen() {
           </TouchableOpacity>
         </View>
 
-        {/* Selection Indicator */}
-        <View
-          style={[styles.radioOuter, isSelected && styles.radioOuterSelected]}
-        >
-          {isSelected && <View style={styles.radioInner} />}
-        </View>
+         
       </TouchableOpacity>
     );
   };
 
   return (
-    <AppLayout >
-
+    <AppLayout>
       <PageHeader back lable={'Address'} />
       <View style={styles.container}>
         <TouchableOpacity
@@ -300,25 +300,26 @@ const styles = StyleSheet.create({
     borderColor: '#5A67D8',
     backgroundColor: 'rgba(90, 103, 216, 0.15)',
   },
-  row: { flexDirection: 'row', alignItems: 'center', marginBottom: 8 },
-  //   title: { fontSize: 16, fontWeight: '600', color: '#fff', marginLeft: 8 },
+  row: { flexDirection: 'row', alignItems: 'flex-start',  },
+
   title: {
-    fontSize: 16,
-    fontWeight: 'bold',
+    fontSize: RFValue(16, SCREEN_HEIGHT),
     color: '#fff',
     marginBottom: 2,
+    fontFamily: Fonts.primary_SemiBold
   },
 
   subText: {
-    fontSize: 14,
+    fontSize: RFValue(12, SCREEN_HEIGHT),
     color: '#ccc',
+    fontFamily: Fonts.primary_Regular
   },
 
   address: { color: '#ddd', fontSize: 14, marginBottom: 6, lineHeight: 20 },
   editBtn: {
     position: 'absolute',
-    right: 12,
-    top: 12,
+    right: 10,
+    bottom: 12,
     flexDirection: 'row',
     alignItems: 'center',
   },
@@ -358,5 +359,13 @@ const styles = StyleSheet.create({
     marginTop: 10,
     fontSize: 16,
   },
-
+  iconContainer: {
+    width: 35,
+    height: 35,
+    borderRadius: 17.5,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: Colors.white_light,
+    marginTop: 5,
+  },
 });

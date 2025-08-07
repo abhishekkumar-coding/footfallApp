@@ -44,6 +44,9 @@ const CustomInput = ({
             keyboardType={keyboardType}
             caretHidden={false}
             cursorColor={'#fff'}
+            autoCapitalize='none'
+            autoCorrect={false}
+            autoComplete='off'
           />
           {isPassword && (
             <View onTouchEnd={togglePasswordVisibility}>

@@ -9,7 +9,7 @@ import {
   ActivityIndicator,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { hp, wp } from '../../utils/dimensions';
+import { hp, SCREEN_HEIGHT, wp } from '../../utils/dimensions';
 import PageHeader from '../../components/PageHeader';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import {
@@ -20,6 +20,8 @@ import {
 import { useMarkNotificationAsReadMutation } from '../../features/shops/shopApi';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppLayout from '../../layout/AppLayout';
+import { Fonts } from '../../utils/typography';
+import { RFValue } from 'react-native-responsive-fontsize';
 
 
 const NotificationScreen = () => {
@@ -59,7 +61,7 @@ const NotificationScreen = () => {
       console.error('Failed to navigate to details:', error);
     }
   };
-
+  
   const renderItem = ({ item }) => {
     const isOffer = item.entityType === 'offer';
     const isShop = item.entityType === 'shop';
@@ -81,33 +83,30 @@ const NotificationScreen = () => {
 
   return (
     <AppLayout showCircle={false} style={{ flex: 1 }}>
-
-    
-        <PageHeader lable="Notifications" back />
-        <View style={styles.container}>
-          {isLoading ? (
-            <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-              <ActivityIndicator color="#fff" size="large" />
-            </View>
-          ) : notifications.length === 0 ? (
-            <View style={styles.emptyContainer}>
-              <Image
-                source={require('../../../assets/emptyNotification.png')}
-                style={styles.emptyImage}
-                resizeMode="contain"
-              />
-              {/* <Text style={styles.emptyText}>No notifications yet</Text> */}
-            </View>
-          ) : (
-            <FlatList
-              data={notifications}
-              renderItem={renderItem}
-              keyExtractor={(item) => item._id}
-              contentContainerStyle={{ paddingBottom: hp(5) }}
+      <PageHeader lable="Notifications" back />
+      <View style={styles.container}>
+        {isLoading ? (
+          <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+            <ActivityIndicator color="#fff" size="large" />
+          </View>
+        ) : notifications.length === 0 ? (
+          <View style={styles.emptyContainer}>
+            <Image
+              source={require('../../../assets/emptyNotification.png')}
+              style={styles.emptyImage}
+              resizeMode="contain"
             />
-          )}
-        </View>
-   
+            {/* <Text style={styles.emptyText}>No notifications yet</Text> */}
+          </View>
+        ) : (
+          <FlatList
+            data={notifications}
+            renderItem={renderItem}
+            keyExtractor={(item) => item._id}
+            contentContainerStyle={{ paddingBottom: hp(5) }}
+          />
+        )}
+      </View>
     </AppLayout>
   );
 };
@@ -124,28 +123,24 @@ const styles = StyleSheet.create({
     borderRadius: wp(3),
     padding: wp(4),
     marginBottom: hp(2),
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 3,
+
   },
   offerCard: {
-    backgroundColor: 'rgba(251, 111, 146, 1)', // light green
+    backgroundColor: '#ff94cb4c',
   },
   shopCard: {
-    backgroundColor: 'rgba(85, 166, 48, 0.3)', // light orange
+    backgroundColor: '#85a6304c',
   },
   notificationTitle: {
-    fontSize: wp(4),
-    fontWeight: 'bold',
+    fontSize: RFValue(16, SCREEN_HEIGHT),
+    fontFamily: Fonts.primary_SemiBold,
     color: '#fff',
     marginBottom: hp(0.5),
   },
   entityType: {
-    fontSize: wp(3.5),
-    fontWeight: '500',
-    color: '#555',
+    fontSize: RFValue(12, SCREEN_HEIGHT),
+    fontFamily: Fonts.primary_Regular,
+    color: '#eeeeee',
   },
   emptyContainer: {
     flex: 1,
@@ -153,9 +148,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   emptyImage: {
-    width: wp(50),
-    height: wp(50),
+    width: wp(35),
+    height: wp(35),
     marginBottom: hp(2),
+    opacity: 0.5,
   },
   emptyText: {
     fontSize: wp(4),

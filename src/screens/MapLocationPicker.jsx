@@ -241,9 +241,9 @@ const MapLocationPicker = () => {
       style={styles.background}
       resizeMode="cover"
     >
-      <SafeAreaView style={{flex:1}}>
+      <SafeAreaView style={{ flex: 1 }}>
         {/* Header */}
-<View style={[styles.wrapper, { top: insets.top + 0 }]}>
+        <View style={[styles.wrapper, { top: insets.top + 0 }]}>
           <TouchableOpacity
             style={styles.leftArrow}
             onPress={() => navigation.goBack()}
@@ -521,19 +521,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: '600',
   },
-
-  // Address Form
-  addressForm: {
-    position: 'absolute',
-    bottom: 0,
-    backgroundColor: '#fff',
-    width: '100%',
-    paddingHorizontal: 20,
-    paddingVertical: 30,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    zIndex: 11,
-  },
+ 
   formHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -658,9 +646,9 @@ const styles = StyleSheet.create({
     bottom: 0,
     backgroundColor: '#fff',
     width: '100%',
-    // maxHeight: '60%',
     paddingHorizontal: 20,
     paddingVertical: 30,
+    paddingBottom: 100,
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     zIndex: 11,
