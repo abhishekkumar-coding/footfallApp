@@ -5,57 +5,73 @@ import Ionicon from 'react-native-vector-icons/Ionicons'
 import { RFValue } from 'react-native-responsive-fontsize'
 import { SCREEN_HEIGHT } from '../../utils/dimensions'
 import Animated, { LinearTransition } from 'react-native-reanimated'
+import { useTranslation } from 'react-i18next'
 
-const faq = [
-  {
-    question: "What is Footfall?",
-    answer: "Footfall is a platform that allows you to earn money by referring people to the app."
-  },
-  {
-    question: "What is Footfall?",
-    answer: "Footfall is a platform that allows you to earn money by referring people to the app."
-  },
-  {
-    question: "What is Footfall?",
-    answer: "Footfall is a platform that allows you to earn money by referring people to the app."
-  },
-]
 const Faq = () => {
-  const [activeIndex, setActiveIndex] = useState(null)
+  const [activeIndex, setActiveIndex] = useState(null);
+  const { t } = useTranslation();
+
+  const faq = [
+    {
+      question: t('faq.q1'),
+      answer: t('faq.a1')
+    },
+    {
+      question: t('faq.q2'),
+      answer: t('faq.a2')
+    },
+    {
+      question: t('faq.q3'),
+      answer: t('faq.a3')
+    }
+  ];
+
   const toggleItem = (index) => {
     LayoutAnimation.configureNext(LayoutAnimation.Presets.easeInEaseOut);
-    setActiveIndex(index);
+    setActiveIndex(index === activeIndex ? null : index);
   };
+
   return (
     <View>
       <Animated.FlatList
         data={faq}
-        renderItem={({ item, index }) => <View style={{ marginBottom: 10 }}>
-          <TouchableOpacity style={[
-            styles.questionContainer,
-            activeIndex === index && {
-              borderBottomLeftRadius: 0,
-              borderBottomRightRadius: 0,
-              borderBottomWidth: 1,
-              borderBottomColor: '#ffffff25'
-            }
-          ]} onPress={() => toggleItem(index)}
-            activeOpacity={0.9}
-          >
-            <Text style={styles.question}>{item.question}</Text>
-            <Ionicon name="chevron-down" size={20} color="#fff" />
-          </TouchableOpacity>
-          {activeIndex === index && <View style={styles.itemContainer}>
-            <Text style={styles.answer}>{item.answer}</Text>
-          </View>}
-        </View>}
+        renderItem={({ item, index }) => (
+          <View style={{ marginBottom: 10 }}>
+            <TouchableOpacity
+              style={[
+                styles.questionContainer,
+                activeIndex === index && {
+                  borderBottomLeftRadius: 0,
+                  borderBottomRightRadius: 0,
+                  borderBottomWidth: 1,
+                  borderBottomColor: '#ffffff25'
+                }
+              ]}
+              onPress={() => toggleItem(index)}
+              activeOpacity={0.9}
+            >
+              <Text style={styles.question}>{item.question}</Text>
+              <Ionicon
+                name={activeIndex === index ? 'chevron-up' : 'chevron-down'}
+                size={20}
+                color="#fff"
+              />
+            </TouchableOpacity>
+            {activeIndex === index && (
+              <View style={styles.itemContainer}>
+                <Text style={styles.answer}>{item.answer}</Text>
+              </View>
+            )}
+          </View>
+        )}
+        keyExtractor={(_, index) => index.toString()}
         itemLayoutAnimation={LinearTransition}
       />
     </View>
-  )
-}
+  );
+};
 
-export default Faq
+export default Faq;
 
 const styles = StyleSheet.create({
   itemContainer: {
@@ -65,11 +81,9 @@ const styles = StyleSheet.create({
     borderBottomRightRadius: 10,
   },
   questionContainer: {
-    padding: 10,
-    gap: 5,
+    padding: 15,
     backgroundColor: '#ffffff25',
     borderRadius: 10,
-    padding: 15,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between'
@@ -85,4 +99,4 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontFamily: Fonts.primary_Regular
   }
-})
+});

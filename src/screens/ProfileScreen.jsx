@@ -27,6 +27,7 @@ import { FilledHistoryIcon, LocatioIcon, SettingIcon } from '../utils/icons/icon
 import AppLayout from '../layout/AppLayout';
 import Spacer from '../components/Spacer';
 import { Colors } from '../utils/Colors';
+import SpinHistoryScreen from './SpinHistoryScreen';
 
 const ProfileScreen = () => {
   const { t } = useTranslation();
@@ -35,7 +36,7 @@ const ProfileScreen = () => {
   const [appVersion, setAppVersion] = useState('');
 
   const user = useSelector(state => state.user.user);
-  const { data: userPoints } = useGetWalletSummaryQuery({  
+  const { data: userPoints } = useGetWalletSummaryQuery({
     refetchOnFocus: true,
     pollingInterval: 10000,
   });
@@ -53,13 +54,13 @@ const ProfileScreen = () => {
     fetchVersion();
   }, []);
 
- 
+
   return (
     <AppLayout>
       <PageHeader lable={t('profile')}
         rightComponent={
           <TouchableOpacity style={styles.editButton} onPress={() => navigation.navigate('EditProfile')} >
-            <ProfileEditIcon color={Colors.splash}/>
+            <ProfileEditIcon color={Colors.splash} />
             <Text style={styles.editText}>{t('edit')}</Text>
           </TouchableOpacity>
         } />
@@ -67,8 +68,8 @@ const ProfileScreen = () => {
         <ProfileHeader navigation={navigation} user={user} />
         <Spacer height={hp(2)} />
         <View style={styles.rewardsContainer}>
-          <Rewards rewardPoints={rewards} title={t('total_rewards')} color={[Colors.secondary, Colors.quinary]}/>       
-          <Rewards rewardPoints={rewards} title={t('cash_back')} color={[Colors.splash, Colors.splash_light]}/>       
+          <Rewards rewardPoints={rewards} title={t('total_rewards')} color={[Colors.secondary, Colors.quinary]} />
+          <Rewards rewardPoints={rewards} title={t('cash_back')} color={[Colors.splash, Colors.splash_light]} />
         </View>
         <Spacer height={hp(3)} />
         <TabButton
@@ -90,11 +91,16 @@ const ProfileScreen = () => {
         />
         <TabButton
           Icon={SettingIcon}
-          label={t('Settings')}
+          label={t('settings')}
           onPress={() =>
             navigation.navigate('Settings', { isInitialSetup: false })
           }
         />
+        <TabButton
+          label="Spin History"
+          onPress={() => navigation.navigate('SpinHistory')}
+        />
+
         {/* Version above tab bar */}
         <View style={styles.versionContainer}>
           <Text style={styles.versionText}>Version: {appVersion}</Text>
@@ -109,10 +115,10 @@ export default ProfileScreen;
 
 const styles = StyleSheet.create({
   container: {
- 
+
     paddingHorizontal: wp(4),
     position: 'relative',
-    width: '100%'    
+    width: '100%'
   },
   topBar: {
     flexDirection: 'row',
@@ -156,8 +162,8 @@ const styles = StyleSheet.create({
     fontSize: RFValue(16, SCREEN_HEIGHT),
     fontFamily: 'Poppins-Regular',
     opacity: 0.3,
- 
-  
+
+
   },
   editButton: {
     borderRadius: 9,
@@ -181,7 +187,7 @@ const styles = StyleSheet.create({
     borderTopColor: 'rgba(255,255,255,0.5)',
     paddingTop: hp(1),
     marginTop: hp(5),
-    paddingHorizontal:10
+    paddingHorizontal: 10
   },
   rewardsContainer: {
     flexDirection: 'row',

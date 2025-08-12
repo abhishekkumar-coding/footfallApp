@@ -47,7 +47,7 @@ const requestLocationPermission = async () => {
   }
 
   if (hasAskedForPermission) {
-    return false; 
+    return false;
   }
 
   hasAskedForPermission = true;
@@ -57,6 +57,23 @@ const requestLocationPermission = async () => {
   );
 
   return granted === PermissionsAndroid.RESULTS.GRANTED;
+};
+
+const requestGalleryPermission = async () => {
+  if (Platform.OS === 'android') {
+    const granted = await PermissionsAndroid.request(
+      PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
+      {
+        title: 'Gallery Permission',
+        message: 'App needs access to your gallery to update profile picture',
+        buttonNeutral: 'Ask Me Later',
+        buttonNegative: 'Cancel',
+        buttonPositive: 'OK',
+      }
+    );
+    return granted === PermissionsAndroid.RESULTS.GRANTED;
+  }
+  return true;
 };
 
 const EditProfile = () => {
@@ -279,10 +296,11 @@ const EditProfile = () => {
           ) : (
             <TouchableOpacity onPress={handleImagePick} style={styles.fallbackAvatar} activeOpacity={0.9}>
               <Text style={styles.fallbackInitial}>{name ? name[0].toUpperCase() : '?'}</Text>
-              <View onPress={handleImagePick} style={styles.uploadIcon}>
+              <TouchableOpacity onPress={handleImagePick} style={styles.uploadIcon}>
                 <MaterialIcons name="camera-alt" size={20} color="white" />
-              </View>
+              </TouchableOpacity>
             </TouchableOpacity>
+
           )}
         </View>
         <View style={{ paddingHorizontal: wp(5) }}>

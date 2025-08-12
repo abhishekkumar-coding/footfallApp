@@ -135,6 +135,11 @@ const ShopCard = ({ shop, onPress }) => {
           </Pressable>
         </View>
       </View>
+      {isDisabled && (
+        <View style={styles.disabledOverlay}>
+          {/* <Text style={styles.disabledText}>{t('shopSetupIncomplete')}</Text> */}
+        </View>
+      )}
     </TouchableOpacity>
   );
 };
@@ -179,7 +184,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     width: '100%',
     justifyContent: 'space-between',
-    marginBottom:5
+    marginBottom: 5
   },
   location: {
     color: '#d3d3d3',
@@ -189,7 +194,7 @@ const styles = StyleSheet.create({
   },
   category: {
     color: '#fff',
-    fontSize:   RFValue(10, SCREEN_HEIGHT),
+    fontSize: RFValue(10, SCREEN_HEIGHT),
     fontFamily: Fonts.primary_SemiBold,
     position: 'absolute',
     top: 10,

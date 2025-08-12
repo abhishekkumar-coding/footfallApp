@@ -15,6 +15,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import PageHeader from '../../components/PageHeader';
 import Toast from 'react-native-toast-message';
 import { useTranslation } from 'react-i18next';
+import AppLayout from '../../layout/AppLayout';
 
 const OfferScanner = ({ navigation }) => {
   const { t } = useTranslation();
@@ -230,7 +231,7 @@ const OfferScanner = ({ navigation }) => {
   }
 
   return (
-    <>
+    <AppLayout showCircle={false}>
       <PageHeader lable={t('scanQR')} back />
       <View style={styles.container}>
         <Camera
@@ -292,7 +293,7 @@ const OfferScanner = ({ navigation }) => {
           </View>
         )}
       </View>
-    </>
+    </AppLayout>
   );
 };
 

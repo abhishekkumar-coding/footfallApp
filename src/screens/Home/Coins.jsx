@@ -39,16 +39,16 @@ const Coins = forwardRef((props, ref) => {
           style={styles.gradientContainer} >          
           <View style={styles.upperContainer}>
             <View style={styles.pointsContainer}>
-              <Text style={styles.upperText}>My Points</Text>
+              <Text style={styles.upperText}>{t('points')}</Text>
               <Text style={[styles.upperText, { fontSize: RFValue(20, SCREEN_HEIGHT) }]}>{totalPoints}</Text>
             </View>
-            <TouchableOpacity style={styles.arrowContainer}>
+            <TouchableOpacity style={styles.arrowContainer} onPress={()=>navigation.navigate('Referral')}>
               <Octicons name="gift" size={RFValue(20, SCREEN_HEIGHT)} color="#fff" />
             </TouchableOpacity>
           </View>
           <View style={styles.lowerContainer}>
-            <Text style={styles.lowerText}>See your claimed rewards</Text>
-            <TouchableOpacity style={[styles.arrowContainer, { width: 20, height: 20, borderRadius: 20 }]}>
+            <Text style={styles.lowerText}>{t('see_rewards')}</Text>
+            <TouchableOpacity onPress={()=>navigation.navigate('RedeemHistoryScreen')} style={[styles.arrowContainer, { width: 20, height: 20, borderRadius: 20 }]}>
               <MaterialIcons name="arrow-forward" size={RFValue(14, SCREEN_HEIGHT)} color="#fff" />
             </TouchableOpacity>
           </View>

@@ -77,7 +77,7 @@ const LanguageScreen = ({ route, navigation }) => {
 
   return (
     <AppLayout >
-        {!isInitialSetup && <PageHeader back lable={"Change language"} />}
+        {!isInitialSetup && <PageHeader back lable={t('change_language')} />}
       <View style={styles.content}>
         <View style={styles.langIconContainer}>
           <Text style={[styles.langSymbol, { top: 10, left: 0 }]}>अ</Text>

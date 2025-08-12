@@ -5,18 +5,20 @@ import LinearGradient from 'react-native-linear-gradient';
 import Toast from 'react-native-toast-message'; // Make sure Toast is properly configured in your app
 import { RFValue } from 'react-native-responsive-fontsize';
 import { Fonts } from '../utils/typography';
+import { useTranslation } from 'react-i18next';
 
 const FeaturedShopCard = ({ item, onPress }) => {
   const [imageError, setImageError] = useState(false);
   const isValidCover = item.cover && item.cover.trim() !== '';
   const isDisabled = item?.vendor?.rechargePoints < 100;
+  const {t} = useTranslation()
 
   const handlePress = () => {
     if (isDisabled) {
       Toast.show({
         type: 'error',
-        text1: 'Shop Setup Incomplete',
-        text2: 'This shop is not fully set up yet.',
+        text1: t('shopSetupIncomplete'),
+        text2: t('shopNotFullySetup'),
       });
     } else {
       onPress();
@@ -24,14 +26,19 @@ const FeaturedShopCard = ({ item, onPress }) => {
   };
   return (
     <TouchableOpacity onPress={handlePress}>
-      <View style={styles.cardWrapper}>
+      <View style={[styles.cardWrapper, isDisabled && styles.disabledCardWrapper]}>
         <View style={styles.card}>
-          <Image source={!isValidCover || imageError
-            ? require('../../assets/emptyFeaturedImage.png')
-            : { uri: item.cover }} style={styles.image} />
+          <Image
+            source={
+              !isValidCover || imageError
+                ? require('../../assets/emptyFeaturedImage.png')
+                : { uri: item.cover }
+            }
+            style={styles.image}
+          />
         </View>
         <LinearGradient
-          colors={['rgba(0,0,0,0.5)', 'transparent', 'rgba(0,0,0,0.8)',]}
+          colors={['rgba(0,0,0,0.5)', 'transparent', 'rgba(0,0,0,0.8)']}
           style={styles.overlay}
         />
         <View style={styles.categoryContainer}>
@@ -44,8 +51,9 @@ const FeaturedShopCard = ({ item, onPress }) => {
         </View>
       </View>
     </TouchableOpacity>
+
   )
-  
+
 };
 
 export default FeaturedShopCard;
@@ -72,7 +80,7 @@ const styles = StyleSheet.create({
   card: {
     position: 'relative',
     width: '100%',
-    height: '100%',    
+    height: '100%',
   },
   image: {
     width: '100%',

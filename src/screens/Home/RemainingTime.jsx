@@ -8,8 +8,30 @@ import { Fonts } from '../../utils/typography';
 import Spacer from '../../components/Spacer';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
+import { useTranslation } from 'react-i18next';
+import { useSelector } from 'react-redux';
+import { useGetUserByIdQuery } from '../../features/auth/authApi';
+import { useFocusEffect } from '@react-navigation/native';
+import { useCallback } from 'react';
+
+
 const PROGRESS_BAR_WIDTH = SCREEN_WIDTH * 0.85;
 const RemainingTime = () => {
+    const userId = useSelector(state => state.user.user?._id)
+    const { data, refetch } = useGetUserByIdQuery(userId, {
+        refetchOnFocus: true,
+        refetchOnMountOrArgChange: true,
+    });
+    const redeemPoints = data?.data?.wallet?.totalPoints || 0
+    console.log("User points: ", data)
+    const { t } = useTranslation();
+    const canRedeem = redeemPoints > 100;
+    useFocusEffect(
+        useCallback(() => {
+            refetch();
+        }, [])
+    );
+
     const navigation = useNavigation();
     return (
         <View style={styles.container}>
@@ -18,18 +40,26 @@ const RemainingTime = () => {
             >
 
                 <ImageBackground source={require("../../../assets/bg-imagess.png")} imageStyle={{ opacity: 0.5, objectFit: 'cover', }} style={styles.content}>
-                    <Text style={styles.title}>Unlock 1000 points</Text>
-                    <Text style={styles.subtitle}>Scan 10 shops to unlock 1000 points</Text>
+                    <Text style={styles.title}>
+                        {canRedeem ? t('redeemCard.title2') : t('redeemCard.title')}
+                    </Text>
+
+                    <Text style={styles.subtitle}>
+                        {canRedeem
+                            ? t('redeemCard.canRedeem')
+                            : t('redeemCard.cannotRedeem', { redeemPoints: 100 - redeemPoints})
+                        }
+                    </Text>
                     <View style={styles.progressBarContainer}>
-                        <Text style={styles.progressBarText}>0/10</Text>
+                        <Text style={styles.progressBarText}>{redeemPoints < 100 ? `${redeemPoints}/100` : `100/100`}</Text>
                     </View>
-                    <Progress.Bar progress={0.7} width={PROGRESS_BAR_WIDTH} color="#21DAD7" height={10} borderRadius={10} />
+                    <Progress.Bar progress={Math.min(redeemPoints / 100, 1)} width={PROGRESS_BAR_WIDTH} color="#21DAD7" height={10} borderRadius={10} />
                     <Spacer height={12} />
                     <TouchableOpacity style={styles.button} activeOpacity={0.9}
-                        onPress={() => navigation.navigate('ScanOptions')}
+                        onPress={() => navigation.navigate('RewardScanner')}
                     >
                         <MaterialIcons name="qr-code-scanner" size={20} color="#000" />
-                        <Text style={styles.buttonText}>Scan</Text>
+                        <Text style={styles.buttonText}>{t('redeemCard.scanButton')}</Text>
                     </TouchableOpacity>
                 </ImageBackground>
             </LinearGradient>

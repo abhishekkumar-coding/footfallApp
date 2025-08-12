@@ -238,7 +238,40 @@ export const shopApi = createApi({
         },
       }),
     }),
-
+    getAllRewards: builder.query({
+      query: () => ({
+        url: "spin/getAll?isActive=true",
+        method: "GET"
+      })
+    }),
+    spinWheel: builder.mutation({
+      query: () => ({
+        url: "spin/spinWheel",
+        method: "POST",
+      }),
+      invalidatesTags: ["SpinHistory"],
+    }),
+    getSpinHistory: builder.query({
+      query: () => ({
+        url: "spin/getSpinHistory",
+        method: "GET",
+      }),
+      providesTags: ["SpinHistory"],
+    }),
+    claimReward: builder.mutation({
+      query: ({ awardId, ...payload }) => ({
+        url: `spin/claimReward/${awardId}`,
+        method: "POST",
+        body: payload,
+      }),
+      invalidatesTags: ["SpinHistory"], // Auto-refetch SpinHistory queries
+    }),
+    getShopByVendor:builder.query({
+      query:(id)=>({
+        url:`shop/getByVendor/${id}`,
+        method:"GET"
+      })
+    })
   }),
 });
 
@@ -268,5 +301,10 @@ export const {
   useGetNearbyShopsQuery,
   useGetFeaturedShopsQuery,
   useUploadFileMutation,
-  useDeleteFileMutation
+  useDeleteFileMutation,
+  useGetAllRewardsQuery,
+  useSpinWheelMutation,
+  useGetSpinHistoryQuery,
+  useClaimRewardMutation,
+  useGetShopByVendorQuery
 } = shopApi;

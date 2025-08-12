@@ -11,7 +11,7 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { hp, SCREEN_HEIGHT, wp } from '../../utils/dimensions';
-import ShopQRCode from './ShopQRCode';
+// import ShopQRCode from './ShopQRCode';
 import { RFValue } from 'react-native-responsive-fontsize';
 import {
   useGetShopOffersByIdQuery,

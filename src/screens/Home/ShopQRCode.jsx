@@ -1,33 +1,14 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
-import QRCode from 'react-native-qrcode-svg';
+import { StyleSheet, Text, View } from 'react-native'
+import React from 'react'
 
-const ShopQRCode = ({ shopId, email ,ownerId, logo}) => {
-    console.log("ShopId : ", shopId)
-  const qrData = `shop_id=${shopId}&owner=${ownerId}`;
-
+const ShopQRCode = () => {
   return (
-    <View style={styles.container}>
-      {/* <Text style={styles.title}>Scan to view shop details:</Text> */}
-      <QRCode
-        value={qrData}
-        size={150}
-        linearGradient={['#8e2de2', '#4a00e0']} 
-        enableLinearGradient
-        eyeColor="#4a00e0"
-        quietZone={10}
-        logo={{ uri:logo }}
-        logoSize={50}
-        logoBackgroundColor="transparent"
-        ecl="H"
-      />
+    <View>
+      <Text>ShopQRCode</Text>
     </View>
-  );
-};
+  )
+}
 
-const styles = StyleSheet.create({
-  container: { alignItems: 'center', marginTop: 20 },
-  title: { fontSize: 18, fontWeight: 'bold', marginBottom: 15, color: '#fff' },
-});
+export default ShopQRCode
 
-export default ShopQRCode;
+const styles = StyleSheet.create({})

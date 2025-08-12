@@ -42,6 +42,10 @@ import AddressScreen from '../screens/AddressScreen';
 import MapLocationPicker from '../screens/MapLocationPicker';
 import { Colors } from '../utils/Colors';
 import SettingScreen from '../screens/SettingScreen';
+import SpinWheelScreen from '../screens/SpinWheelScreen';
+import { SpinWheel } from '../utils/icons/icons';
+import SpinHistoryScreen from '../screens/SpinHistoryScreen';
+import EmptySpinWheel from '../utils/icons/EmptySpinWheel';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -130,7 +134,11 @@ const HomeStack = () => (
       component={AllFeaturedShops}
       options={{ headerShown: false }}
     />
-
+    <Stack.Screen
+      name="Referral"
+      component={ReferralScreen}
+      options={{ headerShown: false }}
+    />
   </Stack.Navigator>
 );
 
@@ -157,6 +165,11 @@ const ProfileStack = () => (
       options={{ headerShown: false }}
     />
     <Stack.Screen
+      name="RewardScanner"
+      component={ScannerScreen}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
       name="Language"
       component={LanguageScreen}
       options={{ headerShown: false }}
@@ -174,6 +187,16 @@ const ProfileStack = () => (
     <Stack.Screen
       name='Settings'
       component={SettingScreen}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+      name="RedeemScanner"
+      component={RedeemScanner}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+      name="SpinHistory"
+      component={SpinHistoryScreen}
       options={{ headerShown: false }}
     />
   </Stack.Navigator>
@@ -250,11 +273,16 @@ const MainTabNavigator = () => {
           return {
             headerShown: false,
             tabBarLabel: t('tab_home'),
-            ...hideTabBar,
-            tabBarIcon: ({ focused, color }) =>
+            tabBarIcon: ({ focused, color }) => (
               <TabItem focused={focused} color={color}>
                 <FilledHome color={color} />
-              </TabItem>,
+              </TabItem>),
+            tabBarStyle: isHidden ? { display: "none" }
+              : {
+                backgroundColor: Colors.tabBar,
+                borderTopWidth: 0,
+                elevation: 0,
+              },
           };
         }}
       />
@@ -282,22 +310,52 @@ const MainTabNavigator = () => {
         }}
       />
       <Tab.Screen
+        name="SpinWheel"
+        component={SpinWheelScreen}
+        options={{
+          headerShown: false,
+          tabBarLabel: t('tab_spinwheen'),
+          tabBarIcon: ({ focused, color }) => <TabItem focused={focused} color={color}>
+            <EmptySpinWheel color={color} />
+          </TabItem>
+        }}
+      />
+      <Tab.Screen
         name="Profile"
         component={ProfileStack}
         options={({ route }) => {
-          const routeName =
-            getFocusedRouteNameFromRoute(route) ?? 'ProfileMain';
-          const hideOnScreens = ['EditProfile', 'Referral', 'Language', 'RedeemHistoryScreen', 'MapLocationPicker', 'Address'];
+          const routeName = getFocusedRouteNameFromRoute(route) ?? 'ProfileMain';
+          const hideOnScreens = [
+            'EditProfile',
+            'Referral',
+            'Language',
+            'RedeemHistoryScreen',
+            'MapLocationPicker',
+            'Address',
+          ];
+
+          const isTabHidden = hideOnScreens.includes(routeName);
+
           return {
             headerShown: false,
             tabBarLabel: t('tab_profile'),
-            tabBarIcon: ({ focused, color }) => <TabItem focused={focused} color={color}>
-              <FilledProfile color={color} />
-            </TabItem>
-
+            tabBarIcon: ({ focused, color }) => (
+              <TabItem focused={focused} color={color}>
+                <FilledProfile color={color} />
+              </TabItem>
+            ),
+            tabBarStyle: isTabHidden
+              ? { display: 'none' }
+              : {
+                backgroundColor: Colors.tabBar,
+                borderTopWidth: 0,
+                elevation: 0,
+              },
           };
         }}
       />
+
+
     </Tab.Navigator>
 
 

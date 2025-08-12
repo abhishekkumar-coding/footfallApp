@@ -91,20 +91,20 @@ const HeaderHome = () => {
         const parsedSaved = saved ? JSON.parse(saved) : null;
 
 
-        if (savedAddress?.address) {
-          console.log("Saved Address in Redux Storage: ", savedAddress)
-          setFullAddress(savedAddress.address);
-          setLoadingCity(false);
-          return;
-        }
+        // if (savedAddress?.address) {
+        //   console.log("Saved Address in Redux Storage: ", savedAddress)
+        //   setFullAddress(savedAddress.address);
+        //   setLoadingCity(false);
+        //   return;
+        // }
 
 
-        if (parsedSaved?.address) {
-          console.log("Saved Address in AsyncStorage: ", parsedSaved)
-          setFullAddress(parsedSaved.address);
-          setLoadingCity(false);
-          return;
-        }
+        // if (parsedSaved?.address) {
+        //   console.log("Saved Address in AsyncStorage: ", parsedSaved)
+        //   setFullAddress(parsedSaved.address);
+        //   setLoadingCity(false);
+        //   return;
+        // }
 
         const hasPermission = await requestLocationPermission();
         if (!hasPermission) throw new Error('Location permission denied');
@@ -139,11 +139,11 @@ const HeaderHome = () => {
               dispatch(setUser(res.data));
             } catch (error) {
               console.error('Error updating user:', error);
-              Toast.show({
-                type: 'error',
-                text1: 'Update Failed',
-                text2: 'Unable to update your location.',
-              });
+              // Toast.show({
+              //   type: 'error',
+              //   text1: 'Update Failed',
+              //   text2: 'Unable to update your location.',
+              // });
             }
           },
           error => {
@@ -179,7 +179,7 @@ const HeaderHome = () => {
           style={styles.logoImage}
           resizeMode="contain"
         />
-        <View style={{ flexDirection: "row", justifyContent: "center", gap: 5, marginLeft: 12, }}>
+        <View style={{ flexDirection: "row", justifyContent: "", gap: 5, marginLeft: 0, }}>
           <MaterialIcons name="location-on" size={20} color="white" style={{ marginTop: 2 }} />
           <Text   style={styles.logoText}>{loadingCity ? '..........' : fullAddress || 'Unknown'}</Text>
         </View>

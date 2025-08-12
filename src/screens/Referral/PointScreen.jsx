@@ -9,16 +9,18 @@ import {
     Share,
     Platform,
     Clipboard,
-    Image, } from 'react-native'
+    Image,
+} from 'react-native'
 import React, { useState } from 'react'
 import Ionicon from 'react-native-vector-icons/Ionicons'
 import { Fonts } from '../../utils/typography';
 import { RFValue } from 'react-native-responsive-fontsize';
-import { hp, SCREEN_HEIGHT } from '../../utils/dimensions';
+import { hp, SCREEN_HEIGHT, SCREEN_WIDTH } from '../../utils/dimensions';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
- 
- 
+import { useNavigation } from '@react-navigation/native';
+
+
 
 const APP_SCHEME = 'footfall://signup';
 const WEB_LINK = 'https://footfall.onrender.com/signup';
@@ -27,12 +29,14 @@ const APP_STORE_URL = 'https://apps.apple.com/app/idYOUR_APP_ID';
 const PointScreen = () => {
     const { t } = useTranslation();
     const user = useSelector(state => state.user.user);
+    const redeemPoints = user?.rewards?.points || 0
     console.log("Generated Referral code: ", user)
     const referralCode = user?.referralCode || 'N/A';
     const [activeScreen, setActiveScreen] = useState("points");
+    const navigation = useNavigation()
     const handleCopyCode = () => {
         Clipboard.setString(referralCode);
-        Alert.alert('Copied!', 'Referral code copied to clipboard');
+        // Alert.alert('Copied!', 'Referral code copied to clipboard');
     };
 
     // Build links
@@ -64,7 +68,7 @@ const PointScreen = () => {
     const handleShare = async (platform) => {
         try {
             const link = generateWebLink();
-            const message = `Join Footfall using my referral link! ${link}\n\nOr use code: ${referralCode}`;
+            const message = t('referral.share.message', { link, code: referralCode });
             switch (platform) {
                 case 'whatsapp':
                     await Linking.openURL(`https://wa.me/?text=${encodeURIComponent(message)}`);
@@ -94,65 +98,70 @@ const PointScreen = () => {
         }
     };
 
-  return (
-    <View>
-          <View style={styles.helloContainer}>
-              <Text style={styles.helloText}>Hello BlueGuy,</Text>
-              <Text style={styles.redeemText}>You redeem points is</Text>
-          </View>
-          <View style={styles.rewardContainer}>
-              <View style={styles.rewardBox}>
-                  <Text style={styles.rewardText}>1000</Text>
-              </View>
-              <TouchableOpacity style={styles.rewardButton}>
-                  <Text style={styles.rewardButtonText}>Reedem</Text>
-              </TouchableOpacity>
-          </View>
-          <View style={styles.referContainer}>
-              <Text style={styles.referText}>Refer & Earn</Text>
-              <Text style={styles.referSubText}>Invite your friends and earn 100 points for yourself, plus 50 points for each friend who joins using your referral code.</Text>
-              <View style={styles.referCodeContainer}>
-                  <Text style={styles.referCodeText}>{referralCode}</Text>
-                  <View style={styles.copyButton}>
-                      <TouchableOpacity>
-                          <Ionicon name="copy-outline" size={20} color="#fff" />
-                      </TouchableOpacity>
-                  </View>
-              </View>
-          </View>
-          <View style={styles.shareContainer}>
-              <TouchableOpacity style={styles.whatsappButton}>
-                  <Ionicon name="logo-whatsapp" size={20} color="#fff" />
-                  <Text style={styles.shareText}>WhatsApp</Text>
-              </TouchableOpacity>
-              <TouchableOpacity style={styles.socialShareButton}>
-                  <Ionicon name="share-social-outline" size={20} color="#fff" />
-                  <Text style={styles.shareText}>More Options</Text>
-              </TouchableOpacity>
-          </View>
-          <View style={styles.howItWorksContainer}>
-              <Text style={styles.howItWorksTitle}>How It Works</Text>
-              <View style={styles.howItWorksItem}>
-                  <View style={styles.howItWorksIcon}>
-                      <Ionicon name="share-social-outline" size={20} color="#fff" />
-                  </View>
-                  <Text style={styles.howItWorksText}>Share the referral link with your friends</Text>
-              </View>
-              <View style={styles.howItWorksItem}>
-                  <View style={styles.howItWorksIcon}>
-                      <Ionicon name="person-add-outline" size={20} color="#fff" />
-                  </View>
-                  <Text style={styles.howItWorksText}>Your friend sign up using your referral code</Text>
-              </View>
-              <View style={styles.howItWorksItem}>
-                  <View style={styles.howItWorksIcon}>
-                      <Ionicon name="wallet-outline" size={20} color="#fff" />
-                  </View>
-                  <Text style={styles.howItWorksText}>Reward will be credited after they join.</Text>
-              </View>
-          </View>
-    </View>
-  )
+    const handleRedeem = () => navigation.navigate('RedeemScanner')
+
+    return (
+        <View>
+            <View style={styles.helloContainer}>
+                <Text style={styles.helloText}>{t('referral.hello', { name: user.name })}</Text>
+                <Text style={styles.redeemText}>{t('referral.redeem_info')}</Text>
+            </View>
+            <View style={styles.rewardContainer}>
+                <View style={styles.rewardBox}>
+                    <Text style={styles.rewardText}>{redeemPoints}</Text>
+                </View>
+                <TouchableOpacity style={styles.rewardButton} onPress={handleRedeem}>
+                    <Text style={styles.rewardButtonText}>{t('referral.redeem_button')}</Text>
+                </TouchableOpacity>
+            </View>
+            <View style={styles.referContainer}>
+                <Text style={styles.referText}>{t('referral.refer_title')}</Text>
+                <Text style={styles.referSubText}>{t('referral.refer_subtitle')}</Text>
+                <View style={styles.referCodeContainer}>
+                    <Text style={styles.referCodeText}>{referralCode}</Text>
+                    <View style={styles.copyButton}>
+                        <TouchableOpacity onPress={handleCopyCode}>
+                            <Ionicon name="copy-outline" size={20} color="#fff" />
+                        </TouchableOpacity>
+
+                    </View>
+                </View>
+            </View>
+            <View style={styles.shareContainer}>
+                <TouchableOpacity style={styles.whatsappButton} onPress={() => handleShare('whatsapp')}>
+                    <Ionicon name="logo-whatsapp" size={20} color="#fff" />
+                    <Text style={styles.shareText}>{t('referral.share.whatsapp')}</Text>
+                </TouchableOpacity>
+
+                <TouchableOpacity style={styles.socialShareButton} onPress={() => handleShare('more')}>
+                    <Ionicon name="share-social-outline" size={20} color="#fff" />
+                    <Text style={styles.shareText}>{t('referral.share.more')}</Text>
+                </TouchableOpacity>
+
+            </View>
+            <View style={styles.howItWorksContainer}>
+                <Text style={styles.howItWorksTitle}>{t('referral.how_it_works.title')}</Text>
+                <View style={styles.howItWorksItem}>
+                    <View style={styles.howItWorksIcon}>
+                        <Ionicon name="share-social-outline" size={20} color="#fff" />
+                    </View>
+                    <Text style={styles.howItWorksText}>{t('referral.how_it_works.step1')}</Text>
+                </View>
+                <View style={styles.howItWorksItem}>
+                    <View style={styles.howItWorksIcon}>
+                        <Ionicon name="person-add-outline" size={20} color="#fff" />
+                    </View>
+                    <Text style={styles.howItWorksText}>{t('referral.how_it_works.step2')}</Text>
+                </View>
+                <View style={styles.howItWorksItem}>
+                    <View style={styles.howItWorksIcon}>
+                        <Ionicon name="wallet-outline" size={20} color="#fff" />
+                    </View>
+                    <Text style={styles.howItWorksText}>{t('referral.how_it_works.step3')}</Text>
+                </View>
+            </View>
+        </View>
+    )
 }
 
 export default PointScreen
@@ -286,25 +295,31 @@ const styles = StyleSheet.create({
     },
     howItWorksItem: {
         flexDirection: 'row',
-        alignItems: 'center',
-        // justifyContent: 'space-between',
+        alignItems: 'flex-start',
         backgroundColor: "#ffffff25",
         padding: 10,
         borderRadius: 10,
         marginBottom: 10,
-        gap: 4
+        gap: 10,
+        flexWrap: 'nowrap',
     },
     howItWorksIcon: {
         width: 30,
         height: 30,
         alignItems: 'center',
         justifyContent: 'center',
+        marginTop: 2,
     },
     howItWorksText: {
+        width: SCREEN_WIDTH * 0.7,
+        // borderWidth:1,
+        borderColor: "#fff",
+        // flex: 1,
         fontSize: RFValue(12, SCREEN_HEIGHT),
         color: '#fff',
         fontFamily: Fonts.primary_SemiBold,
-
+        lineHeight: RFValue(16, SCREEN_HEIGHT),
+        flexWrap: 'wrap'
     },
     howItWorksTitle: {
         fontSize: RFValue(16, SCREEN_HEIGHT),

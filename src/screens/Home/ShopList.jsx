@@ -31,34 +31,61 @@ const ShopList = forwardRef((props, ref) => {
     lng: null
   });
 
+  // useEffect(() => {
+  //   const fetchLatLng = async () => {
+  //     try {
+  //       let lat = null;
+  //       let lng = null;
+
+  //       if (savedAddress?.location?.coordinates?.length === 2) {
+  //         lat = savedAddress.location.coordinates[1];
+  //         lng = savedAddress.location.coordinates[0];
+  //         console.log('Using savedAddress coordinates from Redux:', lat, lng);
+  //       } else {
+  //         const selectedAddress = await AsyncStorage.getItem('selectedAddress');
+  //         const parsed = selectedAddress ? JSON.parse(selectedAddress) : null;
+
+  //         if (parsed?.location?.coordinates?.length === 2) {
+  //           lat = parsed.location.coordinates[1];
+  //           lng = parsed.location.coordinates[0];
+  //           console.log('Using selectedAddress coordinates from AsyncStorage:', lat, lng);
+  //         } else if (user?.location?.coordinates?.length === 2) {
+  //           lat = user.location.coordinates[1];
+  //           lng = user.location.coordinates[0];
+  //           console.log('Using user coordinates:', lat, lng);
+  //         } else {
+  //           // Fallback to default coordinates (India Gate)
+  //           lat = 28.6129;
+  //           lng = 77.2295;
+  //           console.log('Using default coordinates (India Gate):', lat, lng);
+  //         }
+  //       }
+
+  //       setCoordinates({ lat, lng });
+  //     } catch (err) {
+  //       console.error('Error fetching coordinates:', err);
+  //     }
+  //   };
+
+  //   fetchLatLng();
+  // }, [user, savedAddress]);
+  // ;
+
   useEffect(() => {
     const fetchLatLng = async () => {
       try {
         let lat = null;
         let lng = null;
 
-        if (savedAddress?.location?.coordinates?.length === 2) {
-          lat = savedAddress.location.coordinates[1];
-          lng = savedAddress.location.coordinates[0];
-          console.log('Using savedAddress coordinates from Redux:', lat, lng);
+        if (user?.location?.coordinates?.length === 2) {
+          lat = user.location.coordinates[1];
+          lng = user.location.coordinates[0];
+          console.log('Using user coordinates:', lat, lng);
         } else {
-          const selectedAddress = await AsyncStorage.getItem('selectedAddress');
-          const parsed = selectedAddress ? JSON.parse(selectedAddress) : null;
-
-          if (parsed?.location?.coordinates?.length === 2) {
-            lat = parsed.location.coordinates[1];
-            lng = parsed.location.coordinates[0];
-            console.log('Using selectedAddress coordinates from AsyncStorage:', lat, lng);
-          } else if (user?.location?.coordinates?.length === 2) {
-            lat = user.location.coordinates[1];
-            lng = user.location.coordinates[0];
-            console.log('Using user coordinates:', lat, lng);
-          } else {
-            // Fallback to default coordinates (India Gate)
-            lat = 28.6129;
-            lng = 77.2295;
-            console.log('Using default coordinates (India Gate):', lat, lng);
-          }
+          // Fallback to default coordinates (India Gate)
+          lat = 28.6129;
+          lng = 77.2295;
+          console.log('Using default coordinates (India Gate):', lat, lng);
         }
 
         setCoordinates({ lat, lng });
@@ -68,8 +95,8 @@ const ShopList = forwardRef((props, ref) => {
     };
 
     fetchLatLng();
-  }, [user, savedAddress]);
-  ;
+  }, [user]);
+
 
   const { data, refetch, error, isLoading } = useGetNearbyShopsQuery({
     lat: coordinates.lat,
