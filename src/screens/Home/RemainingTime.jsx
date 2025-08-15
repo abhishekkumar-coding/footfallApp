@@ -41,14 +41,10 @@ const RemainingTime = () => {
 
                 <ImageBackground source={require("../../../assets/bg-imagess.png")} imageStyle={{ opacity: 0.5, objectFit: 'cover', }} style={styles.content}>
                     <Text style={styles.title}>
-                        {canRedeem ? t('redeemCard.title2') : t('redeemCard.title')}
+                        {t('redeemCard.title')}
                     </Text>
 
-                    <Text style={styles.subtitle}>
-                        {canRedeem
-                            ? t('redeemCard.canRedeem')
-                            : t('redeemCard.cannotRedeem', { redeemPoints: 100 - redeemPoints})
-                        }
+                    <Text style={styles.subtitle}>{t('redeemCard.canRedeem')}
                     </Text>
                     <View style={styles.progressBarContainer}>
                         <Text style={styles.progressBarText}>{redeemPoints < 100 ? `${redeemPoints}/100` : `100/100`}</Text>

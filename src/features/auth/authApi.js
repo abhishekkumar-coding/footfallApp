@@ -5,7 +5,8 @@ const baseQueryWithAuth = async (args, api, extraOptions) => {
   const token = await AsyncStorage.getItem('token');
 
   const authenticatedBaseQuery = fetchBaseQuery({
-    baseUrl: 'https://footfall.onrender.com/api/',
+    // baseUrl: 'https://footfall.onrender.com/api/',
+    baseUrl: 'https://footfall-production.onrender.com/api/',
     prepareHeaders: headers => {
       if (token) headers.set('token', token);
       return headers;

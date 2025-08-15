@@ -54,6 +54,7 @@ const LoginScreen = () => {
   const [showError, setShowError] = useState(false);
   const [loginType, setLoginType] = useState('user');
   const [googleLoading, setGoogleLoading] = useState(false);
+  const [savedLang, setSavedLang] = useState('');
 
   const fcmToken = useSelector(state => state.user.fcmToken);
   const referralCode = useSelector(state => state.user.pendingReferral);
@@ -87,9 +88,12 @@ const LoginScreen = () => {
     const loadSavedCredentials = async () => {
       try {
         const savedEmail = await AsyncStorage.getItem('rememberedEmail');
+        const savedLangFromStorage = await AsyncStorage.getItem('appLanguage');
         const savedPassword = await AsyncStorage.getItem('rememberedPassword');
         const remember = await AsyncStorage.getItem('rememberMe');
-
+        if (savedLangFromStorage) {
+          setSavedLang(savedLangFromStorage);
+        }
         if (remember === 'true' && savedEmail && savedPassword) {
           setEmail(savedEmail);
           setPassword(savedPassword);
@@ -103,8 +107,11 @@ const LoginScreen = () => {
     loadSavedCredentials();
   }, []);
 
+  console.log("savedLangFromStorage: ",)
+
   const handleLogin = async () => {
-    const formData = { email, password, fcmToken };
+    const formData = { email, password, fcmToken, language: savedLang };
+    ;
 
     if (!email.trim() || !password.trim()) {
       setShowError(true);
@@ -207,7 +214,7 @@ const LoginScreen = () => {
       }
 
       console.log('[GOOGLE LOGIN] Sending ID token to backend...');
-      const response = await googleAuth({ token: idToken, fcmToken }).unwrap();
+      const response = await googleAuth({ token: idToken, fcmToken, language: savedLang  }).unwrap();
       console.log('[GOOGLE LOGIN] Backend Response:', response);
       dispatch(clearPendingReferral())
       const appToken = response?.data?.token;

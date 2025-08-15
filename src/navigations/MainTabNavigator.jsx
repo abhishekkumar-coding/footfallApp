@@ -46,6 +46,7 @@ import SpinWheelScreen from '../screens/SpinWheelScreen';
 import { SpinWheel } from '../utils/icons/icons';
 import SpinHistoryScreen from '../screens/SpinHistoryScreen';
 import EmptySpinWheel from '../utils/icons/EmptySpinWheel';
+import SpinRewardScanner from '../screens/SpinRewardScanner';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -199,8 +200,33 @@ const ProfileStack = () => (
       component={SpinHistoryScreen}
       options={{ headerShown: false }}
     />
+    <Stack.Screen
+      name='SpinRewardScanner'
+      component={SpinRewardScanner}
+      options={{ headerShown: false }}
+    />
   </Stack.Navigator>
 );
+
+const SpinStack = () => (
+  <Stack.Navigator>
+    <Stack.Screen
+    name='SpinWheel'
+    component={SpinWheelScreen}
+    options={{headerShown:false}}
+    />
+    <Stack.Screen
+      name='SpinHistory'
+      component={SpinHistoryScreen}
+      options={{ headerShown: false }}
+    />
+    <Stack.Screen
+      name='SpinRewardScanner'
+      component={SpinRewardScanner}
+      options={{ headerShown: false }}
+    />
+  </Stack.Navigator>
+)
 const TabItem = ({ children, focused, color }) => {
   return (
     <View style={{ position: 'relative', justifyContent: 'center', alignItems: 'center' }}>
@@ -311,13 +337,32 @@ const MainTabNavigator = () => {
       />
       <Tab.Screen
         name="SpinWheel"
-        component={SpinWheelScreen}
-        options={{
-          headerShown: false,
-          tabBarLabel: t('tab_spinwheen'),
-          tabBarIcon: ({ focused, color }) => <TabItem focused={focused} color={color}>
-            <EmptySpinWheel color={color} />
-          </TabItem>
+        component={SpinStack}
+        options={({ route }) => {
+          const routeName = getFocusedRouteNameFromRoute(route) ?? 'SpinWheel';
+          const hideOnScreens = [
+            'SpinHistory',
+            'SpinRewardScanner'
+          ];
+
+          const isTabHidden = hideOnScreens.includes(routeName);
+
+          return {
+            headerShown: false,
+            tabBarLabel: t('tab_profile'),
+            tabBarIcon: ({ focused, color }) => (
+              <TabItem focused={focused} color={color}>
+                <EmptySpinWheel color={color} />
+              </TabItem>
+            ),
+            tabBarStyle: isTabHidden
+              ? { display: 'none' }
+              : {
+                backgroundColor: Colors.tabBar,
+                borderTopWidth: 0,
+                elevation: 0,
+              },
+          };
         }}
       />
       <Tab.Screen
@@ -332,6 +377,8 @@ const MainTabNavigator = () => {
             'RedeemHistoryScreen',
             'MapLocationPicker',
             'Address',
+            'SpinHistory',
+            'SpinRewardScanner'
           ];
 
           const isTabHidden = hideOnScreens.includes(routeName);

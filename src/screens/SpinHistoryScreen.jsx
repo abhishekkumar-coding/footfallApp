@@ -9,6 +9,9 @@ import {
     Modal,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
+import { RFValue } from "react-native-responsive-fontsize";
+import { useTranslation } from "react-i18next";
+
 import {
     useGetSpinHistoryQuery,
     useClaimRewardMutation,
@@ -19,39 +22,56 @@ import PageHeader from "../components/PageHeader";
 
 const SpinHistoryScreen = () => {
     const navigation = useNavigation();
+    const { t } = useTranslation();
+
+    // State
     const [vendorId, setVendorId] = useState(null);
+    const [awardId, setAwardId] = useState(null);
     const [selectedItem, setSelectedItem] = useState(null);
     const [showPopup, setShowPopup] = useState(false);
     const [claimingId, setClaimingId] = useState(null);
+    const [screen, setScreen] = useState("unClaimed");
+    const [selectedType, setSelectedType] = useState(null);
 
+    // API hooks
     const { data, error, isLoading } = useGetSpinHistoryQuery();
-    const spinsData = data?.data || [];
-
-    const { data: shopDetails, isFetching: shopLoading } =
-        useGetShopByVendorQuery(vendorId, {
-            skip: !vendorId,
-        });
-    console.log("Shop Details: ", shopDetails)
-
     const [claimReward, { isLoading: isClaiming }] = useClaimRewardMutation();
+    const { data: shopDetails, isFetching: shopLoading } =
+        useGetShopByVendorQuery(vendorId, { skip: !vendorId });
 
-    const isExpired = (expiryDate) => new Date(expiryDate) < new Date();
+    // Data
+    const spinsData = data?.data || [];
+    const unClaimedRewards = spinsData.filter(item => !item.claimed);
+    const claimedRewards = spinsData.filter(item => item.claimed);
+    console.log(spinsData)
 
+    // Helpers
+    const isExpired = expiryDate => new Date(expiryDate) < new Date();
+
+    // Handle claim logic
     const handleClaim = async (item) => {
         if (claimingId) return;
         setClaimingId(item._id);
+        setAwardId(item._id);
+        setSelectedType(item.rewardSnapshot?.type); // Store type here
 
         try {
-            if (item.rewardSnapshot.type === "physical_reward") {
+            if (item.rewardSnapshot?.type === "no_reward") {
+                setSelectedItem(item);
+                // Show "So sad" message instead of popup
+                alert("😢 So sad! Better luck next time. Try spinning again!");
+                return;
+            }
+
+            if (item.rewardSnapshot?.type === "physical_reward") {
                 const vendor = item.rewardSnapshot?.physicalRewardDetails?.redeemableAtVendors?.[0];
                 if (!vendor) {
                     console.warn("No vendorId found for this reward.");
-                    setClaimingId(null);
                     return;
                 }
                 setVendorId(vendor);
                 setSelectedItem(item);
-                setShowPopup(true);
+                setShowPopup(true); // Only opens here
             } else {
                 await claimReward({ awardId: item._id }).unwrap();
             }
@@ -64,7 +84,9 @@ const SpinHistoryScreen = () => {
 
     const handlePopupClaim = () => {
         setShowPopup(false);
-        navigation.navigate("RewardScanner", { vendorId });
+        if (vendorId) {
+            navigation.navigate("SpinRewardScanner", { vendorId, awardId });
+        }
     };
 
     const handlePopupCancel = () => {
@@ -72,27 +94,35 @@ const SpinHistoryScreen = () => {
         setVendorId(null);
     };
 
+    // Render each reward
     const renderItem = ({ item }) => {
         const expired = isExpired(item.expiryDate);
-        const disabled = item.claimed || expired;
+        const disabled = item.claimed || expired || item.rewardSnapshot?.type === "no_reward";
         const isThisClaiming = claimingId === item._id;
+        const isNoReward = item.rewardSnapshot?.type === "no_reward";
 
         return (
-            <View style={[styles.item, disabled && styles.disabledItem]}>
+            <View style={[
+                styles.item,
+                (disabled || isNoReward) && styles.disabledItem
+            ]}>
                 <View style={styles.info}>
                     <Text style={styles.title}>{item.rewardSnapshot?.name}</Text>
                     <Text style={styles.description}>{item.rewardSnapshot?.description}</Text>
-                    <Text style={styles.points}>
-                        {item?.rewardSnapshot?.pointsValue} Points
-                    </Text>
-                    <Text style={styles.date}>
-                        Expiry: {new Date(item.expiryDate).toLocaleDateString()}
-                    </Text>
+                    {!isNoReward && (
+                        <>
+                            <Text style={styles.points}>
+                                {item?.rewardSnapshot?.pointsValue} Points
+                            </Text>
 
-                    {item.claimed && <Text style={styles.statusClaimed}>Claimed</Text>}
-                    {!item.claimed && expired && (
-                        <Text style={styles.statusExpired}>⏳ Expired</Text>
+                            <Text style={styles.date}>
+                                {t("spinWheelHistory.expiry")}: {new Date(item.expiryDate).toLocaleDateString()}
+                            </Text>
+                        </>
                     )}
+
+                    {item.claimed && <Text style={styles.statusClaimed}>{t('spinWheelHistory.claimedStatus')}</Text>}
+                    {!item.claimed && expired && <Text style={styles.statusExpired}>{t('spinWheelHistory.expiredStatus')}</Text>}
                 </View>
 
                 {!disabled && (
@@ -102,9 +132,9 @@ const SpinHistoryScreen = () => {
                         disabled={isThisClaiming || isClaiming}
                     >
                         {isThisClaiming && isClaiming ? (
-                            <ActivityIndicator size="small" color="#fff" />
+                            <ActivityIndicator size="large" color="#fff" />
                         ) : (
-                            <Text style={styles.claimText}>Claim</Text>
+                            <Text style={styles.claimText}>{t('spinWheelHistory.claimBtn')}</Text>
                         )}
                     </TouchableOpacity>
                 )}
@@ -112,32 +142,35 @@ const SpinHistoryScreen = () => {
         );
     };
 
+    // Loading
     if (isLoading) {
         return (
             <AppLayout>
                 <View style={styles.center}>
                     <ActivityIndicator size="large" color="#FF9800" />
-                    <Text>Loading history...</Text>
+                    <Text style={styles.loadingText}>{t('spinWheelHistory.loading')}</Text>
                 </View>
             </AppLayout>
         );
     }
 
+    // Error
     if (error) {
         return (
             <AppLayout>
                 <View style={styles.center}>
-                    <Text style={styles.error}>❌ Failed to load spin history.</Text>
+                    <Text style={styles.error}>{t('spinWheelHistory.error')}</Text>
                 </View>
             </AppLayout>
         );
     }
 
+    // Empty
     if (!spinsData.length) {
         return (
             <AppLayout>
                 <View style={styles.center}>
-                    <Text style={styles.empty}>No spin history found.</Text>
+                    <Text style={styles.empty}>{t('spinWheelHistory.empty')}</Text>
                 </View>
             </AppLayout>
         );
@@ -145,53 +178,73 @@ const SpinHistoryScreen = () => {
 
     return (
         <AppLayout>
-            <PageHeader back={true} lable={"Spin History"} />
-            <View style={styles.container}>
+            <PageHeader back={true} lable={t("spinWheelHistory.header")} />
+
+            {/* Tabs */}
+            <View style={styles.tabRow}>
+                <TouchableOpacity onPress={() => setScreen("unClaimed")}>
+                    <Text style={[styles.tabText, screen === "unClaimed" && styles.activeTab]}>
+                        {t('spinWheelHistory.pending')}
+                    </Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => setScreen("claimed")}>
+                    <Text style={[styles.tabText, screen === "claimed" && styles.activeTab]}>
+                        {t('spinWheelHistory.claimed')}
+                    </Text>
+                </TouchableOpacity>
+            </View>
+
+            {/* Lists */}
+            {screen === "unClaimed" && (
                 <FlatList
-                    data={spinsData}
+                    data={unClaimedRewards}
                     keyExtractor={(item) => item._id}
                     renderItem={renderItem}
                     contentContainerStyle={styles.list}
                 />
-            </View>
+            )}
 
-            {/* Popup for shop details */}
-            <Modal visible={showPopup} transparent animationType="fade">
-                <View style={styles.modalOverlay}>
-                    <View style={styles.popupBox}>
-                        {shopLoading ? (
-                            <ActivityIndicator size="large" color="#fff" />
-                        ) : (
-                            <>
-                                <Text style={styles.shopTitle}>
-                                    🎁 {shopDetails?.data.shops[0].name || "Shop Details"}
-                                </Text>
-                                <Text style={styles.shopAddress}>
-                                    📍 {shopDetails?.data.shops[0].address || "Address not available"}
-                                </Text>
-                                <Text style={styles.encourageText}>
-                                    Claim your reward now and enjoy your benefits at this shop!
-                                </Text>
+            {screen === "claimed" && (
+                <FlatList
+                    data={claimedRewards}
+                    keyExtractor={(item) => item._id}
+                    renderItem={renderItem}
+                    contentContainerStyle={styles.list}
+                />
+            )}
 
-                                <View style={styles.buttonRow}>
-                                    <TouchableOpacity
-                                        style={styles.cancelBtn}
-                                        onPress={handlePopupCancel}
-                                    >
-                                        <Text style={styles.btnText}>Cancel</Text>
-                                    </TouchableOpacity>
-                                    <TouchableOpacity
-                                        style={styles.confirmBtn}
-                                        onPress={handlePopupClaim}
-                                    >
-                                        <Text style={styles.btnText}>Claim</Text>
-                                    </TouchableOpacity>
-                                </View>
-                            </>
-                        )}
+            {selectedType === "physical_reward" && (
+                <Modal visible={showPopup} transparent animationType="fade">
+                    <View style={styles.modalOverlay}>
+                        <View style={styles.popupBox}>
+                            {shopLoading ? (
+                                <ActivityIndicator size="large" color="#fff" />
+                            ) : (
+                                <>
+                                    <Text style={styles.shopTitle}>
+                                        🎁 {shopDetails?.data?.shops?.[0]?.name || t("spinWheelHistory.shopDefault")}
+                                    </Text>
+                                    <Text style={styles.shopAddress}>
+                                        📍 {shopDetails?.data?.shops?.[0]?.address || t("spinWheelHistory.addressDefault")}
+                                    </Text>
+                                    <Text style={styles.encourageText}>
+                                        {t("spinWheelHistory.claimMsg")}
+                                    </Text>
+                                    <View style={styles.buttonRow}>
+                                        <TouchableOpacity style={styles.cancelBtn} onPress={handlePopupCancel}>
+                                            <Text style={styles.btnText}>{t("spinWheelHistory.cancel")}</Text>
+                                        </TouchableOpacity>
+                                        <TouchableOpacity style={styles.confirmBtn} onPress={handlePopupClaim}>
+                                            <Text style={styles.btnText}>{t("spinWheelHistory.confirm")}</Text>
+                                        </TouchableOpacity>
+                                    </View>
+                                </>
+                            )}
+                        </View>
                     </View>
-                </View>
-            </Modal>
+                </Modal>
+            )}
+
 
         </AppLayout>
     );
@@ -200,106 +253,32 @@ const SpinHistoryScreen = () => {
 export default SpinHistoryScreen;
 
 const styles = StyleSheet.create({
-    container: { flex: 1 },
-    list: { padding: 16 },
-    item: {
-        flexDirection: "row",
-        backgroundColor: "rgba(255,255,255,0.15)",
-        padding: 12,
-        marginBottom: 12,
-        borderRadius: 12,
-        alignItems: "center",
-        shadowColor: "#000",
-        shadowOpacity: 0.1,
-        shadowRadius: 6,
-        borderWidth: 1,
-        borderColor: "rgba(255,255,255,0.2)",
-        minHeight: 100,
-    },
+    center: { flex: 1, justifyContent: "center", alignItems: "center", padding: 20 },
+    loadingText: { color: "#fff", fontFamily: "Poppins-SemiBold" },
+    error: { color: "#FF4C4C", fontSize: 16, fontFamily: "Poppins-SemiBold", textAlign: "center" },
+    empty: { color: "#aaa", fontSize: 15, fontFamily: "Poppins-Regular", textAlign: "center" },
+    tabRow: { flexDirection: "row", justifyContent: "space-evenly", marginVertical: 15 },
+    tabText: { fontSize: RFValue(10), fontFamily: "Poppins-SemiBold", color: "#fff" },
+    activeTab: { color: "#FF9800" },
+    list: { paddingHorizontal: 15, paddingBottom: 20 },
+    item: { backgroundColor: "rgba(0,0,0,0.2)", padding: 15, borderRadius: 10, marginBottom: 12, flexDirection: "row", justifyContent: "space-between", alignItems: "center" },
     disabledItem: { opacity: 0.5 },
     info: { flex: 1, paddingRight: 10 },
-    title: { fontSize: 16, fontWeight: "600", color: "#fff" },
-    description: { fontSize: 14, color: "#eee", marginVertical: 4 },
-    points: { fontSize: 14, color: "#FFD700", fontWeight: "500" },
-    date: { fontSize: 12, color: "#ccc" },
-    statusClaimed: { color: "lightgreen", fontWeight: "bold", marginTop: 4 },
-    statusExpired: { color: "salmon", fontWeight: "bold", marginTop: 4 },
-    claimBtn: {
-        backgroundColor: "#FF9800",
-        paddingHorizontal: 14,
-        paddingVertical: 8,
-        borderRadius: 6,
-        minWidth: 80,
-        alignItems: "center",
-    },
-    claimText: { color: "#fff", fontWeight: "bold" },
-    center: { flex: 1, justifyContent: "center", alignItems: "center" },
-    empty: { fontSize: 16, color: "#999" },
-    error: { fontSize: 16, color: "red" },
-    modalOverlay: {
-        flex: 1,
-        backgroundColor: "rgba(0,0,0,0.5)",
-        justifyContent: "center",
-        alignItems: "center",
-        paddingHorizontal: 20,
-    },
-    popupBox: {
-        width: "100%",
-        maxWidth: 350,
-        backgroundColor: "rgba(0,0,0,5.15)", // glass effect
-        padding: 20,
-        borderRadius: 20,
-        borderWidth: 1,
-        borderColor: "rgba(255,255,255,0.3)",
-        shadowColor: "#000",
-        shadowOpacity: 0.2,
-        shadowRadius: 10,
-        shadowOffset: { width: 0, height: 4 },
-        elevation: 5,
-    },
-    shopTitle: {
-        fontSize: 20,
-        fontWeight: "bold",
-        color: "#fff",
-        marginBottom: 8,
-        textAlign: "center",
-    },
-    shopAddress: {
-        fontSize: 14,
-        color: "#f1f1f1",
-        textAlign: "center",
-        marginBottom: 15,
-    },
-    encourageText: {
-        fontSize: 14,
-        color: "#fff",
-        textAlign: "center",
-        marginBottom: 20,
-        fontStyle: "italic",
-    },
-    buttonRow: {
-        flexDirection: "row",
-        justifyContent: "space-between",
-    },
-    cancelBtn: {
-        flex: 1,
-        marginRight: 10,
-        padding: 12,
-        backgroundColor: "rgba(255, 0, 0, 0.7)",
-        borderRadius: 10,
-        alignItems: "center",
-    },
-    confirmBtn: {
-        flex: 1,
-        marginLeft: 10,
-        padding: 12,
-        backgroundColor: "rgba(0, 200, 83, 0.8)",
-        borderRadius: 10,
-        alignItems: "center",
-    },
-    btnText: {
-        color: "#fff",
-        fontWeight: "bold",
-        fontSize: 16,
-    },
+    title: { fontSize: 16, fontFamily: "Poppins-SemiBold", color: "#fff" },
+    description: { fontSize: 13, color: "#bbb", fontFamily: "Poppins-Regular" },
+    points: { fontSize: 14, color: "#FFD700", fontFamily: "Poppins-SemiBold" },
+    date: { fontSize: 12, color: "#888", fontFamily: "Poppins-Regular" },
+    statusClaimed: { fontSize: 13, color: "#4CAF50", fontFamily: "Poppins-SemiBold" },
+    statusExpired: { fontSize: 13, color: "#FF9800", fontFamily: "Poppins-SemiBold" },
+    claimBtn: { backgroundColor: "#FF9800", paddingVertical: 6, paddingHorizontal: 14, borderRadius: 8 },
+    claimText: { color: "#fff", fontSize: 14, fontFamily: "Poppins-SemiBold" },
+    modalOverlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.7)", justifyContent: "center", alignItems: "center", padding: 20 },
+    popupBox: { backgroundColor: "#1E1E1E", borderRadius: 12, padding: 20, width: "90%", alignItems: "center" },
+    shopTitle: { fontSize: 18, fontFamily: "Poppins-Bold", color: "#fff", marginBottom: 8, textAlign: "center" },
+    shopAddress: { fontSize: 14, fontFamily: "Poppins-Regular", color: "#ccc", marginBottom: 12, textAlign: "center" },
+    encourageText: { fontSize: 14, fontFamily: "Poppins-Regular", color: "#FFD700", textAlign: "center", marginBottom: 16 },
+    buttonRow: { flexDirection: "row", justifyContent: "space-between", width: "100%" },
+    cancelBtn: { flex: 1, backgroundColor: "#444", paddingVertical: 10, borderRadius: 8, marginRight: 8, alignItems: "center" },
+    confirmBtn: { flex: 1, backgroundColor: "#FF9800", paddingVertical: 10, borderRadius: 8, marginLeft: 8, alignItems: "center" },
+    btnText: { color: "#fff", fontFamily: "Poppins-SemiBold", fontSize: 14 },
 });

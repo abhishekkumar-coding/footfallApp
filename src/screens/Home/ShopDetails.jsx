@@ -8,6 +8,7 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
+  Linking,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import { hp, SCREEN_HEIGHT, wp } from '../../utils/dimensions';
@@ -70,89 +71,6 @@ const getDistanceInMeters = (lat1, lon1, lat2, lon2) => {
   return R * c;
 };
 
-// const handleManualScan = async () => {
-//   const hasPermission = await requestLocationPermission();
-//   if (!hasPermission) {
-//     Toast.show({ type: 'error', text1: t('location_denied') });
-//     return;
-//   }
-
-//   setIsLoadingShop(true);
-
-//   Geolocation.getCurrentPosition(
-//     async position => {
-//       const userLat = position.coords.latitude;
-//       const userLng = position.coords.longitude;
-
-//       const shopLat = shop?.latitude;
-//       const shopLng = shop?.longitude;
-
-//       if (!shopLat || !shopLng) {
-//         Toast.show({
-//           type: 'error',
-//           text1: 'Shop location not available',
-//         });
-//         setIsLoadingShop(false);
-//         return;
-//       }
-
-//       const distance = getDistanceInMeters(userLat, userLng, shopLat, shopLng);
-//       console.log(`📏 Distance: ${distance} meters`);
-
-//       // Show toast if user is too far
-//       if (distance > 200) {
-//         Toast.show({
-//           type: 'error',
-//           text1: 'Too far from the shop',
-//           text2: `Distance: ${Math.floor(distance)}m\nYour Location: ${userLat.toFixed(4)}, ${userLng.toFixed(4)}\nShop Location: ${shopLat.toFixed(4)}, ${shopLng.toFixed(4)}`
-//         });
-//         setIsLoadingShop(false);
-//         return;
-//       }
-
-//       try {
-//         const result = await scanShop({
-//           shopId: _id,
-//           latitude: userLat,
-//           longitude: userLng,
-//         }).unwrap();
-
-//         if (result?.success) {
-//           Toast.show({
-//             type: 'success',
-//             text1: t('scanSuccessful'),
-//           });
-
-//           if (result.data?.scanRewardType === 'percentage') {
-//             navigation.navigate('CashbackScreen', {
-//               shopId: _id,
-//               returnPercent: result.data?.rewardPoints,
-//             });
-//           } else {
-//             navigation.goBack();
-//           }
-//         } else {
-//           Toast.show({ type: 'error', text1: t('scan_failed_try') });
-//         }
-//       } catch (err) {
-//         Toast.show({ type: 'error', text1: err?.data?.message || 'Error' });
-//         console.log('❌ Scan error:', err);
-//       } finally {
-//         setIsLoadingShop(false);
-//       }
-//     },
-//     error => {
-//       Toast.show({
-//         type: 'error',
-//         text1: t('locationError'),
-//         text2: error.message,
-//       });
-//       setIsLoadingShop(false);
-//     },
-//     { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
-//   );
-// };
-
 const ShopDetails = ({ route }) => {
   const { t } = useTranslation();
   const navigation = useNavigation();
@@ -172,7 +90,7 @@ const ShopDetails = ({ route }) => {
   const { data: shopData, isLoading: isShopLoading, error: shopError } = useGetShopByIdQuery(id);
 
   const shop = shopData?.data;
-  // console.log("ShopDetails  Data: ", data)
+  console.log("ShopDetails  Data: ", data)
 
 
   const {
@@ -197,6 +115,7 @@ const ShopDetails = ({ route }) => {
     category,
     name,
     startTime,
+    description,
     endTime,
     cover,
     logo,
@@ -320,6 +239,25 @@ const ShopDetails = ({ route }) => {
     );
   };
 
+  // Function
+  const handleViewOnMap = async () => {
+    const latitude = shop?.location?.coordinates?.[1];
+    const longitude = shop?.location?.coordinates?.[0];
+
+    if (!latitude || !longitude) {
+      Toast.show({
+        type: 'error',
+        text1: 'Shop location not available',
+      });
+      return;
+    }
+
+    Linking.openURL(
+      `https://www.google.com/maps/dir/?api=1&destination=${latitude},${longitude}`
+    );
+  };
+
+
 
   if (isShopLoading) {
     return (
@@ -347,6 +285,18 @@ const ShopDetails = ({ route }) => {
       <View style={[styles.headerContainer, { paddingTop: insets.top }]}>
         <PageHeader back bg />
       </View>
+      <TouchableOpacity
+        activeOpacity={0.8}
+        style={[styles.addressButton, { top: insets.top + 18 }]} // Adjust top position
+        onPress={handleViewOnMap}
+      >
+        <LinearGradient
+          colors={['#ff7e5f', '#feb47b']}
+          style={styles.addressButtonInner}
+        >
+          <Text style={styles.addressButtonText}>{t('getShopAddress')}</Text>
+        </LinearGradient>
+      </TouchableOpacity>
       {(isLoadingShop || isLoadingVendor) && (
         <View style={styles.loaderContainer}>
           <Text style={styles.loaderText}>
@@ -414,6 +364,12 @@ const ShopDetails = ({ route }) => {
         {/* Shop Details Section */}
         <View style={styles.shopDetails}>
           <View style={styles.detailRow}>
+            <Text style={styles.detailLabel}>{t('description')}</Text>
+            <Text style={styles.detailValue}>
+              {description.replace(/<[^>]*>/g, '').replace(/&nbsp;/g, ' ')}
+            </Text>
+          </View>
+          <View style={styles.detailRow}>
             <Text style={styles.detailLabel}>{t('address')}</Text>
             <Text style={styles.detailValue}>{address}</Text>
           </View>
@@ -449,6 +405,15 @@ const ShopDetails = ({ route }) => {
           </View>
 
         </View>
+        {/* <TouchableOpacity
+          activeOpacity={0.8}
+          style={styles.buttonWrapper}
+          onPress={handleViewOnMap}
+        >
+          <LinearGradient colors={['#ff7e5f', '#feb47b']} style={styles.button}>
+            <Text style={styles.buttonText}>{t('getShopAddress')}</Text>
+          </LinearGradient>
+        </TouchableOpacity> */}
 
       </ScrollView>
 
@@ -502,7 +467,7 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: RFValue(25),
     fontFamily: "Poppins-SemiBold",
-    color: '#fff',               // White for better visibility
+    color: '#fff',
   },
   subtitleText: {
     fontSize: RFValue(16),
@@ -553,11 +518,15 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.tertiary,
     flex: 1,
     padding: wp(5),
+    justifyContent: "center",
+    alignItems: "center"
   },
   redeemButton: {
     backgroundColor: Colors.quinary,
     flex: 1,
     padding: wp(5),
+    justifyContent: "center",
+    alignItems: "center"
   },
   buttonText: {
     color: '#fff',
@@ -595,6 +564,57 @@ const styles = StyleSheet.create({
     textAlign: 'right',
     maxWidth: '50%',
   },
+  buttonWrapper: {
+    borderRadius: 25,
+    overflow: 'hidden',
+    elevation: 5, // shadow for Android
+    shadowColor: '#000', // shadow for iOS
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    paddingHorizontal: wp(4),
+  },
+  button: {
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    marginBottom: 40,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  buttonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+  },
+  addressButton: {
+    position: 'absolute',
+    top: hp(4),
+    right: wp(2),
+    zIndex: 1100,
+    borderRadius: 25,
+    overflow: 'hidden',
+    elevation: 5,
+    shadowColor: '#000',
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+  },
+  addressButtonInner: {
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 25,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  addressButtonText: {
+    color: '#fff',
+    fontSize: 12,
+    fontWeight: '600',
+    textTransform: 'uppercase',
+  },
+
 
 });
 

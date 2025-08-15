@@ -16,7 +16,7 @@ const VendorWebView = () => {
                     </View>
                 )
             }
-            <WebView source={{ uri: 'https://footfall-vendor.web.app/' }}
+            <WebView source={{ uri: 'https://vendor.ilovesambhal.com/' }}
             onLoad={()=>setIsLoading(true)}
             onLoadEnd={()=>setIsLoading(false)}
             style={{flex:1}} />

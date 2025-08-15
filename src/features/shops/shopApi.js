@@ -5,7 +5,8 @@ const baseQueryWithAuth = async (args, api, extraOptions) => {
   const token = await AsyncStorage.getItem('token');
 
   const authenticatedBaseQuery = fetchBaseQuery({
-    baseUrl: 'https://footfall.onrender.com/api/',
+    // baseUrl: 'https://footfall.onrender.com/api/',
+    baseUrl: 'https://footfall-production.onrender.com/api/',
     prepareHeaders: headers => {
       if (token) headers.set('token', token);
       return headers;
@@ -20,12 +21,26 @@ export const shopApi = createApi({
   baseQuery: baseQueryWithAuth,
   tagTypes: ['Favorite', 'Wallet', 'VendorPoints', 'RedeemHistory'],
   endpoints: builder => ({
+    // shopApi.js
     getAllShops: builder.query({
-      query: () => ({
-        url: 'shop/getAll?page=1&limit=10&status=approved',
-        method: 'GET',
-      }),
+      query: ({ category, search }) => {
+        const categoryParam =
+          category && category !== 'all'
+            ? `&category=${encodeURIComponent(category)}`
+            : '';
+
+        const searchParam =
+          search && search.trim() !== ''
+            ? `&search=${encodeURIComponent(search)}`
+            : '';
+
+        return {
+          url: `shop/getAll?page=1&limit=10&status=approved${categoryParam}${searchParam}`,
+          method: 'GET',
+        };
+      },
     }),
+
     getShopById: builder.query({
       query: id => ({
         url: `shop/getById/${id}`,
@@ -245,12 +260,14 @@ export const shopApi = createApi({
       })
     }),
     spinWheel: builder.mutation({
-      query: () => ({
+      query: (spinRewardId) => ({
         url: "spin/spinWheel",
         method: "POST",
+        body: { spinRewardId },
       }),
       invalidatesTags: ["SpinHistory"],
     }),
+
     getSpinHistory: builder.query({
       query: () => ({
         url: "spin/getSpinHistory",
@@ -266,10 +283,10 @@ export const shopApi = createApi({
       }),
       invalidatesTags: ["SpinHistory"], // Auto-refetch SpinHistory queries
     }),
-    getShopByVendor:builder.query({
-      query:(id)=>({
-        url:`shop/getByVendor/${id}`,
-        method:"GET"
+    getShopByVendor: builder.query({
+      query: (id) => ({
+        url: `shop/getByVendor/${id}`,
+        method: "GET"
       })
     })
   }),

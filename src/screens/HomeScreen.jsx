@@ -22,6 +22,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppLayout from '../layout/AppLayout';
 import Spacer from '../components/Spacer';
 import RemainingTime from './Home/RemainingTime';
+import SpinWheelCard from './Home/SpinWheelCard';
 
 
 const useDynamicRefs = () => {
@@ -90,6 +91,7 @@ const HomeScreen = ({ navigation }) => {
         <View style={styles.scrollContainer}>
           <Coins ref={refs('points')} />
           <RemainingTime />
+          <SpinWheelCard/>
           {/* <QuickActions /> */}
           <View style={{ paddingHorizontal: 6 }}>
             <AutoSlider />

@@ -4,28 +4,31 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useTranslation } from 'react-i18next';
 import i18n, { changeAppLanguage } from '../i18n';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import LinearGradient from 'react-native-linear-gradient';
 import PageHeader from '../components/PageHeader';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import AppLayout from '../layout/AppLayout';
 import AppButton from '../components/AppButton';
-import { delay, hp, wp } from '../utils/dimensions';
+import { delay, wp } from '../utils/dimensions';
 import { Fonts } from '../utils/typography';
-
+import { useUpdateUserMutation } from '../features/auth/authApi';
+import { setUser } from '../features/auth/userSlice';
 
 const languages = [
   { code: 'en', labelKey: 'english', native: 'A' },
-  { code: 'hi', labelKey: 'हिन्दी', native: 'अ' },
+  { code: 'hi', labelKey: 'hindi', native: 'अ' },
 ];
-
-
 
 const LanguageScreen = ({ route, navigation }) => {
   const { isInitialSetup = true } = route.params || {};
   const { t } = useTranslation();
+  const dispatch = useDispatch();
+  const [updateUser] = useUpdateUserMutation();
   const [selectedLang, setSelectedLang] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+
+  const user = useSelector(state => state.user.user);
+  const referralCode = useSelector(state => state.user.pendingReferral);
+
   useEffect(() => {
     const initLang = async () => {
       const storedLang = await AsyncStorage.getItem('appLanguage');
@@ -35,93 +38,94 @@ const LanguageScreen = ({ route, navigation }) => {
     initLang();
   }, []);
 
-    const referralCode = useSelector(state => state.user.pendingReferral);
-
-
-  // const onContinue = async () => {
-  //   if (!selectedLang) return;
-  //   await changeAppLanguage(selectedLang);
-  //   await AsyncStorage.setItem('appLanguage', selectedLang);
-
-  //   if (isInitialSetup) {
-  //     navigation.replace('Onboarding');
-  //   } else {
-  //     navigation.goBack();
-  //   }
-  // };
-
   const onContinue = async () => {
     if (!selectedLang) return;
     setIsLoading(true);
-    await delay(1500);
-  await changeAppLanguage(selectedLang);
-  await AsyncStorage.setItem('appLanguage', selectedLang);
 
-  if (referralCode) {
-    // 🔹 If referral exists, go directly to Signup with code
-    navigation.reset({
-      index: 0,
-      routes: [{ name: 'Signup', params: { referralCode } }],
-    });
-    return;
-  }
+    try {
+      // Change app language immediately
+      await changeAppLanguage(selectedLang);
 
-  if (isInitialSetup) {
-    navigation.replace('Onboarding');
-  } else {
-    navigation.goBack();
-  }
-  setIsLoading(false);
-};
+      // Save to backend
+      if (user?._id) {
+        const res = await updateUser({
+          id: user._id,
+          body: { language: selectedLang },
+        }).unwrap();
+        console.log("Updated Response: ", res)
+        dispatch(setUser(res.data));
+      }
 
+      // Save locally
+      await AsyncStorage.setItem('appLanguage', selectedLang);
+
+      await delay(1000);
+
+      // Navigation flow
+      if (referralCode) {
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Signup', params: { referralCode } }],
+        });
+      } else if (isInitialSetup) {
+        navigation.replace('Onboarding');
+      } else {
+        navigation.goBack();
+      }
+    } catch (error) {
+      console.error('Failed to update language:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
-    <AppLayout >
-        {!isInitialSetup && <PageHeader back lable={t('change_language')} />}
+    <AppLayout>
+      {!isInitialSetup && <PageHeader back lable={t('change_language')} />}
       <View style={styles.content}>
         <View style={styles.langIconContainer}>
           <Text style={[styles.langSymbol, { top: 10, left: 0 }]}>अ</Text>
           <Text style={[styles.langSymbol, { top: 0, left: -5 }]}>A</Text>
         </View>
-          <Text style={styles.title}>{t('chooseLanguage')}</Text>
-          <View style={styles.langContainer}>
-            {languages.map(lang => {
-              const isSelected = selectedLang === lang.code;
-              return (
-                <TouchableOpacity
-                  key={lang.code}
-                  style={[styles.langCard, isSelected && styles.langCardSelected]}
-                  onPress={() => setSelectedLang(lang.code)}
-                >
-                  <View style={styles.langIcon}>
-                    <Text
-                      style={[
-                        styles.nativeText,
-                        isSelected && styles.nativeTextSelected,
-                      ]}
-                    >
-                      {lang.native}
-                    </Text>
-                  </View>
+        <Text style={styles.title}>{t('chooseLanguage')}</Text>
+        <View style={styles.langContainer}>
+          {languages.map(lang => {
+            const isSelected = selectedLang === lang.code;
+            return (
+              <TouchableOpacity
+                key={lang.code}
+                style={[styles.langCard, isSelected && styles.langCardSelected]}
+                onPress={() => setSelectedLang(lang.code)}
+              >
+                <View style={styles.langIcon}>
                   <Text
                     style={[
-                      styles.langLabel,
-                      isSelected && styles.langLabelSelected,
+                      styles.nativeText,
+                      isSelected && styles.nativeTextSelected,
                     ]}
                   >
-                    {t(lang.labelKey)}
+                    {lang.native}
                   </Text>
-                  {isSelected && (
-                    <View style={styles.checkmark}>
-                      <Icon name="check-circle" size={20} color="#4CAF50" />
-                    </View>
-                  )}
-                </TouchableOpacity>
-              );
-            })}
+                </View>
+                <Text
+                  style={[
+                    styles.langLabel,
+                    isSelected && styles.langLabelSelected,
+                  ]}
+                >
+                  {t(lang.labelKey)}
+                </Text>
+                {isSelected && (
+                  <View style={styles.checkmark}>
+                    <Icon name="check-circle" size={20} color="#4CAF50" />
+                  </View>
+                )}
+              </TouchableOpacity>
+            );
+          })}
         </View>
         <AppButton title={t('continue') || 'CONTINUE'} onPress={onContinue} isLoading={isLoading} />
-        </View>       
+      </View>
     </AppLayout>
   );
 };
@@ -147,7 +151,6 @@ const styles = StyleSheet.create({
     justifyContent: 'space-around',
     marginBottom: 40,
     width: '100%',
-
   },
   langCard: {
     width: 120,
@@ -187,25 +190,7 @@ const styles = StyleSheet.create({
     top: 8,
     right: 8,
   },
-
-
-  continueTouchable: {
-    // height: 50,
-    borderRadius: 18,
-    paddingHorizontal: 16,
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-    paddingVertical: 12,
-  },
-
-  continueText: {
-    color: 'white',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-  langIconContainer:{
+  langIconContainer: {
     flexDirection: 'row',
     justifyContent: 'center',
     width: '100%',
@@ -218,6 +203,5 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'semibold',
     opacity: 0.5,
-  }
-  
+  },
 });

@@ -28,6 +28,8 @@ import AppLayout from '../layout/AppLayout';
 import Spacer from '../components/Spacer';
 import { Colors } from '../utils/Colors';
 import SpinHistoryScreen from './SpinHistoryScreen';
+import EmptySpinWheel from '../utils/icons/EmptySpinWheel';
+// import {REACT_APP_DEV_SERVER, REACT_APP_PROD_SERVER} from "@env"
 
 const ProfileScreen = () => {
   const { t } = useTranslation();
@@ -54,6 +56,11 @@ const ProfileScreen = () => {
     fetchVersion();
   }, []);
 
+//  const devServer = REACT_APP_DEV_SERVER;
+// const prodServer = REACT_APP_PROD_SERVER;
+
+// console.log("Development Server:", devServer);
+// console.log("Production Server:", prodServer);
 
   return (
     <AppLayout>
@@ -97,7 +104,8 @@ const ProfileScreen = () => {
           }
         />
         <TabButton
-          label="Spin History"
+          Icon={EmptySpinWheel}
+          label={t("spinWheelHistory.header")}
           onPress={() => navigation.navigate('SpinHistory')}
         />
 

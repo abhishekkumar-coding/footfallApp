@@ -23,7 +23,8 @@ import { useNavigation } from '@react-navigation/native';
 
 
 const APP_SCHEME = 'footfall://signup';
-const WEB_LINK = 'https://footfall.onrender.com/signup';
+// const WEB_LINK = 'https://footfall.onrender.com';
+const WEB_LINK = 'https://footfall-production.onrender.com';
 const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.appinlay.footfallapp&hl=en_IN';
 const APP_STORE_URL = 'https://apps.apple.com/app/idYOUR_APP_ID';
 const PointScreen = () => {

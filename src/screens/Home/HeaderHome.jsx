@@ -31,6 +31,7 @@ const HeaderHome = () => {
   const navigation = useNavigation();
   const notifications = useSelector(state => state.notification.notifications);
   const { data } = useGetNotificationsQuery();
+  console.log("Notificatios: ", data)
   const user = useSelector(state => state.user.user);
   const badgeCount = data?.data?.length || 0;
   const [updateUser] = useUpdateUserMutation();
