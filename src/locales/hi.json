@@ -64,7 +64,8 @@
     "noRewardButton": "ठीक है",
     "congratsTitle": "🎉 बधाई हो!",
     "congratsMessage": "आप जीते: ",
-    "congratsButton": "बहुत बढ़िया!"
+    "congratsButton": "बहुत बढ़िया!",
+    "tryAgain":"पुनः प्रयास करें"
   },
   "shopSetupIncomplete": "दुकान सेटअप अधूरा है",
   "shopNotFullySetup": "यह दुकान अभी पूरी तरह से सेटअप नहीं हुई है।",

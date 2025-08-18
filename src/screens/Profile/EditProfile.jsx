@@ -310,14 +310,27 @@ const EditProfile = () => {
           <Spacer height={hp(2)} />
           <View style={styles.addressContainer}>
             <TouchableOpacity onPress={handleAutoDetect} style={styles.autoDetectBtn}>
-              <Text style={styles.addressLable}>{isLocLoading ? <ActivityIndicator size="small" color={Colors.activeTabBar} /> : t('autoDetectLocation')}</Text>
+              <Text style={styles.addressLable}>
+                {isLocLoading ? (
+                  <ActivityIndicator size="small" color={Colors.activeTabBar} />
+                ) : t('autoDetectLocation')}
+              </Text>
             </TouchableOpacity>
-            <CustomInput lable={t('address')} value={addressDetails.address} onChangeText={(text) => setAddressDetails(prev => ({ ...prev, address: text }))} />
+
+            <CustomInput
+              lable={t('address')}
+              value={addressDetails.address}
+              editable={false}
+              selectTextOnFocus={false}
+              caretHidden={true}
+            />
           </View>
-          <CustomInput lable={t('city')} value={addressDetails.city} onChangeText={(text) => setAddressDetails(prev => ({ ...prev, city: text }))} />
-          <CustomInput lable={t('state')} value={addressDetails.state} onChangeText={(text) => setAddressDetails(prev => ({ ...prev, state: text }))} />
-          <CustomInput lable={t('country')} value={addressDetails.country} onChangeText={(text) => setAddressDetails(prev => ({ ...prev, country: text }))} />
-          <CustomInput lable={t('pincode')} value={addressDetails.postcode} onChangeText={(text) => setAddressDetails(prev => ({ ...prev, postcode: text }))} />
+
+          <CustomInput lable={t('city')} value={addressDetails.city} editable={false} selectTextOnFocus={false} caretHidden={true} />
+          <CustomInput lable={t('state')} value={addressDetails.state} editable={false} selectTextOnFocus={false} caretHidden={true} />
+          <CustomInput lable={t('country')} value={addressDetails.country} editable={false} selectTextOnFocus={false} caretHidden={true} />
+          <CustomInput lable={t('pincode')} value={addressDetails.postcode} editable={false} selectTextOnFocus={false} caretHidden={true} />
+
           <Spacer height={hp(4)} />
           <AppButton title={isSaving ? t('saving') : t('saveChanges')} isLoading={isSaving} onPress={handleSave} />
         </View>

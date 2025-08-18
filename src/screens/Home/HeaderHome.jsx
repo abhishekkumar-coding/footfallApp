@@ -211,8 +211,8 @@ const styles = StyleSheet.create({
     paddingTop: Platform.OS === 'ios' ? 0 : 10,
   },
   logoImage: {
-    aspectRatio: 428 / 116,
-    height: hp(3),
+    aspectRatio: 220 / 116,
+    height: hp(5),
   },
   logoContainer: {
     flex: 1

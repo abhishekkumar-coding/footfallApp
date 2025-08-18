@@ -106,34 +106,6 @@ const styles = StyleSheet.create({
     container: {
         flex: 1,
     },
-    cardWrapper: {
-        width: wp(44),
-        marginBottom: hp(2.5),
-        borderRadius: 16,
-        overflow: 'hidden',
-        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-        borderWidth: 1,
-        borderColor: 'rgba(255, 255, 255, 0.1)',
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 5 },
-        shadowOpacity: 0.15,
-        shadowRadius: 10,
-    },
-    card: {
-        position: 'relative',
-        width: '100%',
-        height: hp(22),
-        borderRadius: 16,
-        overflow: 'hidden',
-    },
-    image: {
-        width: '100%',
-        height: '100%',
-    },
-    overlay: {
-        ...StyleSheet.absoluteFillObject,
-        borderRadius: 16,
-    },
     textContainer: {
         position: 'absolute',
         bottom: 10,

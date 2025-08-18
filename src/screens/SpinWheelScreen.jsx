@@ -30,37 +30,9 @@ export default function SpinWheelScreen() {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [popupVisible, setPopupVisible] = useState(false);
   const [prizeText, setPrizeText] = useState('');
-  const [hasSpunToday, setHasSpunToday] = useState(false);
-
-  useEffect(() => {
-    checkSpinStatus();
-  }, []);
-
-  const checkSpinStatus = async () => {
-    try {
-      const lastSpinDate = await AsyncStorage.getItem('lastSpinDate');
-      const today = new Date().toDateString();
-      setHasSpunToday(lastSpinDate === today);
-    } catch (err) {
-      console.error('Error checking spin status:', err);
-    }
-  };
-
-  const setSpinStatus = async () => {
-    try {
-      const today = new Date().toDateString();
-      await AsyncStorage.setItem('lastSpinDate', today);
-      setHasSpunToday(true);
-    } catch (err) {
-      console.error('Error saving spin status:', err);
-    }
-  };
+  const [modalType, setModalType] = useState(null); // "congrats", "no_reward", "error_message"
 
   const handleSpinPress = () => {
-    if (hasSpunToday) {
-      Alert.alert('Daily Limit', 'You can only spin once per day. Come back tomorrow!');
-      return;
-    }
     if (isSpinning || rewardsNames.length === 0) return;
 
     setIsSpinning(true);
@@ -72,25 +44,43 @@ export default function SpinWheelScreen() {
     }
   };
 
+  // ✅ Updated handleWheelStop to handle backend 403 case:
   const handleWheelStop = async (_, landedIndex) => {
     setIsSpinning(false);
     setPopupVisible(true);
     setPrizeText('Checking reward...');
+    setModalType(null);
 
     const rewardId = rewardsData[landedIndex]?._id;
     try {
       const response = await spinWheelApi(rewardId).unwrap();
-      console.log("response: ", response?.data?.spinRewardId?.type)
-      if (response?.data?.spinRewardId?.type === 'no_reward') {
-        setPrizeText('no_reward');
-      } else {
-        setPrizeText(response?.data?.name || rewardsNames[landedIndex]);
+
+      // Backend custom message (e.g., spin limit reached)
+      if (response?.success === false && response?.message) {
+        setPrizeText(response.message);
+        setModalType("error_message");
+        return;
       }
 
-      await setSpinStatus(); // mark spin as done for today
+      // No reward
+      if (response?.data?.spinRewardId?.type === 'no_reward') {
+        setPrizeText('no_reward');
+        setModalType("no_reward");
+      } else {
+        setPrizeText(response?.data?.name || rewardsNames[landedIndex]);
+        setModalType("congrats");
+      }
+
     } catch (error) {
       console.error('Spin API error:', error);
-      setPrizeText('Error confirming prize');
+
+      if (error?.status === 403 && error?.data?.message) {
+        setPrizeText(error.data.message);
+        setModalType("error_message");
+      } else {
+        setPrizeText('Error confirming prize');
+        setModalType("error_message");
+      }
     }
   };
 
@@ -151,17 +141,13 @@ export default function SpinWheelScreen() {
             </View>
 
             <TouchableOpacity
-              style={[styles.spinButton, (isSpinning || hasSpunToday) && styles.spinButtonDisabled]}
+              style={[styles.spinButton, isSpinning && styles.spinButtonDisabled]}
               onPress={handleSpinPress}
-              disabled={isSpinning || hasSpunToday}
+              disabled={isSpinning}
               activeOpacity={0.8}
             >
               <Text style={styles.spinButtonText}>
-                {isSpinning
-                  ? t('spinWheel.spinning')
-                  : hasSpunToday
-                    ? t('spinWheel.comeBackTomorrow')
-                    : t('spinWheel.spinNow')}
+                {isSpinning ? t('spinWheel.spinning') : t('spinWheel.spinNow')}
               </Text>
             </TouchableOpacity>
 
@@ -195,25 +181,38 @@ export default function SpinWheelScreen() {
                   <ActivityIndicator size="large" color="#FF6F00" />
                   <Text style={styles.popupText}>{t('spinWheel.confirmingReward')}</Text>
                 </>
-              ) : prizeText === 'no_reward' ? (
+              ) : modalType === "no_reward" ? (
                 <>
-                  <Text style={[styles.popupTitle, { color: '#d9534f' }]}>{t('spinWheel.noRewardTitle')}</Text>
-                  <Text style={styles.popupText}>
-                    {t('spinWheel.noRewardMessage')}
+                  <Text style={[styles.popupTitle, { color: '#d9534f' }]}>
+                    {t('spinWheel.noRewardTitle')}
                   </Text>
+                  <Text style={styles.popupText}>{t('spinWheel.noRewardMessage')}</Text>
                   <TouchableOpacity style={styles.popupButton} onPress={closePopup}>
                     <Text style={styles.popupButtonText}>{t('spinWheel.noRewardButton')}</Text>
+                  </TouchableOpacity>
+                </>
+              ) : modalType === "error_message" ? (
+                <>
+                  <Text style={[styles.popupTitle, { color: '#d9534f', fontSize: 40 }]}>
+                    😢
+                  </Text>
+                  <Text style={styles.popupText}>{prizeText}</Text>
+                  <TouchableOpacity style={styles.popupButton} onPress={closePopup}>
+                    <Text style={styles.popupButtonText}>{t('spinWheel.tryAgain')}</Text>
                   </TouchableOpacity>
                 </>
               ) : (
                 <>
                   <Text style={styles.popupTitle}>{t('spinWheel.congratsTitle')}</Text>
-                  <Text style={styles.popupText}>{t('spinWheel.congratsMessage')} {prizeText}</Text>
+                  <Text style={styles.popupText}>
+                    {t('spinWheel.congratsMessage')} {prizeText}
+                  </Text>
                   <TouchableOpacity style={styles.popupButton} onPress={closePopup}>
                     <Text style={styles.popupButtonText}>{t('spinWheel.congratsButton')}</Text>
                   </TouchableOpacity>
                 </>
               )}
+
             </View>
           </View>
         </Modal>

@@ -1,12 +1,14 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
+import { REACT_APP_DEV_SERVER, REACT_APP_PROD_SERVER } from "@env"
 
 const baseQueryWithAuth = async (args, api, extraOptions) => {
   const token = await AsyncStorage.getItem('token');
+  console.log("Checking: ",REACT_APP_DEV_SERVER)
 
   const authenticatedBaseQuery = fetchBaseQuery({
-    // baseUrl: 'https://footfall.onrender.com/api/',
-    baseUrl: 'https://footfall-production.onrender.com/api/',
+    baseUrl: `${REACT_APP_DEV_SERVER}/api/`,
+    // baseUrl: REACT_APP_PROD_SERVER,
     prepareHeaders: headers => {
       if (token) headers.set('token', token);
       return headers;

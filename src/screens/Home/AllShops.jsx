@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react';
+import React, { useEffect, useRef, useState, useMemo } from "react";
 import {
   StyleSheet,
   Text,
@@ -7,22 +7,23 @@ import {
   TouchableOpacity,
   Image,
   TextInput,
-} from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import { hp, wp, SCREEN_HEIGHT } from '../../utils/dimensions';
-import { RFValue } from 'react-native-responsive-fontsize';
-import { useDispatch } from 'react-redux';
-import { useTranslation } from 'react-i18next';
-import Icon from 'react-native-vector-icons/Ionicons';
-
-import AppLayout from '../../layout/AppLayout';
-import PageHeader from '../../components/PageHeader';
-import ShopCard from '../../components/ShopCard';
-import ShopSkeletonCard from './ShopSkeletonCard';
-import { Colors } from '../../utils/Colors';
-import { Fonts } from '../../utils/typography';
-import { loadWishlist } from '../../features/wishlistSlice';
-import { useGetAllShopsQuery } from '../../features/shops/shopApi';
+  ActivityIndicator,
+} from "react-native";
+import { useNavigation } from "@react-navigation/native";
+import { hp, wp, SCREEN_HEIGHT } from "../../utils/dimensions";
+import { RFValue } from "react-native-responsive-fontsize";
+import { useDispatch } from "react-redux";
+import { useTranslation } from "react-i18next";
+import Icon from "react-native-vector-icons/Ionicons";
+import PageHeader from "../../components/PageHeader";
+import ShopCard from "../../components/ShopCard";
+import ShopSkeletonCard from "./ShopSkeletonCard";
+import { Colors } from "../../utils/Colors";
+import { Fonts } from "../../utils/typography";
+import { loadWishlist } from "../../features/wishlistSlice";
+import { useGetAllShopsQuery } from "../../features/shops/shopApi";
+import LinearGradient from "react-native-linear-gradient";
+import AppLayout from "../../layout/AppLayout";
 
 const CATEGORIES = [
   { key: 'all', label: 'All' },
@@ -41,46 +42,47 @@ const AllShops = () => {
   const navigation = useNavigation();
   const dispatch = useDispatch();
 
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [selectedCategory, setSelectedCategory] = useState("all");
   const [isLoading, setIsLoading] = useState(true);
   const [showSearch, setShowSearch] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
-  const [debouncedSearch, setDebouncedSearch] = useState('');
-
+  const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState("");
   const searchInputRef = useRef(null);
 
   // Debounce search
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedSearch(searchQuery.trim());
-    }, 400);
+    const timer = setTimeout(
+      () => setDebouncedSearch(searchQuery.trim()),
+      400
+    );
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Fetch data
-  const { data: allShopsData, isFetching } = useGetAllShopsQuery({
-    ...(selectedCategory !== 'all' && { category: selectedCategory }),
+  // Fetch shops
+  const { data: shopData } = useGetAllShopsQuery({
+    ...(selectedCategory !== "all" && { category: selectedCategory }),
     ...(debouncedSearch && { search: debouncedSearch }),
   });
 
-  const shopsData = useMemo(
-    () => allShopsData?.data?.shops || [],
-    [allShopsData]
-  );
+  const shops = useMemo(() => shopData?.data?.shops || [], [shopData]);
 
-  // Load wishlist
   useEffect(() => {
     dispatch(loadWishlist());
   }, [dispatch]);
 
-  // Loading animation for 1s when category/search changes
   useEffect(() => {
     setIsLoading(true);
-    const timer = setTimeout(() => setIsLoading(false), 1000);
+    const timer = setTimeout(() => setIsLoading(false), 800);
     return () => clearTimeout(timer);
   }, [selectedCategory, debouncedSearch]);
 
-  // Autofocus search
+  // Autofocus on search open
+  useEffect(() => {
+    if (showSearch) {
+      setTimeout(() => searchInputRef.current?.focus(), 150);
+    }
+  }, [showSearch]);
+
   useEffect(() => {
     if (showSearch) {
       setTimeout(() => searchInputRef.current?.focus(), 100);
@@ -93,7 +95,6 @@ const AllShops = () => {
       onPress={() => navigation.navigate('ShopDetails', { id: item._id })}
     />
   );
-
   const renderCategory = ({ item }) => {
     const isSelected = selectedCategory === item.key;
     return (
@@ -121,8 +122,9 @@ const AllShops = () => {
   );
 
   return (
-    <AppLayout style={styles.container}>
-      {/* Header / Search */}
+    <AppLayout showCircle={false} style={{ flex: 1 }}>
+
+
       {showSearch ? (
         <View style={styles.searchContainer}>
           <TextInput
@@ -133,7 +135,7 @@ const AllShops = () => {
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
-          <TouchableOpacity onPress={() => {setShowSearch(false); setSearchQuery('')}}>
+          <TouchableOpacity onPress={() => { setShowSearch(false); setSearchQuery('') }}>
             <Icon name="close" size={24} color="#000" />
           </TouchableOpacity>
         </View>
@@ -146,141 +148,52 @@ const AllShops = () => {
         </View>
       )}
 
-      {/* Category Filter */}
-      <FlatList
-        data={CATEGORIES}
-        renderItem={renderCategory}
-        keyExtractor={(item) => item.key}
-        horizontal
-        showsHorizontalScrollIndicator={false}
-        contentContainerStyle={styles.filterContainer}
-      />
-
-      {/* Shops List */}
+      <View>
+        <FlatList
+          data={CATEGORIES}
+          renderItem={renderCategory}
+          keyExtractor={(item) => item.key}
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.filterContainer}
+        />
+      </View>
       {isLoading ? (
         <FlatList
           data={Array.from({ length: 6 })}
           keyExtractor={(_, i) => `skeleton-${i}`}
           renderItem={() => <ShopSkeletonCard />}
           numColumns={2}
-          columnWrapperStyle={styles.columnWrapper}
+          columnWrapperStyle={styles.skeltonColumnWrapper}
           showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContent}
+          contentContainerStyle={styles.skeletonListContent} // new style
         />
+
       ) : (
         <FlatList
-          data={shopsData}
+          data={shops.length > 0 ? shops : []} // Always same type of array
+          keyExtractor={(item, index) => item?._id ?? `empty-${index}`} // Safe key
+          numColumns={2} // Keep fixed columns
+          columnWrapperStyle={{ justifyContent: 'space-between' }}
+          contentContainerStyle={{
+            paddingHorizontal: wp(4),
+            paddingBottom: hp(5),
+            flexGrow: 1, // Ensures empty state centers properly
+          }}
           renderItem={renderShop}
-          keyExtractor={(item) => item._id}
-          numColumns={2}
-          columnWrapperStyle={styles.columnWrapper}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.listContent}
           ListEmptyComponent={renderEmpty}
+
         />
-      )}
+      )
+      }
     </AppLayout>
   );
 };
 
+
 export default AllShops;
 
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     paddingHorizontal: wp(3),
-//     paddingTop: hp(1),
-//   },
-
-//   /** HEADER / SEARCH **/
-//   headerRow: {
-//     flexDirection: 'row',
-//     justifyContent: 'space-between',
-//     alignItems: 'center',
-//     marginBottom: hp(1.5),
-//   },
-//   searchContainer: {
-//     flexDirection: 'row',
-//     alignItems: 'center',
-//     backgroundColor: Colors.white_light,
-//     borderRadius: 10,
-//     paddingHorizontal: wp(3),
-//     height: hp(6),
-//     marginBottom: hp(1.5),
-//   },
-//   searchInput: {
-//     flex: 1,
-//     fontSize: RFValue(14, SCREEN_HEIGHT),
-//     fontFamily: Fonts.primary_Regular,
-//     color: Colors.black,
-//   },
-
-//   /** CATEGORY FILTER **/
-//   filterContainer: {
-//     paddingVertical: hp(1),
-//   },
-//   filterButton: {
-//     paddingHorizontal: wp(4),
-//     paddingVertical: hp(0.8),
-//     backgroundColor: Colors.white_light,
-//     borderRadius: 20,
-//     marginRight: wp(2),
-//     borderWidth: 1,
-//     borderColor: Colors.border_light,
-//   },
-//   selectedFilterButton: {
-//     backgroundColor: Colors.secondary,
-//     borderColor: Colors.secondary,
-//   },
-//   filterText: {
-//     fontSize: RFValue(12, SCREEN_HEIGHT),
-//     fontFamily: Fonts.primary_Regular,
-//     color: Colors.text_dark,
-//   },
-//   selectedFilterText: {
-//     color: Colors.white,
-//     fontFamily: Fonts.primary_SemiBold,
-//   },
-
-//   /** SHOPS LIST **/
-//   listContent: {
-//     paddingBottom: hp(5),
-//     paddingTop: hp(1),
-//   },
-//   columnWrapper: {
-//     justifyContent: 'space-between',
-//   },
-
-//   /** EMPTY STATE **/
-//   emptyContainer: {
-//     flex: 1,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     padding: wp(5),
-//   },
-//   emptyText: {
-//     fontSize: RFValue(16, SCREEN_HEIGHT),
-//     fontFamily: Fonts.primary_SemiBold,
-//     color: Colors.white,
-//     marginBottom: hp(0.5),
-//     textAlign: 'center',
-//   },
-//   emptySubText: {
-//     fontSize: RFValue(12, SCREEN_HEIGHT),
-//     fontFamily: Fonts.primary_Regular,
-//     color: Colors.text_light,
-//     marginBottom: hp(2),
-//     textAlign: 'center',
-//   },
-//   emptyImage: {
-//     width: wp(50),
-//     height: wp(50),
-//     resizeMode: 'contain',
-//     opacity: 0.9,
-//   },
-// })
-
-export const styles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
     flex: 1,
     paddingBottom: hp(4),
@@ -303,15 +216,13 @@ export const styles = StyleSheet.create({
     marginVertical: hp(3),
     borderRadius: 15,
     paddingHorizontal: wp(2.5),
-    backgroundColor:"rgba(255,255,255,0.3)"
+    backgroundColor: "rgba(255,255,255,0.3)"
   },
   searchInput: {
     flex: 1,
     color: Colors.black,
     paddingVertical: hp(1.2),
   },
-
-  /** FILTER **/
   filterContainer: {
     paddingHorizontal: wp(5),
     paddingBottom: hp(2),
@@ -329,21 +240,28 @@ export const styles = StyleSheet.create({
   },
   filterText: {
     fontSize: RFValue(14, SCREEN_HEIGHT),
-    color: Colors.white,
+    color: "#fff",
     fontFamily: Fonts.primary_SemiBold,
   },
   selectedFilterText: {
-    color: Colors.white,
+    color: "#fff",
   },
-
-  /** SHOP LIST **/
-  columnWrapper: {
-    justifyContent: 'flex-start',
+  skeltonColumnWrapper: {
+    justifyContent: "space-between",
+    marginBottom: hp(2),
+  },
+  skeletonListContent: {
+    flexGrow: 1, // Fills the available height
+    justifyContent: "center", // Vertical center
+    alignItems: "center", // Horizontal center
+    paddingHorizontal: wp(4),
   },
   listContent: {
     paddingBottom: hp(10),
     paddingTop: hp(2),
     paddingHorizontal: wp(2),
+    marginTop: hp(3),
+
   },
 
   /** EMPTY STATE **/

@@ -19,12 +19,13 @@ import { hp, SCREEN_HEIGHT, SCREEN_WIDTH } from '../../utils/dimensions';
 import { useTranslation } from 'react-i18next';
 import { useSelector } from 'react-redux';
 import { useNavigation } from '@react-navigation/native';
+import {REACT_APP_DEV_SERVER, REACT_APP_PROD_SERVER} from "@env"
 
 
 
 const APP_SCHEME = 'footfall://signup';
-// const WEB_LINK = 'https://footfall.onrender.com';
-const WEB_LINK = 'https://footfall-production.onrender.com';
+const WEB_LINK = REACT_APP_DEV_SERVER;
+// const WEB_LINK = REACT_APP_PROD_SERVER;
 const PLAY_STORE_URL = 'https://play.google.com/store/apps/details?id=com.appinlay.footfallapp&hl=en_IN';
 const APP_STORE_URL = 'https://apps.apple.com/app/idYOUR_APP_ID';
 const PointScreen = () => {

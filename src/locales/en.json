@@ -26,8 +26,7 @@
   "spinWheelCard": {
     "title": "🎯 Try Your Luck!",
     "subtitle": "Spin the wheel and see what you can redeem today.",
-    "button": "Spin Now"
-  },
+    "button": "Spin Now"  },
   "spinWheelHistory": {
     "header": "Spin History",
     "pending": "Pending Rewards",
@@ -64,7 +63,8 @@
     "noRewardButton": "Okay",
     "congratsTitle": "🎉 Congratulations!",
     "congratsMessage": "You won: ",
-    "congratsButton": "Awesome!"
+    "congratsButton": "Awesome!",
+    "tryAgain":"Try again"
   },
   "shopSetupIncomplete": "Shop Setup Incomplete",
   "shopNotFullySetup": "This shop is not fully set up yet.",
