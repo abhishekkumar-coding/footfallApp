@@ -36,6 +36,8 @@ import { Colors } from '../../utils/Colors';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-controller';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
+import DeviceInfo from 'react-native-device-info';
+
 
 let hasAskedForPermission = false;
 
@@ -61,19 +63,21 @@ const requestLocationPermission = async () => {
 
 const requestGalleryPermission = async () => {
   if (Platform.OS === 'android') {
-    const granted = await PermissionsAndroid.request(
-      PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
-      {
-        title: 'Gallery Permission',
-        message: 'App needs access to your gallery to update profile picture',
-        buttonNeutral: 'Ask Me Later',
-        buttonNegative: 'Cancel',
-        buttonPositive: 'OK',
-      }
-    );
-    return granted === PermissionsAndroid.RESULTS.GRANTED;
+    const androidVersion = parseInt(DeviceInfo.getSystemVersion(), 10);
+
+    if (androidVersion >= 13) {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    } else {
+      const granted = await PermissionsAndroid.request(
+        PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE
+      );
+      return granted === PermissionsAndroid.RESULTS.GRANTED;
+    }
   }
-  return true;
+  return true; // iOS handled by image picker
 };
 
 const EditProfile = () => {
@@ -81,6 +85,8 @@ const EditProfile = () => {
   const dispatch = useDispatch();
   const navigation = useNavigation();
   const user = useSelector(state => state.user.user);
+  const userPhoto = useSelector(state => state.user.user.photo || '');
+  console.log("User data: ", user)
 
   const [updateUser] = useUpdateUserMutation();
   const [uploadFile] = useUploadFileMutation();
@@ -132,19 +138,32 @@ const EditProfile = () => {
   };
 
   const handleAutoDetect = async () => {
+    console.log("[handleAutoDetect] Start detecting location...");
     setIsLocLoading(true);
+
     const hasPermission = await requestLocationPermission();
+    console.log("[handleAutoDetect] Permission granted:", hasPermission);
+
     if (!hasPermission) {
       Toast.show({ type: 'error', text1: t('locationPermissionDenied') });
       setIsLocLoading(false);
+      console.log("[handleAutoDetect] Permission denied. Exiting.");
       return;
     }
 
     Geolocation.getCurrentPosition(
       async ({ coords }) => {
+        console.log("[handleAutoDetect] Coordinates received:", coords);
         setLat(coords.latitude);
         setLng(coords.longitude);
-        await fetchAddressFromCoordinates(coords.latitude, coords.longitude);
+
+        try {
+          await fetchAddressFromCoordinates(coords.latitude, coords.longitude);
+          console.log("[handleAutoDetect] Address fetched successfully");
+        } catch (err) {
+          console.error("[handleAutoDetect] Error fetching address:", err);
+        }
+
         setIsLocLoading(false);
 
         Toast.show({
@@ -154,7 +173,7 @@ const EditProfile = () => {
         });
       },
       error => {
-        console.error(error);
+        console.error("[handleAutoDetect] Error detecting location:", error);
         Toast.show({ type: 'error', text1: t('failedToDetectLocation') });
         setIsLocLoading(false);
       },
@@ -163,32 +182,50 @@ const EditProfile = () => {
   };
 
   const handleImagePick = async () => {
+    console.log("[handleImagePick] Opening gallery...");
     const hasPermission = await requestGalleryPermission();
+    console.log("[handleImagePick] Gallery permission:", hasPermission);
+
     if (!hasPermission) {
       Toast.show({ type: 'error', text1: 'Permission denied' });
+      console.log("[handleImagePick] Permission denied. Exiting.");
       return;
     }
 
     launchImageLibrary({ mediaType: 'photo' }, async response => {
+      console.log("[handleImagePick] Gallery response:", response);
+
       const asset = response?.assets?.[0];
-      if (!asset) return;
+      if (!asset) {
+        console.log("[handleImagePick] No asset selected.");
+        return;
+      }
 
       try {
-        if (profileImage) await handleDeleteImage();
+        if (profileImage) {
+          console.log("[handleImagePick] Deleting old profile image...");
+          await handleDeleteImage();
+        }
 
         const file = {
           uri: asset.uri,
           name: asset.fileName || 'profile.jpg',
           type: asset.type || 'image/jpeg',
         };
+        console.log("[handleImagePick] File prepared for upload:", file);
+
         setProfileImage(asset.uri);
 
         const formData = new FormData();
         formData.append('file', file);
 
+        console.log("[handleImagePick] Uploading image...");
         const res = await uploadFile(formData).unwrap();
+        console.log("[handleImagePick] Image upload response:", res);
+
         setImage(res.data);
       } catch (error) {
+        console.error("[handleImagePick] Upload failed:", error);
         Toast.show({
           type: 'error',
           text1: 'Upload Failed',
@@ -198,8 +235,9 @@ const EditProfile = () => {
     });
   };
 
-
   const handleDeleteImage = async () => {
+    console.log("[handleDeleteImage] Attempting to delete image:", profileImage);
+
     try {
       const res = await deleteFile({
         fileUrl: profileImage,
@@ -208,20 +246,18 @@ const EditProfile = () => {
         fieldPath: 'image',
       }).unwrap();
 
+      console.log("[handleDeleteImage] Delete response:", res);
       setProfileImage('');
-      // Toast.show({ type: 'success', text1: 'Image deleted successfully' });
       return res;
     } catch (error) {
-      // Toast.show({
-      //   type: 'error',
-      //   text1: 'Delete Failed',
-      //   text2: error?.data?.message || 'Error deleting image',
-      // });
+      console.error("[handleDeleteImage] Delete failed:", error);
     }
   };
 
   const handleSave = async () => {
+    console.log("[handleSave] Saving user profile...");
     if (!lat || !lng) {
+      console.warn("[handleSave] Missing location:", { lat, lng });
       Toast.show({
         type: 'error',
         text1: t('locationRequired'),
@@ -245,20 +281,27 @@ const EditProfile = () => {
         pincode: addressDetails.postcode,
       };
 
+      console.log("[handleSave] Payload to update user:", payload);
       const res = await updateUser({ id: user._id, body: payload }).unwrap();
+
+      console.log("[handleSave] User update response:", res);
       dispatch(setUser(res.data));
+
       Toast.show({ type: 'success', text1: t('profileUpdated') });
       navigation.goBack();
     } catch (error) {
+      console.error("[handleSave] Update failed:", error);
       Toast.show({
         type: 'error',
         text1: t('updateFailed'),
         text2: error?.data?.message || t('somethingWentWrong'),
       });
     } finally {
+      console.log("[handleSave] Done saving.");
       setIsSaving(false);
     }
   };
+
 
   useEffect(() => {
     if (lat && lng) fetchAddressFromCoordinates(lat, lng);
@@ -286,9 +329,9 @@ const EditProfile = () => {
         shouldRasterizeIOS={false}
       >
         <View style={styles.imageWrapper}>
-          {profileImage ? (
+          {profileImage || userPhoto ? (
             <>
-              <Image source={{ uri: profileImage || image }} style={styles.profileImage} />
+              <Image source={{ uri: profileImage || image || userPhoto }} style={styles.profileImage} />
               <TouchableOpacity onPress={handleImagePick} style={styles.uploadIcon} activeOpacity={0.9}>
                 <MaterialIcons name="camera-alt" size={20} color="white" />
               </TouchableOpacity>
@@ -305,7 +348,7 @@ const EditProfile = () => {
         </View>
         <View style={{ paddingHorizontal: wp(5) }}>
           <CustomInput lable={t('name')} value={name} onChangeText={setName} placeholder={t('name')} />
-          <CustomInput lable={t('email')} value={email} onChangeText={setEmail} placeholder={t('email')} />
+          <CustomInput lable={t('email')} value={email} onChangeText={setEmail} placeholder={t('email')} editable={false} selectTextOnFocus={false} caretHidden={true} />
           <CustomInput lable={t('phone')} value={phone} onChangeText={setPhone} placeholder={t('phone')} />
           <Spacer height={hp(2)} />
           <View style={styles.addressContainer}>

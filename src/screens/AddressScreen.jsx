@@ -21,7 +21,6 @@ import { useCallback } from 'react';
 
 
 
-// API Hooks
 import {
   useGetAllAddressesQuery,
   useDeleteAddressMutation,
@@ -32,16 +31,16 @@ import { RFValue } from 'react-native-responsive-fontsize';
 import { SCREEN_HEIGHT } from '../utils/dimensions';
 import { Fonts } from '../utils/typography';
 import { Colors } from '../utils/Colors';
+import { useTranslation } from 'react-i18next';
 
 export default function AddressScreen() {
   const navigation = useNavigation();
   const [selectedId, setSelectedId] = useState(null);
   const [deleting, setDeleting] = useState(false);
   const dispatch = useDispatch();
-
+  const { t } = useTranslation()
   const userInfo = useSelector((state) => state.user.user);
   const userId = userInfo?._id;
-  // console.log('User ID:', userId); // Debugging line to check user ID
 
   const {
     data: addressData,
@@ -53,7 +52,7 @@ export default function AddressScreen() {
     { page: 1, limit: 10 },
     {
       skip: !userId,
-      refetchOnMountOrArgChange: true, // <== this is important!
+      refetchOnMountOrArgChange: true,
     }
   );
 
@@ -73,14 +72,10 @@ export default function AddressScreen() {
           userId: userId,
         };
 
-        // Save to AsyncStorage
         await AsyncStorage.setItem('selectedAddress', JSON.stringify(payload));
-        // console.log('✅ Address stored in AsyncStorage');
 
-        // ✅ Dispatch to Redux
         dispatch(setSavedAddress(payload));
 
-        // Update backend
         const body = {
           address: selectedAddress.address,
           city: selectedAddress.city,
@@ -103,12 +98,12 @@ export default function AddressScreen() {
 
   const handleDelete = id => {
     Alert.alert(
-      'Confirm Delete',
-      'Are you sure you want to delete this address?',
+      t('confirm_delete'),
+      t('delete_message'),
       [
-        { text: 'Cancel', style: 'cancel' },
+        { text: t('cancel'), style: 'cancel' },
         {
-          text: 'Delete',
+          text: t('delete'),
           style: 'destructive',
           onPress: async () => {
             try {
@@ -218,14 +213,14 @@ export default function AddressScreen() {
           </TouchableOpacity>
         </View>
 
-         
+
       </TouchableOpacity>
     );
   };
 
   return (
     <AppLayout>
-      <PageHeader back lable={'Address'} />
+      <PageHeader back lable={t('address_header')} />
       <View style={styles.container}>
         <TouchableOpacity
           style={styles.addBtn}
@@ -234,16 +229,16 @@ export default function AddressScreen() {
           }
         >
           <Icon name="plus" size={20} color="#fff" />
-          <Text style={styles.addBtnText}>Add New Address</Text>
+          <Text style={styles.addBtnText}>{t('add_new_address')}</Text>
         </TouchableOpacity>
 
         {isLoading ? (
           <Text style={{ color: '#fff', textAlign: 'center' }}>
-            Loading addresses...
+            {t('loading_addresses')}
           </Text>
         ) : isError ? (
           <Text style={{ color: 'red', textAlign: 'center' }}>
-            Failed to load addresses
+            {t('failed_load_addresses')}
           </Text>
         ) : (
           <FlatList
@@ -258,7 +253,7 @@ export default function AddressScreen() {
       {deleting && (
         <View style={styles.overlay}>
           <ActivityIndicator size="large" color="#ffffff" />
-          <Text style={styles.loadingText}>Deleting address...</Text>
+          <Text style={styles.loadingText}>{t('deleting_address')}</Text>
         </View>
       )}
 
@@ -300,7 +295,7 @@ const styles = StyleSheet.create({
     borderColor: '#5A67D8',
     backgroundColor: 'rgba(90, 103, 216, 0.15)',
   },
-  row: { flexDirection: 'row', alignItems: 'flex-start',  },
+  row: { flexDirection: 'row', alignItems: 'flex-start', },
 
   title: {
     fontSize: RFValue(16, SCREEN_HEIGHT),

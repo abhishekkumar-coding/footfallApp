@@ -23,6 +23,7 @@ import AppLayout from '../layout/AppLayout';
 import Spacer from '../components/Spacer';
 import RemainingTime from './Home/RemainingTime';
 import SpinWheelCard from './Home/SpinWheelCard';
+import { useGetAllOffersQuery } from '../features/shops/shopApi';
 
 
 const useDynamicRefs = () => {
@@ -40,7 +41,11 @@ const HomeScreen = ({ navigation }) => {
   const [isLoading, setLoading] = useState(false);
   const referralCode = useSelector(state => state.user.pendingReferral);
   const [translateY, setTranslateY] = useState(new Animated.Value(0));
-  const savedAddress = useSelector((state) => state.user.savedAddress); // Adjust the slice name if needed
+  const savedAddress = useSelector((state) => state.user.savedAddress);
+  const { data } = useGetAllOffersQuery();
+  const offers = data?.data?.offers || [];
+  console.log("Offer in Home : ", offers);
+
   console.log("Extracted referral code {In Home screen} from REDUX: ", referralCode)
 
 
@@ -58,9 +63,9 @@ const HomeScreen = ({ navigation }) => {
   }
   console.log('Saved Address from Redux:', savedAddress);
 
- useEffect(() => {
+  useEffect(() => {
 
-}, []);
+  }, []);
 
 
 
@@ -91,10 +96,14 @@ const HomeScreen = ({ navigation }) => {
         <View style={styles.scrollContainer}>
           <Coins ref={refs('points')} />
           <RemainingTime />
-          <SpinWheelCard/>
+          <SpinWheelCard />
           {/* <QuickActions /> */}
           <View style={{ paddingHorizontal: 6 }}>
-            <AutoSlider />
+            {offers.length > 0 && (
+              <>
+                <AutoSlider />
+              </>
+            )}
             <FeaturedShopsSection />
           </View>
           <ShopList navigation={navigation} ref={refs('shopListRef')} />

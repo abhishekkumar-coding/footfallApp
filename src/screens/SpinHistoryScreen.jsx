@@ -7,6 +7,7 @@ import {
     StyleSheet,
     TouchableOpacity,
     Modal,
+    Image,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { RFValue } from "react-native-responsive-fontsize";
@@ -19,6 +20,8 @@ import {
 } from "../features/shops/shopApi";
 import AppLayout from "../layout/AppLayout";
 import PageHeader from "../components/PageHeader";
+import { hp, SCREEN_HEIGHT } from "../utils/dimensions";
+import { Fonts } from "../utils/typography";
 
 const SpinHistoryScreen = () => {
     const navigation = useNavigation();
@@ -201,6 +204,15 @@ const SpinHistoryScreen = () => {
                     keyExtractor={(item) => item._id}
                     renderItem={renderItem}
                     contentContainerStyle={styles.list}
+                    ListEmptyComponent={
+                        <View style={styles.center}>
+                            <Image
+                                source={require("../../assets/noSpinHistory.png")}
+                                style={{ height: hp(30), resizeMode: "contain", marginBottom: 10 }}
+                            />
+                            <Text style={styles.empty}>{t('spinWheelHistory.empty')}</Text>
+                        </View>
+                    }
                 />
             )}
 
@@ -210,8 +222,18 @@ const SpinHistoryScreen = () => {
                     keyExtractor={(item) => item._id}
                     renderItem={renderItem}
                     contentContainerStyle={styles.list}
+                    ListEmptyComponent={
+                        <View style={styles.center}>
+                            <Image
+                                source={require("../../assets/noClaimedHistory.png")}
+                                style={{ height: hp(30), resizeMode: "contain", marginBottom: 10 }}
+                            />
+                            <Text style={styles.empty}>{t('spinWheelHistory.noClaimed')}</Text>
+                        </View>
+                    }
                 />
             )}
+
 
             {selectedType === "physical_reward" && (
                 <Modal visible={showPopup} transparent animationType="fade">
@@ -256,8 +278,13 @@ const styles = StyleSheet.create({
     center: { flex: 1, justifyContent: "center", alignItems: "center", padding: 20 },
     loadingText: { color: "#fff", fontFamily: "Poppins-SemiBold" },
     error: { color: "#FF4C4C", fontSize: 16, fontFamily: "Poppins-SemiBold", textAlign: "center" },
-    empty: { color: "#aaa", fontSize: 15, fontFamily: "Poppins-Regular", textAlign: "center" },
-    tabRow: { flexDirection: "row", justifyContent: "space-evenly", marginVertical: 15 },
+    empty: {
+        color: '#ffffff71',
+        fontSize: RFValue(16, SCREEN_HEIGHT),
+        textAlign: 'center',
+        marginHorizontal: 20,
+        fontFamily: Fonts.primary_SemiBold
+    }, tabRow: { flexDirection: "row", justifyContent: "space-evenly", marginVertical: 15 },
     tabText: { fontSize: RFValue(10), fontFamily: "Poppins-SemiBold", color: "#fff" },
     activeTab: { color: "#FF9800" },
     list: { paddingHorizontal: 15, paddingBottom: 20 },

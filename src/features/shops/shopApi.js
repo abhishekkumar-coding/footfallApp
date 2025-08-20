@@ -4,17 +4,14 @@ import { REACT_APP_DEV_SERVER, REACT_APP_PROD_SERVER } from "@env"
 
 const baseQueryWithAuth = async (args, api, extraOptions) => {
   const token = await AsyncStorage.getItem('token');
-  console.log("Checking: ",REACT_APP_DEV_SERVER)
 
   const authenticatedBaseQuery = fetchBaseQuery({
-    baseUrl: `${REACT_APP_DEV_SERVER}/api/`,
-    // baseUrl: REACT_APP_PROD_SERVER,
+    baseUrl: `${REACT_APP_PROD_SERVER}/api/`,
     prepareHeaders: headers => {
       if (token) headers.set('token', token);
       return headers;
     },
   });
-  //   console.log(`ShopApi : ${token}`);
   return authenticatedBaseQuery(args, api, extraOptions);
 };
 
@@ -283,7 +280,7 @@ export const shopApi = createApi({
         method: "POST",
         body: payload,
       }),
-      invalidatesTags: ["SpinHistory"], // Auto-refetch SpinHistory queries
+      invalidatesTags: ["SpinHistory", "Wallet"], // Auto-refetch SpinHistory queries
     }),
     getShopByVendor: builder.query({
       query: (id) => ({

@@ -53,7 +53,7 @@ const RedeemHistoryScreen = () => {
         ) : redeemHistory.length === 0 ? (
           <View style={styles.centered}>
             <Image source={require('../../assets/emptyRedeemHistory.png')} style={{
-              width: wp(20), height: hp(10),
+            height: hp(30),
                 resizeMode: 'contain',
               opacity: 0.5
             }} />

@@ -7,15 +7,17 @@ import {
   ActivityIndicator,
   Modal,
   Alert,
+  Image,
 } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import WheelOfFortune from 'react-native-wheel-of-fortune';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppLayout from '../layout/AppLayout';
 import { useGetAllRewardsQuery, useSpinWheelMutation } from '../features/shops/shopApi';
-import { hp } from '../utils/dimensions';
+import { hp, SCREEN_HEIGHT, wp } from '../utils/dimensions';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
+import { Fonts } from '../utils/typography';
 
 export default function SpinWheelScreen() {
   const { data, isLoading: loadingRewards } = useGetAllRewardsQuery();
@@ -99,10 +101,18 @@ export default function SpinWheelScreen() {
         </View>
 
         {loadingRewards ? (
-          <ActivityIndicator size="large" color="#FF6F00" />
-        ) : rewardsNames.length === 0 ? (
-          <Text style={styles.info}>{t('spinWheel.noRewards')}</Text>
-        ) : (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#FF6F00" />
+            <Text style={styles.loadingText}>{t('spinWheel.loadingRewards')}</Text>
+          </View>) : rewardsNames.length === 0 ? (
+            <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+              <Image
+                source={require('../../assets/emptySpinRewards.png')}
+                style={{ height: hp(50), resizeMode: 'contain', marginBottom: 10, marginLeft: wp(10) }}
+              />
+              <Text style={styles.empty}>{t('spinWheel.noRewards')}</Text>
+            </View>
+          ) : (
           <>
             <View style={styles.wheelContainer}>
               <WheelOfFortune
@@ -222,6 +232,27 @@ export default function SpinWheelScreen() {
 }
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: '100%',
+    width: '100%',
+    zIndex: 99
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: RFValue(14),
+    color: '#fff',
+    fontFamily: 'Poppins-Medium',
+  },
+  empty: {
+    color: '#ffffff71',
+    fontSize: RFValue(16, SCREEN_HEIGHT),
+    textAlign: 'center',
+    marginHorizontal: 20,
+    fontFamily: Fonts.primary_SemiBold
+  },
   container: { flex: 1, padding: 20, alignItems: 'center', justifyContent: 'space-evenly' },
   header: { alignItems: 'center', marginBottom: 20 },
   title: { fontSize: RFValue(20), fontFamily: 'Poppins-Bold', color: '#fff' },

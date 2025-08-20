@@ -7,8 +7,8 @@
   "continue": "Continue",
   "points": "My Points",
   "see_rewards": "See your claimed rewards",
-  "searchShops":"search shop",
-  "getShopAddress":"GET SHOP ADDRESS",
+  "searchShops": "search shop",
+  "getShopAddress": "GET SHOP ADDRESS",
   "redeemed": "Redeemed",
   "quick_actions": {
     "scan": "Scan",
@@ -26,7 +26,8 @@
   "spinWheelCard": {
     "title": "🎯 Try Your Luck!",
     "subtitle": "Spin the wheel and see what you can redeem today.",
-    "button": "Spin Now"  },
+    "button": "Spin Now"
+  },
   "spinWheelHistory": {
     "header": "Spin History",
     "pending": "Pending Rewards",
@@ -45,7 +46,8 @@
     "claimMsg": "Claim your reward now and enjoy your benefits at this shop!",
     "cancel": "Cancel",
     "confirm": "Claim",
-    "expiry":"Expiry"
+    "expiry": "Expiry",
+    "noClaimed": "No claimed rewards yet."
   },
   "spinWheel": {
     "title": "Spin & Win!",
@@ -64,19 +66,21 @@
     "congratsTitle": "🎉 Congratulations!",
     "congratsMessage": "You won: ",
     "congratsButton": "Awesome!",
-    "tryAgain":"Try again"
+    "tryAgain": "Try tomorrow"
   },
   "shopSetupIncomplete": "Shop Setup Incomplete",
   "shopNotFullySetup": "This shop is not fully set up yet.",
   "top_offers": "Top Offers",
   "all_featured_shop": "All Featured Shop",
   "Featured_shops": "Featured Shops",
+  "no_featured_shop": "No Featured Shop",
+  "check_back_later": "Please check back later for updates!",
   "nearby_shops": "Nearby Shops",
   "view_all": "View All",
   "category": "Category",
   "location": "Location",
   "Address": "Address",
-  "description":"Description",
+  "description": "Description",
   "timings": "{{start}} - {{end}}",
   "scanOption": "Scan Option",
   "chooseOption": "Choose an option",
@@ -141,7 +145,7 @@
   "reward_title": "Reward Unlocked!",
   "cashback_applied_message": "Cashback applied at XYZ Store.",
   "favorites": "Favorites",
-  "favorites_empty_subtext": "Tap the heart icon to add shops to your favorites",
+  "favorites_empty_subtext": "There is no favorite shop",
   "fetching_points": "Fetching vendor points...",
   "scan_success": "✅ Shop scanned successfully!",
   "scan_failed": "❌ {{message}}",
@@ -174,6 +178,39 @@
   "redeem_date": "Date",
   "redeem_failed": "Failed to load redeem history.",
   "redeem_empty": "No redeem history found.",
+  "notification": "Notifications",
+  "no_notifications": "No notifications yet",
+  "offer": "Offer",
+  "shop": "Shop",
+  "address_header": "Address",
+  "loading_addresses": "Loading addresses...",
+  "failed_load_addresses": "Failed to load addresses",
+  "confirm_delete": "Confirm Delete",
+  "delete_message": "Are you sure you want to delete this address?",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "deleting_address": "Deleting address...",
+  "no_address": "No address",
+  "search_placeholder": "Search location...",
+  "edit_address": "Edit Address",
+  "add_new_address": "Add New Address",
+  "form_subtitle": "Complete address helps us serve you better",
+  "address_placeholder": "Address *",
+  "city_placeholder": "City *",
+  "state_placeholder": "State *",
+  "country_placeholder": "Country *",
+  "pincode_placeholder": "Pin Code *",
+  "landmark_placeholder": "Nearby Landmark (optional)",
+  "save_button": "Save Address",
+  "saving_button": "Saving...",
+  "error_coordinates": "Coordinates not found for the selected address.",
+  "error_fill_fields": "Please fill all required fields",
+  "error_missing_id": "Missing address ID for update",
+  "error_failed_save": "Failed to save address. Please try again.",
+  "success_update": "Address updated successfully.",
+  "success_create": "Address created successfully.",
+  "error_title": "Error",
+  "success_title": "Success",
   "redeemScreen": {
     "title": "🎉 Redeem Points Center",
     "blazePoints": "🔥 Total Blaze Points!",
@@ -186,8 +223,8 @@
     "redeemed": "Redeemed"
   },
   "faq": {
-    "q1": "What is Footfall?",
-    "a1": "Footfall is a platform that allows you to earn rewards by referring people and scanning local shops.",
+    "q1": "What is i ♥️ Sambhal?",
+    "a1": "i ♥️ Sambhal is a platform that allows you to earn rewards by referring people and scanning local shops.",
     "q2": "How do I earn points?",
     "a2": "You earn points by scanning QR codes at participating shops and referring friends to join the app.",
     "q3": "How can I redeem points?",
@@ -213,7 +250,7 @@
     "share": {
       "whatsapp": "WhatsApp",
       "more": "More Options",
-      "message": "Join Footfall using my referral link! {{link}}\n\nOr use code: {{code}}"
+      "message": "Join i ♥️ Sambhal using my referral link! {{link}}\n\nOr use code: {{code}}"
     },
     "how_it_works": {
       "title": "How It Works",

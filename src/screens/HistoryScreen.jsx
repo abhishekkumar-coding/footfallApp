@@ -9,13 +9,14 @@ import {
 } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import LinearGradient from 'react-native-linear-gradient';
-import { hp, wp } from '../utils/dimensions';
+import { hp, SCREEN_HEIGHT, wp } from '../utils/dimensions';
 import PageHeader from '../components/PageHeader';
 import { useGetScanHistoryQuery } from '../features/shops/shopApi';
 import { useFocusEffect } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AppLayout from '../layout/AppLayout';
+import { Fonts } from '../utils/typography';
 
 const HistoryScreen = () => {
   const { t } = useTranslation();
@@ -51,7 +52,7 @@ const HistoryScreen = () => {
       return (
         <View style={styles.centered}>
           <Image source={require('../../assets/emptyScanHistory.png')} style={{ width: wp(50), height: hp(20), opacity:0.5, marginBottom: hp(2) }} />
-          {/* <Text style={styles.empty}>{t('no_scans')}</Text> */}
+          <Text style={styles.empty}>{t('no_scans')}</Text>
         </View>
       );
     }
@@ -125,12 +126,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   empty: {
-    color: '#999',
-    fontSize: RFValue(16),
-    fontFamily: 'Poppins-SemiBold',
-    textAlign: 'center',
-    marginHorizontal: 20,
-  },
+      color: '#ffffff71',
+      fontSize: RFValue(16, SCREEN_HEIGHT),
+      textAlign: 'center',
+      marginHorizontal: 20,
+      fontFamily: Fonts.primary_SemiBold
+    },
   item: {
     flexDirection: 'row',
     justifyContent: 'space-between',

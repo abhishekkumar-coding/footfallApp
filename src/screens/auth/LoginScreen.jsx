@@ -215,10 +215,11 @@ const LoginScreen = () => {
 
       console.log('[GOOGLE LOGIN] Sending ID token to backend...');
       const response = await googleAuth({ token: idToken, fcmToken, language: savedLang  }).unwrap();
+      // const response =''
       console.log('[GOOGLE LOGIN] Backend Response:', response);
       dispatch(clearPendingReferral())
       const appToken = response?.data?.token;
-      const backendUser = response?.data?.user;
+      const backendUser = response?.data?.user || response?.data?.newUser;
 
       if (!appToken) {
         console.error('[GOOGLE LOGIN] App token missing in response');

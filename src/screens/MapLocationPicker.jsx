@@ -20,6 +20,8 @@ import {
   useUpdateAddressMutation,
 } from '../features/address/addressApiSlice';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
+import { useTranslation } from 'react-i18next';
+import Toast from 'react-native-toast-message';
 
 const MapLocationPicker = () => {
   const navigation = useNavigation();
@@ -42,6 +44,7 @@ const MapLocationPicker = () => {
   const [country, setCountry] = useState(existingAddress?.country || '');
   const [pinCode, setPinCode] = useState(existingAddress?.pinCode || '');
   const [landmark, setLandmark] = useState(existingAddress?.landmark || '');
+  const {t} = useTranslation()
 
   // Mutations
   const [createAddress, { isLoading: isCreating }] = useCreateAddressMutation();
@@ -149,89 +152,105 @@ const MapLocationPicker = () => {
     return null;
   };
 
-  const prepareBody = () => {
-    const coords = getCoordinates();
+  
+const prepareBody = () => {
+  const coords = getCoordinates();
 
-    // In edit mode, we can proceed without new coordinates if we have existing ones
-    if (!coords && mode !== 'edit') {
-      Alert.alert('Error', 'Coordinates not found for the selected address.');
-      return null;
-    }
+  // In edit mode, we can proceed without new coordinates if we have existing ones
+  if (!coords && mode !== 'edit') {
+    Toast.show({
+      type: 'error',
+      text1: t('error_title'),
+      text2: t('error_coordinates'),
+    });
+    return null;
+  }
 
-    // Basic field validation
-    if (!address || !city || !state || !country || !pinCode) {
-      Alert.alert('Error', 'Please fill all required fields');
-      return null;
-    }
+  // Basic field validation
+  if (!address || !city || !state || !country || !pinCode) {
+    Toast.show({
+      type: 'error',
+      text1: t('error_title'),
+      text2: t('error_fill_fields'),
+    });
+    return null;
+  }
 
-    // return {
-    //   location: coords ? {
-    //     type: "Point",
-    //     coordinates: [coords.lng, coords.lat]
-    //   } : existingAddress.location,
-    //   address: address,
-    //   city: city,
-    //   state: state,
-    //   country: country,
-    //   pinCode: pinCode,
-    //   landmark: landmark || undefined
-    // };
-    return {
-      location: coords
-        ? {
+  return {
+    location: coords
+      ? {
           type: 'Point',
           coordinates: [coords.lng, coords.lat],
         }
-        : existingAddress.location,
-      lat: coords?.lat,
-      lng: coords?.lng,
-      address: address,
-      city: city,
-      state: state,
-      country: country,
-      pinCode: pinCode,
-      landmark: landmark || undefined,
-    };
+      : existingAddress.location,
+    lat: coords?.lat,
+    lng: coords?.lng,
+    address: address,
+    city: city,
+    state: state,
+    country: country,
+    pinCode: pinCode,
+    landmark: landmark || undefined,
   };
+};
 
-  const handleSave = async () => {
-    if (mode === 'edit' && !existingAddress?._id) {
-      Alert.alert('Error', 'Missing address ID for update');
-      return;
+const handleSave = async () => {
+  if (mode === 'edit' && !existingAddress?._id) {
+    Toast.show({
+      type: 'error',
+      text1: t('error_title'),
+      text2: t('error_missing_id'),
+    });
+    return;
+  }
+
+  const body = prepareBody();
+  if (!body) return;
+
+  try {
+    if (mode === 'edit' && existingAddress?._id) {
+      await updateAddress({
+        id: existingAddress._id,
+        ...body,
+      }).unwrap();
+
+      // Toast.show({
+      //   type: 'success',
+      //   text1: t('success_title'),
+      //   text2: t('success_update'),
+      // });
+    } else {
+      await createAddress(body).unwrap();
+
+      // Toast.show({
+      //   type: 'success',
+      //   text1: t('success_title'),
+      //   text2: t('success_create'),
+      // });
     }
 
-    const body = prepareBody();
-    if (!body) return;
+    navigation.goBack();
+  } catch (err) {
+    console.error('Failed to save address:', err);
+    let errorMessage = t('error_failed_save');
 
-    try {
-      if (mode === 'edit' && existingAddress?._id) {
-        await updateAddress({
-          id: existingAddress._id,
-          ...body,
-        }).unwrap();
-        Alert.alert('Success', 'Address updated successfully.');
-      } else {
-        await createAddress(body).unwrap();
-        Alert.alert('Success', 'Address created successfully.');
+    if (err?.data) {
+      if (err.data.errors) {
+        errorMessage = Object.values(err.data.errors)
+          .map(e => e.message)
+          .join('\n');
+      } else if (err.data.message) {
+        errorMessage = err.data.message;
       }
-      navigation.goBack();
-    } catch (err) {
-      console.error('Failed to save address:', err);
-      let errorMessage = 'Failed to save address. Please try again.';
-
-      if (err.data) {
-        if (err.data.errors) {
-          errorMessage = Object.values(err.data.errors)
-            .map(err => err.message)
-            .join('\n');
-        } else if (err.data.message) {
-          errorMessage = err.data.message;
-        }
-      }
-
-      Alert.alert('Error', errorMessage);
     }
-  };
+
+    Toast.show({
+      type: 'error',
+      text1: t('error_title'),
+      text2: errorMessage,
+    });
+  }
+};
   const insets = useSafeAreaInsets();
 
 
@@ -259,7 +278,7 @@ const MapLocationPicker = () => {
             />
             <TextInput
               style={styles.input}
-              placeholder="Search location..."
+              placeholder={t('search_placeholder')}
               placeholderTextColor="#888"
               value={searchQuery}
               onChangeText={handleSearchChange}
@@ -296,19 +315,19 @@ const MapLocationPicker = () => {
             <ScrollView keyboardShouldPersistTaps="handled">
               <View style={styles.formHeader}>
                 <Text style={styles.formTitle}>
-                  {mode === 'edit' ? 'Edit Address' : 'Add New Address'}
+                  {mode === 'edit' ? t('edit_address') : t('add_new_address')}
                 </Text>
                 <TouchableOpacity onPress={() => setConfirm(false)}>
                   <Icon name="close" size={24} color="#000" />
                 </TouchableOpacity>
               </View>
               <Text style={styles.formSubtitle}>
-                Complete address helps us serve you better
+                {t('form_subtitle')}
               </Text>
 
               <TextInput
                 style={styles.inputField}
-                placeholder="Address *"
+                placeholder={t('address_placeholder')}
                 placeholderTextColor="#888"
                 value={address}
                 onChangeText={setAddress}
@@ -316,7 +335,7 @@ const MapLocationPicker = () => {
 
               <TextInput
                 style={styles.inputField}
-                placeholder="City *"
+                placeholder={t('city_placeholder')}
                 placeholderTextColor="#888"
                 value={city}
                 onChangeText={setCity}
@@ -324,7 +343,7 @@ const MapLocationPicker = () => {
 
               <TextInput
                 style={styles.inputField}
-                placeholder="State *"
+                placeholder={t('state_placeholder')}
                 placeholderTextColor="#888"
                 value={state}
                 onChangeText={setState}
@@ -332,7 +351,7 @@ const MapLocationPicker = () => {
 
               <TextInput
                 style={styles.inputField}
-                placeholder="Country *"
+                placeholder={t('country_placeholder')}
                 placeholderTextColor="#888"
                 value={country}
                 onChangeText={setCountry}
@@ -340,7 +359,7 @@ const MapLocationPicker = () => {
 
               <TextInput
                 style={styles.inputField}
-                placeholder="Pin Code *"
+                placeholder={t('pincode_placeholder')}
                 placeholderTextColor="#888"
                 value={pinCode}
                 onChangeText={setPinCode}
@@ -349,7 +368,7 @@ const MapLocationPicker = () => {
 
               <TextInput
                 style={styles.inputField}
-                placeholder="Nearby Landmark (optional)"
+                placeholder={t('landmark_placeholder')}
                 placeholderTextColor="#888"
                 value={landmark}
                 onChangeText={setLandmark}
@@ -364,7 +383,7 @@ const MapLocationPicker = () => {
                 disabled={isCreating || isUpdating}
               >
                 <Text style={styles.saveButtonText}>
-                  {isCreating || isUpdating ? 'Saving...' : 'Save Address'}
+                  {isCreating || isUpdating ? t('saving_button') : t('save_button')}
                 </Text>
               </TouchableOpacity>
             </ScrollView>

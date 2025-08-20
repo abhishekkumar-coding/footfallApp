@@ -8,6 +8,7 @@ import {
   Image,
   TextInput,
   ActivityIndicator,
+  ScrollView,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { hp, wp, SCREEN_HEIGHT } from "../../utils/dimensions";
@@ -25,17 +26,105 @@ import { useGetAllShopsQuery } from "../../features/shops/shopApi";
 import LinearGradient from "react-native-linear-gradient";
 import AppLayout from "../../layout/AppLayout";
 
-const CATEGORIES = [
+// const CATEGORIES = [
+//   { key: 'all', label: 'All' },
+//   { key: 'kirana / general stores', label: 'Kirana / General stores' },
+//   { key: 'local restaurants / dhabas', label: 'Local restaurants / dhabas' },
+//   { key: 'readymade garments', label: 'Readymade garments' },
+//   { key: 'furniture stores', label: 'Furniture stores' },
+//   { key: 'medical stores', label: 'Medical stores' },
+//   { key: 'mobile repair shops', label: 'Mobile repair shops' },
+//   { key: 'handicrafts', label: 'Handicrafts' },
+//   { key: 'packaged goods resellers', label: 'Packaged goods resellers' },
+// ];
+
+const categories = [
   { key: 'all', label: 'All' },
-  { key: 'kirana / general stores', label: 'Kirana / General stores' },
-  { key: 'local restaurants / dhabas', label: 'Local restaurants / dhabas' },
-  { key: 'readymade garments', label: 'Readymade garments' },
-  { key: 'furniture stores', label: 'Furniture stores' },
-  { key: 'medical stores', label: 'Medical stores' },
-  { key: 'mobile repair shops', label: 'Mobile repair shops' },
-  { key: 'handicrafts', label: 'Handicrafts' },
-  { key: 'packaged goods resellers', label: 'Packaged goods resellers' },
+  {
+    key: 'retail',
+    label: 'Retail & Grocery',
+    subcategories: [
+      'Kirana / General stores',
+      'Fruits & vegetables',
+      'Dairy & milk products',
+      'Meat & poultry shops',
+      'Bakery & confectionery',
+    ],
+  },
+  {
+    key: 'food',
+    label: 'Food & Beverage',
+    subcategories: [
+      'Local restaurants / dhabas',
+      'Street food vendors',
+      'Sweets & snacks shops',
+      'Tea & coffee stalls',
+      'Catering services',
+    ],
+  },
+  {
+    key: 'clothing',
+    label: 'Clothing & Accessories',
+    subcategories: [
+      'Readymade garments',
+      'Tailors & boutiques',
+      'Footwear shops',
+      'Jewelry & imitation ornaments',
+    ],
+  },
+  {
+    key: 'home',
+    label: 'Home & Living',
+    subcategories: [
+      'Furniture stores',
+      'Home décor',
+      'Electrical & hardware shops',
+      'Kitchenware & utensils',
+    ],
+  },
+  {
+    key: 'health',
+    label: 'Health & Wellness',
+    subcategories: [
+      'Medical stores',
+      'Clinics & pathology labs',
+      'Beauty parlors & salons',
+      'Fitness centers / gyms',
+    ],
+  },
+  {
+    key: 'services',
+    label: 'Services',
+    subcategories: [
+      'Mobile repair shops',
+      'Electricians & plumbers',
+      'Car/Bike repair',
+      'Printing & photocopy',
+      'Event decorators',
+    ],
+  },
+  {
+    key: 'specialty',
+    label: 'Specialty & Local Products',
+    subcategories: [
+      'Handicrafts',
+      'Wooden items',
+      'Brass & metalware',
+      'Seasonal fairs vendors',
+    ],
+  },
+  {
+    key: 'delivery',
+    label: 'Quick Commerce & Delivery',
+    subcategories: [
+      'Packaged goods resellers',
+      'Local couriers',
+      'Flower shops',
+    ],
+  },
 ];
+
+
 
 const AllShops = () => {
   const { t } = useTranslation();
@@ -48,6 +137,12 @@ const AllShops = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const searchInputRef = useRef(null);
+  const [expandedCategory, setExpandedCategory] = useState(null);
+
+  const toggleCategory = (key) => {
+    setExpandedCategory(prev => prev === key ? null : key);
+    setSelectedCategory(null); // reset subcategory when switching parent
+  };
 
   // Debounce search
   useEffect(() => {
@@ -65,6 +160,8 @@ const AllShops = () => {
   });
 
   const shops = useMemo(() => shopData?.data?.shops || [], [shopData]);
+
+  console.log("All Shops: ", shops)
 
   useEffect(() => {
     dispatch(loadWishlist());
@@ -104,7 +201,7 @@ const AllShops = () => {
         activeOpacity={0.8}
       >
         <Text style={[styles.filterText, isSelected && styles.selectedFilterText]}>
-          {t(item.key) || item.label}
+          {t(item.lable) || item.label}
         </Text>
       </TouchableOpacity>
     );
@@ -147,16 +244,64 @@ const AllShops = () => {
           </TouchableOpacity>
         </View>
       )}
-
       <View>
-        <FlatList
-          data={CATEGORIES}
-          renderItem={renderCategory}
-          keyExtractor={(item) => item.key}
+        {/* Categories Row */}
+        <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={styles.filterContainer}
-        />
+        >
+          {categories.map((cat) => (
+            <TouchableOpacity
+              key={cat.key}
+              style={[
+                styles.filterButton,
+                selectedCategory === cat.key || expandedCategory ===cat.key && styles.selectedFilterButton ,
+              ]}
+              onPress={() => toggleCategory(cat.key)}
+            >
+              <Text
+                style={[
+                  styles.filterText,
+                  expandedCategory === cat.key && styles.selectedFilterText,
+                ]}
+              >
+                {cat.label}
+              </Text>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+
+        {/* Subcategories Row (outside main view) */}
+        {expandedCategory && (
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={styles.subCategoryContainer}
+          >
+            {categories
+              .find((cat) => cat.key === expandedCategory)
+              ?.subcategories?.map((sub, idx) => (
+                <TouchableOpacity
+                  key={`${expandedCategory}-${idx}`}
+                  style={[
+                    styles.subCategoryButton,
+                    selectedCategory === sub && { backgroundColor: Colors.purple },
+                  ]}
+                  onPress={() => setSelectedCategory(sub)}
+                >
+                  <Text
+                    style={[
+                      styles.subCategoryText,
+                      selectedCategory === sub && styles.selectedFilterText,
+                    ]}
+                  >
+                    {sub}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+          </ScrollView>
+        )}
       </View>
       {isLoading ? (
         <FlatList
@@ -225,7 +370,7 @@ const styles = StyleSheet.create({
   },
   filterContainer: {
     paddingHorizontal: wp(5),
-    paddingBottom: hp(2),
+    paddingBottom: hp(1),
   },
   filterButton: {
     paddingHorizontal: wp(6),
@@ -289,5 +434,37 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
     opacity: 0.5,
     marginTop: hp(2),
+  },
+
+  filterButton: {
+    paddingHorizontal: wp(6),
+    borderRadius: 30,
+    marginHorizontal: wp(1),
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    height: hp(4),
+    // maxWidth: wp(60),
+    justifyContent: 'center',
+  },
+
+  subCategoryContainer: {
+    flexDirection: "row",
+    // marginTop: hp(1.2),
+    marginBottom: hp(2),
+    paddingHorizontal: wp(5),
+  },
+
+  subCategoryButton: {
+    paddingHorizontal: wp(5),
+    paddingVertical: hp(0.8),
+    borderRadius: 20,
+    marginRight: wp(2),
+    backgroundColor: "rgba(255,255,255,0.1)",
+    alignSelf: "flex-start",       // ✅ keeps same height
+  },
+
+  subCategoryText: {
+    fontSize: RFValue(14, SCREEN_HEIGHT),
+    color: "#fff",
+    fontFamily: Fonts.primary_Regular,
   },
 });

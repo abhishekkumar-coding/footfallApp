@@ -65,8 +65,8 @@ const FeaturedShopsSection = () => {
                         source={require('../../../assets/noFeaturedShop.png')}
                         style={styles.emptyImage}
                     />
-                    <Text style={styles.title}>No Featured Shop</Text>
-                    <Text style={styles.subtitle}>Please check back later for updates!</Text>
+                    <Text style={styles.title}>{t('no_featured_shop')}</Text>
+                    <Text style={styles.subtitle}>{t('check_back_later')}</Text>
                 </View>
             ) : (
                 <FlatList

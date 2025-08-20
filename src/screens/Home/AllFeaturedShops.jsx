@@ -87,9 +87,9 @@ const AllFeaturedShops = () => {
                             source={require('../../../assets/noFeaturedShop.png')}
                             style={{ width: wp(50), height: wp(50), resizeMode: 'contain' }}
                         />
-                        <Text style={styles.title}>No Featured Shop</Text>
+                        <Text style={styles.title}>{t('no_featured_shop')}</Text>
 
-                        <Text style={styles.subtitle}>Please check back later for updates!</Text>
+                        <Text style={styles.subtitle}>{t('check_back_later')}</Text>
                     </View>
 
                 }

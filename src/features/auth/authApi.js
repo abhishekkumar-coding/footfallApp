@@ -6,7 +6,7 @@ const baseQueryWithAuth = async (args, api, extraOptions) => {
   const token = await AsyncStorage.getItem('token');
 
   const authenticatedBaseQuery = fetchBaseQuery({
-    baseUrl: `${REACT_APP_DEV_SERVER}/api/`,
+    baseUrl: `${REACT_APP_PROD_SERVER}/api/`,
     // baseUrl: REACT_APP_PROD_SERVER,
     prepareHeaders: headers => {
       if (token) headers.set('token', token);

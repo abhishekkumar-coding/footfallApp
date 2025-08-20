@@ -83,12 +83,12 @@ const FavoritesScreen = ({ navigation }) => {
         {favoriteShops.length === 0 ? (
           <View style={styles.emptyContainer}>
             <Image source={require('../../../assets/emptyfavorite.png')} style={{
-              width: wp(30),
-              height: hp(20),
+              width: wp(40),
+              height: hp(30),
               opacity: 0.5,
               marginBottom: hp(2)
             }} />
-            {/* <Text style={styles.emptyText}>No favorites yet</Text> */}
+            <Text style={styles.emptyText}>{t('favorites_empty_subtext')}</Text>
             {t('favorites_empty_subtext')}
           </View>
         ) : (
@@ -117,10 +117,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   emptyText: {
-    fontSize: RFValue(18),
-    color: '#fff',
-    fontFamily: 'Poppins-SemiBold',
-    marginBottom: hp(1),
+    color: '#ffffff71',
+    fontSize: RFValue(16, SCREEN_HEIGHT),
+    textAlign: 'center',
+    marginHorizontal: 20,
+    fontFamily: Fonts.primary_SemiBold
   },
   emptySubText: {
     fontSize: RFValue(14),

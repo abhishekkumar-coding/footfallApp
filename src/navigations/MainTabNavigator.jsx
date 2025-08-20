@@ -378,7 +378,8 @@ const MainTabNavigator = () => {
             'MapLocationPicker',
             'Address',
             'SpinHistory',
-            'SpinRewardScanner'
+            'SpinRewardScanner',
+            'Settings'
           ];
 
           const isTabHidden = hideOnScreens.includes(routeName);

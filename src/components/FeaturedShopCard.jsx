@@ -12,6 +12,7 @@ const FeaturedShopCard = ({ item, onPress }) => {
   const isValidCover = item.cover && item.cover.trim() !== '';
   const isDisabled = item?.vendor?.rechargePoints < 100;
   const {t} = useTranslation()
+  console.log("Featured Shop: ", item)
 
   const handlePress = () => {
     if (isDisabled) {
@@ -34,6 +35,7 @@ const FeaturedShopCard = ({ item, onPress }) => {
                 ? require('../../assets/emptyFeaturedImage.png')
                 : { uri: item.cover }
             }
+            onError={() => setImageError(true)} 
             style={styles.image}
           />
         </View>

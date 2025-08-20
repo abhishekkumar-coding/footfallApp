@@ -22,6 +22,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import AppLayout from '../../layout/AppLayout';
 import { Fonts } from '../../utils/typography';
 import { RFValue } from 'react-native-responsive-fontsize';
+import { useTranslation } from 'react-i18next';
 
 
 const NotificationScreen = () => {
@@ -31,6 +32,7 @@ const NotificationScreen = () => {
   const navigation = useNavigation();
   const [markAsRead] = useMarkNotificationAsReadMutation();
   const { data, isLoading, refetch } = useGetNotificationsQuery();
+  const {t} = useTranslation()
 
   const notifications = data?.data || []
 
@@ -83,7 +85,7 @@ const NotificationScreen = () => {
 
   return (
     <AppLayout showCircle={false} style={{ flex: 1 }}>
-      <PageHeader lable="Notifications" back />
+      <PageHeader lable={t('notification')} back />
       <View style={styles.container}>
         {isLoading ? (
           <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
@@ -96,7 +98,7 @@ const NotificationScreen = () => {
               style={styles.emptyImage}
               resizeMode="contain"
             />
-            {/* <Text style={styles.emptyText}>No notifications yet</Text> */}
+            <Text style={styles.emptyText}>{t('no_notifications')}</Text>
           </View>
         ) : (
           <FlatList

@@ -41,7 +41,7 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="https"
-                      android:host="footfall.onrender.com"
+                      android:host="backend.ilovesambhal.com"
                       android:pathPrefix="/" />
             </intent-filter>
 
