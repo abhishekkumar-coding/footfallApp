@@ -1,26 +1,11 @@
 import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { REACT_APP_DEV_SERVER, REACT_APP_PROD_SERVER } from "@env"
-
-const baseQueryWithAuth = async (args, api, extraOptions) => {
-  const token = await AsyncStorage.getItem('token');
-
-  const authenticatedBaseQuery = fetchBaseQuery({
-    baseUrl: `${REACT_APP_PROD_SERVER}/api/`,
-    // baseUrl: REACT_APP_PROD_SERVER,
-    prepareHeaders: headers => {
-      if (token) headers.set('token', token);
-      return headers;
-    },
-  });
-
-  console.log(`AuthApi : ${token}`);
-  return authenticatedBaseQuery(args, api, extraOptions);
-};
-
+import baseQuery from '../baseQuery';
+ 
 export const authApi = createApi({
   reducerPath: 'authApi',
-  baseQuery: baseQueryWithAuth,
+  baseQuery: baseQuery,
   endpoints: builder => ({
     signup: builder.mutation({
       query: userData => ({

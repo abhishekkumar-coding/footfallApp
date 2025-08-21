@@ -10,7 +10,6 @@ import {
   Image,
 } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
-import WheelOfFortune from 'react-native-wheel-of-fortune';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppLayout from '../layout/AppLayout';
 import { useGetAllRewardsQuery, useSpinWheelMutation } from '../features/shops/shopApi';
@@ -18,6 +17,7 @@ import { hp, SCREEN_HEIGHT, wp } from '../utils/dimensions';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { Fonts } from '../utils/typography';
+import WheelOfFortune from '../components/wheel-of-fortune/src';
 
 export default function SpinWheelScreen() {
   const { data, isLoading: loadingRewards } = useGetAllRewardsQuery();
