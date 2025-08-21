@@ -6,18 +6,17 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   Modal,
-  Alert,
   Image,
 } from 'react-native';
 import { RFValue } from 'react-native-responsive-fontsize';
 import WheelOfFortune from 'react-native-wheel-of-fortune';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import AppLayout from '../layout/AppLayout';
 import { useGetAllRewardsQuery, useSpinWheelMutation } from '../features/shops/shopApi';
 import { hp, SCREEN_HEIGHT, wp } from '../utils/dimensions';
 import { useNavigation } from '@react-navigation/native';
 import { useTranslation } from 'react-i18next';
 import { Fonts } from '../utils/typography';
+import Sound from 'react-native-sound';
 
 export default function SpinWheelScreen() {
   const { data, isLoading: loadingRewards } = useGetAllRewardsQuery();
@@ -32,12 +31,42 @@ export default function SpinWheelScreen() {
   const [selectedIndex, setSelectedIndex] = useState(null);
   const [popupVisible, setPopupVisible] = useState(false);
   const [prizeText, setPrizeText] = useState('');
-  const [modalType, setModalType] = useState(null); // "congrats", "no_reward", "error_message"
+  const [modalType, setModalType] = useState(null);
+  const [sound, setSound] = useState(null);
+  console.log("Shound Object: ", Sound)
+  // Configure sound category
+  Sound.setCategory('Playback');
+
+  const playSpinSound = () => {
+    const spinSound = new Sound('spin.mp3', Sound.MAIN_BUNDLE, (error) => {
+      if (error) {
+        console.log('Failed to load sound:', error);
+        return;
+      }
+      spinSound.setNumberOfLoops(-1); // loop until stopped
+      spinSound.play((success) => {
+        if (!success) {
+          console.log('Sound playback failed');
+        }
+      });
+      setSound(spinSound);
+    });
+  };
+
+  const stopSpinSound = () => {
+    if (sound) {
+      sound.stop(() => {
+        sound.release(); // free memory
+      });
+      setSound(null);
+    }
+  };
 
   const handleSpinPress = () => {
     if (isSpinning || rewardsNames.length === 0) return;
 
     setIsSpinning(true);
+    playSpinSound(); // 🔊 start sound
     const randomIndex = Math.floor(Math.random() * rewardsNames.length);
     setSelectedIndex(randomIndex);
 
@@ -46,9 +75,9 @@ export default function SpinWheelScreen() {
     }
   };
 
-  // ✅ Updated handleWheelStop to handle backend 403 case:
   const handleWheelStop = async (_, landedIndex) => {
     setIsSpinning(false);
+    stopSpinSound(); 
     setPopupVisible(true);
     setPrizeText('Checking reward...');
     setModalType(null);
@@ -57,14 +86,12 @@ export default function SpinWheelScreen() {
     try {
       const response = await spinWheelApi(rewardId).unwrap();
 
-      // Backend custom message (e.g., spin limit reached)
       if (response?.success === false && response?.message) {
         setPrizeText(response.message);
         setModalType("error_message");
         return;
       }
 
-      // No reward
       if (response?.data?.spinRewardId?.type === 'no_reward') {
         setPrizeText('no_reward');
         setModalType("no_reward");
@@ -75,7 +102,6 @@ export default function SpinWheelScreen() {
 
     } catch (error) {
       console.error('Spin API error:', error);
-
       if (error?.status === 403 && error?.data?.message) {
         setPrizeText(error.data.message);
         setModalType("error_message");
@@ -92,6 +118,15 @@ export default function SpinWheelScreen() {
     setPrizeText('');
   };
 
+  // cleanup sound on unmount
+  useEffect(() => {
+    return () => {
+      if (sound) {
+        sound.release();
+      }
+    };
+  }, [sound]);
+
   return (
     <AppLayout>
       <View style={styles.container}>
@@ -104,15 +139,21 @@ export default function SpinWheelScreen() {
           <View style={styles.loadingContainer}>
             <ActivityIndicator size="large" color="#FF6F00" />
             <Text style={styles.loadingText}>{t('spinWheel.loadingRewards')}</Text>
-          </View>) : rewardsNames.length === 0 ? (
-            <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-              <Image
-                source={require('../../assets/emptySpinRewards.png')}
-                style={{ height: hp(50), resizeMode: 'contain', marginBottom: 10, marginLeft: wp(10) }}
-              />
-              <Text style={styles.empty}>{t('spinWheel.noRewards')}</Text>
-            </View>
-          ) : (
+          </View>
+        ) : rewardsNames.length === 0 ? (
+          <View style={{ alignItems: 'center', justifyContent: 'center' }}>
+            <Image
+              source={require('../../assets/emptySpinRewards.png')}
+              style={{
+                height: hp(50),
+                resizeMode: 'contain',
+                marginBottom: 10,
+                marginLeft: wp(10),
+              }}
+            />
+            <Text style={styles.empty}>{t('spinWheel.noRewards')}</Text>
+          </View>
+        ) : (
           <>
             <View style={styles.wheelContainer}>
               <WheelOfFortune
@@ -126,7 +167,7 @@ export default function SpinWheelScreen() {
                   borderWidth: 5,
                   borderColor: '#FF6F00',
                   innerRadius: 50,
-                  duration: 4000,
+                  duration: 9000,
                   backgroundColor: '#FFB300',
                   textAngle: 'horizontal',
                   textStyle: {
@@ -171,7 +212,9 @@ export default function SpinWheelScreen() {
                 onPress={() => navigation.navigate("SpinHistory")}
                 activeOpacity={0.8}
               >
-                <Text style={styles.claimButtonText}>{t('spinWheel.rewardsButton')}</Text>
+                <Text style={styles.claimButtonText}>
+                  {t('spinWheel.rewardsButton')}
+                </Text>
               </TouchableOpacity>
             </View>
           </>
@@ -189,40 +232,65 @@ export default function SpinWheelScreen() {
               {loadingSpin ? (
                 <>
                   <ActivityIndicator size="large" color="#FF6F00" />
-                  <Text style={styles.popupText}>{t('spinWheel.confirmingReward')}</Text>
+                  <Text style={styles.popupText}>
+                    {t('spinWheel.confirmingReward')}
+                  </Text>
                 </>
               ) : modalType === "no_reward" ? (
                 <>
                   <Text style={[styles.popupTitle, { color: '#d9534f' }]}>
                     {t('spinWheel.noRewardTitle')}
                   </Text>
-                  <Text style={styles.popupText}>{t('spinWheel.noRewardMessage')}</Text>
-                  <TouchableOpacity style={styles.popupButton} onPress={closePopup}>
-                    <Text style={styles.popupButtonText}>{t('spinWheel.noRewardButton')}</Text>
+                  <Text style={styles.popupText}>
+                    {t('spinWheel.noRewardMessage')}
+                  </Text>
+                  <TouchableOpacity
+                    style={styles.popupButton}
+                    onPress={closePopup}
+                  >
+                    <Text style={styles.popupButtonText}>
+                      {t('spinWheel.noRewardButton')}
+                    </Text>
                   </TouchableOpacity>
                 </>
               ) : modalType === "error_message" ? (
                 <>
-                  <Text style={[styles.popupTitle, { color: '#d9534f', fontSize: 40 }]}>
+                  <Text
+                    style={[
+                      styles.popupTitle,
+                      { color: '#d9534f', fontSize: 40 },
+                    ]}
+                  >
                     😢
                   </Text>
                   <Text style={styles.popupText}>{prizeText}</Text>
-                  <TouchableOpacity style={styles.popupButton} onPress={closePopup}>
-                    <Text style={styles.popupButtonText}>{t('spinWheel.tryAgain')}</Text>
+                  <TouchableOpacity
+                    style={styles.popupButton}
+                    onPress={closePopup}
+                  >
+                    <Text style={styles.popupButtonText}>
+                      {t('spinWheel.tryAgain')}
+                    </Text>
                   </TouchableOpacity>
                 </>
               ) : (
                 <>
-                  <Text style={styles.popupTitle}>{t('spinWheel.congratsTitle')}</Text>
+                  <Text style={styles.popupTitle}>
+                    {t('spinWheel.congratsTitle')}
+                  </Text>
                   <Text style={styles.popupText}>
                     {t('spinWheel.congratsMessage')} {prizeText}
                   </Text>
-                  <TouchableOpacity style={styles.popupButton} onPress={closePopup}>
-                    <Text style={styles.popupButtonText}>{t('spinWheel.congratsButton')}</Text>
+                  <TouchableOpacity
+                    style={styles.popupButton}
+                    onPress={closePopup}
+                  >
+                    <Text style={styles.popupButtonText}>
+                      {t('spinWheel.congratsButton')}
+                    </Text>
                   </TouchableOpacity>
                 </>
               )}
-
             </View>
           </View>
         </Modal>
@@ -238,7 +306,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: '100%',
     width: '100%',
-    zIndex: 99
+    zIndex: 99,
   },
   loadingText: {
     marginTop: 12,
@@ -251,25 +319,102 @@ const styles = StyleSheet.create({
     fontSize: RFValue(16, SCREEN_HEIGHT),
     textAlign: 'center',
     marginHorizontal: 20,
-    fontFamily: Fonts.primary_SemiBold
+    fontFamily: Fonts.primary_SemiBold,
   },
-  container: { flex: 1, padding: 20, alignItems: 'center', justifyContent: 'space-evenly' },
+  container: {
+    flex: 1,
+    padding: 20,
+    alignItems: 'center',
+    justifyContent: 'space-evenly',
+  },
   header: { alignItems: 'center', marginBottom: 20 },
-  title: { fontSize: RFValue(20), fontFamily: 'Poppins-Bold', color: '#fff' },
-  subtitle: { fontSize: RFValue(15), fontFamily: 'Poppins-Regular', color: '#ddd', textAlign: 'center' },
-  info: { color: '#888', fontSize: RFValue(16) },
-  wheelContainer: { width: 320, height: 320, justifyContent: 'center', alignItems: 'center' },
-  spinButton: { marginTop: hp(10), backgroundColor: '#FF6F00', paddingVertical: 12, paddingHorizontal: 25, borderRadius: 50, elevation: 6 },
+  title: {
+    fontSize: RFValue(20),
+    fontFamily: 'Poppins-Bold',
+    color: '#fff',
+  },
+  subtitle: {
+    fontSize: RFValue(15),
+    fontFamily: 'Poppins-Regular',
+    color: '#ddd',
+    textAlign: 'center',
+  },
+  wheelContainer: {
+    width: 320,
+    height: 320,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  spinButton: {
+    marginTop: hp(10),
+    backgroundColor: '#FF6F00',
+    paddingVertical: 12,
+    paddingHorizontal: 25,
+    borderRadius: 50,
+    elevation: 6,
+  },
   spinButtonDisabled: { opacity: 0.65 },
-  spinButtonText: { color: '#fff', fontSize: 18, fontFamily: 'Poppins-SemiBold' },
-  bottomRow: { marginTop: hp(5), width: '100%', flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
-  encouragementText: { flex: 1, color: '#fff', fontSize: RFValue(10), fontFamily: 'Poppins-Medium' },
-  claimButton: { backgroundColor: '#FF6F00', paddingVertical: 10, paddingHorizontal: 15, borderRadius: 30, marginLeft: 15, elevation: 4 },
-  claimButtonText: { color: '#fff', fontWeight: 'bold', fontSize: RFValue(10) },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.6)', justifyContent: 'center', alignItems: 'center' },
-  popupBox: { width: '80%', backgroundColor: '#fff', borderRadius: 15, padding: 20, alignItems: 'center' },
-  popupTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 10, color: '#333' },
-  popupText: { fontSize: 16, color: '#555', marginBottom: 20, textAlign: 'center' },
-  popupButton: { backgroundColor: '#FF6F00', borderRadius: 10, paddingVertical: 10, paddingHorizontal: 20 },
+  spinButtonText: {
+    color: '#fff',
+    fontSize: 18,
+    fontFamily: 'Poppins-SemiBold',
+  },
+  bottomRow: {
+    marginTop: hp(5),
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  encouragementText: {
+    flex: 1,
+    color: '#fff',
+    fontSize: RFValue(10),
+    fontFamily: 'Poppins-Medium',
+  },
+  claimButton: {
+    backgroundColor: '#FF6F00',
+    paddingVertical: 10,
+    paddingHorizontal: 15,
+    borderRadius: 30,
+    marginLeft: 15,
+    elevation: 4,
+  },
+  claimButtonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: RFValue(10),
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  popupBox: {
+    width: '80%',
+    backgroundColor: '#fff',
+    borderRadius: 15,
+    padding: 20,
+    alignItems: 'center',
+  },
+  popupTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    marginBottom: 10,
+    color: '#333',
+  },
+  popupText: {
+    fontSize: 16,
+    color: '#555',
+    marginBottom: 20,
+    textAlign: 'center',
+  },
+  popupButton: {
+    backgroundColor: '#FF6F00',
+    borderRadius: 10,
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+  },
   popupButtonText: { color: '#fff', fontSize: 16, fontWeight: 'bold' },
 });
