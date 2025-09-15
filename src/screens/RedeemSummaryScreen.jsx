@@ -37,7 +37,8 @@ const RedeemSummaryScreen = ({ route }) => {
   const handleRedeemConfirm = async id => {
     setIsDisabled(true);
     try {
-      await redeemVendorPoints({ id, pointsToRedeem: Number(redeemPoints) }).unwrap();
+      const res = await redeemVendorPoints({ id, pointsToRedeem: Number(redeemPoints) }).unwrap();
+      console.log("REsponse : ", res)
       setRedeemPoints('');
       Toast.show({ type: 'success', text1: t('redeemScreen.successMessage') });
     } catch (error) {

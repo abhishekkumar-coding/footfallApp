@@ -62,22 +62,23 @@ const ForgotPasswordScreen = () => {
     <AppLayout>
       <BackButton />
       <KeyboardAvoidingView behavior='padding' style={{ flex: 1 }} keyboardVerticalOffset={100}>
-      <View style={styles.container}>
-        <Text style={styles.heading}>Forgot Password 🔑</Text>
-        <Text style={styles.subText}>
-          Enter your email to receive an OTP
-        </Text>
+        <View style={styles.container}>
+          <Text style={styles.heading}>Forgot Password 🔑</Text>
+          <Text style={styles.subText}>
+            Enter your email to receive an OTP
+          </Text>
 
-
-        <CustomInput
-          placeholder={'Email'}
-          lable={'Email'}
-          iconComponent={<EmailIcon />}
-          value={email}
-          onChangeText={setEmail}
-        />
-        <Spacer  />
-        <AppButton title={'Send OTP'} onPress={handleSendOtp} isLoading={isLoading} disabled={isDisabled} />
+          <View style={{ width: "100%" }}>
+            <CustomInput
+              placeholder={'Email'}
+              lable={'Email'}
+              iconComponent={<EmailIcon />}
+              value={email}
+              onChangeText={setEmail}
+            />
+          </View>
+          <Spacer />
+          <AppButton title={'Send OTP'} onPress={handleSendOtp} isLoading={isLoading} disabled={isDisabled} />
 
 
         </View>

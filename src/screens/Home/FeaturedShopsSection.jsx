@@ -1,28 +1,36 @@
-import React, { useState } from 'react';
-import {
-    View,
-    Text,
-    FlatList,
-    Image,
-    StyleSheet,
-    ActivityIndicator,
-} from 'react-native';
+import React, { useState, forwardRef, useImperativeHandle, useEffect } from 'react';
+import { View, Text, FlatList, Image, StyleSheet } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { hp, SCREEN_HEIGHT, wp } from '../../utils/dimensions';
-import { useGetFeaturedShopsQuery } from '../../features/shops/shopApi'; // ✅ Corrected this import
+import { useGetFeaturedShopsQuery } from '../../features/shops/shopApi';
 import { RFValue } from 'react-native-responsive-fontsize';
 import { useTranslation } from 'react-i18next';
 import FeaturedShopCard from '../../components/FeaturedShopCard';
 import ViewAllButton from '../../components/ViewAllButton';
 import { Fonts } from '../../utils/typography';
 
-const FeaturedShopsSection = () => {
+const FeaturedShopsSection = forwardRef((props, ref) => {
     const navigation = useNavigation();
-    const { data, isLoading } = useGetFeaturedShopsQuery(); // ✅ Corrected hook name
-    const [imageError, setImageError] = useState(false);
     const { t } = useTranslation();
+    const { data, isLoading, refetch } = useGetFeaturedShopsQuery(undefined, {
+        refetchOnMountOrArgChange: true,
+        refetchOnFocus: true,
+    });
+    const [featuredShops, setFeaturedShops] = useState([]);
 
-    const featuredShops = data?.data || [];
+    // Update local state when data changes
+    useEffect(() => {
+        if (data?.data) setFeaturedShops(data.data);
+    }, [data]);
+
+    // Expose a single refetch function to parent
+    useImperativeHandle(ref, () => ({
+        refetch: async () => {
+            const res = await refetch();
+            if (res?.data?.data) setFeaturedShops(res.data.data);
+        },
+        loading: isLoading,
+    }), [refetch, isLoading]);
 
     const handleViewAll = () => {
         navigation.navigate('AllFeaturedShops');
@@ -44,7 +52,7 @@ const FeaturedShopsSection = () => {
     );
 
     return (
-        <View style={[styles.container]}>
+        <View style={styles.container}>
             <View style={styles.headerRow}>
                 <Text style={styles.heading}>{t('Featured_shops')}</Text>
                 <ViewAllButton onPress={handleViewAll} />
@@ -75,22 +83,17 @@ const FeaturedShopsSection = () => {
                     keyExtractor={(item) => item._id}
                     horizontal
                     showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{
-                        paddingLeft: wp(4),
-                        paddingRight: wp(2),
-                    }}
+                    contentContainerStyle={{ paddingLeft: wp(4), paddingRight: wp(2) }}
                 />
             )}
         </View>
     );
-};
+});
 
 export default FeaturedShopsSection;
 
 const styles = StyleSheet.create({
-    container: {
-        marginVertical: hp(2),
-    },
+    container: { marginVertical: hp(2) },
     headerRow: {
         flexDirection: 'row',
         justifyContent: 'space-between',
@@ -116,39 +119,9 @@ const styles = StyleSheet.create({
         shadowOpacity: 0.15,
         shadowRadius: 10,
     },
-    card: {
-        width: '100%',
-        height: hp(22),
-        borderRadius: 16,
-        overflow: 'hidden',
-        position: 'relative',
-    },
-    emptyContainer: {
-        flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center',
-        paddingHorizontal: wp(4),
-        paddingVertical: hp(3),
-    },
-    emptyImage: {
-        width: wp(20),
-        height: wp(20),
-        resizeMode: 'contain',
-        opacity: 0.5,
-    },
-    title: {
-        fontSize: RFValue(16, SCREEN_HEIGHT),
-        color: '#fff',
-        fontFamily: Fonts.primary_Bold,
-        textAlign: 'center',
-        opacity: 0.5,
-    },
-    subtitle: {
-        fontSize: RFValue(12, SCREEN_HEIGHT),
-        color: '#fff',
-        marginTop: 4,
-        textAlign: 'center',
-        fontFamily: Fonts.primary_Regular,
-        opacity: 0.4,
-    },
+    card: { width: '100%', height: hp(22), borderRadius: 16, overflow: 'hidden', position: 'relative' },
+    emptyContainer: { flex: 1, justifyContent: 'center', alignItems: 'center', paddingHorizontal: wp(4), paddingVertical: hp(3) },
+    emptyImage: { width: wp(20), height: wp(20), resizeMode: 'contain', opacity: 0.5 },
+    title: { fontSize: RFValue(16, SCREEN_HEIGHT), color: '#fff', fontFamily: Fonts.primary_Bold, textAlign: 'center', opacity: 0.5 },
+    subtitle: { fontSize: RFValue(12, SCREEN_HEIGHT), color: '#fff', marginTop: 4, textAlign: 'center', fontFamily: Fonts.primary_Regular, opacity: 0.4 },
 });

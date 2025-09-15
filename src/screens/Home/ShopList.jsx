@@ -13,115 +13,69 @@ import { useDispatch, useSelector } from 'react-redux';
 import { useGetAllShopsQuery, useGetNearbyShopsQuery } from '../../features/shops/shopApi';
 import { loadWishlist } from '../../features/wishlistSlice';
 import ShopCard from '../../components/ShopCard';
-import ShopSkeletonCard from "./ShopSkeletonCard"
+import ShopSkeletonCard from "./ShopSkeletonCard";
 import { useTranslation } from 'react-i18next';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { Fonts } from '../../utils/typography';
 import ViewAllButton from '../../components/ViewAllButton';
 
-const ShopList = forwardRef((props, ref) => {
+const ShopList = forwardRef(({ navigation, selectedCategory = "all" }, ref) => {
   const user = useSelector(state => state.user.user);
   const dispatch = useDispatch();
-  const { navigation } = props;
   const { t } = useTranslation();
-  const savedAddress = useSelector((state) => state.user.savedAddress);
 
-  const [coordinates, setCoordinates] = useState({
-    lat: null,
-    lng: null
-  });
+  const [coordinates, setCoordinates] = useState({ lat: null, lng: null });
+  const [shopDataState, setShopDataState] = useState([]);
 
-  // useEffect(() => {
-  //   const fetchLatLng = async () => {
-  //     try {
-  //       let lat = null;
-  //       let lng = null;
-
-  //       if (savedAddress?.location?.coordinates?.length === 2) {
-  //         lat = savedAddress.location.coordinates[1];
-  //         lng = savedAddress.location.coordinates[0];
-  //         console.log('Using savedAddress coordinates from Redux:', lat, lng);
-  //       } else {
-  //         const selectedAddress = await AsyncStorage.getItem('selectedAddress');
-  //         const parsed = selectedAddress ? JSON.parse(selectedAddress) : null;
-
-  //         if (parsed?.location?.coordinates?.length === 2) {
-  //           lat = parsed.location.coordinates[1];
-  //           lng = parsed.location.coordinates[0];
-  //           console.log('Using selectedAddress coordinates from AsyncStorage:', lat, lng);
-  //         } else if (user?.location?.coordinates?.length === 2) {
-  //           lat = user.location.coordinates[1];
-  //           lng = user.location.coordinates[0];
-  //           console.log('Using user coordinates:', lat, lng);
-  //         } else {
-  //           // Fallback to default coordinates (India Gate)
-  //           lat = 28.6129;
-  //           lng = 77.2295;
-  //           console.log('Using default coordinates (India Gate):', lat, lng);
-  //         }
-  //       }
-
-  //       setCoordinates({ lat, lng });
-  //     } catch (err) {
-  //       console.error('Error fetching coordinates:', err);
-  //     }
-  //   };
-
-  //   fetchLatLng();
-  // }, [user, savedAddress]);
-  // ;
-
+  // Get coordinates
   useEffect(() => {
-    const fetchLatLng = async () => {
-      try {
-        let lat = null;
-        let lng = null;
-
-        if (user?.location?.coordinates?.length === 2) {
-          lat = user.location.coordinates[1];
-          lng = user.location.coordinates[0];
-          console.log('Using user coordinates:', lat, lng);
-        } else {
-          // Fallback to default coordinates (India Gate)
-          lat = 28.6129;
-          lng = 77.2295;
-          console.log('Using default coordinates (India Gate):', lat, lng);
-        }
-
-        setCoordinates({ lat, lng });
-      } catch (err) {
-        console.error('Error fetching coordinates:', err);
+    const fetchLatLng = () => {
+      let lat = 28.6129, lng = 77.2295; // default India Gate
+      if (user?.location?.coordinates?.length === 2) {
+        lat = user.location.coordinates[1];
+        lng = user.location.coordinates[0];
       }
+      setCoordinates({ lat, lng });
     };
-
     fetchLatLng();
   }, [user]);
 
-
-  const { data, refetch, error, isLoading } = useGetNearbyShopsQuery({
+  // Nearby shops
+  const { data: nearbyData, refetch: refetchNearby, isLoading } = useGetNearbyShopsQuery({
     lat: coordinates.lat,
     lng: coordinates.lng,
+  }, { skip: coordinates.lat === null || coordinates.lng === null });
+
+  // All shops
+  const { data: allShopData, refetch: refetchAll } = useGetAllShopsQuery({
+    category: selectedCategory === "all" ? "all" : selectedCategory,
   });
 
-  const shopData = data?.data || [];
+  // Combine shops
+  useEffect(() => {
+    const nearbyShops = nearbyData?.data || [];
+    const allShops = allShopData?.data?.shops || [];
+    setShopDataState(nearbyShops.length > 0 ? nearbyShops : allShops);
+  }, [nearbyData, allShopData]);
 
+  // Load wishlist
   useEffect(() => {
     dispatch(loadWishlist());
   }, [dispatch]);
 
-  useImperativeHandle(
-    ref,
-    () => ({
-      refetch: () => refetch(),
-      loading: isLoading,
-    }),
-    [refetch, isLoading]
-  );
-  // console.log("ShopData on ShopList: ", shopData)
-
+  // Expose refetch to parent
+  useImperativeHandle(ref, () => ({
+    refetch: async () => {
+      await refetchNearby();
+      await refetchAll();
+      const nearbyShops = nearbyData?.data || [];
+      const allShops = allShopData?.data?.shops || [];
+      setShopDataState(nearbyShops.length > 0 ? nearbyShops : allShops);
+    },
+    loading: isLoading,
+  }), [refetchNearby, refetchAll, nearbyData, allShopData, isLoading]);
 
   const handleViewAll = () => {
-    navigation.navigate('AllShops', { shopsData: shopData });
+    navigation.navigate('AllShops', { shopsData: shopDataState });
   };
 
   const handleUpdateProfile = () => {
@@ -131,38 +85,39 @@ const ShopList = forwardRef((props, ref) => {
   const renderItem = ({ item }) => (
     <ShopCard
       shop={item}
-      onPress={() => navigation.navigate('ShopDetails', {
-        id: item._id,
-      })}
+      onPress={() => navigation.navigate('ShopDetails', { id: item._id })}
     />
   );
-  const EmptyComponent = () => {
-    return (
-      <View style={{ minHeight: SCREEN_HEIGHT * 0.45, justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={{
-          fontFamily: Fonts.primary_Bold, textAlign: "center",
-          fontSize: RFValue(16, SCREEN_HEIGHT), color: "#fff", opacity: 0.5
-        }}>
-          {t('noShopsAvailable')}
-        </Text>
-        <Text style={{
-          fontFamily: Fonts.primary_Regular, textAlign: "center",
-          fontSize: RFValue(12, SCREEN_HEIGHT), color: "#fff", opacity: 0.4
-        }}>
-          {t('pleaseTryAgainLater')}
-        </Text>
-        <Image
-          source={require('../../../assets/noShop.png')}
-          style={{ width: 160, height: 160, alignSelf: "center", resizeMode: "cover", opacity: 0.5 }}
-        />
-        <TouchableOpacity style={styles.updateButton} onPress={handleUpdateProfile} activeOpacity={0.9}>
-          <Text style={styles.updateButtonText}>{t('update_location')}</Text>
-        </TouchableOpacity>
 
-      </View>
-    )
-  }
-
+  const EmptyComponent = () => (
+    <View style={{ minHeight: SCREEN_HEIGHT * 0.45, justifyContent: 'center', alignItems: 'center' }}>
+      <Text style={{
+        fontFamily: Fonts.primary_Bold,
+        textAlign: "center",
+        fontSize: RFValue(16, SCREEN_HEIGHT),
+        color: "#fff",
+        opacity: 0.5
+      }}>
+        {t('noShopsAvailable')}
+      </Text>
+      <Text style={{
+        fontFamily: Fonts.primary_Regular,
+        textAlign: "center",
+        fontSize: RFValue(12, SCREEN_HEIGHT),
+        color: "#fff",
+        opacity: 0.4
+      }}>
+        {t('pleaseTryAgainLater')}
+      </Text>
+      <Image
+        source={require('../../../assets/noShop.png')}
+        style={{ width: 160, height: 160, alignSelf: "center", resizeMode: "cover", opacity: 0.5 }}
+      />
+      <TouchableOpacity style={styles.updateButton} onPress={handleUpdateProfile} activeOpacity={0.9}>
+        <Text style={styles.updateButtonText}>{t('update_location')}</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
     <>
@@ -179,7 +134,7 @@ const ShopList = forwardRef((props, ref) => {
         </View>
       ) : (
         <FlatList
-          data={shopData.slice(0, 6)}
+          data={shopDataState.slice(0, 6)}
           renderItem={renderItem}
           keyExtractor={item => item._id}
           showsVerticalScrollIndicator={false}
@@ -190,7 +145,6 @@ const ShopList = forwardRef((props, ref) => {
       )}
     </>
   );
-
 });
 
 const styles = StyleSheet.create({
@@ -237,8 +191,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     letterSpacing: 0.5,
   },
-
-
 });
 
 export default ShopList;

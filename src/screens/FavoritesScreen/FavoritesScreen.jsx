@@ -1,5 +1,5 @@
 // FavoritesScreen.js
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   View,
   Text,
@@ -28,6 +28,7 @@ const FavoritesScreen = ({ navigation }) => {
   const dispatch = useDispatch();
   const wishlist = useSelector(state => state.wishlist.items);
   const favoriteShops = wishlist.shops || [];
+  const [error, setError] = useState(false);
 
   useEffect(() => {
     dispatch(loadWishlist());
@@ -55,7 +56,15 @@ const FavoritesScreen = ({ navigation }) => {
           params: { shop: item, image: mainImage }
         })}
       >
-        <Image style={styles.cardImage} source={{ uri: mainImage }} />
+        <Image
+          style={styles.cardImage}
+          source={
+            error
+              ? require("../../../assets/emptyShop.png") 
+              : { uri: mainImage }
+          }
+          onError={() => setError(true)} 
+        />
 
         <View style={styles.cardContent}>
           <View style={styles.nameContainer}>
@@ -151,7 +160,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom:5
+    marginBottom: 5
   },
   name: {
     fontSize: RFValue(14, SCREEN_HEIGHT),

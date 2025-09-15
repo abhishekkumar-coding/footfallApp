@@ -22,6 +22,7 @@ const HistoryScreen = () => {
   const { t } = useTranslation();
   const { data, isLoading, isError, refetch } = useGetScanHistoryQuery();
   const history = data?.data || [];
+  console.log("Scan History: ", history)
 
   useFocusEffect(
     useCallback(() => {
@@ -82,7 +83,7 @@ const HistoryScreen = () => {
     return (
       <View style={styles.item}>
         <View style={{ flex: 1 }}>
-          <Text style={styles.shopName}>{item?.shopId?.name || 'N/A'}</Text>
+          <Text style={styles.shopName}>{item?.shopId?.name || 'Shop'}</Text>
           <Text style={styles.date}>{t('date_label')}: {formattedDate}</Text>
         </View>
         <Text style={styles.points}>+ {item?.points ?? '0'}</Text>

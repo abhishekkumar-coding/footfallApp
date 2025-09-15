@@ -23,7 +23,7 @@ import AppLayout from '../layout/AppLayout';
 import Spacer from '../components/Spacer';
 import RemainingTime from './Home/RemainingTime';
 import SpinWheelCard from './Home/SpinWheelCard';
-import { useGetAllOffersQuery } from '../features/shops/shopApi';
+import { useGetAllOffersQuery, useGetFeaturedShopsQuery } from '../features/shops/shopApi';
 
 
 const useDynamicRefs = () => {
@@ -42,18 +42,28 @@ const HomeScreen = ({ navigation }) => {
   const referralCode = useSelector(state => state.user.pendingReferral);
   const [translateY, setTranslateY] = useState(new Animated.Value(0));
   const savedAddress = useSelector((state) => state.user.savedAddress);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   const { data } = useGetAllOffersQuery();
+  const { data:featuredShopsData, refetch } = useGetFeaturedShopsQuery(undefined, {
+    refetchOnMountOrArgChange: true,
+    refetchOnFocus: true,
+  });
   const offers = data?.data?.offers || [];
-  console.log("Offer in Home : ", offers);
 
-  console.log("Extracted referral code {In Home screen} from REDUX: ", referralCode)
+  const handleRefreshControl = useCallback(async () => {
+    try {
+      setIsRefreshing(true);
+      refetch()
+      await refs("featuredShopsRef")?.current?.refetch?.();
+      await refs("shopListRef")?.current?.refetch?.();
+      await refs("points")?.current?.refetch?.();
+      await refs("redeem")?.current?.refetch?.();
 
-
-  const handleRefreshControl = useCallback(() => {
-    const refsToFetch = ['points', 'redeem', 'shopListRef'];
-    refsToFetch.forEach(refKey => refs(refKey)?.current?.refetch?.());
-    const anyLoading = refsToFetch.some(refKey => refs(refKey)?.current?.loading);
-    setLoading(anyLoading);
+    } catch (error) {
+      console.log("Error refreshing:", error);
+    } finally {
+      setIsRefreshing(false);
+    }
   }, []);
 
 
@@ -72,8 +82,9 @@ const HomeScreen = ({ navigation }) => {
 
 
   const refreshControl = useMemo(() => (
-    <RefreshControl refreshing={isLoading} onRefresh={handleRefreshControl} />
-  ), [isLoading, handleRefreshControl]);
+    <RefreshControl refreshing={isRefreshing} onRefresh={handleRefreshControl} />
+  ), [isRefreshing, handleRefreshControl]);
+
   const _translateY = translateY.interpolate({
     inputRange: [0, 100],
     outputRange: [0, -50],
@@ -104,7 +115,9 @@ const HomeScreen = ({ navigation }) => {
                 <AutoSlider />
               </>
             )}
-            <FeaturedShopsSection />
+            {featuredShopsData?.data?.length > 0 && (
+              <FeaturedShopsSection ref={refs('featuredShopsRef')}
+              />)}
           </View>
           <ShopList navigation={navigation} ref={refs('shopListRef')} />
         </View>

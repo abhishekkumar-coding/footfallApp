@@ -196,6 +196,17 @@ const EditProfile = () => {
       console.log("[handleImagePick] Gallery response:", response);
 
       const asset = response?.assets?.[0];
+      console.log("Asset file: ", asset)
+      const MAX_SIZE = 5 * 1024 * 1024; // 5 MB in bytes
+      if (asset.fileSize > MAX_SIZE) {
+        Toast.show({
+          type: 'error',
+          text1: 'File Too Large',
+          text2: 'Please select an image smaller than 5 MB',
+        });
+        console.log("[handleImagePick] File too large:", asset.fileSize);
+        return;
+      }
       if (!asset) {
         console.log("[handleImagePick] No asset selected.");
         return;

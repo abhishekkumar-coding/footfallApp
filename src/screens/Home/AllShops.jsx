@@ -154,10 +154,17 @@ const AllShops = () => {
   }, [searchQuery]);
 
   // Fetch shops
-  const { data: shopData } = useGetAllShopsQuery({
-    ...(selectedCategory !== "all" && { category: selectedCategory }),
-    ...(debouncedSearch && { search: debouncedSearch }),
-  });
+  const { data: shopData, refetch } = useGetAllShopsQuery(
+    {
+      ...(selectedCategory !== "all" && { category: selectedCategory }),
+      ...(debouncedSearch && { search: debouncedSearch }),
+    },
+    {
+      refetchOnMountOrArgChange: true,
+      refetchOnFocus: true,
+    }
+  );
+
 
   const shops = useMemo(() => shopData?.data?.shops || [], [shopData]);
 
@@ -256,7 +263,7 @@ const AllShops = () => {
               key={cat.key}
               style={[
                 styles.filterButton,
-                selectedCategory === cat.key || expandedCategory ===cat.key && styles.selectedFilterButton ,
+                selectedCategory === cat.key || expandedCategory === cat.key && styles.selectedFilterButton,
               ]}
               onPress={() => toggleCategory(cat.key)}
             >

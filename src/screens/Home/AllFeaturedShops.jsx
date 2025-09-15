@@ -20,9 +20,12 @@ import AppLayout from '../../layout/AppLayout';
 
 const AllFeaturedShops = () => {
     const navigation = useNavigation();
-    const { data, isLoading } = useGetFeaturedShopsQuery();
+    const { data, isLoading, refetch } = useGetFeaturedShopsQuery(undefined, {
+        refetchOnMountOrArgChange: true,
+        refetchOnFocus: true,
+    });
     const [imageError, setImageError] = useState(false);
-    console.log("Featured Shops: ",data)
+    console.log("Featured Shops: ", data)
 
     const { t } = useTranslation()
     // console.log("Featured Shops: ", data.data.shop)

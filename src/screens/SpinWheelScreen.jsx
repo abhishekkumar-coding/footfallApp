@@ -36,10 +36,23 @@ export default function SpinWheelScreen() {
   const [prizeText, setPrizeText] = useState('');
   const [modalType, setModalType] = useState(null);
   const [sound, setSound] = useState(null);
+  const [canSpin, setCanSpin] = useState(true);
   console.log("Shound Object: ", Sound)
   // Configure sound category
   Sound.setCategory('Playback');
+  const checkSpinStatus = async () => {
+    try {
+      const lastSpin = await AsyncStorage.getItem("lastSpinDate");
+      const today = new Date().toDateString();
+      setCanSpin(lastSpin !== today);
+    } catch (error) {
+      console.log("Error checking spin status:", error);
+    }
+  };
 
+  useEffect(() => {
+    checkSpinStatus();
+  }, []);
   const playSpinSound = () => {
     const spinSound = new Sound('spin.mp3', Sound.MAIN_BUNDLE, (error) => {
       if (error) {
@@ -66,10 +79,10 @@ export default function SpinWheelScreen() {
   };
 
   const handleSpinPress = () => {
-    if (isSpinning || rewardsNames.length === 0) return;
+    if (isSpinning || !canSpin || rewardsNames.length === 0) return;
 
     setIsSpinning(true);
-    playSpinSound(); // 🔊 start sound
+    playSpinSound();
     const randomIndex = Math.floor(Math.random() * rewardsNames.length);
     setSelectedIndex(randomIndex);
 
@@ -78,13 +91,15 @@ export default function SpinWheelScreen() {
     }
   };
 
+
   const handleWheelStop = async (_, landedIndex) => {
     setIsSpinning(false);
-    stopSpinSound(); 
+    stopSpinSound();
     setPopupVisible(true);
     setPrizeText('Checking reward...');
     setModalType(null);
-
+    await AsyncStorage.setItem("lastSpinDate", new Date().toDateString());
+    setCanSpin(false);
     const rewardId = rewardsData[landedIndex]?._id;
     try {
       const response = await spinWheelApi(rewardId).unwrap();
@@ -171,7 +186,7 @@ export default function SpinWheelScreen() {
                   borderColor: '#FF6F00',
                   innerRadius: 50,
                   duration: 9000,
-                  spinMultiplier:20,
+                  spinMultiplier: 20,
                   backgroundColor: '#FFB300',
                   textAngle: 'horizontal',
                   textStyle: {
@@ -196,15 +211,23 @@ export default function SpinWheelScreen() {
             </View>
 
             <TouchableOpacity
-              style={[styles.spinButton, isSpinning && styles.spinButtonDisabled]}
+              style={[
+                styles.spinButton,
+                (isSpinning || !canSpin) && styles.spinButtonDisabled,
+              ]}
               onPress={handleSpinPress}
-              disabled={isSpinning}
+              disabled={isSpinning || !canSpin}
               activeOpacity={0.8}
             >
               <Text style={styles.spinButtonText}>
-                {isSpinning ? t('spinWheel.spinning') : t('spinWheel.spinNow')}
+                {!canSpin
+                  ? t('spinWheel.tryAgain')
+                  : isSpinning
+                    ? t('spinWheel.spinning')
+                    : t('spinWheel.spinNow')}
               </Text>
             </TouchableOpacity>
+
 
             <View style={styles.bottomRow}>
               <Text style={styles.encouragementText}>

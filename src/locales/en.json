@@ -371,7 +371,7 @@
     "slogan": "Explore Stores Around You",
     "description": "Discover nearby shops, earn rewards, and unlock fun deals every day!",
     "buttons": {
-      "signIn": "Sign In",
+      "signIn": "Log In",
       "signUp": "Sign Up"
     }
   },
@@ -384,5 +384,5 @@
   "settings": "Settings",
   "logout": "Logout",
   "delete_account": "Delete Account",
-  "cash_back": "Cash Back"
+  "cash_back": "Redeemed"
 }

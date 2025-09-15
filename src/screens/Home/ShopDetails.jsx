@@ -90,7 +90,7 @@ const ShopDetails = ({ route }) => {
   const { data: shopData, isLoading: isShopLoading, error: shopError } = useGetShopByIdQuery(id);
 
   const shop = shopData?.data;
-  console.log("ShopDetails  Data: ", data)
+  console.log("ShopDetails  Data: ", shop)
 
 
   const {
@@ -161,7 +161,7 @@ const ShopDetails = ({ route }) => {
   const handleRedeem = ownerId => {
     const points = userPoints?.rewards?.points || 0;
 
-    if (points < 100) {
+    if (points < 40) {
       Toast.show({
         type: 'error',
         text1: 'Not enough points',
@@ -178,65 +178,66 @@ const ShopDetails = ({ route }) => {
 
 
   const handleManualScan = async () => {
-    const hasPermission = await requestLocationPermission();
-    if (!hasPermission) {
-      Toast.show({ type: 'error', text1: t('location_denied') });
-      return;
-    }
+    navigation.navigate("RewardScanner")
+    // const hasPermission = await requestLocationPermission();
+    // if (!hasPermission) {
+    //   Toast.show({ type: 'error', text1: t('location_denied') });
+    //   return;
+    // }
 
-    setIsLoadingShop(true);
+    // setIsLoadingShop(true);
 
-    Geolocation.getCurrentPosition(
-      async position => {
-        const userLat = position.coords.latitude;
-        const userLng = position.coords.longitude;
+    // Geolocation.getCurrentPosition(
+    //   async position => {
+    //     const userLat = position.coords.latitude;
+    //     const userLng = position.coords.longitude;
 
-        console.log('📍 User Location:', {
-          latitude: userLat,
-          longitude: userLng,
-        });
+    //     console.log('📍 User Location:', {
+    //       latitude: userLat,
+    //       longitude: userLng,
+    //     });
 
-        try {
-          const result = await scanShop({
-            shopId: _id,
-            latitude: userLat,
-            longitude: userLng,
-          }).unwrap();
+    //     try {
+    //       const result = await scanShop({
+    //         shopId: _id,
+    //         latitude: userLat,
+    //         longitude: userLng,
+    //       }).unwrap();
 
-          if (result?.success) {
-            Toast.show({
-              type: 'success',
-              text1: t('scanSuccessful'),
-            });
+    //       if (result?.success) {
+    //         Toast.show({
+    //           type: 'success',
+    //           text1: t('scanSuccessful'),
+    //         });
 
-            if (result.data?.scanRewardType === 'percentage') {
-              navigation.navigate('CashbackScreen', {
-                shopId: _id,
-                returnPercent: result.data?.rewardPoints,
-              });
-            } else {
-              navigation.goBack();
-            }
-          } else {
-            Toast.show({ type: 'error', text1: t('scan_failed_try') });
-          }
-        } catch (err) {
-          Toast.show({ type: 'error', text1: err?.data?.message || 'Error' });
-          console.log('❌ Scan error:', err);
-        } finally {
-          setIsLoadingShop(false);
-        }
-      },
-      error => {
-        Toast.show({
-          type: 'error',
-          text1: t('locationError'),
-          text2: error.message,
-        });
-        setIsLoadingShop(false);
-      },
-      { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
-    );
+    //         if (result.data?.scanRewardType === 'percentage') {
+    //           navigation.navigate('CashbackScreen', {
+    //             shopId: _id,
+    //             returnPercent: result.data?.rewardPoints,
+    //           });
+    //         } else {
+    //           navigation.goBack();
+    //         }
+    //       } else {
+    //         Toast.show({ type: 'error', text1: t('scan_failed_try') });
+    //       }
+    //     } catch (err) {
+    //       Toast.show({ type: 'error', text1: err?.data?.message || 'Error' });
+    //       console.log('❌ Scan error:', err);
+    //     } finally {
+    //       setIsLoadingShop(false);
+    //     }
+    //   },
+    //   error => {
+    //     Toast.show({
+    //       type: 'error',
+    //       text1: t('locationError'),
+    //       text2: error.message,
+    //     });
+    //     setIsLoadingShop(false);
+    //   },
+    //   { enableHighAccuracy: true, timeout: 15000, maximumAge: 10000 },
+    // );
   };
 
   // Function

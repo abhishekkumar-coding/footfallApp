@@ -29,7 +29,7 @@ import Spacer from '../components/Spacer';
 import { Colors } from '../utils/Colors';
 import SpinHistoryScreen from './SpinHistoryScreen';
 import EmptySpinWheel from '../utils/icons/EmptySpinWheel';
-import {REACT_APP_DEV_SERVER, REACT_APP_PROD_SERVER} from "@env"
+import { REACT_APP_DEV_SERVER, REACT_APP_PROD_SERVER } from "@env"
 
 const ProfileScreen = () => {
   const { t } = useTranslation();
@@ -38,12 +38,22 @@ const ProfileScreen = () => {
   const [appVersion, setAppVersion] = useState('');
 
   const user = useSelector(state => state.user.user);
-  const { data: userPoints } = useGetWalletSummaryQuery({
+  const {
+    data: userPoints,
+    refetch: refetchWalletSummary, // add this
+  } = useGetWalletSummaryQuery(undefined, {
     refetchOnFocus: true,
+    refetchOnMountOrArgChange: true, // 👈 add this
     pollingInterval: 10000,
   });
-  const rewards = userPoints?.data?.rewards?.points ?? 0;
-  console.log(userPoints);
+
+  useEffect(() => {
+    // optionally refetch when ProfileScreen mounts
+    refetchWalletSummary();
+  }, [refetchWalletSummary]);
+  const rewards = userPoints?.data?.wallet?.totalPoints ?? 0;
+  const cashback = userPoints?.data?.wallet?.redeemed ?? 0;
+  console.log("User point ", userPoints);
 
   const dispatch = useDispatch();
 
@@ -56,11 +66,11 @@ const ProfileScreen = () => {
     fetchVersion();
   }, []);
 
- const devServer = REACT_APP_DEV_SERVER;
-const prodServer = REACT_APP_PROD_SERVER;
+  const devServer = REACT_APP_DEV_SERVER;
+  const prodServer = REACT_APP_PROD_SERVER;
 
-console.log("Development Server:", devServer);
-console.log("Production Server:", prodServer);
+  console.log("Development Server:", devServer);
+  console.log("Production Server:", prodServer);
 
   return (
     <AppLayout>
@@ -76,7 +86,7 @@ console.log("Production Server:", prodServer);
         <Spacer height={hp(2)} />
         <View style={styles.rewardsContainer}>
           <Rewards rewardPoints={rewards} title={t('total_rewards')} color={[Colors.secondary, Colors.quinary]} />
-          <Rewards rewardPoints={rewards} title={t('cash_back')} color={[Colors.splash, Colors.splash_light]} />
+          <Rewards rewardPoints={cashback} title={t('cash_back')} color={[Colors.splash, Colors.splash_light]} />
         </View>
         <Spacer height={hp(3)} />
         <TabButton

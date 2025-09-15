@@ -296,7 +296,8 @@ const styles = StyleSheet.create({
     },
     howItWorksItem: {
         flexDirection: 'row',
-        alignItems: 'flex-start',
+        alignItems: 'center',
+        // justifyContent:"center",
         backgroundColor: "#ffffff25",
         padding: 10,
         borderRadius: 10,
