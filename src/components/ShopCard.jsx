@@ -38,7 +38,7 @@ const ShopCard = ({ shop, onPress }) => {
   try {
     galleryImages = JSON.parse(shop.gallery[0] || '[]');
   } catch (error) {
-    console.warn('Failed to parse gallery JSON:', error);
+    // console.warn('Failed to parse gallery JSON:', error);
   }
 
   const mainImage = galleryImages[0] || shop.cover;

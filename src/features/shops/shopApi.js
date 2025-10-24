@@ -10,24 +10,107 @@ export const shopApi = createApi({
   endpoints: builder => ({
     // shopApi.js
     getAllShops: builder.query({
-      query: ({ category, search }) => {
-        const categoryParam =
-          category && category !== 'all'
-            ? `&category=${encodeURIComponent(category)}`
-            : '';
+  query: ({ page = 1, limit = 10, category, search }) => {
+    const categoryParam =
+      category && category !== "all" ? `&category=${encodeURIComponent(category)}` : "";
+    const searchParam =
+      search && search.trim() !== "" ? `&search=${encodeURIComponent(search)}` : "";
 
-        const searchParam =
-          search && search.trim() !== ''
-            ? `&search=${encodeURIComponent(search)}`
-            : '';
+    return {
+      url: `shop/getAll?page=${page}&limit=${limit}&status=approved${categoryParam}${searchParam}`,
+      method: "GET",
+    };
+  },
 
-        return {
-          url: `shop/getAll?page=1&limit=10&status=approved${categoryParam}${searchParam}`,
-          method: 'GET',
-        };
-      },
-    }),
+  // ✅ **CHANGED**: Create a separate cache for each filter/search combination.
+  serializeQueryArgs: ({ endpointName, queryArgs }) => {
+    const { category, search } = queryArgs;
+    // This ensures that changing a filter starts a new, fresh list.
+    return `${endpointName}-${category || "all"}-${search || ""}`;
+  },
 
+  // ✅ **CHANGED**: Logic to correctly append pages.
+  merge: (currentCache, newItems, { arg }) => {
+    // `arg.page` is the page number that was just fetched.
+    if (arg.page === 1) {
+      // If it's the first page, completely replace the data.
+      // This is crucial for when you change filters or search terms.
+      return newItems;
+    }
+
+    // If it's not the first page, append the new shops to the existing list.
+    if (currentCache.data && newItems.data?.shops) {
+      const existingShops = currentCache.data.shops;
+      const newShops = newItems.data.shops;
+
+      // Prevent adding duplicate shops
+      const uniqueNewShops = newShops.filter(
+        (newShop) => !existingShops.some((oldShop) => oldShop._id === newShop._id)
+      );
+
+      // Use .push() to modify the cache in place (RTK Query uses Immer)
+      currentCache.data.shops.push(...uniqueNewShops);
+      
+      // Update the total number of pages from the latest request
+      currentCache.data.totalPages = newItems.data.totalPages;
+    }
+
+    return currentCache; // Return the modified cache
+  },
+
+  forceRefetch({ currentArg, previousArg }) {
+    // This part is correct and ensures a refetch when page, category, or search changes.
+    return (
+      currentArg?.page !== previousArg?.page ||
+      currentArg?.category !== previousArg?.category ||
+      currentArg?.search !== previousArg?.search
+    );
+  },
+}),
+    // getAllShops: builder.query({
+    //   query: ({ page = 1, limit = 10, category, search }) => {
+    //     const categoryParam =
+    //       category && category !== "all" ? `&category=${encodeURIComponent(category)}` : "";
+    //     const searchParam =
+    //       search && search.trim() !== "" ? `&search=${encodeURIComponent(search)}` : "";
+
+    //     return {
+    //       url: `shop/getAll?page=${page}&limit=${limit}&status=approved${categoryParam}${searchParam}`,
+    //       method: "GET",
+    //     };
+    //   },
+
+    //   // ✅ Cache per filter/search combination, not just endpoint name
+    //   serializeQueryArgs: ({ endpointName, queryArgs }) => {
+    //     const { category, search } = queryArgs;
+    //     return `${endpointName}-${category || "all"}-${search || ""}`;
+    //   },
+
+    //   // ✅ Merge pages into cache
+    //   merge: (currentCache, newCache) => {
+    //     const newShops = newCache?.data?.shops || [];
+    //     if (!currentCache?.data) {
+    //       return { ...newCache };
+    //     }
+
+    //     const existingShops = currentCache.data.shops || [];
+
+    //     const uniqueNewShops = newShops.filter(
+    //       (newShop) => !existingShops.some((old) => old._id === newShop._id)
+    //     );
+
+    //     currentCache.data.shops = [...existingShops, ...uniqueNewShops];
+    //     currentCache.data.totalPages = newCache.data.totalPages;
+    //   },
+
+    //   forceRefetch({ currentArg, previousArg }) {
+    //     return (
+    //       currentArg?.page !== previousArg?.page ||
+    //       currentArg?.category !== previousArg?.category ||
+    //       currentArg?.search !== previousArg?.search
+    //     );
+    //   },
+    // }),
     getShopById: builder.query({
       query: id => ({
         url: `shop/getById/${id}`,

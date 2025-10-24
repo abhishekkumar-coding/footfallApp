@@ -1,7 +1,7 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { fetchBaseQuery } from "@reduxjs/toolkit/query";
-const isProduction = process.env.NODE_ENV !== 'development';
-const baseUrl = isProduction ? 'https://backend.ilovesambhal.com' : 'https://footfall.onrender.com';
+const isProduction = process.env.NODE_ENV === 'development';
+const baseUrl ='https://backend.ilovesambhal.com'
 const baseQuery = async (args, api, extraOptions) => {
     const token = await AsyncStorage.getItem('token');
 console.log("Env: ", process)

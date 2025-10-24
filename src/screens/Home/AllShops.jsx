@@ -6,9 +6,9 @@ import {
   FlatList,
   TouchableOpacity,
   Image,
-  TextInput,
-  ActivityIndicator,
   ScrollView,
+  ActivityIndicator,
+  TextInput,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import { hp, wp, SCREEN_HEIGHT } from "../../utils/dimensions";
@@ -26,17 +26,6 @@ import { useGetAllShopsQuery } from "../../features/shops/shopApi";
 import LinearGradient from "react-native-linear-gradient";
 import AppLayout from "../../layout/AppLayout";
 
-// const CATEGORIES = [
-//   { key: 'all', label: 'All' },
-//   { key: 'kirana / general stores', label: 'Kirana / General stores' },
-//   { key: 'local restaurants / dhabas', label: 'Local restaurants / dhabas' },
-//   { key: 'readymade garments', label: 'Readymade garments' },
-//   { key: 'furniture stores', label: 'Furniture stores' },
-//   { key: 'medical stores', label: 'Medical stores' },
-//   { key: 'mobile repair shops', label: 'Mobile repair shops' },
-//   { key: 'handicrafts', label: 'Handicrafts' },
-//   { key: 'packaged goods resellers', label: 'Packaged goods resellers' },
-// ];
 
 const categories = [
   { key: 'all', label: 'All' },
@@ -122,9 +111,18 @@ const categories = [
       'Flower shops',
     ],
   },
+  {
+    key: 'travel',
+    label: 'Travel',
+    subcategories: [
+      'Flights & Airlines',
+      'Hotels & Stays',
+      'Tours & Activities',
+      'Transport & Rentals',
+    ],
+  },
+
 ];
-
-
 
 const AllShops = () => {
   const { t } = useTranslation();
@@ -138,6 +136,10 @@ const AllShops = () => {
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const searchInputRef = useRef(null);
   const [expandedCategory, setExpandedCategory] = useState(null);
+  const [shops, setShops] = useState([]);
+  const [page, setPage] = useState(1);
+  const [hasMore, setHasMore] = useState(true);
+  const pageForSerch = 1
 
   const toggleCategory = (key) => {
     setExpandedCategory(prev => prev === key ? null : key);
@@ -153,32 +155,81 @@ const AllShops = () => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
-  // Fetch shops
-  const { data: shopData, refetch } = useGetAllShopsQuery(
-    {
-      ...(selectedCategory !== "all" && { category: selectedCategory }),
-      ...(debouncedSearch && { search: debouncedSearch }),
-    },
-    {
-      refetchOnMountOrArgChange: true,
-      refetchOnFocus: true,
+  const limit = 10; // or any number of items per page you wa
+
+  // 🚀 Fetch shops page by page
+  const { data: shopData, isFetching, isLoading: shopsLoading } = useGetAllShopsQuery({
+    page,
+    limit,
+    ...(selectedCategory !== "all" && { category: selectedCategory }),
+    ...(debouncedSearch && { search: debouncedSearch }),
+  });
+
+  const newShops = shopData?.data?.shops || [];
+  const totalPages = shopData?.data?.totalPages || 1;
+
+
+  // 🚀 Reset to page 1 on filter/search change
+  useEffect(() => {
+    setPage(1);
+  }, [selectedCategory, debouncedSearch]);
+
+
+  console.log("Shops data: ", newShops)
+
+  useEffect(() => {
+    if (page === 1) {
+      // Overwrite if it's first page (filter or search changed)
+      setShops(newShops);
+    } else if (newShops.length > 0) {
+      // Append unique shops
+      setShops(prev => {
+        const unique = newShops.filter(
+          s => !prev.some(old => old._id === s._id)
+        );
+        return [...prev, ...unique];
+      });
     }
-  );
 
+    setHasMore(page < totalPages);
+  }, [shopData, page]);
 
-  const shops = useMemo(() => shopData?.data?.shops || [], [shopData]);
+  // 🚀 Load next page on scroll end
+  const handleLoadMore = () => {
+    if (!isFetching && page < totalPages) {
+      setPage((prev) => prev + 1);
+    }
+  };
+  // When category or search changes, clear shops list
+  useEffect(() => {
+    setPage(1);
+    setShops([]);  // ✅ Clear old data
+    setHasMore(true);
+  }, [selectedCategory, debouncedSearch]);
 
-  console.log("All Shops: ", shops)
+  // ✅ Trigger refetch whenever page changes
+  // useEffect(() => {
+  //   refetch();
+  // }, [page, refetch]);
 
+  // ✅ Load wishlist once
   useEffect(() => {
     dispatch(loadWishlist());
   }, [dispatch]);
 
+  // ✅ Loading shimmer for category/filter change
   useEffect(() => {
     setIsLoading(true);
     const timer = setTimeout(() => setIsLoading(false), 800);
     return () => clearTimeout(timer);
   }, [selectedCategory, debouncedSearch]);
+
+  // ✅ Reset page when filters/search change
+  // useEffect(() => {
+  //   setPage(1);
+  //   setHasMore(true);
+  // }, [selectedCategory, debouncedSearch]);
+
 
   // Autofocus on search open
   useEffect(() => {
@@ -187,11 +238,16 @@ const AllShops = () => {
     }
   }, [showSearch]);
 
-  useEffect(() => {
-    if (showSearch) {
-      setTimeout(() => searchInputRef.current?.focus(), 100);
+  const handleCloseSearch = () => {
+    setShowSearch(false);
+    setSearchQuery('');
+    
+    // If a search term was active, clear it immediately to trigger the query refetch
+    // without waiting for the debounce timeout.
+    if (debouncedSearch !== '') {
+      setDebouncedSearch('');
     }
-  }, [showSearch]);
+  };
 
   const renderShop = ({ item }) => (
     <ShopCard
@@ -214,6 +270,11 @@ const AllShops = () => {
     );
   };
 
+  const renderFooter = () =>
+    isFetching && hasMore ? (
+      <ActivityIndicator size="large" color={Colors.purple} style={{ marginVertical: 15 }} />
+    ) : null;
+
   const renderEmpty = () => (
     <View style={styles.emptyContainer}>
       <Text style={styles.emptyText}>{t('noShopsAvailable')}</Text>
@@ -222,6 +283,31 @@ const AllShops = () => {
         source={require('../../../assets/noShop.png')}
         style={styles.emptyImage}
       />
+    </View>
+  );
+
+  /** ✅ Pagination Footer */
+  const PaginationFooter = () => (
+    <View style={styles.paginationContainer}>
+      <TouchableOpacity
+        style={[styles.pageButton, page === 1 && styles.disabledButton]}
+        disabled={page === 1}
+        onPress={() => setPage((prev) => Math.max(prev - 1, 1))}
+      >
+        <Text style={styles.pageButtonText}>Prev</Text>
+      </TouchableOpacity>
+
+      <Text style={styles.pageIndicator}>
+        Page {page} / {totalPages}
+      </Text>
+
+      <TouchableOpacity
+        style={[styles.pageButton, page === totalPages && styles.disabledButton]}
+        disabled={page === totalPages}
+        onPress={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+      >
+        <Text style={styles.pageButtonText}>Next</Text>
+      </TouchableOpacity>
     </View>
   );
 
@@ -239,7 +325,7 @@ const AllShops = () => {
             value={searchQuery}
             onChangeText={setSearchQuery}
           />
-          <TouchableOpacity onPress={() => { setShowSearch(false); setSearchQuery('') }}>
+          <TouchableOpacity onPress={handleCloseSearch}>
             <Icon name="close" size={24} color="#000" />
           </TouchableOpacity>
         </View>
@@ -310,7 +396,7 @@ const AllShops = () => {
           </ScrollView>
         )}
       </View>
-      {isLoading ? (
+      {shopsLoading ? (
         <FlatList
           data={Array.from({ length: 6 })}
           keyExtractor={(_, i) => `skeleton-${i}`}
@@ -323,21 +409,24 @@ const AllShops = () => {
 
       ) : (
         <FlatList
-          data={shops.length > 0 ? shops : []} // Always same type of array
-          keyExtractor={(item, index) => item?._id ?? `empty-${index}`} // Safe key
-          numColumns={2} // Keep fixed columns
-          columnWrapperStyle={{ justifyContent: 'space-between' }}
+          data={shops}
+          keyExtractor={(item) => item._id}
+          renderItem={renderShop}
+          numColumns={2}
+          columnWrapperStyle={{ justifyContent: "space-between" }}
           contentContainerStyle={{
             paddingHorizontal: wp(4),
             paddingBottom: hp(5),
-            flexGrow: 1, // Ensures empty state centers properly
+            flexGrow: 1,
           }}
-          renderItem={renderShop}
-          ListEmptyComponent={renderEmpty}
-
+          onEndReached={handleLoadMore}
+          onEndReachedThreshold={0.5}
+          ListEmptyComponent={!isFetching ? renderEmpty : null}
+          ListFooterComponent={renderFooter}
         />
       )
       }
+      {/* {totalPages > 1 && <PaginationFooter />} */}
     </AppLayout>
   );
 };
@@ -473,5 +562,31 @@ const styles = StyleSheet.create({
     fontSize: RFValue(14, SCREEN_HEIGHT),
     color: "#fff",
     fontFamily: Fonts.primary_Regular,
+  },
+  paginationContainer: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    paddingVertical: hp(1.5),
+    // backgroundColor: "rgba(255,255,255,0.05)",
+  },
+  pageButton: {
+    paddingHorizontal: wp(4),
+    paddingVertical: hp(0.8),
+    backgroundColor: Colors.purple,
+    borderRadius: 20,
+    marginHorizontal: wp(2),
+  },
+  disabledButton: {
+    opacity: 0.4,
+  },
+  pageButtonText: {
+    color: "#fff",
+    fontFamily: Fonts.primary_SemiBold,
+  },
+  pageIndicator: {
+    color: "#fff",
+    fontFamily: Fonts.primary_Regular,
+    fontSize: RFValue(14, SCREEN_HEIGHT),
   },
 });

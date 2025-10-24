@@ -115,9 +115,9 @@ const HomeScreen = ({ navigation }) => {
                 <AutoSlider />
               </>
             )}
-            {featuredShopsData?.data?.length > 0 && (
+            {/* {featuredShopsData?.data?.length > 0 && (
               <FeaturedShopsSection ref={refs('featuredShopsRef')}
-              />)}
+              />)} */}
           </View>
           <ShopList navigation={navigation} ref={refs('shopListRef')} />
         </View>
