@@ -191,7 +191,7 @@ const ShopList = forwardRef(({ navigation, selectedCategory = "all" }, ref) => {
           contentContainerStyle={styles.listContent}
           numColumns={2}
           onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.1} // ✅ Trigger when 50% from the bottom        
+          onEndReachedThreshold={0.9} // ✅ Trigger when 50% from the bottom        
           ListEmptyComponent={EmptyComponent}
           ListFooterComponent={renderFooter} // ✅ Add the footer
         />
@@ -207,6 +207,9 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    // borderWidth:1,
+    // borderColor:"white",
+    width:"100%",
     paddingHorizontal: wp(5),
     marginBottom: hp(1),
   },
@@ -276,3 +279,4 @@ const styles = StyleSheet.create({
 });
 
 export default ShopList;
+

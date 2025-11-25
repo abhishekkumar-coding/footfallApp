@@ -420,7 +420,7 @@ const AllShops = () => {
             flexGrow: 1,
           }}
           onEndReached={handleLoadMore}
-          onEndReachedThreshold={0.5}
+          onEndReachedThreshold={0.9}
           ListEmptyComponent={!isFetching ? renderEmpty : null}
           ListFooterComponent={renderFooter}
         />
