@@ -22,6 +22,7 @@ import { createNotificationChannel, setupNotificationListeners, } from './src/fe
 import DynamicLinkHandler from './src/utils/DynamicLinkHandler';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
 import { linking } from './linking';
+import { withStallion } from 'react-native-stallion';
 
 import { KeyboardProvider } from "react-native-keyboard-controller";
 
@@ -109,7 +110,7 @@ const App = () => {
   );
 };
 
-export default App;
+export default withStallion(App);
 
 const styles = StyleSheet.create({
   container: {
