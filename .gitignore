@@ -78,3 +78,7 @@ android/app/release/app-release.apk
 
 # Environment variables
 .env
+# hot-updater
+.env.hotupdater
+# hot-updater
+.hot-updater/output
